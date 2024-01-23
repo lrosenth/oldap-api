@@ -1,7 +1,9 @@
-from flask import Flask
 from omaslib.src.connection import Connection
 
-app = Flask(__name__)
+import factory
+
+app = factory.factory()
+
 
 @app.route('/')
 def hello_world():  # put application's code here
@@ -11,6 +13,7 @@ def hello_world():  # put application's code here
                          credentials="RioGrande",
                          context_name="DEFAULT")
     return con.token
+
 
 if __name__ == '__main__':
     app.run()
