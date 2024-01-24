@@ -25,6 +25,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/login_response_200'
+        400:
+          description: Invalid content type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/login_response_400'
         "401":
           description: "Unauthorized"
           content:
@@ -131,6 +137,12 @@ components:
       type: object
       properties:
         token:
+          type: string
+    login_response_400:
+      description: if no JSON is sent
+      type: object
+      properties:
+        message:
           type: string
     login_response_401:
       type: object
