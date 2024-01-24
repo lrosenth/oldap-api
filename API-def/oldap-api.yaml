@@ -5,8 +5,8 @@ info:
   description: RESTful API for oldap
   version: 0.1.0
 servers:
-- url: https://virtserver.swaggerhub.com/rosenth/oldap-api/0.1.0
-  description: SwaggerHub API Auto Mocking
+- url: http://127.0.0.1:5000
+  description: local server...
 paths:
   /admin/login:
     post:
@@ -31,6 +31,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/login_response_401'
+    delete:
+      summary: "Logout"
+      description: "Logout from system"
+      security:
+        - AccessToken: []
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Bad Request"
   /admin/user/{userid}:
     get:
       summary: "Get user info"
