@@ -10,7 +10,7 @@ servers:
 paths:
   /admin/auth:
     post:
-      summary: Authentification
+      summary: Authentification/login
       description: Perform login/logout with userid/password. Returns a JWT token.
       requestBody:
         content:
