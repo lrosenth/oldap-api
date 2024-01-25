@@ -101,6 +101,30 @@ paths:
                     type: string
                   useriri:
                     type: string
+        400:
+          description: "Feldrequirement fehlt"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+        409:
+          description: "Userid or useriri already exists"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+        422:
+          description: "Passwort zu insicher - wird daher nicht bearbeitet"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
         500:
           description: "Internal Server error"
     post:
@@ -123,6 +147,22 @@ paths:
       responses:
         "200":
           description: "OK"
+        400:
+          description: "Form/Inhalt der übermittelten Daten stimmt nicht"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+        404:
+          description: "Userid not found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
         500:
           description: "Internal Server error"
 
