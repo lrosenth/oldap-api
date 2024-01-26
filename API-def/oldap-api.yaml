@@ -186,17 +186,14 @@ components:
             properties:
               project:
                 type: string
-              rights:
-                type: string
-        in_groups:
+              permissions:
+                type: array
+                items:
+                  type: string
+        has_permissions:
           type: array
           items:
-            type: object
-            properties:
-              group:
-                type: string
-              rights:
-                type: string
+            type: string
     admin_auth_body:
       type: object
       properties:
@@ -237,17 +234,14 @@ components:
             properties:
               project:
                 type: string
-              rights:
-                type: string
-        in_groups:
+              permissions:
+                type: array
+                items:
+                  type: string
+        has_permissions:
           type: array
           items:
-            type: object
-            properties:
-              group:
-                type: string
-              rights:
-                type: string
+            type: string
       required:
         - firstname
         - lastname
@@ -257,13 +251,11 @@ components:
       type: object
       properties:
         firstname:
-          type:
-            string
+          type: string
         lastname:
           type: string
         password:
-          type:
-            string
+          type: string
         in_project:
           type:
             array
@@ -271,11 +263,9 @@ components:
             type: object
             properties:
               project_id:
-                type:
-                  string
+                type: string
               right:
-                type:
-                  string
+                type: string
   securitySchemes:
     AccessToken:
       type: http
