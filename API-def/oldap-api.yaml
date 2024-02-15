@@ -222,6 +222,9 @@ components:
           type: string
         lastname:
           type: string
+        NCName:
+          description: Nickname/Shortname
+          type: string
         password:
           type: string
           minLength: 8
