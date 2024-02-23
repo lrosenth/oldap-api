@@ -12,6 +12,7 @@ from omaslib.src.user import User
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
+# Function to log into a user
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.is_json:
@@ -31,6 +32,7 @@ def login():
     else:
         return jsonify({"error": "Invalid content type, JSON required"}), 400
 
+# Function to create a user
 @bp.route('/user/<userid>', methods=['PUT'])
 def create_user(userid):
     # We get a html request with a header that contains a user token as well as a body with a json
@@ -68,14 +70,35 @@ def create_user(userid):
         except OmasError as error:
             print(error)
     return "User Created!!"
-# @bp.route('/user/<userid>', methods=['GET'])
-# def read_users(userid):
-#     # hier das Token aus dem Header auslesen!
-#
-#     con = Connection(server='http://localhost:7200',
-#                      repo="omas",
-#                      token=token,
-#                      context_name="DEFAULT")
-#
-#     # Das hier ist dann die Read Anfrage!
-#     user = User.read(con=self._connection, userId="rosenth")
+
+
+# Function to read the contents of a user
+@bp.route('/user/<userid>', methods=['GET'])
+def read_users(userid):
+
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    con = Connection(server='http://localhost:7200',
+                     repo="omas",
+                     token=token,
+                     context_name="DEFAULT")
+
+    # Das hier ist dann die Read Anfrage!
+    user = User.read(con=con, userId=userid)
+    print("Bis hier schaff ichs")
+    # Building the response json
+    answer = {
+        "useriri": str(user.userIri),
+        "userid": str(user.userId),
+        "lastname": str(user.familyName),
+        "firstname": str(user.givenName),
+        "in_projects": str(user.inProject),
+        "has_permissions": str(user.hasPermissions)
+    }
+
+    return jsonify(answer)
+
+
+# Function to delete a user
+# @bp.route('/user/<userid>', methods=['DELETE'])
