@@ -72,6 +72,26 @@ paths:
           description: "Not Found"
         500:
           description: "Internal Server error"
+    delete:
+      summary: "Delete a user"
+      description: "The user that has the rights (given by his token) deletes another user"
+      security:
+        - AccessToken: []
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+        "401":
+          description: "Unauthorized"
+        "404":
+          description: "Not Found"
+        500:
+          description: "Internal Server error"
     put:
       summary: "Create a new user"
       description: "Create a new user with the given data"
