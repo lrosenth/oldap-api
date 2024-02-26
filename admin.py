@@ -86,16 +86,20 @@ def read_users(userid):
 
     # Das hier ist dann die Read Anfrage!
     user = User.read(con=con, userId=userid)
-    print("Bis hier schaff ichs")
+
     # Building the response json
     answer = {
         "useriri": str(user.userIri),
         "userid": str(user.userId),
         "lastname": str(user.familyName),
         "firstname": str(user.givenName),
-        "in_projects": str(user.inProject),
-        "has_permissions": str(user.hasPermissions)
+        "in_projects": [],
+        "has_permissions": [str(x) for x in user.hasPermissions]
     }
+
+    for projname, permissions in user.inProject.items():
+        proj = {"project": str(projname), "permissions": [x.value for x in permissions]}
+        answer["in_projects"].append(proj)
 
     return jsonify(answer)
 
