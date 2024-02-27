@@ -105,4 +105,18 @@ def read_users(userid):
 
 
 # Function to delete a user
-# @bp.route('/user/<userid>', methods=['DELETE'])
+@bp.route('/user/<userid>', methods=['DELETE'])
+def delete_user(userid):
+
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    con = Connection(server='http://localhost:7200',
+                     repo="omas",
+                     token=token,
+                     context_name="DEFAULT")
+
+    user3 = User.read(con=con, userId=userid)
+    user3.delete()
+
+    return "user deleted"
