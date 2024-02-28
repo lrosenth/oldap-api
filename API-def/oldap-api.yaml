@@ -279,16 +279,21 @@ components:
           type: string
         password:
           type: string
-        in_project:
-          type:
-            array
+        in_projects:
+          type: array
           items:
             type: object
             properties:
-              project_id:
+              project:
                 type: string
-              right:
-                type: string
+              permissions:
+                type: array
+                items:
+                  type: string
+        has_permissions:
+          type: array
+          items:
+            type: string
   securitySchemes:
     AccessToken:
       type: http
