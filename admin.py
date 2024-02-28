@@ -120,3 +120,38 @@ def delete_user(userid):
     user3.delete()
 
     return "user deleted"
+
+
+# Function to alter/modify a user
+@bp.route('/user/<userid>', methods=['POST'])
+def modify_user(userid):
+
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        firstname = data.get("firstname", None)
+        lastname = data.get("lastname", None)
+        password = data.get("password", None)
+        in_project = data.get("in_project", [])
+
+        con = Connection(server='http://localhost:7200',
+                         repo="omas",
+                         token=token,
+                         context_name="DEFAULT")
+
+        user2 = User.read(con=con, userId=userid)  # read the user from the triple store
+
+        if firstname is not None:
+            user2.givenName = firstname
+        if lastname is not None:
+            user2.familyName = lastname
+        if password is not None:
+            user2.credentials = password
+        if not in_project:  # if list/array is not empty
+            user2.in_project = in_project
+
+        user2.update()
+
+        return "user updated"
