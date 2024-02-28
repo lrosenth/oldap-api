@@ -37,22 +37,26 @@ def login():
 def create_user(userid):
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
-    # TODO: Check for optional fields
+    # TODO: Check for optional fields... Firstname, Lastname und Passwort sind necessary, rest ist optional
+
+    # TODO: die "has_permissions" muss auch noch per json übergeben werden können
     out = request.headers['Authorization']
     b, token = out.split()
     if request.is_json:
         data = request.get_json()
-        userid = data['NCName']
+        userid = data.get('NCName', None)  # TODO: Ist userid wirklich optional?
         familyname = data['lastname']
         givenname = data['firstname']
         credentials = data['password']
-        inproject = data['in_projects']
+        inproject = data.get('in_projects', None)
 
-        in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
-        for item in inproject:
-            project_name = item["project"]
-            permissions = {AdminPermission(x) for x in item["permissions"]}
-            in_project_dict[AnyIRI(project_name)] = permissions
+        # If "inproject" is given by the creation json, fill it...
+        if inproject is not None:
+            in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
+            for item in inproject:
+                project_name = item["project"]
+                permissions = {AdminPermission(x) for x in item["permissions"]}
+                in_project_dict[AnyIRI(project_name)] = permissions
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -65,7 +69,7 @@ def create_user(userid):
                         given_name=givenname,
                         credentials=credentials,
                         inProject=in_project_dict,
-                        hasPermissions={QName('omas:GenericView')})
+                        hasPermissions={QName('omas:GenericView')})  # TODO: Wie löst man hier, dass haspermissions optional sein kann?
             user.create()
         except OmasError as error:
             print(error)
@@ -76,6 +80,7 @@ def create_user(userid):
 @bp.route('/user/<userid>', methods=['GET'])
 def read_users(userid):
 
+    # TODO: Was kommt zurück wenn optional nicht definiert ist???
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -134,7 +139,8 @@ def modify_user(userid):
         firstname = data.get("firstname", None)
         lastname = data.get("lastname", None)
         password = data.get("password", None)
-        in_project = data.get("in_project", [])
+        in_project = data.get("in_project", None)
+        has_permissions = data.get("has_permissions", None)
 
         con = Connection(server='http://localhost:7200',
                          repo="omas",
@@ -149,8 +155,10 @@ def modify_user(userid):
             user2.familyName = lastname
         if password is not None:
             user2.credentials = password
-        if not in_project:  # if list/array is not empty
+        if in_project is not None:
             user2.in_project = in_project
+        if has_permissions is not None:
+            user2.has_permissions = has_permissions
 
         user2.update()
 
