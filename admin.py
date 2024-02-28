@@ -51,8 +51,8 @@ def create_user(userid):
         inproject = data.get('in_projects', None)
 
         # If "inproject" is given by the creation json, fill it...
+        in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
         if inproject is not None:
-            in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
             for item in inproject:
                 project_name = item["project"]
                 permissions = {AdminPermission(x) for x in item["permissions"]}
