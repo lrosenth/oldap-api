@@ -47,14 +47,14 @@ paths:
           description: "Bad Request"
         500:
           description: "Internal Server error"
-  /admin/user/{userid}:
+  /admin/user/{userId}:
     get:
       summary: "Get user info"
       description: "Get all information about a user"
       security:
-        - AccessToken: []
+        - AccessToken: [ ]
       parameters:
-        - name: userid
+        - name: userId
           in: path
           required: true
           schema:
@@ -76,9 +76,9 @@ paths:
       summary: "Delete a user"
       description: "The user that has the rights (given by his token) deletes another user"
       security:
-        - AccessToken: []
+        - AccessToken: [ ]
       parameters:
-        - name: userid
+        - name: userId
           in: path
           required: true
           schema:
@@ -96,9 +96,9 @@ paths:
       summary: "Create a new user"
       description: "Create a new user with the given data"
       security:
-        - AccessToken: []
+        - AccessToken: [ ]
       parameters:
-        - name: userid
+        - name: userId
           in: path
           required: true
           schema:
@@ -151,9 +151,9 @@ paths:
       summary: "Modify a user"
       description: "Modify value(s) of a user definition."
       security:
-        - AccessToken: []
+        - AccessToken: [ ]
       parameters:
-        - name: userid
+        - name: userId
           in: path
           required: true
           schema:
@@ -191,13 +191,13 @@ components:
     user_get_body_200:
       type: object
       properties:
-        useriri:
+        userIri:
           type: string
-        userid:
+        userId:
           type: string
-        lastname:
+        family_name:
           type: string
-        firstname:
+        given_name:
           type: string
         in_projects:
           type: array
@@ -238,9 +238,9 @@ components:
     new_user:
       type: object
       properties:
-        firstname:
+        given_name:
           type: string
-        lastname:
+        family_name:
           type: string
         NCName:
           description: Nickname/Shortname
@@ -248,7 +248,7 @@ components:
         password:
           type: string
           minLength: 8
-        useriri:
+        userIri:
           type: string
         in_projects:
           type: array
@@ -266,16 +266,16 @@ components:
           items:
             type: string
       required:
-        - firstname
-        - lastname
+        - given_name
+        - family_name
         - password
 
     mod_user:
       type: object
       properties:
-        firstname:
+        given_name:
           type: string
-        lastname:
+        family_name:
           type: string
         password:
           type: string
