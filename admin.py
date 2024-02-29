@@ -32,6 +32,7 @@ def login():
     else:
         return jsonify({"error": "Invalid content type, JSON required"}), 400
 
+
 # Function to create a user
 @bp.route('/user/<userid>', methods=['PUT'])
 def create_user(userid):
