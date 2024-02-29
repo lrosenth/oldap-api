@@ -95,10 +95,10 @@ def read_users(userid):
 
     # Building the response json
     answer = {
-        "useriri": str(user.userIri),
-        "userid": str(user.userId),
-        "lastname": str(user.familyName),
-        "firstname": str(user.givenName),
+        "userIri": str(user.userIri),
+        "userId": str(user.userId),
+        "family_name": str(user.familyName),
+        "given_name": str(user.givenName),
         "in_projects": [],
         "has_permissions": [str(x) for x in user.hasPermissions]
     }
