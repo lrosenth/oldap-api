@@ -10,6 +10,7 @@ class ConnectionManager:
 
     def __init__(self, jwt_secret: str):
         self._jwt_secret = jwt_secret
+        Connection.jwtkey = jwt_secret
 
     @property
     def jwt_secret(self) -> str:
@@ -20,7 +21,7 @@ def connection_manager():
     cmanager = ConnectionManager("ABCDEFGHIJKLMNOPQRESTUVWXYZ0123456")
     return cmanager
 
-@pytest.fixture()
+@pytest.fixture
 def app():
     app = factory()
     app.config.update({

@@ -6,35 +6,42 @@ from omaslib.src.connection import Connection
 from omaslib.src.enums.permissions import AdminPermission
 from omaslib.src.helpers.datatypes import AnyIRI, NCName, QName
 from omaslib.src.helpers.observable_set import ObservableSet
-from omaslib.src.helpers.omaserror import OmasError
+from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.user import User
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-@bp.route('/hello', methods=['GET'])
-def hello():
-    return 'hello world!'
 
 # Function to log into a user
-@bp.route('/auth', methods=['GET', 'POST'])
-def login():
+@bp.route('/auth/<userid>', methods=['POST'])
+def login(userid):
     if request.is_json:
         data = request.get_json()
-        username = data['userid']
-        password = data['password']
+        password = data.get('password')
+        if password is None:
+            return jsonify({"message": "Invalid content type, JSON required"}), 400
         try:
             con = Connection(server='http://localhost:7200',
                              repo="omas",
-                             userId=username,
+                             userId=userid,
                              credentials=password,
                              context_name="DEFAULT")
             resp = jsonify({'message': 'Login succeeded', 'token': con.token})
             return resp
+        except OmasErrorNotFound as err:
+            return jsonify({'message': str(err)}), 404
         except OmasError as err:
             return jsonify({'message': str(err)}), 401
     else:
-        return jsonify({"error": "Invalid content type, JSON required"}), 400
+        return jsonify({"message": "Invalid content type, JSON required"}), 400
+
+
+@bp.route('/auth/<userid>', methods=['DELETE'])
+def logout(userid):
+    #
+    # TODO: how to make a logout??? OMASLIB does not yet have a solution! So we just return 200
+    return '', 200
 
 
 # Function to create a user

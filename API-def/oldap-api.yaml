@@ -8,10 +8,16 @@ servers:
 - url: http://127.0.0.1:5000
   description: local server...
 paths:
-  /admin/auth:
+  /admin/auth/{userId}:
     post:
       summary: Authentification/login
       description: Perform login/logout with userid/password. Returns a JWT token.
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -33,6 +39,12 @@ paths:
                 $ref: '#/components/schemas/auth_response_400'
         "401":
           description: "Unauthorized"
+        404:
+          description: "User not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/auth_response_404'
         500:
           description: "Internal Server error"
     delete:
@@ -217,12 +229,9 @@ components:
     admin_auth_body:
       type: object
       properties:
-        userid:
-          type: string
         password:
           type: string
       required:
-        - userid
         - password
     auth_response_200:
       type: object
@@ -231,6 +240,12 @@ components:
           type: string
     auth_response_400:
       description: if no JSON is sent
+      type: object
+      properties:
+        message:
+          type: string
+    auth_response_404:
+      description: if user not found
       type: object
       properties:
         message:
