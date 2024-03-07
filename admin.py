@@ -17,7 +17,7 @@ def hello():
     return 'hello world!'
 
 # Function to log into a user
-@bp.route('/login', methods=['GET', 'POST'])
+@bp.route('/auth', methods=['GET', 'POST'])
 def login():
     if request.is_json:
         data = request.get_json()
@@ -29,10 +29,10 @@ def login():
                              userId=username,
                              credentials=password,
                              context_name="DEFAULT")
-            resp = jsonify({'message': 'Erfolgreich eingeloggd', 'Token': con.token})
+            resp = jsonify({'message': 'Login succeeded', 'token': con.token})
             return resp
-        except OmasError:
-            pass
+        except OmasError as err:
+            return jsonify({'message': str(err)}), 401
     else:
         return jsonify({"error": "Invalid content type, JSON required"}), 400
 
