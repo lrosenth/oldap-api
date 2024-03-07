@@ -238,19 +238,18 @@ components:
     new_user:
       type: object
       properties:
-        given_name:
+        givenName:
           type: string
-        family_name:
-          type: string
-        NCName:
-          description: Nickname/Shortname
+        familyName:
           type: string
         password:
           type: string
           minLength: 8
         userIri:
           type: string
-        in_projects:
+        inProjects:
+          description: "The project field is the QName of the project,
+          the permissions is a sets of admin permissions."
           type: array
           items:
             type: object
@@ -261,25 +260,34 @@ components:
                 type: array
                 items:
                   type: string
-        has_permissions:
+                  enum:
+                    - ADMIN_OLDAP
+                    - ADMIN_USERS
+                    - ADMIN_PERMISSION_SETS
+                    - ADMIN_RESOURCES
+                    - ADMIN_MODEL
+                    - ADMIN_CREATE
+
+        hasPermissions:
+          description: "Lust be a list of QNames of the permission sets."
           type: array
           items:
             type: string
       required:
-        - given_name
-        - family_name
+        - givenName
+        - familyName
         - password
 
     mod_user:
       type: object
       properties:
-        given_name:
+        givenName:
           type: string
-        family_name:
+        familyName:
           type: string
         password:
           type: string
-        in_projects:
+        inProjects:
           type: array
           items:
             type: object
@@ -290,7 +298,7 @@ components:
                 type: array
                 items:
                   type: string
-        has_permissions:
+        hasPermissions:
           type: array
           items:
             type: string
