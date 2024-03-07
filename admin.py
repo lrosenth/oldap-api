@@ -12,6 +12,9 @@ from omaslib.src.user import User
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
+@bp.route('/hello', methods=['GET'])
+def hello():
+    return 'hello world!'
 
 # Function to log into a user
 @bp.route('/login', methods=['GET', 'POST'])
@@ -23,7 +26,7 @@ def login():
         try:
             con = Connection(server='http://localhost:7200',
                              repo="omas",
-                             userid=username,
+                             userId=username,
                              credentials=password,
                              context_name="DEFAULT")
             resp = jsonify({'message': 'Erfolgreich eingeloggd', 'Token': con.token})
