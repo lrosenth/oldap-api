@@ -40,7 +40,7 @@ def create_user(userid):
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
     # TODO: Check for optional fields... Firstname, Lastname und Passwort sind necessary, rest ist optional
-
+    # TODO: All responses need to be the same as in the yaml file described
     # TODO: die "has_permissions" muss auch noch per json übergeben werden können
     out = request.headers['Authorization']
     b, token = out.split()
@@ -51,7 +51,7 @@ def create_user(userid):
             givenname = str(data['givenName'])
             credentials = str(data['password'])
         except KeyError:
-            # ToDo: Missing fiedd - error message
+            # ToDo: Missing field - error message
             pass
 
         inprojects = data.get('inProjects', None)
@@ -87,6 +87,8 @@ def create_user(userid):
         except OmasError as error:
             print("=====>", error)
             return "Failure!!!!!!!!!!!!"
+    else:
+        return jsonify({"message": "JSON expected. Instead received {request.content_type}"}), 400
     return "User Created!!"
 
 
