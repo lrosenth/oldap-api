@@ -3,10 +3,11 @@ from typing import Dict, Set
 import jwt
 from flask import Blueprint, request, jsonify
 from omaslib.src.connection import Connection
+from omaslib.src.enums.permissions import AdminPermission
 from omaslib.src.helpers.datatypes import AnyIRI, NCName, QName
 from omaslib.src.helpers.observable_set import ObservableSet
 from omaslib.src.helpers.omaserror import OmasError
-from omaslib.src.helpers.permissions import AdminPermission
+from omaslib.src.in_project import InProjectClass
 from omaslib.src.user import User
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -45,19 +46,29 @@ def create_user(userid):
     b, token = out.split()
     if request.is_json:
         data = request.get_json()
-        userid = data.get('NCName', None)  # TODO: Ist userid wirklich optional?
-        familyname = data['lastname']
-        givenname = data['firstname']
-        credentials = data['password']
-        inproject = data.get('in_projects', None)
+        try:
+            familyname = str(data['familyName'])
+            givenname = str(data['givenName'])
+            credentials = str(data['password'])
+        except KeyError:
+            # ToDo: Missing fiedd - error message
+            pass
+
+        inprojects = data.get('inProjects', None)
+        haspermissions = data.get('hasPermissions', None)
 
         # If "inproject" is given by the creation json, fill it...
         in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
-        if inproject is not None:
-            for item in inproject:
+        if inprojects is not None:
+            for item in inprojects:
                 project_name = item["project"]
-                permissions = {AdminPermission(x) for x in item["permissions"]}
+                permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}  # TODO AdminPermission kann eine fehlermeldung geben wenn x nicht richtig ist
                 in_project_dict[AnyIRI(project_name)] = permissions
+
+        if haspermissions is not None:
+            permission_set = {QName(f'omas:{x}') for x in haspermissions}
+        else:
+            permission_set = None
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -66,14 +77,16 @@ def create_user(userid):
                              context_name="DEFAULT")
             user = User(con=con,
                         userId=NCName(userid),
-                        family_name=familyname,
-                        given_name=givenname,
+                        familyName=familyname,
+                        givenName=givenname,
                         credentials=credentials,
                         inProject=in_project_dict,
-                        hasPermissions={QName('omas:GenericView')})  # TODO: Wie löst man hier, dass haspermissions optional sein kann?
+                        hasPermissions=permission_set)  # TODO: Wie löst man hier, dass haspermissions optional sein kann? -> am anfang auf none initiieren // TODO: hasPermissions durchiterieren
+            print(str(user))
             user.create()
         except OmasError as error:
-            print(error)
+            print("=====>", error)
+            return "Failure!!!!!!!!!!!!"
     return "User Created!!"
 
 
@@ -81,7 +94,7 @@ def create_user(userid):
 @bp.route('/user/<userid>', methods=['GET'])
 def read_users(userid):
 
-    # TODO: Was kommt zurück wenn optional nicht definiert ist???
+    # TODO: Was kommt zurück wenn optional nicht definiert ist??? -> leerer array
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -113,7 +126,7 @@ def read_users(userid):
 # Function to delete a user
 @bp.route('/user/<userid>', methods=['DELETE'])
 def delete_user(userid):
-
+    # TODO: Fehlerbehandlung wenn user nicht existiert
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -137,11 +150,23 @@ def modify_user(userid):
 
     if request.is_json:
         data = request.get_json()
-        firstname = data.get("firstname", None)
-        lastname = data.get("lastname", None)
+        firstname = data.get("givenName", None)
+        lastname = data.get("familyName", None)
         password = data.get("password", None)
-        in_project = data.get("in_project", None)
-        has_permissions = data.get("has_permissions", None)
+        inprojects = data.get('inProjects', None)
+        haspermissions = data.get('hasPermissions', None)
+
+        in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
+
+        if inprojects is not None:
+            for item in inprojects:
+                project_name = item["project"]
+                permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}  # TODO AdminPermission kann eine fehlermeldung geben wenn x nicht den zulässigen strings (adminoldap use) entspricht
+                in_project_dict[QName(project_name)] = permissions
+
+        permission_set = None
+        if haspermissions is not None:
+            permission_set = {QName(f'omas:{x}') for x in haspermissions}
 
         con = Connection(server='http://localhost:7200',
                          repo="omas",
@@ -150,17 +175,20 @@ def modify_user(userid):
 
         user2 = User.read(con=con, userId=userid)  # read the user from the triple store
 
-        if firstname is not None:
+        if firstname:
             user2.givenName = firstname
-        if lastname is not None:
+        if lastname:
             user2.familyName = lastname
-        if password is not None:
+        if password:
             user2.credentials = password
-        if in_project is not None:
-            user2.in_project = in_project
-        if has_permissions is not None:
-            user2.has_permissions = has_permissions
+        if in_project_dict:
+            user2.inProject = InProjectClass(in_project_dict)
+        if permission_set:
+            user2.hasPermissions = permission_set
 
-        user2.update()
+        try:
+            user2.update()
+        except Exception as e:
+            print("=====>", e)
 
         return "user updated"
