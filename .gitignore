@@ -1,2 +1,5 @@
 /__pycache__
 /test/__pycache__
+/.coverage
+/poetry.lock
+/.idea/dataSources.xml
