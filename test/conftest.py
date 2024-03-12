@@ -1,6 +1,9 @@
+from time import sleep
+
 import pytest
 import jwt
 from omaslib.src.connection import Connection
+from omaslib.src.helpers.datatypes import QName
 
 from factory import factory
 
@@ -27,7 +30,14 @@ def app():
     app.config.update({
         'TESTING': True,
     })
-
+    con = Connection(server='http://localhost:7200',
+                     repo="omas",
+                     userId="rosenth",
+                     credentials="RioGrande",
+                     context_name="DEFAULT")
+    con.clear_graph(QName('omas:admin'))
+    con.upload_turtle("/Users/rosman00/Library/Caches/pypoetry/virtualenvs/oldap-api-rl24mTKu-py3.12/lib/python3.12/site-packages/omaslib/ontologies/admin.trig")
+    sleep(1)
     yield app
 
 
