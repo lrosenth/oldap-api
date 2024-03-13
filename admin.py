@@ -6,7 +6,7 @@ from omaslib.src.connection import Connection
 from omaslib.src.enums.permissions import AdminPermission
 from omaslib.src.helpers.datatypes import AnyIRI, NCName, QName
 from omaslib.src.helpers.observable_set import ObservableSet
-from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound
+from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.user import User
 
@@ -49,9 +49,6 @@ def logout(userid):
 def create_user(userid):
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
-    # TODO: Check for optional fields... Firstname, Lastname und Passwort sind necessary, rest ist optional
-    # TODO: All responses need to be the same as in the yaml file described
-    # TODO: die "has_permissions" muss auch noch per json übergeben werden können
     out = request.headers['Authorization']
     b, token = out.split()
     if request.is_json:
@@ -60,9 +57,8 @@ def create_user(userid):
             familyname = str(data['familyName'])
             givenname = str(data['givenName'])
             credentials = str(data['password'])
-        except KeyError:
-            # ToDo: Missing field - error message
-            pass
+        except KeyError as error:
+            return jsonify({'message': f'Missing field {str(error)}'}), 400
 
         inprojects = data.get('inProjects', None)
         haspermissions = data.get('hasPermissions', None)
@@ -72,7 +68,10 @@ def create_user(userid):
         if inprojects is not None:
             for item in inprojects:
                 project_name = item["project"]
-                permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}  # TODO AdminPermission kann eine fehlermeldung geben wenn x nicht richtig ist
+                try:
+                    permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}  # TODO AdminPermission kann eine fehlermeldung geben wenn x nicht richtig ist (gelöst(?))
+                except ValueError as error:
+                    return jsonify({'message': f'The given project project permission is not a valid one'}), 400  # TODO: Stimmt diese Fehlermeldung überhaupt?
                 in_project_dict[AnyIRI(project_name)] = permissions
 
         if haspermissions is not None:
@@ -92,14 +91,12 @@ def create_user(userid):
                         credentials=credentials,
                         inProject=in_project_dict,
                         hasPermissions=permission_set)  # TODO: Wie löst man hier, dass haspermissions optional sein kann? -> am anfang auf none initiieren // TODO: hasPermissions durchiterieren
-            print(str(user))
             user.create()
-        except OmasError as error:
-            print("=====>", error)
-            return "Failure!!!!!!!!!!!!"
+        except OmasErrorAlreadyExists as error:
+            return jsonify({"message": str(error)}), 409
     else:
-        return jsonify({"message": "JSON expected. Instead received {request.content_type}"}), 400
-    return "User Created!!"
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+    return jsonify({"message": f"User {userid} created", "userIri": f"{userid}"})
 
 
 # Function to read the contents of a user
