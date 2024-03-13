@@ -44,3 +44,13 @@ def app():
 @pytest.fixture()
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture()
+def token_headers(app, client):
+    login = client.post('/admin/auth/rosenth', json={'password': 'RioGrande'})
+    token = login.json['token']
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+    return token, headers
