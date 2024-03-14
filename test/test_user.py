@@ -124,3 +124,55 @@ def test_wrong_projectpermission(client, token_headers):
     assert 'message' in res
     assert res['message'] == "The given project project permission is not a valid one"
 
+
+def test_bad_projectname(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/rosman', json={
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "KAPPPAAA!!!",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasPermissions": [
+            "GenericView"
+        ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    assert 'message' in res
+    assert res['message'] == "The given projectname is not a valid anyIri"
+
+
+def test_permission_QName(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/rosman', json={
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasPermissions": [
+            "KAPPA!!!!!"
+        ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    assert 'message' in res
+    assert res['message'] == "The given permission is not a QName"
+
+
+

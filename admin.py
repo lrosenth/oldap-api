@@ -6,7 +6,7 @@ from omaslib.src.connection import Connection
 from omaslib.src.enums.permissions import AdminPermission
 from omaslib.src.helpers.datatypes import AnyIRI, NCName, QName
 from omaslib.src.helpers.observable_set import ObservableSet
-from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists
+from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.user import User
 
@@ -69,13 +69,19 @@ def create_user(userid):
             for item in inprojects:
                 project_name = item["project"]
                 try:
-                    permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}  # TODO AdminPermission kann eine fehlermeldung geben wenn x nicht richtig ist (gelöst(?))
+                    permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}
                 except ValueError as error:
-                    return jsonify({'message': f'The given project project permission is not a valid one'}), 400  # TODO: Stimmt diese Fehlermeldung überhaupt?
-                in_project_dict[AnyIRI(project_name)] = permissions
+                    return jsonify({'message': f'The given project project permission is not a valid one'}), 400
+                try:
+                    in_project_dict[AnyIRI(project_name)] = permissions
+                except OmasErrorValue as error:
+                    return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
         if haspermissions is not None:
-            permission_set = {QName(f'omas:{x}') for x in haspermissions}
+            try:
+                permission_set = {QName(f'omas:{x}') for x in haspermissions}
+            except OmasErrorValue as error:
+                return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
             permission_set = None
 

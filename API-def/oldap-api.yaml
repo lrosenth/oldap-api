@@ -143,7 +143,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Missing field {field_name}//JSON expected. Instead received {request.content_type}"
+                    example: "Missing field {field_name}//JSON expected. Instead received {request.content_type}//The given projectname is not a valid anyIri"
         409:
           description: "Userid or useriri already exists"
           content:
