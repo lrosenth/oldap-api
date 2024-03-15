@@ -69,7 +69,10 @@ def create_user(userid):
             for item in inprojects:
                 project_name = item["project"]
                 try:
-                    permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}
+                    if item.get("permissions") is not None:
+                        permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}
+                    else:
+                        permissions = set()
                 except ValueError as error:
                     return jsonify({'message': f'The given project project permission is not a valid one'}), 400
                 try:
@@ -77,6 +80,7 @@ def create_user(userid):
                 except OmasErrorValue as error:
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
+        # If "haspermissions" is given by the creation json, fill it...
         if haspermissions is not None:
             try:
                 permission_set = {QName(f'omas:{x}') for x in haspermissions}
@@ -96,10 +100,13 @@ def create_user(userid):
                         givenName=givenname,
                         credentials=credentials,
                         inProject=in_project_dict,
-                        hasPermissions=permission_set)  # TODO: Wie löst man hier, dass haspermissions optional sein kann? -> am anfang auf none initiieren // TODO: hasPermissions durchiterieren
+                        hasPermissions=permission_set)
             user.create()
         except OmasErrorAlreadyExists as error:
             return jsonify({"message": str(error)}), 409
+        except OmasErrorValue as error:
+            return jsonify({'message': str(error)}), 400
+
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
     return jsonify({"message": f"User {userid} created", "userIri": f"{userid}"})

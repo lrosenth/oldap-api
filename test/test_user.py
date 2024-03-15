@@ -175,4 +175,75 @@ def test_permission_QName(client, token_headers):
     assert res['message'] == "The given permission is not a QName"
 
 
+def test_userid_NCName_conform(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/!48ä$', json={
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasPermissions": [
+            "ADMIN_USERS"
+        ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    assert 'message' in res
+    assert res['message'] == 'Invalid string "!48ä$" for NCName'
+
+
+def test_empty_permissions(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/rosman', json={
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet"
+            }
+        ],
+        "hasPermissions": [
+            "ADMIN_USERS"
+        ]
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
+    # res = response.json
+    # assert 'message' in res
+    # assert res['message'] == 'The given userid "!48ä$" is not NCName conform'
+
+
+def test_empty_hasPermissions(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/rosman', json={
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
+
+
+
 
