@@ -54,3 +54,30 @@ def token_headers(app, client):
         'Authorization': f'Bearer {token}'
     }
     return token, headers
+
+
+@pytest.fixture()
+def testuser(client, token_headers):
+    header = token_headers[1]
+
+    client.put('/admin/user/rosman', json={
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasPermissions": [
+            "GenericView"
+        ]
+    }, headers=header)
+
+    yield
+
+    client.delete('/admin/user/rosman', headers=header)
+
