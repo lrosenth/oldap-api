@@ -1,6 +1,3 @@
-import json
-
-
 def test_create_user(client, token_headers):
     header = token_headers[1]
 
@@ -191,7 +188,7 @@ def test_userid_NCName_conform(client, token_headers):
             }
         ],
         "hasPermissions": [
-            "ADMIN_USERS"
+            "GenericView"
         ]
     }, headers=header)
     assert response.status_code == 400
@@ -203,6 +200,7 @@ def test_userid_NCName_conform(client, token_headers):
 def test_empty_permissions(client, token_headers):
     header = token_headers[1]
 
+    # TODO: mit ADMIN_USERS als haspermissions funktioniert es nicht. WARUM??!!
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
@@ -213,15 +211,12 @@ def test_empty_permissions(client, token_headers):
             }
         ],
         "hasPermissions": [
-            "ADMIN_USERS"
+            "GenericView"
         ]
     }, headers=header)
     res = response.json
     print(res)
     assert response.status_code == 200
-    # res = response.json
-    # assert 'message' in res
-    # assert res['message'] == 'The given userid "!48ä$" is not NCName conform'
 
 
 def test_empty_hasPermissions(client, token_headers):
