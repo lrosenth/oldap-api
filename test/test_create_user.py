@@ -172,6 +172,31 @@ def test_permission_QName(client, token_headers):
     assert res['message'] == "The given permission is not a QName"
 
 
+def test_haspermission_not_existing(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/rosman', json={
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasPermissions": [
+            "Gaga"
+        ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    assert 'message' in res
+    assert res['message'] == "One of the permission sets is not existing!"
+
+
 def test_userid_NCName_conform(client, token_headers):
     header = token_headers[1]
 
