@@ -120,14 +120,20 @@ def read_users(userid):
     out = request.headers['Authorization']
     b, token = out.split()
 
-    con = Connection(server='http://localhost:7200',
-                     repo="omas",
-                     token=token,
-                     context_name="DEFAULT")
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="omas",
+                         token=token,
+                         context_name="DEFAULT")
+    except OmasError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"})
 
-    # Das hier ist dann die Read Anfrage!
-    user = User.read(con=con, userId=userid)
+    try:
+        user = User.read(con=con, userId=userid)
+    except OmasErrorNotFound as error:
+        return jsonify({"message": f'User {userid} not found'}), 404
 
+    # TODO: Abfangen, dass in projects und has permissions empty sein könnten!!
     # Building the response json
     answer = {
         "userIri": str(user.userIri),
@@ -135,11 +141,11 @@ def read_users(userid):
         "family_name": str(user.familyName),
         "given_name": str(user.givenName),
         "in_projects": [],
-        "has_permissions": [str(x) for x in user.hasPermissions]
+        "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
     }
 
     for projname, permissions in user.inProject.items():
-        proj = {"project": str(projname), "permissions": [x.value for x in permissions]}
+        proj = {"project": str(projname), "permissions": [x.value for x in permissions] if permissions else []}
         answer["in_projects"].append(proj)
 
     return jsonify(answer)
