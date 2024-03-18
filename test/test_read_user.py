@@ -75,5 +75,6 @@ def test_empty_projects(client, token_headers):
     response = client.get('/admin/user/rosman', headers=header)
 
     res = response.json
+    assert res['in_projects'][0]['permissions'] == []
 
     client.delete('/admin/user/rosman', headers=header)
