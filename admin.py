@@ -163,10 +163,13 @@ def delete_user(userid):
                      token=token,
                      context_name="DEFAULT")
 
-    user3 = User.read(con=con, userId=userid)
-    user3.delete()
+    try:
+        user3 = User.read(con=con, userId=userid)
+        user3.delete()
+    except OmasErrorNotFound as error:
+        return jsonify({"message": str(error)})
 
-    return "user deleted"
+    return jsonify({"message": f"User {userid} deleted"})
 
 
 # Function to alter/modify a user
