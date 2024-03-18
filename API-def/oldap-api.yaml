@@ -82,6 +82,10 @@ paths:
           description: "Unauthorized"
         "404":
           description: "Not Found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/auth_response_404'
         500:
           description: "Internal Server error"
     delete:
@@ -254,6 +258,7 @@ components:
       properties:
         message:
           type: string
+          example: "User {userId} not found"
     new_user:
       type: object
       properties:
