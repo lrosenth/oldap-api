@@ -264,6 +264,10 @@ def test_empty_hasPermissions(client, token_headers):
     print(res)
     assert response.status_code == 200
 
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed["has_permissions"] == []
+
 
 
 
