@@ -6,7 +6,8 @@ from omaslib.src.connection import Connection
 from omaslib.src.enums.permissions import AdminPermission
 from omaslib.src.helpers.datatypes import AnyIRI, NCName, QName
 from omaslib.src.helpers.observable_set import ObservableSet
-from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue
+from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue, \
+    OmasErrorUpdateFailed
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.user import User
 
@@ -87,7 +88,7 @@ def create_user(userid):
             except OmasErrorValue as error:
                 return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
-            permission_set = None
+            permission_set = set()
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -154,7 +155,7 @@ def read_users(userid):
 # Function to delete a user
 @bp.route('/user/<userid>', methods=['DELETE'])
 def delete_user(userid):
-    
+
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -182,6 +183,7 @@ def modify_user(userid):
     out = request.headers['Authorization']
     b, token = out.split()
 
+    # TODO: Soll man userId auch ändern können oder nicht?
     if request.is_json:
         data = request.get_json()
         firstname = data.get("givenName", None)
@@ -195,19 +197,38 @@ def modify_user(userid):
         if inprojects is not None:
             for item in inprojects:
                 project_name = item["project"]
-                permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}  # TODO AdminPermission kann eine fehlermeldung geben wenn x nicht den zulässigen strings (adminoldap use) entspricht
-                in_project_dict[QName(project_name)] = permissions
+                try:
+                    if item.get("permissions") is not None:
+                        permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}
+                    else:
+                        permissions = set()
+                except ValueError as error:
+                    return jsonify({'message': f'The given project project permission is not a valid one'}), 400
+                try:
+                    in_project_dict[AnyIRI(project_name)] = permissions # TODO: Muss man hier QName oder AnyIRI verwenden?!
+                except OmasErrorValue as error:
+                    return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
-        permission_set = None
         if haspermissions is not None:
-            permission_set = {QName(f'omas:{x}') for x in haspermissions}
+            try:
+                permission_set = {QName(f'omas:{x}') for x in haspermissions}
+            except OmasErrorValue as error:
+                return jsonify({'message': f'The given permission is not a QName'}), 400
+        else:
+            permission_set = set()
 
-        con = Connection(server='http://localhost:7200',
-                         repo="omas",
-                         token=token,
-                         context_name="DEFAULT")
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="omas",
+                             token=token,
+                             context_name="DEFAULT")
+        except OmasError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"})
 
-        user2 = User.read(con=con, userId=userid)  # read the user from the triple store
+        try:
+            user2 = User.read(con=con, userId=userid)  # read the user from the triple store
+        except OmasErrorNotFound as error:
+            return jsonify({"message": str(error)})
 
         if firstname:
             user2.givenName = firstname
@@ -219,10 +240,19 @@ def modify_user(userid):
             user2.inProject = InProjectClass(in_project_dict)
         if permission_set:
             user2.hasPermissions = permission_set
+        if permission_set == set():
+            user2.hasPermissions = set()
 
         try:
             user2.update()
-        except Exception as e:
-            print("=====>", e)
+        except OmasErrorUpdateFailed as error:
+            return jsonify({"message": str(error)})
+        except OmasErrorValue as error:
+            return jsonify({"message": str(error)})
+        except OmasError as error:
+            return jsonify({"message": str(error)})
 
-        return "user updated"
+        return jsonify({"message": "User updated successfully"}), 200
+
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
