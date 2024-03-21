@@ -183,7 +183,6 @@ def modify_user(userid):
     out = request.headers['Authorization']
     b, token = out.split()
 
-    # TODO: Soll man userId auch ändern können oder nicht?
     if request.is_json:
         data = request.get_json()
         firstname = data.get("givenName", None)
@@ -191,6 +190,9 @@ def modify_user(userid):
         password = data.get("password", None)
         inprojects = data.get('inProjects', None)
         haspermissions = data.get('hasPermissions', None)
+
+        if not any([firstname, lastname, password, inprojects, haspermissions]):
+            return jsonify({"message": "Either the firstname, lastname, password, inProjects or hasPermissions needs to be modified"}), 400
 
         in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
 
