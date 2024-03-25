@@ -53,3 +53,12 @@ def test_delete_nonexisting_user(client, token_headers):
 
     # Cleanup
     client.delete('/admin/user/rosman', headers=header)
+
+
+def test_no_json(client, token_headers, testuser):
+    header = token_headers[1]
+    response = client.delete('/admin/user/rosman', 'Kein JSON!!', headers=header)
+    assert response.status_code == 400
+    res = response.json
+    assert 'message' in res
+    assert res['message'] == "JSON expected. Instead received None"
