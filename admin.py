@@ -191,7 +191,7 @@ def modify_user(userid):
         inprojects = data.get('inProjects', None)
         haspermissions = data.get('hasPermissions', None)
 
-        if not any([firstname, lastname, password, inprojects, haspermissions]):
+        if firstname is None and lastname is None and password is None and inprojects is None and haspermissions is None:
             return jsonify({"message": "Either the firstname, lastname, password, inProjects or hasPermissions needs to be modified"}), 400
 
         in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
@@ -217,7 +217,7 @@ def modify_user(userid):
             except OmasErrorValue as error:
                 return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
-            permission_set = set()
+            permission_set = None
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -240,6 +240,8 @@ def modify_user(userid):
             user2.credentials = password
         if in_project_dict:
             user2.inProject = InProjectClass(in_project_dict)
+        if in_project_dict == {}:
+            user2.inProject = InProjectClass()
         if permission_set:
             user2.hasPermissions = permission_set
         if permission_set == set():
