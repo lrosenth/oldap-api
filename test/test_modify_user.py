@@ -90,6 +90,26 @@ def test_modify_inproject(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
+
+
+def test_modify_bad_inproject(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": ["KAPPA_RESOURCES"]
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == "The given project permission is not a valid one"
+
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
     print(readed)
 
 
@@ -230,6 +250,7 @@ def test_blanks_in_modify(client, token_headers, testuser):
     readed = read.json
     print(readed)
     assert readed["given_name"] == "Kappa kappa"
+
 
 def test_too_long_modify(client, token_headers, testuser):
     # TODO: Macht es wirklich sinn so lange Strings zuzulassen?
