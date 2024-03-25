@@ -35,7 +35,7 @@ def login(userid):
         except OmasError as err:
             return jsonify({'message': str(err)}), 401
     else:
-        return jsonify({"message": "Invalid content type, JSON required"}), 400
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
 @bp.route('/auth/<userid>', methods=['DELETE'])
