@@ -252,5 +252,30 @@ def test_empty_hasPermissions(client, token_headers):
     assert readed["has_permissions"] == []
 
 
+def test_bad_userid(client, token_headers):
+    # TODO: Hier noch Bug im Backend
+    header = token_headers[1]
+
+    response = client.put('/admin/user/rosman123<:!$', json={
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasPermissions": [
+            "GenericView"
+        ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+
 
 
