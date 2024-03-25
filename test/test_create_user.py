@@ -25,25 +25,9 @@ def test_create_user(client, token_headers):
     assert res["userIri"] == "rosman"
 
 
-def test_user_already_exists(client, token_headers):
+def test_user_already_exists(client, token_headers, testuser):
     header = token_headers[1]
 
-    firstlogin = client.put('/admin/user/rosman', json={
-        "givenName": "Manuel",
-        "familyName": "Rosenthaler",
-        "password": "kappa1234",
-        "inProjects": [
-            {
-                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-                "permissions": [
-                    "ADMIN_USERS"
-                ]
-            }
-        ],
-        "hasPermissions": [
-            "GenericView"
-        ]
-    }, headers=header)
     secondlogin = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
