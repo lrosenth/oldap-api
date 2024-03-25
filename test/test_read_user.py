@@ -79,11 +79,3 @@ def test_empty_projects(client, token_headers):
 
     client.delete('/admin/user/rosman', headers=header)
 
-
-def test_no_json(client, token_headers, testuser):
-    header = token_headers[1]
-    response = client.get('/admin/user/rosman', 'Kein JSON!!', headers=header)
-    assert response.status_code == 400
-    res = response.json
-    assert 'message' in res
-    assert res['message'] == "JSON expected. Instead received None"

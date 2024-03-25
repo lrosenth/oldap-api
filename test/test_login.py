@@ -31,16 +31,10 @@ def test_login_no_password(client):
     assert res['message'] == 'Invalid content type, JSON required'
 
 
-def test_login_no_json(client):
-    response = client.post('/admin/auth/rosenth')
-    assert response.status_code == 400
-    res = response.json
-    assert res['message'] == 'Invalid content type, JSON required'
-
-
 def test_logout(client):
     response = client.delete('/admin/auth/rosenth')
     assert response.status_code == 200
+
 
 def test_no_json(client, token_headers, testuser):
     response = client.post('/admin/auth/rosenth', 'Kein JSON!!')
