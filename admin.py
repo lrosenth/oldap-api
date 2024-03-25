@@ -50,6 +50,11 @@ def logout(userid):
 def create_user(userid):
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
+    try:
+        NCName(userid)
+    except Exception as err:
+        print("in Except")
+        return jsonify({"message": str(err)}), 400
     out = request.headers['Authorization']
     b, token = out.split()
     if request.is_json:
