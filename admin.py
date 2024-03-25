@@ -199,13 +199,14 @@ def modify_user(userid):
         if inprojects is not None:
             for item in inprojects:
                 project_name = item["project"]
-                try:
-                    if item.get("permissions") is not None:
+
+                if item.get("permissions") is not None:
+                    try:
                         permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}
-                    else:
-                        permissions = set()
-                except ValueError as error:
-                    return jsonify({'message': f'The given project project permission is not a valid one'}), 400
+                    except ValueError as error:
+                        return jsonify({'message': f'The given project permission is not a valid one'}), 400
+                else:
+                    permissions = set()
                 try:
                     in_project_dict[AnyIRI(project_name)] = permissions # TODO: Muss man hier QName oder AnyIRI verwenden?!
                 except OmasErrorValue as error:
