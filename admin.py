@@ -7,6 +7,7 @@ from omaslib.src.enums.permissions import AdminPermission
 from omaslib.src.helpers.observable_set import ObservableSet
 from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue, \
     OmasErrorUpdateFailed
+from omaslib.src.helpers.tools import str2qname_anyiri
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.user import User
 from omaslib.src.xsd.xsd_anyuri import Xsd_anyURI
@@ -216,7 +217,7 @@ def modify_user(userid):
                 else:
                     permissions = set()
                 try:
-                    in_project_dict[Xsd_anyURI(project_name)] = permissions # TODO: Muss man hier QName oder AnyIRI verwenden?!
+                    in_project_dict[str2qname_anyiri(project_name)] = permissions # TODO: Muss man hier QName oder AnyIRI verwenden?!
                 except OmasErrorValue as error:
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
