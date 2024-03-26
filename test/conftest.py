@@ -3,7 +3,7 @@ from time import sleep
 import pytest
 import jwt
 from omaslib.src.connection import Connection
-from omaslib.src.helpers.datatypes import QName
+from omaslib.src.xsd.xsd_qname import Xsd_QName
 
 from factory import factory
 
@@ -35,7 +35,7 @@ def app():
                      userId="rosenth",
                      credentials="RioGrande",
                      context_name="DEFAULT")
-    con.clear_graph(QName('omas:admin'))
+    con.clear_graph(Xsd_QName('omas:admin'))
     con.upload_turtle("/Users/rosman00/Library/Caches/pypoetry/virtualenvs/oldap-api-rl24mTKu-py3.12/lib/python3.12/site-packages/omaslib/ontologies/admin.trig")
     sleep(1)
     yield app

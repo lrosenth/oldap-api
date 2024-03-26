@@ -4,12 +4,15 @@ import jwt
 from flask import Blueprint, request, jsonify
 from omaslib.src.connection import Connection
 from omaslib.src.enums.permissions import AdminPermission
-from omaslib.src.helpers.datatypes import AnyIRI, NCName, QName
 from omaslib.src.helpers.observable_set import ObservableSet
 from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue, \
     OmasErrorUpdateFailed
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.user import User
+from omaslib.src.xsd.xsd_anyuri import Xsd_anyURI
+from omaslib.src.xsd.xsd_ncname import Xsd_NCName
+from omaslib.src.xsd.xsd_qname import Xsd_QName
+from omaslib.src.xsd.xsd_string import Xsd_string
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -51,8 +54,8 @@ def create_user(userid):
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
     try:
-        NCName(userid)
-    except Exception as err:
+        Xsd_NCName(userid)
+    except OmasErrorValue as err:
         print("in Except")
         return jsonify({"message": str(err)}), 400
     out = request.headers['Authorization']
@@ -70,7 +73,7 @@ def create_user(userid):
         haspermissions = data.get('hasPermissions', None)
 
         # If "inproject" is given by the creation json, fill it...
-        in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
+        in_project_dict: Dict[str | Xsd_QName | Xsd_anyURI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
         if inprojects is not None:
             for item in inprojects:
                 project_name = item["project"]
@@ -82,14 +85,14 @@ def create_user(userid):
                 except ValueError as error:
                     return jsonify({'message': f'The given project project permission is not a valid one'}), 400
                 try:
-                    in_project_dict[AnyIRI(project_name)] = permissions
+                    in_project_dict[Xsd_anyURI(project_name)] = permissions
                 except OmasErrorValue as error:
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
         # If "haspermissions" is given by the creation json, fill it...
         if haspermissions is not None:
             try:
-                permission_set = {QName(f'omas:{x}') for x in haspermissions}
+                permission_set = {Xsd_QName(f'omas:{x}') for x in haspermissions}
             except OmasErrorValue as error:
                 return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
@@ -101,9 +104,9 @@ def create_user(userid):
                              token=token,
                              context_name="DEFAULT")
             user = User(con=con,
-                        userId=NCName(userid),
-                        familyName=familyname,
-                        givenName=givenname,
+                        userId=Xsd_NCName(userid),
+                        familyName=Xsd_string(familyname),
+                        givenName=Xsd_string(givenname),
                         credentials=credentials,
                         inProject=in_project_dict,
                         hasPermissions=permission_set)
@@ -199,7 +202,7 @@ def modify_user(userid):
         if firstname is None and lastname is None and password is None and inprojects is None and haspermissions is None:
             return jsonify({"message": "Either the firstname, lastname, password, inProjects or hasPermissions needs to be modified"}), 400
 
-        in_project_dict: Dict[str | QName | AnyIRI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
+        in_project_dict: Dict[str | Xsd_QName | Xsd_anyURI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
 
         if inprojects is not None:
             for item in inprojects:
@@ -213,13 +216,13 @@ def modify_user(userid):
                 else:
                     permissions = set()
                 try:
-                    in_project_dict[AnyIRI(project_name)] = permissions # TODO: Muss man hier QName oder AnyIRI verwenden?!
+                    in_project_dict[Xsd_anyURI(project_name)] = permissions # TODO: Muss man hier QName oder AnyIRI verwenden?!
                 except OmasErrorValue as error:
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
         if haspermissions is not None:
             try:
-                permission_set = {QName(f'omas:{x}') for x in haspermissions}
+                permission_set = {Xsd_QName(f'omas:{x}') for x in haspermissions}
             except OmasErrorValue as error:
                 return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
@@ -234,7 +237,7 @@ def modify_user(userid):
             return jsonify({"message": f"Connection failed: {str(error)}"})
 
         try:
-            user2 = User.read(con=con, userId=userid)  # read the user from the triple store
+            user2 = User.read(con=con, userId=Xsd_NCName(userid))  # read the user from the triple store
         except OmasErrorNotFound as error:
             return jsonify({"message": str(error)})
 
