@@ -136,7 +136,7 @@ def read_users(userid):
                          token=token,
                          context_name="DEFAULT")
     except OmasError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"})
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 401
 
     try:
         user = User.read(con=con, userId=userid)
@@ -174,7 +174,7 @@ def delete_user(userid):
                          token=token,
                          context_name="DEFAULT")
     except OmasError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"})
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 401
 
     try:
         user3 = User.read(con=con, userId=userid)
@@ -270,3 +270,21 @@ def modify_user(userid):
 
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+
+# @bp.route('/project/<projectid>', methods=['POST'])
+# def modify_user(projectid):
+#
+#     out = request.headers['Authorization']
+#     b, token = out.split()
+#
+#     if request.is_json:
+#         data = request.get_json()
+#         projectIri = data.get("projectIti", None)
+#         projectShortName = projectid
+#         label = data.get("label", None)
+#         comment = data.get('comment', None)
+#         namespaceIri = data.get('namespaceIri', None)
+#         projectStart = data.get('projectStart', None)
+#         projectEnd = data.get('projectEnd', None)
+
