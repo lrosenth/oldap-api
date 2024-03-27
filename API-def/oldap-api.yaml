@@ -22,7 +22,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/admin_auth_body'
+                properties:
+                  password:
+                    type: string
         required: true
       responses:
         "200":
@@ -30,23 +32,36 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/auth_response_200'
+                properties:
+                  token:
+                    type: string
         400:
           description: "Invalid content type"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/auth_response_400'
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid content type, JSON required"
         "401":
           description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Wrong credentials"
         404:
           description: "User not found"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/auth_response_404'
-        500:
-          description: "Internal Server error"
+                properties:
+                  message:
+                    type: string
+                    example: "User {userId} not found"
     delete:
       summary: "Logout"
       description: "Logout from system"
@@ -77,15 +92,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user_get_body_200'
+                properties:
+                  userIri:
+                    type: string
+                  userId:
+                    type: string
+                  family_name:
+                    type: string
+                  given_name:
+                    type: string
+                  in_projects:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project:
+                          type: string
+                        permissions:
+                          type: array
+                          items:
+                            type: string
+                  has_permissions:
+                    type: array
+                    items:
+                      type: string
         "401":
           description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OmasError}"
         "404":
           description: "Not Found"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/auth_response_404'
+                properties:
+                  message:
+                    type: string
+                    example: "User {userId} not found"
         500:
           description: "Internal Server error"
     delete:
@@ -102,10 +150,31 @@ paths:
       responses:
         "200":
           description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "User {userid} deleted"
         "401":
           description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OmasError}"
         "404":
           description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "User {userId} not found"
         500:
           description: "Internal Server error"
     put:
@@ -182,11 +251,39 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/mod_user'
+              properties:
+                givenName:
+                  type: string
+                familyName:
+                  type: string
+                password:
+                  type: string
+                inProjects:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      project:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: string
+                hasPermissions:
+                  type: array
+                  items:
+                    type: string
         required: true
       responses:
         "200":
           description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "User {userid} created, 'userIri': '{userid}'"
         400:
           description: "Form/Inhalt der übermittelten Daten stimmt nicht"
           content:
@@ -195,6 +292,7 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: "JSON expected. Instead received {request.content_type}"
         404:
           description: "Userid not found"
           content:
@@ -203,6 +301,69 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: "A user with a user ID '{userId}' already exists"
+        500:
+          description: "Internal Server error"
+
+  /admin/project/{projectId}:
+    put:
+      summary: Project creation
+      description: Creates a new project in the database
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                projectIri:
+                  type: string
+                projectShortName:
+                  type: string
+                label:
+                  type: string
+                comment:
+                  type: string
+                namespaceIri:
+                  type: string
+                projectStart:
+                  type: string
+                projectEnd:
+                  type: string
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+        400:
+          description: "Invalid content type"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid content type, JSON required"
+        "401":
+          description: "Unauthorized"
+        404:
+          description: "User not found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "User {userId} not found"
         500:
           description: "Internal Server error"
 
@@ -234,6 +395,35 @@ components:
           type: array
           items:
             type: string
+    user_get_body_401:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Connection failed: {OmasError}"
+    admin_project_body:
+      type: object
+      properties:
+        projectIri:
+          type: string
+        projectShortName:
+          type: string
+        label:
+          type: string
+        comment:
+          type: string
+        namespaceIri:
+          type: string
+        projectStart:
+          type: string
+        projectEnd:
+          type: string
+    project_response_200:
+      type: object
+      properties:
+        message:
+          type: string
+
     admin_auth_body:
       type: object
       properties:
@@ -252,6 +442,14 @@ components:
       properties:
         message:
           type: string
+          example: "Invalid content type, JSON required"
+    auth_response_401:
+      description: "If connection to server fails due to incorrect token"
+      type: object
+      properties:
+        message:
+          type: string
+          example: "{OmasError}"
     auth_response_404:
       description: if user not found
       type: object
