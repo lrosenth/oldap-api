@@ -14,7 +14,7 @@ def test_login_succeed(client, connection_manager):
     userdata = json.loads(token['userdata'], object_hook=serializer.decoder_hook)
     assert userdata.userId == 'rosenth'
     assert userdata.userIri == 'https://orcid.org/0000-0003-1681-4036'
-    assert userdata.active
+    assert userdata.isActive
 
 
 def test_login_wrong_userid(client):
