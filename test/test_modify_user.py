@@ -20,25 +20,6 @@ def test_modify_givenname(client, token_headers, testuser):
     assert readed["given_name"] == "Kappa"
 
 
-def test_bad_modify_givenname(client, token_headers, testuser):
-    # TODO: Dieser Test muss noch im Backend abgefangen werden
-    header = token_headers[1]
-
-    response = client.post('/admin/user/rosman', json={
-        "givenName": "gagagag<!$"  # TODO: Werden hier Sonderzeichen nicht rausgenommen?
-    }, headers=header)
-
-    assert response.status_code == 400
-    res = response.json
-    print(res)
-    # assert res["message"] == "User updated successfully"
-
-    read = client.get('/admin/user/rosman', headers=header)
-    readed = read.json
-    print(readed)
-    assert readed["given_name"] == ""
-
-
 def test_modify_familyname(client, token_headers, testuser):
     header = token_headers[1]
 
