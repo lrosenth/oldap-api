@@ -194,7 +194,49 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/new_user'
+              properties:
+                givenName:
+                  type: string
+                familyName:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+                isActive:
+                  type: boolean
+                userIri:
+                  type: string
+                inProjects:
+                  description: "The project field is the QName of the project,
+                  the permissions is a sets of admin permissions."
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      project:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - ADMIN_OLDAP
+                            - ADMIN_USERS
+                            - ADMIN_PERMISSION_SETS
+                            - ADMIN_RESOURCES
+                            - ADMIN_MODEL
+                            - ADMIN_CREATE
+
+                hasPermissions:
+                  description: "Lust be a list of QNames of the permission sets."
+                  type: array
+                  items:
+                    type: string
+              required:
+                - givenName
+                - familyName
+                - password
+
       responses:
         "200":
           description: "OK"
