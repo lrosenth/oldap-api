@@ -467,6 +467,8 @@ components:
         password:
           type: string
           minLength: 8
+        isActive:
+          type: boolean
         userIri:
           type: string
         inProjects:

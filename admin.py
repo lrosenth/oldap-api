@@ -110,7 +110,8 @@ def create_user(userid):
                         givenName=Xsd_string(givenname),
                         credentials=credentials,
                         inProject=in_project_dict,
-                        hasPermissions=permission_set)
+                        hasPermissions=permission_set,
+                        isActive=True)
             user.create()
         except OmasErrorAlreadyExists as error:
             return jsonify({"message": str(error)}), 409
