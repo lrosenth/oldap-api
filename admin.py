@@ -189,7 +189,7 @@ def delete_user(userid):
 # Function to alter/modify a user
 @bp.route('/user/<userid>', methods=['POST'])
 def modify_user(userid):
-
+    # TODO: Modify isActive
     out = request.headers['Authorization']
     b, token = out.split()
 
