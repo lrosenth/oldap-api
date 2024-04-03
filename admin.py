@@ -3,14 +3,18 @@ from typing import Dict, Set
 import jwt
 from flask import Blueprint, request, jsonify
 from omaslib.src.connection import Connection
+from omaslib.src.dtypes.namespaceiri import NamespaceIRI
 from omaslib.src.enums.permissions import AdminPermission
+from omaslib.src.helpers.langstring import LangString
 from omaslib.src.helpers.observable_set import ObservableSet
 from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue, \
     OmasErrorUpdateFailed
 from omaslib.src.helpers.tools import str2qname_anyiri
 from omaslib.src.in_project import InProjectClass
+from omaslib.src.project import Project
 from omaslib.src.user import User
 from omaslib.src.xsd.xsd_anyuri import Xsd_anyURI
+from omaslib.src.xsd.xsd_date import Xsd_date
 from omaslib.src.xsd.xsd_ncname import Xsd_NCName
 from omaslib.src.xsd.xsd_qname import Xsd_QName
 from omaslib.src.xsd.xsd_string import Xsd_string
@@ -273,19 +277,43 @@ def modify_user(userid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-# @bp.route('/project/<projectid>', methods=['POST'])
-# def modify_user(projectid):
-#
-#     out = request.headers['Authorization']
-#     b, token = out.split()
-#
-#     if request.is_json:
-#         data = request.get_json()
-#         projectIri = data.get("projectIti", None)
-#         projectShortName = projectid
-#         label = data.get("label", None)
-#         comment = data.get('comment', None)
-#         namespaceIri = data.get('namespaceIri', None)
-#         projectStart = data.get('projectStart', None)
-#         projectEnd = data.get('projectEnd', None)
+@bp.route('/project/<projectid>', methods=['POST'])
+def create_project(projectid):
+
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        projectIri = data.get("projectIti", None)
+        projectShortName = projectid
+        label = data.get("label", None)
+        comment = data.get('comment', None)
+        namespaceIri = data.get('namespaceIri', None)
+        projectStart = data.get('projectStart', None)
+        projectEnd = data.get('projectEnd', None)
+
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="omas",
+                             token=token,
+                             context_name="DEFAULT")
+
+            project = Project(con=con,
+                              projectShortName="unittest",
+                              label=LangString(["unittest@en", "unittest@de"]),
+                              namespaceIri=NamespaceIRI("http://unitest.org/project/unittest#"),
+                              comment=LangString(["For testing@en", "Für Tests@de"]),
+                              projectStart=Xsd_date(2024, 1, 1),
+                              projectEnd=Xsd_date(2025, 12, 31)
+                              )
+            project.create()
+
+        except OmasError as error:
+            pass
+
+        return jsonify({"message": "User updated successfully"}), 200
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
 
