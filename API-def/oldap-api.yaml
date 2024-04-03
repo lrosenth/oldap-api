@@ -364,12 +364,10 @@ paths:
               properties:
                 projectIri:
                   type: string
-                projectShortName:
-                  type: string
                 label:
-                  type: string
+                  $ref: '#/components/schemas/LangString'
                 comment:
-                  type: string
+                  $ref: '#/components/schemas/LangString'
                 namespaceIri:
                   type: string
                 projectStart:
@@ -568,10 +566,20 @@ components:
           type: array
           items:
             type: string
+
+    LangString:
+          oneOf:
+            - type: string
+              description: Single string with optional language tag (e.g., "Lastname@en").
+            - type: array
+              description: List of strings, each with an optional language tag (e.g., ["Lastname@en", "Nachname@de"])
+              items:
+                type: string
+
+
   securitySchemes:
     AccessToken:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
 
