@@ -285,13 +285,16 @@ def create_project(projectid):
 
     if request.is_json:
         data = request.get_json()
-        projectIri = data.get("projectIti", None)
-        projectShortName = projectid
-        label = data.get("label", None)
-        comment = data.get('comment', None)
-        namespaceIri = data.get('namespaceIri', None)
+        projectIri = data.get("projectIri", None)
+        projectShortName = projectid  # Necessary
+        label = data.get("label", None)  # Necessary
+        comment = data.get('comment', None)  # Necessary
+        namespaceIri = data.get('namespaceIri', None)  # Necessary
         projectStart = data.get('projectStart', None)
         projectEnd = data.get('projectEnd', None)
+
+        if label is None or comment is None or namespaceIri is None:
+            return jsonify({"message": f"To create a project, at least the projectshortname, label, comment and namespaceIri are required"}), 400
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -300,20 +303,44 @@ def create_project(projectid):
                              context_name="DEFAULT")
 
             project = Project(con=con,
-                              projectShortName="unittest",
-                              label=LangString(["unittest@en", "unittest@de"]),
-                              namespaceIri=NamespaceIRI("http://unitest.org/project/unittest#"),
-                              comment=LangString(["For testing@en", "Für Tests@de"]),
-                              projectStart=Xsd_date(2024, 1, 1),
-                              projectEnd=Xsd_date(2025, 12, 31)
+                              projectShortName=projectShortName,
+                              label=label,
+                              namespaceIri=NamespaceIRI(namespaceIri),
+                              comment=LangString(comment),
+                              projectStart=Xsd_date(projectStart),
+                              projectEnd=Xsd_date(projectEnd)
                               )
             project.create()
 
+        except OmasErrorValue as error:
+            return jsonify({'message': str(error)}), 400
         except OmasError as error:
-            pass
+            return jsonify({'message': str(error)})
 
-        return jsonify({"message": "User updated successfully"}), 200
+        return jsonify({"message": "Project successfully created"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+@bp.route('/project/<projectid>', methods=['DELETE'])
+def create_project(projectid):
+
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="omas",
+                         token=token,
+                         context_name="DEFAULT")
+
+        project = Project.read(con=con, projectIri=projectIri)
+        project.delete()
+    except OmasErrorValue as error:
+        pass
+
+
+
+
+
 
 
