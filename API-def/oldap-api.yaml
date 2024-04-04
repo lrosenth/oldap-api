@@ -406,6 +406,47 @@ paths:
                     example: "User {userId} not found"
         500:
           description: "Internal Server error"
+    delete:
+      summary: "Delete a project"
+      description: "The user that has the rights (given by his token) deletes a project"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Peoject {projectId} deleted"
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OmasError}"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Project {projectId} not found"
+        500:
+          description: "Internal Server error"
 
 components:
   schemas:
