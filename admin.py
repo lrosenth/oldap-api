@@ -278,7 +278,7 @@ def modify_user(userid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@bp.route('/project/<projectid>', methods=['POST'])
+@bp.route('/project/<projectid>', methods=['PUT'])
 def create_project(projectid):
 
     out = request.headers['Authorization']
@@ -304,8 +304,9 @@ def create_project(projectid):
                              context_name="DEFAULT")
 
             project = Project(con=con,
-                              projectShortName=projectShortName,
-                              label=label,
+                              projectShortName=Xsd_NCName(projectShortName),
+                              projectIri=Iri(projectIri),
+                              label=LangString(label),
                               namespaceIri=NamespaceIRI(namespaceIri),
                               comment=LangString(comment),
                               projectStart=Xsd_date(projectStart),
@@ -317,32 +318,56 @@ def create_project(projectid):
             return jsonify({'message': str(error)}), 400
         except OmasError as error:
             return jsonify({'message': str(error)})
-        except Exception as error:  # TODO: Way to generic -- Debugging purposes. DELETE THIS EXCEPTION!!
-            return jsonify({'message': str(error)})
+        # except Exception as error:  # TODO: Way to generic -- Debugging purposes. DELETE THIS EXCEPTION!!
+        #     return jsonify({'message': str(error)})
 
         return jsonify({"message": "Project successfully created"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-# @bp.route('/project/<projectid>', methods=['DELETE'])
-# def create_project(projectid):
-#
-#     out = request.headers['Authorization']
-#     b, token = out.split()
-#
-#     try:
-#         con = Connection(server='http://localhost:7200',
-#                          repo="omas",
-#                          token=token,
-#                          context_name="DEFAULT")
-#
-#         project = Project.read(con=con, projectIri=projectIri)
-#         project.delete()
-#     except OmasErrorValue as error:
-#         pass
-#
+@bp.route('/project/<projectid>', methods=['DELETE'])
+def delete_project(projectid):
+    # TODO: Delete funktioniert nicht. Warum?? Liegts am Read?
+    out = request.headers['Authorization']
+    b, token = out.split()
 
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="omas",
+                         token=token,
+                         context_name="DEFAULT")
+
+        project = Project.read(con=con, projectIri_SName=Xsd_NCName(projectid))
+        project.delete()
+        print("After delete read")
+        project = Project.read(con=con, projectIri_SName=Xsd_NCName(projectid))
+        print("Read erfolgreich: ", project)
+    except OmasErrorValue as error:
+        return jsonify({'message': str(error)}), 400
+    except Exception as error:
+        return jsonify({'message': f"Generischer Fehler. Muss noch abgefangen werden!!! {str(error)}"})
+
+    return jsonify({"message": "Project successfully deleted"}), 200
+
+
+@bp.route('/project/<projectid>', methods=['GET'])
+def read_project(projectid):
+
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="omas",
+                         token=token,
+                         context_name="DEFAULT")
+
+        project = Project.read(con=con, projectIri_SName=projectid)
+    except OmasErrorValue as error:
+        return jsonify({'message': str(error)}), 400
+
+    return jsonify({"message": str(project)}), 200
 
 
 
