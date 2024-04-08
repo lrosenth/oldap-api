@@ -13,6 +13,7 @@ from omaslib.src.helpers.tools import str2qname_anyiri
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.project import Project
 from omaslib.src.user import User
+from omaslib.src.xsd.iri import Iri
 from omaslib.src.xsd.xsd_anyuri import Xsd_anyURI
 from omaslib.src.xsd.xsd_date import Xsd_date
 from omaslib.src.xsd.xsd_ncname import Xsd_NCName
@@ -68,9 +69,9 @@ def create_user(userid):
     if request.is_json:
         data = request.get_json()
         try:
-            familyname = str(data['familyName'])
-            givenname = str(data['givenName'])
-            credentials = str(data['password'])
+            familyname = Xsd_string(data['familyName'])
+            givenname = Xsd_string(data['givenName'])
+            credentials = Xsd_string(data['password'])
         except KeyError as error:
             return jsonify({'message': f'Missing field {str(error)}'}), 400
 
@@ -78,7 +79,7 @@ def create_user(userid):
         haspermissions = data.get('hasPermissions', None)
 
         # If "inproject" is given by the creation json, fill it...
-        in_project_dict: Dict[str | Xsd_QName | Xsd_anyURI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
+        in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
         if inprojects is not None:
             for item in inprojects:
                 project_name = item["project"]
@@ -90,7 +91,7 @@ def create_user(userid):
                 except ValueError as error:
                     return jsonify({'message': f'The given project project permission is not a valid one'}), 400
                 try:
-                    in_project_dict[Xsd_anyURI(project_name)] = permissions
+                    in_project_dict[Iri(project_name)] = permissions
                 except OmasErrorValue as error:
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
@@ -109,9 +110,9 @@ def create_user(userid):
                              token=token,
                              context_name="DEFAULT")
             user = User(con=con,
-                        userId=Xsd_NCName(userid),
-                        familyName=Xsd_string(familyname),
-                        givenName=Xsd_string(givenname),
+                        userId=userid,
+                        familyName=familyname,
+                        givenName=givenname,
                         credentials=credentials,
                         inProject=in_project_dict,
                         hasPermissions=permission_set,
@@ -151,10 +152,10 @@ def read_users(userid):
     # TODO: Abfangen, dass in projects und has permissions empty sein könnten!!
     # Building the response json
     answer = {
-        "userIri": str(user.userIri),
+        "userIri": Iri(user.userIri),
         "userId": str(user.userId),
-        "family_name": str(user.familyName),
-        "given_name": str(user.givenName),
+        "family_name": Iri(user.familyName),
+        "given_name": Iri(user.givenName),
         "in_projects": [],
         "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
     }
@@ -208,7 +209,7 @@ def modify_user(userid):
         if firstname is None and lastname is None and password is None and inprojects is None and haspermissions is None:
             return jsonify({"message": "Either the firstname, lastname, password, inProjects or hasPermissions needs to be modified"}), 400
 
-        in_project_dict: Dict[str | Xsd_QName | Xsd_anyURI, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
+        in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
 
         if inprojects is not None:
             for item in inprojects:
@@ -222,13 +223,13 @@ def modify_user(userid):
                 else:
                     permissions = set()
                 try:
-                    in_project_dict[str2qname_anyiri(project_name)] = permissions # TODO: Muss man hier QName oder AnyIRI verwenden?!
+                    in_project_dict[Iri(project_name)] = permissions
                 except OmasErrorValue as error:
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
         if haspermissions is not None:
             try:
-                permission_set = {Xsd_QName(f'omas:{x}') for x in haspermissions}
+                permission_set = {Iri(f'omas:{x}') for x in haspermissions}
             except OmasErrorValue as error:
                 return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
@@ -248,11 +249,11 @@ def modify_user(userid):
             return jsonify({"message": str(error)})
 
         if firstname:
-            user2.givenName = firstname
+            user2.givenName = Xsd_string(firstname)
         if lastname:
-            user2.familyName = lastname
+            user2.familyName = Xsd_string(lastname)
         if password:
-            user2.credentials = password
+            user2.credentials = Xsd_string(password)
         if in_project_dict:
             user2.inProject = InProjectClass(in_project_dict)
         if in_project_dict == {}:
@@ -316,28 +317,31 @@ def create_project(projectid):
             return jsonify({'message': str(error)}), 400
         except OmasError as error:
             return jsonify({'message': str(error)})
+        except Exception as error:  # TODO: Way to generic -- Debugging purposes. DELETE THIS EXCEPTION!!
+            return jsonify({'message': str(error)})
 
         return jsonify({"message": "Project successfully created"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
-@bp.route('/project/<projectid>', methods=['DELETE'])
-def create_project(projectid):
 
-    out = request.headers['Authorization']
-    b, token = out.split()
-
-    try:
-        con = Connection(server='http://localhost:7200',
-                         repo="omas",
-                         token=token,
-                         context_name="DEFAULT")
-
-        project = Project.read(con=con, projectIri=projectIri)
-        project.delete()
-    except OmasErrorValue as error:
-        pass
-
+# @bp.route('/project/<projectid>', methods=['DELETE'])
+# def create_project(projectid):
+#
+#     out = request.headers['Authorization']
+#     b, token = out.split()
+#
+#     try:
+#         con = Connection(server='http://localhost:7200',
+#                          repo="omas",
+#                          token=token,
+#                          context_name="DEFAULT")
+#
+#         project = Project.read(con=con, projectIri=projectIri)
+#         project.delete()
+#     except OmasErrorValue as error:
+#         pass
+#
 
 
 
