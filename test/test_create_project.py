@@ -20,7 +20,7 @@ def test_create_project_with_missing_fields(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/project/testproject', json={
-        "projectIri": "string",
+        "projectIri": "http://unittest.org/project/testproject",
         "comment": ["For testing@en", "Für Tests@de"],
         "namespaceIri": "http://unitest.org/project/unittest#",
         "projectStart": "1993-04-05",
@@ -36,7 +36,7 @@ def test_create_project_with_missing_optional_fields(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/project/testproject', json={
-        "projectIri": "string",
+        "projectIri": "http://unittest.org/project/testproject",
         "label": ["unittest@en", "unittest@de"],
         "comment": ["For testing@en", "Für Tests@de"],
         "namespaceIri": "http://unitest.org/project/unittest#",

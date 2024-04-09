@@ -87,7 +87,7 @@ def testproject(client, token_headers):
     header = token_headers[1]
 
     client.put('/admin/project/testproject', json={
-        "projectIri": "string",
+        "projectIri": "http://unittest.org/project/testproject",
         "label": ["unittest@en", "unittest@de"],
         "comment": ["For testing@en", "Für Tests@de"],
         "namespaceIri": "http://unitest.org/project/unittest#",
