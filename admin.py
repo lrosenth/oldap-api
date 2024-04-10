@@ -318,8 +318,6 @@ def create_project(projectid):
             return jsonify({'message': str(error)}), 400
         except OmasError as error:
             return jsonify({'message': str(error)})
-        # except Exception as error:  # TODO: Way to generic -- Debugging purposes. DELETE THIS EXCEPTION!!
-        #     return jsonify({'message': str(error)})
 
         return jsonify({"message": "Project successfully created"}), 200
     else:
@@ -340,13 +338,12 @@ def delete_project(projectid):
 
         project = Project.read(con=con, projectIri_SName=Xsd_NCName(projectid))
         project.delete()
-        print("After delete read")
-        project = Project.read(con=con, projectIri_SName=Xsd_NCName(projectid))
-        print("Read erfolgreich: ", project)
     except OmasErrorValue as error:
         return jsonify({'message': str(error)}), 400
-    except Exception as error:
-        return jsonify({'message': f"Generischer Fehler. Muss noch abgefangen werden!!! {str(error)}"})
+    except OmasErrorNotFound as error:
+        return jsonify({'message': str(error)}), 400
+    # except Exception as error:
+    #     return jsonify({'message': f"Generischer Fehler. Muss noch abgefangen werden!!! {str(error)}"})
 
     return jsonify({"message": "Project successfully deleted"}), 200
 
@@ -366,10 +363,40 @@ def read_project(projectid):
         project = Project.read(con=con, projectIri_SName=projectid)
     except OmasErrorValue as error:
         return jsonify({'message': str(error)}), 400
+    except OmasErrorNotFound as error:
+        return jsonify({'message': str(error)}), 400
 
     return jsonify({"message": str(project)}), 200
 
 
+@bp.route('/project/search', methods=['GET'])
+def search_project():
 
+    out = request.headers['Authorization']
+    b, token = out.split()
 
+    if request.is_json:
+        data = request.get_json()
+        label = data.get("label", None)
+        comment = data.get('comment', None)
+
+        if label is None and comment is None:
+            return jsonify({'message': 'Either label or comment needs to be provided'}), 400
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="omas",
+                             token=token,
+                             context_name="DEFAULT")
+
+            projects = Project.search(con=con, label=label, comment=comment)
+            return jsonify({"message": str(projects)}), 200
+        except OmasErrorValue as error:
+            return jsonify({'message': str(error)}), 400
+        except OmasError as error:
+            return jsonify({'message': str(error)}), 400
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+# @bp.route('/project/<projectid>', methods=['POST'])
+# def modify_project(projectid):
 
