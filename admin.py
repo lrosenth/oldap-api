@@ -8,7 +8,7 @@ from omaslib.src.enums.permissions import AdminPermission
 from omaslib.src.helpers.langstring import LangString
 from omaslib.src.helpers.observable_set import ObservableSet
 from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue, \
-    OmasErrorUpdateFailed
+    OmasErrorUpdateFailed, OmasErrorNoPermission
 from omaslib.src.helpers.tools import str2qname_anyiri
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.project import Project
@@ -152,10 +152,10 @@ def read_users(userid):
     # TODO: Abfangen, dass in projects und has permissions empty sein könnten!!
     # Building the response json
     answer = {
-        "userIri": Iri(user.userIri),
+        "userIri": str(user.userIri),
         "userId": str(user.userId),
-        "family_name": Iri(user.familyName),
-        "given_name": Iri(user.givenName),
+        "family_name": str(user.familyName),
+        "given_name": str(user.givenName),
         "in_projects": [],
         "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
     }
@@ -304,13 +304,13 @@ def create_project(projectid):
                              context_name="DEFAULT")
 
             project = Project(con=con,
-                              projectShortName=Xsd_NCName(projectShortName),
-                              projectIri=Iri(projectIri),
+                              projectShortName=Xsd_NCName(projectShortName),  # NO
+                              projectIri=Iri(projectIri),  # NO
                               label=LangString(label),
-                              namespaceIri=NamespaceIRI(namespaceIri),
+                              namespaceIri=NamespaceIRI(namespaceIri),  # NO
                               comment=LangString(comment),
-                              projectStart=Xsd_date(projectStart),
-                              projectEnd=Xsd_date(projectEnd)
+                              projectStart=Xsd_date(projectStart) if projectEnd else None,
+                              projectEnd=Xsd_date(projectEnd) if projectEnd else None  # TODO: testen dass Enddate nach Startdate ist; Darf nicht nur enddate ohne startdate geben, aber nur startdate ist erlaubt --> magic function greater than wird noch gemacht von lukas
                               )
             project.create()
 
@@ -397,6 +397,56 @@ def search_project():
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
-# @bp.route('/project/<projectid>', methods=['POST'])
-# def modify_project(projectid):
+
+@bp.route('/project/<projectid>', methods=['POST'])
+def modify_project(projectid):
+
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        if (data.get("projectShortName", None) is not None or data.get("projectIri", None) is not None
+                or data.get("namespaceIri", None) is not None):
+            return jsonify({"message": f"projectShortName, projectIri and namespaceIri must not be modified"}), 400
+
+        label = data.get("label", None)
+        comment = data.get("comment", None)
+        projectStart = data.get("projectStart", None)
+        projectEnd = data.get("projectEnd", None)
+
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="omas",
+                             token=token,
+                             context_name="DEFAULT")
+        except OmasError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"})
+
+        try:
+            project = Project.read(con=con, projectIri_SName=projectid)
+        except OmasErrorNotFound as error:
+            return jsonify({"message": str(error)})
+
+        if label:
+            project.label = LangString(label)
+        if comment:
+            project.comment = comment
+        if projectStart:
+            project.projectStart = Xsd_date(projectStart)
+        if projectEnd:
+            project.projectEnd = Xsd_date(projectEnd)
+
+        try:
+            project.update()
+        except OmasErrorNoPermission as error:
+            return jsonify({"message": str(error)})
+        except OmasErrorUpdateFailed as error:
+            return jsonify({"message": str(error)})
+        except OmasError as error:
+            return jsonify({"message": str(error)})
+
+        return jsonify({"message": "Project updated successfully"}), 200
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
