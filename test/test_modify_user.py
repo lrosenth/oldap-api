@@ -260,3 +260,15 @@ def test_no_json(client, token_headers, testuser):
     assert 'message' in res
     assert res['message'] == "JSON expected. Instead received None"
 
+
+def test_modify_nonexisting_user(client, token_headers):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/nonexistinguser', json={
+        "givenName": "Kappa"
+    }, headers=header)
+
+    assert response.status_code == 404
+    res = response.json
+    assert res['message'] == 'User "nonexistinguser" not found.'
+
