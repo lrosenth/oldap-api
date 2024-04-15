@@ -41,8 +41,8 @@ def login(userid):
             return resp
         except OmasErrorNotFound as err:
             return jsonify({'message': str(err)}), 404
-        except OmasError as err:
-            return jsonify({'message': str(err)}), 401
+        except OmasError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
@@ -109,6 +109,9 @@ def create_user(userid):
                              repo="omas",
                              token=token,
                              context_name="DEFAULT")
+        except OmasError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+        try:
             user = User(con=con,
                         userId=userid,
                         familyName=familyname,
@@ -125,7 +128,7 @@ def create_user(userid):
 
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
-    return jsonify({"message": f"User {userid} created", "userIri": f"{userid}"})
+    return jsonify({"message": f"User {userid} created", "userIri": f"{userid}"}), 200
 
 
 # Function to read the contents of a user
@@ -164,7 +167,7 @@ def read_users(userid):
         proj = {"project": str(projname), "permissions": [x.value for x in permissions] if permissions else []}
         answer["in_projects"].append(proj)
 
-    return jsonify(answer)
+    return jsonify(answer), 200
 
 
 # Function to delete a user
@@ -188,7 +191,7 @@ def delete_user(userid):
     except OmasErrorNotFound as error:
         return jsonify({"message": str(error)})
 
-    return jsonify({"message": f"User {userid} deleted"})
+    return jsonify({"message": f"User {userid} deleted"}), 200
 
 
 # Function to alter/modify a user
@@ -241,7 +244,7 @@ def modify_user(userid):
                              token=token,
                              context_name="DEFAULT")
         except OmasError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"})
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
 
         try:
             user2 = User.read(con=con, userId=Xsd_NCName(userid))  # read the user from the triple store
@@ -302,7 +305,9 @@ def create_project(projectid):
                              repo="omas",
                              token=token,
                              context_name="DEFAULT")
-
+        except OmasError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+        try:
             project = Project(con=con,
                               projectShortName=Xsd_NCName(projectShortName),  # NO
                               projectIri=Iri(projectIri),  # NO
@@ -313,11 +318,10 @@ def create_project(projectid):
                               projectEnd=Xsd_date(projectEnd) if projectEnd else None  # TODO: testen dass Enddate nach Startdate ist; Darf nicht nur enddate ohne startdate geben, aber nur startdate ist erlaubt --> magic function greater than wird noch gemacht von lukas
                               )
             project.create()
-
         except OmasErrorValue as error:
             return jsonify({'message': str(error)}), 400
-        except OmasError as error:
-            return jsonify({'message': str(error)})
+        except OmasErrorNoPermission as error:
+            return jsonify({'message': str(error)}), 400
 
         return jsonify({"message": "Project successfully created"}), 200
     else:
@@ -335,15 +339,16 @@ def delete_project(projectid):
                          repo="omas",
                          token=token,
                          context_name="DEFAULT")
-
+    except OmasError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+    try:
         project = Project.read(con=con, projectIri_SName=Xsd_NCName(projectid))
+    except OmasErrorNotFound as error:
+        return jsonify({'message': str(error)}), 400
+    try:
         project.delete()
     except OmasErrorValue as error:
         return jsonify({'message': str(error)}), 400
-    except OmasErrorNotFound as error:
-        return jsonify({'message': str(error)}), 400
-    # except Exception as error:
-    #     return jsonify({'message': f"Generischer Fehler. Muss noch abgefangen werden!!! {str(error)}"})
 
     return jsonify({"message": "Project successfully deleted"}), 200
 
@@ -359,7 +364,9 @@ def read_project(projectid):
                          repo="omas",
                          token=token,
                          context_name="DEFAULT")
-
+    except OmasError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+    try:
         project = Project.read(con=con, projectIri_SName=projectid)
     except OmasErrorValue as error:
         return jsonify({'message': str(error)}), 400
@@ -387,12 +394,12 @@ def search_project():
                              repo="omas",
                              token=token,
                              context_name="DEFAULT")
-
+        except OmasError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+        try:
             projects = Project.search(con=con, label=label, comment=comment)
             return jsonify({"message": str(projects)}), 200
         except OmasErrorValue as error:
-            return jsonify({'message': str(error)}), 400
-        except OmasError as error:
             return jsonify({'message': str(error)}), 400
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
@@ -421,8 +428,7 @@ def modify_project(projectid):
                              token=token,
                              context_name="DEFAULT")
         except OmasError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"})
-
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
         try:
             project = Project.read(con=con, projectIri_SName=projectid)
         except OmasErrorNotFound as error:
