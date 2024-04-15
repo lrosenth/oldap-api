@@ -62,7 +62,6 @@ def create_user(userid):
     try:
         Xsd_NCName(userid)
     except OmasErrorValue as err:
-        print("in Except")
         return jsonify({"message": str(err)}), 400
     out = request.headers['Authorization']
     b, token = out.split()
@@ -249,7 +248,7 @@ def modify_user(userid):
         try:
             user2 = User.read(con=con, userId=Xsd_NCName(userid))  # read the user from the triple store
         except OmasErrorNotFound as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 404
 
         if firstname:
             user2.givenName = Xsd_string(firstname)
@@ -269,11 +268,11 @@ def modify_user(userid):
         try:
             user2.update()
         except OmasErrorUpdateFailed as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 500
         except OmasErrorValue as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 400
         except OmasError as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 500
 
         return jsonify({"message": "User updated successfully"}), 200
 
@@ -321,7 +320,7 @@ def create_project(projectid):
         except OmasErrorValue as error:
             return jsonify({'message': str(error)}), 400
         except OmasErrorNoPermission as error:
-            return jsonify({'message': str(error)}), 400
+            return jsonify({'message': str(error)}), 401
 
         return jsonify({"message": "Project successfully created"}), 200
     else:
@@ -432,7 +431,7 @@ def modify_project(projectid):
         try:
             project = Project.read(con=con, projectIri_SName=projectid)
         except OmasErrorNotFound as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 404
 
         if label:
             project.label = LangString(label)
@@ -446,11 +445,11 @@ def modify_project(projectid):
         try:
             project.update()
         except OmasErrorNoPermission as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 401
         except OmasErrorUpdateFailed as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 500
         except OmasError as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 500
 
         return jsonify({"message": "Project updated successfully"}), 200
     else:
