@@ -48,6 +48,15 @@ def test_create_project_with_missing_optional_fields(client, token_headers):
     print(res)
 
 
+def test_create_nonsensicle_project(client, token_headers):
+    header = token_headers[1]
 
+    response = client.put('/admin/project/testproject', json={
+        "nonsens": "this is nonsense1234",
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == "To create a project, at least the projectshortname, label, comment and namespaceIri are required"
 
 
