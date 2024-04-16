@@ -9,7 +9,7 @@ def test_delete_project(client, token_headers, testproject):
     assert res['message'] == 'Project successfully deleted'
 
     response = client.get('/admin/project/testproject', headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 
 def test_bad_token(client, token_headers):
@@ -19,6 +19,6 @@ def test_bad_token(client, token_headers):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.delete('/admin/project/testproject', headers=header)
-    assert response.status_code == 401
+    assert response.status_code == 403
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"

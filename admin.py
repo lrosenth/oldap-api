@@ -1,6 +1,5 @@
 from typing import Dict, Set
 
-import jwt
 from flask import Blueprint, request, jsonify
 from omaslib.src.connection import Connection
 from omaslib.src.dtypes.namespaceiri import NamespaceIRI
@@ -9,12 +8,10 @@ from omaslib.src.helpers.langstring import LangString
 from omaslib.src.helpers.observable_set import ObservableSet
 from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue, \
     OmasErrorUpdateFailed, OmasErrorNoPermission
-from omaslib.src.helpers.tools import str2qname_anyiri
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.project import Project
 from omaslib.src.user import User
 from omaslib.src.xsd.iri import Iri
-from omaslib.src.xsd.xsd_anyuri import Xsd_anyURI
 from omaslib.src.xsd.xsd_date import Xsd_date
 from omaslib.src.xsd.xsd_ncname import Xsd_NCName
 from omaslib.src.xsd.xsd_qname import Xsd_QName
@@ -109,7 +106,7 @@ def create_user(userid):
                              token=token,
                              context_name="DEFAULT")
         except OmasError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             user = User(con=con,
                         userId=userid,
@@ -144,7 +141,7 @@ def read_users(userid):
                          token=token,
                          context_name="DEFAULT")
     except OmasError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
         user = User.read(con=con, userId=userid)
@@ -182,13 +179,13 @@ def delete_user(userid):
                          token=token,
                          context_name="DEFAULT")
     except OmasError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
         user3 = User.read(con=con, userId=userid)
         user3.delete()
     except OmasErrorNotFound as error:
-        return jsonify({"message": str(error)})
+        return jsonify({"message": str(error)}), 404
 
     return jsonify({"message": f"User {userid} deleted"}), 200
 
@@ -243,7 +240,7 @@ def modify_user(userid):
                              token=token,
                              context_name="DEFAULT")
         except OmasError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
         try:
             user2 = User.read(con=con, userId=Xsd_NCName(userid))  # read the user from the triple store
@@ -270,7 +267,9 @@ def modify_user(userid):
         except OmasErrorUpdateFailed as error:
             return jsonify({"message": str(error)}), 500
         except OmasErrorValue as error:
-            return jsonify({"message": str(error)}), 400
+            return jsonify({"message": str(error)}), 404
+        except OmasErrorNoPermission as error:
+            return jsonify({"message": str(error)}), 403
         except OmasError as error:
             return jsonify({"message": str(error)}), 500
 
@@ -305,7 +304,7 @@ def create_project(projectid):
                              token=token,
                              context_name="DEFAULT")
         except OmasError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             project = Project(con=con,
                               projectShortName=Xsd_NCName(projectShortName),  # NO
@@ -320,7 +319,9 @@ def create_project(projectid):
         except OmasErrorValue as error:
             return jsonify({'message': str(error)}), 400
         except OmasErrorNoPermission as error:
-            return jsonify({'message': str(error)}), 401
+            return jsonify({'message': str(error)}), 403
+        except OmasErrorAlreadyExists as error:
+            return jsonify({'message': str(error)}), 409
 
         return jsonify({"message": "Project successfully created"}), 200
     else:
@@ -329,7 +330,6 @@ def create_project(projectid):
 
 @bp.route('/project/<projectid>', methods=['DELETE'])
 def delete_project(projectid):
-    # TODO: Delete funktioniert nicht. Warum?? Liegts am Read?
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -339,15 +339,15 @@ def delete_project(projectid):
                          token=token,
                          context_name="DEFAULT")
     except OmasError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
         project = Project.read(con=con, projectIri_SName=Xsd_NCName(projectid))
     except OmasErrorNotFound as error:
-        return jsonify({'message': str(error)}), 400
+        return jsonify({'message': str(error)}), 404
     try:
         project.delete()
     except OmasErrorValue as error:
-        return jsonify({'message': str(error)}), 400
+        return jsonify({'message': str(error)}), 403
 
     return jsonify({"message": "Project successfully deleted"}), 200
 
@@ -364,13 +364,11 @@ def read_project(projectid):
                          token=token,
                          context_name="DEFAULT")
     except OmasError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
         project = Project.read(con=con, projectIri_SName=projectid)
-    except OmasErrorValue as error:
-        return jsonify({'message': str(error)}), 400
     except OmasErrorNotFound as error:
-        return jsonify({'message': str(error)}), 400
+        return jsonify({'message': str(error)}), 404
 
     return jsonify({"message": str(project)}), 200
 
@@ -394,12 +392,12 @@ def search_project():
                              token=token,
                              context_name="DEFAULT")
         except OmasError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             projects = Project.search(con=con, label=label, comment=comment)
             return jsonify({"message": str(projects)}), 200
         except OmasErrorValue as error:
-            return jsonify({'message': str(error)}), 400
+            return jsonify({'message': str(error)}), 404
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
@@ -414,7 +412,7 @@ def modify_project(projectid):
         data = request.get_json()
         if (data.get("projectShortName", None) is not None or data.get("projectIri", None) is not None
                 or data.get("namespaceIri", None) is not None):
-            return jsonify({"message": f"projectShortName, projectIri and namespaceIri must not be modified"}), 400
+            return jsonify({"message": f"projectShortName, projectIri and namespaceIri must not be modified"}), 403
 
         label = data.get("label", None)
         comment = data.get("comment", None)
@@ -427,7 +425,7 @@ def modify_project(projectid):
                              token=token,
                              context_name="DEFAULT")
         except OmasError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             project = Project.read(con=con, projectIri_SName=projectid)
         except OmasErrorNotFound as error:
@@ -445,7 +443,7 @@ def modify_project(projectid):
         try:
             project.update()
         except OmasErrorNoPermission as error:
-            return jsonify({"message": str(error)}), 401
+            return jsonify({"message": str(error)}), 403
         except OmasErrorUpdateFailed as error:
             return jsonify({"message": str(error)}), 500
         except OmasError as error:

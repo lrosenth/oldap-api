@@ -87,7 +87,7 @@ def test_bad_token(client, token_headers):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.get('/admin/user/rosman', headers=header)
-    assert response.status_code == 401
+    assert response.status_code == 403
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
 

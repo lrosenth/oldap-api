@@ -18,6 +18,6 @@ def test_bad_token(client, token_headers):
     response = client.get('/admin/project/search', json={
         "label": "unittest"
     }, headers=header)
-    assert response.status_code == 401
+    assert response.status_code == 403
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
