@@ -54,3 +54,14 @@ def test_delete_nonexisting_user(client, token_headers):
     # Cleanup
     client.delete('/admin/user/rosman', headers=header)
 
+
+def test_bad_token(client, token_headers):
+    header = token_headers[1]
+    token = header['Authorization'].split(' ')[1]
+    modified_token = token + "kappa"
+    header['Authorization'] = 'Bearer ' + modified_token
+
+    response = client.delete('/admin/user/kappa', headers=header)
+    assert response.status_code == 401
+    res = response.json
+    assert res["message"] == "Connection failed: Wrong credentials"

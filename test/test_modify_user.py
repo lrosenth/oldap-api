@@ -272,3 +272,16 @@ def test_modify_nonexisting_user(client, token_headers):
     res = response.json
     assert res['message'] == 'User "nonexistinguser" not found.'
 
+
+def test_bad_token(client, token_headers):
+    header = token_headers[1]
+    token = header['Authorization'].split(' ')[1]
+    modified_token = token + "kappa"
+    header['Authorization'] = 'Bearer ' + modified_token
+
+    response = client.post('/admin/user/nonexistinguser', json={
+        "givenName": "Kappa"
+    }, headers=header)
+    assert response.status_code == 401
+    res = response.json
+    assert res["message"] == "Connection failed: Wrong credentials"

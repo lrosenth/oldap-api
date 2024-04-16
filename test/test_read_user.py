@@ -79,3 +79,15 @@ def test_empty_projects(client, token_headers):
 
     client.delete('/admin/user/rosman', headers=header)
 
+
+def test_bad_token(client, token_headers):
+    header = token_headers[1]
+    token = header['Authorization'].split(' ')[1]
+    modified_token = token + "kappa"
+    header['Authorization'] = 'Bearer ' + modified_token
+
+    response = client.get('/admin/user/rosman', headers=header)
+    assert response.status_code == 401
+    res = response.json
+    assert res["message"] == "Connection failed: Wrong credentials"
+
