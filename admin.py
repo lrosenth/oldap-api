@@ -264,13 +264,13 @@ def modify_user(userid):
 
         try:
             user2.update()
-        except OmasErrorUpdateFailed as error:
+        except OmasErrorUpdateFailed as error:  # hard to test
             return jsonify({"message": str(error)}), 500
         except OmasErrorValue as error:
             return jsonify({"message": str(error)}), 404
-        except OmasErrorNoPermission as error:
+        except OmasErrorNoPermission as error:  # prob bug in backend -- not reachable yet
             return jsonify({"message": str(error)}), 403
-        except OmasError as error:
+        except OmasError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 500
 
         return jsonify({"message": "User updated successfully"}), 200
@@ -316,12 +316,12 @@ def create_project(projectid):
                               projectEnd=Xsd_date(projectEnd) if projectEnd else None  # TODO: testen dass Enddate nach Startdate ist; Darf nicht nur enddate ohne startdate geben, aber nur startdate ist erlaubt --> magic function greater than wird noch gemacht von lukas
                               )
             project.create()
-        except OmasErrorValue as error:
-            return jsonify({'message': str(error)}), 400
         except OmasErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
         except OmasErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
+        except OmasError as error:  # should not be reachable
+            return jsonify({'message': str(error)}), 500
 
         return jsonify({"message": "Project successfully created"}), 200
     else:
@@ -346,8 +346,10 @@ def delete_project(projectid):
         return jsonify({'message': str(error)}), 404
     try:
         project.delete()
-    except OmasErrorValue as error:
+    except OmasErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
+    except OmasError as error:  # Should not be reachable!
+        return jsonify({'message': str(error)}), 500
 
     return jsonify({"message": "Project successfully deleted"}), 200
 
@@ -396,7 +398,7 @@ def search_project():
         try:
             projects = Project.search(con=con, label=label, comment=comment)
             return jsonify({"message": str(projects)}), 200
-        except OmasErrorValue as error:
+        except OmasErrorNotFound as error:
             return jsonify({'message': str(error)}), 404
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
@@ -434,7 +436,7 @@ def modify_project(projectid):
         if label:
             project.label = LangString(label)
         if comment:
-            project.comment = comment
+            project.comment = LangString(comment)
         if projectStart:
             project.projectStart = Xsd_date(projectStart)
         if projectEnd:
@@ -444,9 +446,9 @@ def modify_project(projectid):
             project.update()
         except OmasErrorNoPermission as error:
             return jsonify({"message": str(error)}), 403
-        except OmasErrorUpdateFailed as error:
+        except OmasErrorUpdateFailed as error:  # hard to test
             return jsonify({"message": str(error)}), 500
-        except OmasError as error:
+        except OmasError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 500
 
         return jsonify({"message": "Project updated successfully"}), 200

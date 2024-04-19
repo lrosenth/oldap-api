@@ -95,6 +95,25 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     print(readed)
 
 
+def test_modify_empty_permissions_inprojects(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    print(readed)
+
+
 def test_modify_empty_inproject(client, token_headers, testuser):
     header = token_headers[1]
 
@@ -184,7 +203,7 @@ def test_modify_empty_haspermission(client, token_headers, testuser):
     assert readed["has_permissions"] == []
 
 
-def test_bad_modify_haspermission(client, token_headers, testuser):
+def test_notwellformed_modify_haspermission(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
@@ -194,6 +213,19 @@ def test_bad_modify_haspermission(client, token_headers, testuser):
     assert response.status_code == 400
     res = response.json
     assert res["message"] == "The given permission is not a QName"
+
+
+def test_bad_modify_haspermission(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": ['Gagagakappa']
+    }, headers=header)
+
+    assert response.status_code == 404
+    res = response.json
+    print(res)
+    assert res["message"] == "One of the permission sets is not existing!"
 
 
 def test_malicious_modify_haspermission(client, token_headers, testuser):
@@ -285,3 +317,33 @@ def test_bad_token(client, token_headers):
     assert response.status_code == 403
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
+
+
+def test_no_permission_modify(client, token_headers, testuser):
+    # TODO: Funktioniert nicht. Warum?! --> Probably bug in Backend
+    header = token_headers[1]
+
+    client.put('/admin/user/rosmankappa', json={
+        "givenName": "Kappauser",
+        "familyName": "KappaKappatest",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+            }
+        ],
+        "hasPermissions": [
+            "GenericRestricted"
+        ]
+    }, headers=header)
+
+    login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})
+    token = login.json['token']
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+
+    response2 = client.post('/admin/user/rosman', json={
+        "givenName": "Kappa"
+    }, headers=headers)
+    assert response2.status_code == 403

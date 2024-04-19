@@ -22,3 +22,33 @@ def test_bad_token(client, token_headers):
     assert response.status_code == 403
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
+
+
+def test_no_permission_delete(client, token_headers, testproject):
+    # TODO: Funktioniert nicht. Warum?! --> Probably bug in Backend
+    header = token_headers[1]
+
+    client.put('/admin/user/rosmankappa', json={
+        "givenName": "Kappauser",
+        "familyName": "KappaKappatest",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+            }
+        ],
+        "hasPermissions": [
+            "GenericRestricted"
+        ]
+    }, headers=header)
+
+    login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})
+    token = login.json['token']
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+
+    response2 = client.delete('/admin/project/testproject', headers=headers)
+    res2 = response2.json
+    print(res2)
+    assert response2.status_code == 403
