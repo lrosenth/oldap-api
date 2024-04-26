@@ -295,9 +295,10 @@ def create_project(projectid):
         projectStart = data.get('projectStart', None)
         projectEnd = data.get('projectEnd', None)
 
-        if label is None or comment is None or namespaceIri is None:
+        if label is None or comment is None or namespaceIri is None or projectShortName is None:
             return jsonify({"message": f"To create a project, at least the projectshortname, label, comment and namespaceIri are required"}), 400
-
+        if label == [] or comment == []:
+            return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
         try:
             con = Connection(server='http://localhost:7200',
                              repo="omas",
@@ -313,7 +314,7 @@ def create_project(projectid):
                               namespaceIri=NamespaceIRI(namespaceIri),  # NO
                               comment=LangString(comment),
                               projectStart=Xsd_date(projectStart) if projectEnd else None,
-                              projectEnd=Xsd_date(projectEnd) if projectEnd else None  # TODO: testen dass Enddate nach Startdate ist; Darf nicht nur enddate ohne startdate geben, aber nur startdate ist erlaubt --> magic function greater than wird noch gemacht von lukas
+                              projectEnd=Xsd_date(projectEnd) if projectEnd else None
                               )
             project.create()
         except OmasErrorNoPermission as error:
@@ -433,14 +434,19 @@ def modify_project(projectid):
         except OmasErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
 
-        if label:
-            project.label = LangString(label)
-        if comment:
-            project.comment = LangString(comment)
-        if projectStart:
-            project.projectStart = Xsd_date(projectStart)
-        if projectEnd:
-            project.projectEnd = Xsd_date(projectEnd)
+        try:
+            if label:
+                project.label = LangString(label)
+            if comment:
+                project.comment = LangString(comment)
+            if projectStart:
+                project.projectStart = Xsd_date(projectStart)
+            if projectEnd:
+                project.projectEnd = Xsd_date(projectEnd)
+        except OmasErrorValue as error:
+            return jsonify({"message": str(error)})
+        except OmasError as error:
+            return jsonify({"message": str(error)})
 
         try:
             project.update()

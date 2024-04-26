@@ -29,6 +29,18 @@ def test_modify_label(client, token_headers, testproject):
     assert comments_decoded == '"Kappa@fr"'
 
 
+def test_bad_modify_label(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.post('/admin/project/testproject', json={
+        "label": "Gaga\"++-usw@en"
+    }, headers=header)
+    res = response.json
+    print(res)
+    response2 = client.get('/admin/project/testproject', headers=header)
+    print(response2.text)
+
+
 def test_modify_comment(client, token_headers, testproject):
     header = token_headers[1]
 
@@ -57,6 +69,19 @@ def test_modify_comment(client, token_headers, testproject):
     assert comments_decoded == '"For testing@en", "FÜR DAS TESTEN@de", "Pour les tests@fr"'
 
 
+def test_bad_modify_comment(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": "Gaga\"++-usw@en"
+    }, headers=header)
+    res = response.json
+    print(res)
+    response2 = client.get('/admin/project/testproject', headers=header)
+    print(response2.text)
+
+
+
 def test_modify_startdate(client, token_headers, testproject):
     header = token_headers[1]
 
@@ -71,6 +96,17 @@ def test_modify_startdate(client, token_headers, testproject):
     match = re.search(r'start:\s*(.+?)(?=\\n)', response2.text)
     comments_raw = match.group(1)
     assert comments_raw == "2024-05-28"
+
+
+def test_modify_bad_startdate(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.post('/admin/project/testproject', json={
+        "projectStart": "2024-05-28-88<code>kappa</code>"
+    }, headers=header)
+
+    res = response.json
+    print(res)
 
 
 def test_modify_enddate(client, token_headers, testproject):
@@ -150,7 +186,6 @@ def test_no_json(client, token_headers, testuser):
 
 
 def test_no_permission_modify(client, token_headers, testproject):
-    # TODO: Funktioniert nicht. Warum?! --> Probably bug in Backend
     header = token_headers[1]
 
     client.put('/admin/user/rosmankappa', json={

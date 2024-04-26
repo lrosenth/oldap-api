@@ -52,3 +52,15 @@ def test_no_permission_delete(client, token_headers, testproject):
     res2 = response2.json
     print(res2)
     assert response2.status_code == 403
+
+
+def test_delete_nonexisting_project(client, token_headers):
+    header = token_headers[1]
+
+    response = client.delete('/admin/project/nonexistingproject', headers=header)
+
+    assert response.status_code == 404
+
+    res = response.json
+    assert res["message"] == 'Project with IRI/shortname "nonexistingproject" not found.'
+    print(res)

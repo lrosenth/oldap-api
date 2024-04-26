@@ -25,7 +25,7 @@ def test_no_json(client, token_headers):
     assert res['message'] == "JSON expected. Instead received None"
 
 
-def test_create_project_with_missing_fields(client, token_headers):
+def test_create_project_with_missing_label(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/project/testproject', json={
@@ -33,6 +33,7 @@ def test_create_project_with_missing_fields(client, token_headers):
         "comment": ["For testing@en", "Für Tests@de"],
         "namespaceIri": "http://unitest.org/project/unittest#",
         "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
     }, headers=header)
 
     assert response.status_code == 400
@@ -41,7 +42,73 @@ def test_create_project_with_missing_fields(client, token_headers):
     print(res)
 
 
-def test_create_project_with_missing_optional_fields(client, token_headers):
+def test_create_project_with_missing_comment(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == "To create a project, at least the projectshortname, label, comment and namespaceIri are required"
+    print(res)
+
+
+def test_create_project_with_missing_namespaceIri(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == "To create a project, at least the projectshortname, label, comment and namespaceIri are required"
+    print(res)
+
+
+def test_create_project_with_missing_projectIri(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+
+def test_create_project_with_missing_projectstart(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+
+def test_create_project_with_missing_projectend(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/project/testproject', json={
@@ -135,4 +202,56 @@ def test_no_permission_create_project(client, token_headers, testuser):
     }, headers=headers)
     assert response2.status_code == 403
 
+
+def test_bad_langstring(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": 2000,
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    res = response.json
+    print(res)
+
+
+def test_bad_iri(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "projectIri": 2000,
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    res = response.json
+    print(res)
+
+
+def test_no_iri(client, token_headers):
+    # TODO: Wenn ich beim Comment einfach einen String eingebe dann kriege ich kein language tag...
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    res = response.json
+    print(res)
+
+    getting = client.get('/admin/project/testproject', headers=header)
+    res2 = getting.json
+    print(res2)
 
