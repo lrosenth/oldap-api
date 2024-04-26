@@ -384,6 +384,7 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: "Project successfully created"
         400:
           description: "Invalid content type"
           content:
@@ -392,27 +393,41 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Invalid content type, JSON required"
-        "401":
+                    example: "Invalid content type, JSON required//A meaningful label and comment need to be provided and can not be empty (...)"
+        403:
           description: "Unauthorized"
-        404:
-          description: "User not found"
           content:
             application/json:
               schema:
                 properties:
                   message:
                     type: string
-                    example: "User {userId} not found"
+                    example: "No permission to create a new project.//Connection failed: {str(error)}"
+        409:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'A Project with a projectIri "http://unittest.org/project/testproject" already exists'
         500:
           description: "Internal Server error"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
     delete:
       summary: "Delete a project"
       description: "The user that has the rights (given by his token) deletes a project"
       security:
         - AccessToken: [ ]
       parameters:
-        - name: userId
+        - name: projectId
           in: path
           required: true
           schema:
@@ -426,8 +441,56 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Peoject {projectId} deleted"
-        "401":
+                    example: "Project successfully deleted"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OmasError}//No permission to delete project {project}."
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "nonexistingproject" not found.'
+        500:
+          description: "Internal Server error"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+    get:
+      summary: "Gets/reads Information about a project"
+      description: "The user that has the rights (given by his token) gets Information about a project"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project: http://unittest.org/project/testproject\n  Creation: 2024-04-26T16:55:12.917387 by https://orcid.org/0000-0003-1681-4036\n  Modified: 2024-04-26T16:55:12.917387 by https://orcid.org/0000-0003-1681-4036\n  Label: "unittest"@en, "unittest"@de\n  Comment: "For testing"@en, "Für Tests"@de\n  ShortName: testproject\n  Namespace IRI: http://unitest.org/project/unittest#\n  Project start: 1993-04-05\n  Project end: 2000-01-10\n'
+        403:
           description: "Unauthorized"
           content:
             application/json:
@@ -444,9 +507,130 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Project {projectId} not found"
+                    example: 'Project with IRI/shortname "projectdoesnotexist" not found.'
         500:
           description: "Internal Server error"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+    post:
+      summary: "Modify/updates a project"
+      description: "The user that has the rights (given by his token) modifies a project"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project updated successfully'
+        400:
+          description: "Expected JSON, received something else"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "JSON expected. Instead received {request.content_type}"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'projectShortName, projectIri and namespaceIri must not be modified//Connection failed: {str(error)}//No permission to create a new project.'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "notexistingproject" not found.'
+        500:
+          description: "Internal Server error"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+  /admin/project/search:
+    get:
+      summary: "Searches for given parameters"
+      description: "The user that has the rights (given by his token) searches for given parameters in projects"
+      security:
+        - AccessToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: '[Iri("http://unittest.org/project/testproject")]'
+        400:
+          description: "Expected JSON, received something else//Either label or comment needs to be provided"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "JSON expected. Instead received {request.content_type}"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OmasError}"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'No matching projects found.'
+        500:
+          description: "Internal Server error"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
 
 components:
   schemas:
