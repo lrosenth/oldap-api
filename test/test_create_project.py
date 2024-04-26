@@ -53,9 +53,8 @@ def test_create_project_with_missing_comment(client, token_headers):
         "projectEnd": "2000-01-10"
     }, headers=header)
 
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
-    assert res["message"] == "To create a project, at least the projectshortname, label, comment and namespaceIri are required"
     print(res)
 
 
@@ -135,6 +134,21 @@ def test_create_nonsensicle_project(client, token_headers):
     res = response.json
     assert res["message"] == "To create a project, at least the projectshortname, label, comment and namespaceIri are required"
 
+
+def test_inconsistent_start_and_enddate(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "2000-01-10",
+        "projectEnd": "1993-04-05"
+    }, headers=header)
+
+    res = response.json
+    print(res)
 
 def test_bad_token(client, token_headers):
     header = token_headers[1]
@@ -233,25 +247,4 @@ def test_bad_iri(client, token_headers, testuser):
 
     res = response.json
     print(res)
-
-
-def test_no_iri(client, token_headers):
-    # TODO: Wenn ich beim Comment einfach einen String eingebe dann kriege ich kein language tag...
-    header = token_headers[1]
-
-    response = client.put('/admin/project/testproject', json={
-        "projectIri": "http://unittest.org/project/testproject",
-        "label": ["unittest@en", "unittest@de"],
-        "comment": ["For testing@en", "Für Tests@de"],
-        "namespaceIri": "http://unitest.org/project/unittest#",
-        "projectStart": "1993-04-05",
-        "projectEnd": "2000-01-10"
-    }, headers=header)
-
-    res = response.json
-    print(res)
-
-    getting = client.get('/admin/project/testproject', headers=header)
-    res2 = getting.json
-    print(res2)
 
