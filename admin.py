@@ -290,12 +290,12 @@ def create_project(projectid):
         projectIri = data.get("projectIri", None)
         projectShortName = projectid  # Necessary
         label = data.get("label", None)  # Necessary
-        comment = data.get('comment', None)  # Necessary
+        comment = data.get('comment', None)
         namespaceIri = data.get('namespaceIri', None)  # Necessary
         projectStart = data.get('projectStart', None)
         projectEnd = data.get('projectEnd', None)
 
-        if label is None or comment is None or namespaceIri is None or projectShortName is None:
+        if label is None or namespaceIri is None or projectShortName is None:
             return jsonify({"message": f"To create a project, at least the projectshortname, label, comment and namespaceIri are required"}), 400
         if label == [] or comment == []:
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
@@ -321,6 +321,8 @@ def create_project(projectid):
             return jsonify({'message': str(error)}), 403
         except OmasErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
+        # except OmasErrorInconsistency as error:  # TODO: Activate once the new poetry update is uploaded
+        #     return jsonify({'message': str(error)}),
         except OmasError as error:  # should not be reachable
             return jsonify({'message': str(error)}), 500
 
