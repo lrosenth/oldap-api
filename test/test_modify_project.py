@@ -10,6 +10,7 @@ def test_modify_label(client, token_headers, testproject):
 
     assert response.status_code == 200
     res = response.json
+    print(res)
 
     response2 = client.get('/admin/project/testproject', headers=header)
     # Regex to find the content of "Comment"
@@ -173,6 +174,7 @@ def test_project_to_modify_not_found(client, token_headers):
 
     assert response.status_code == 404
     res = response.json
+    print(res)
     assert res["message"] == 'Project with IRI/shortname "notexistingproject" not found.'
 
 
