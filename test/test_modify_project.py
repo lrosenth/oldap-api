@@ -22,7 +22,6 @@ def test_modify_label(client, token_headers, testproject):
 
     # Correctly place the quotation marks and handle the final quotation mark
     comments_cleaned = re.sub(r',\s', '", ', comments_cleaned)  # Add closing " before comma
-    comments_cleaned += '"'  # Add a closing quotation mark at the end of the string
 
     # Decode unicode escapes
     comments_decoded = bytes(comments_cleaned, "utf-8").decode("unicode_escape")
