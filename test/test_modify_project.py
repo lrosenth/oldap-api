@@ -59,10 +59,6 @@ def test_modify_comment(client, token_headers, testproject):
     comments_cleaned = re.sub(r'\\(?=")', '', comments_raw)  # Remove \ before "
     comments_cleaned = re.sub(r'"@', '@', comments_cleaned)  # Remove " before @
 
-    # Correctly place the quotation marks and handle the final quotation mark
-    comments_cleaned = re.sub(r',\s', '", ', comments_cleaned)  # Add closing " before comma
-    comments_cleaned += '"'  # Add a closing quotation mark at the end of the string
-
     # Decode unicode escapes
     comments_decoded = bytes(comments_cleaned, "utf-8").decode("unicode_escape")
 
