@@ -147,6 +147,7 @@ def test_inconsistent_start_and_enddate(client, token_headers):
         "projectEnd": "1993-04-05"
     }, headers=header)
 
+    assert response.status_code == 400
     res = response.json
     print(res)
 
@@ -183,7 +184,6 @@ def test_project_already_exists(client, token_headers, testproject):
 
 
 def test_no_permission_create_project(client, token_headers, testuser):
-    # TODO: Funktioniert nicht. Warum?!
     header = token_headers[1]
 
     client.put('/admin/user/rosmankappa', json={
@@ -229,7 +229,9 @@ def test_bad_langstring(client, token_headers, testuser):
         "projectEnd": "2000-01-10"
     }, headers=header)
 
+    assert response.status_code == 400
     res = response.json
+    assert res["message"] == 'LangString parameter has wrong datatype: int, must be "str | Xsd_string | List[str] | Dict[Language | str, str] | LangString"'
     print(res)
 
 
@@ -245,6 +247,8 @@ def test_bad_iri(client, token_headers, testuser):
         "projectEnd": "2000-01-10"
     }, headers=header)
 
+    assert response.status_code == 400
     res = response.json
+    assert res["message"] == 'Invalid value for IRI: "2000"'
     print(res)
 

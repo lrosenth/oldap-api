@@ -77,12 +77,11 @@ def test_bad_modify_comment(client, token_headers, testproject):
     print(response2.text)
 
 
-
 def test_modify_startdate(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
-        "projectStart": "2024-05-28"
+        "projectStart": "1995-05-28"
     }, headers=header)
 
     assert response.status_code == 200
@@ -91,7 +90,7 @@ def test_modify_startdate(client, token_headers, testproject):
     # Regex to find the content of "Comment"
     match = re.search(r'start:\s*(.+?)(?=\\n)', response2.text)
     comments_raw = match.group(1)
-    assert comments_raw == "2024-05-28"
+    assert comments_raw == "1995-05-28"
 
 
 def test_modify_bad_startdate(client, token_headers, testproject):

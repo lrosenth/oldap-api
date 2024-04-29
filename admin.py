@@ -7,7 +7,7 @@ from omaslib.src.enums.permissions import AdminPermission
 from omaslib.src.helpers.langstring import LangString
 from omaslib.src.helpers.observable_set import ObservableSet
 from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue, \
-    OmasErrorUpdateFailed, OmasErrorNoPermission
+    OmasErrorUpdateFailed, OmasErrorNoPermission, OmasErrorInconsistency
 from omaslib.src.in_project import InProjectClass
 from omaslib.src.project import Project
 from omaslib.src.user import User
@@ -321,8 +321,10 @@ def create_project(projectid):
             return jsonify({'message': str(error)}), 403
         except OmasErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
-        # except OmasErrorInconsistency as error:  # TODO: Activate once the new poetry update is uploaded
-        #     return jsonify({'message': str(error)}),
+        except OmasErrorInconsistency as error:
+            return jsonify({'message': str(error)}), 400
+        except OmasErrorValue as error:
+            return jsonify({'message': str(error)}), 400
         except OmasError as error:  # should not be reachable
             return jsonify({'message': str(error)}), 500
 
@@ -454,6 +456,10 @@ def modify_project(projectid):
             project.update()
         except OmasErrorNoPermission as error:
             return jsonify({"message": str(error)}), 403
+        except OmasErrorInconsistency as error:
+            return jsonify({'message': str(error)}), 400
+        except OmasErrorValue as error:
+            return jsonify({'message': str(error)}), 400
         except OmasErrorUpdateFailed as error:  # hard to test
             return jsonify({"message": str(error)}), 500
         except OmasError as error:  # should not be reachable
