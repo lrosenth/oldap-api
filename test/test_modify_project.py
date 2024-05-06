@@ -35,6 +35,7 @@ def test_bad_modify_label(client, token_headers, testproject):
     response = client.post('/admin/project/testproject', json={
         "label": "Gaga\"++-usw@en"
     }, headers=header)
+    assert response.status_code == 200
     res = response.json
     print(res)
     response2 = client.get('/admin/project/testproject', headers=header)
@@ -71,6 +72,7 @@ def test_bad_modify_comment(client, token_headers, testproject):
     response = client.post('/admin/project/testproject', json={
         "comment": "Gaga\"++-usw@en"
     }, headers=header)
+    assert response.status_code == 200
     res = response.json
     print(res)
     response2 = client.get('/admin/project/testproject', headers=header)
@@ -100,6 +102,7 @@ def test_modify_bad_startdate(client, token_headers, testproject):
         "projectStart": "2024-05-28-88<code>kappa</code>"
     }, headers=header)
 
+    assert response.status_code == 400
     res = response.json
     print(res)
 
@@ -205,8 +208,48 @@ def test_no_permission_modify(client, token_headers, testproject):
     }
 
     response2 = client.post('/admin/project/testproject', json={
-        "givenName": "Kappa"
+        "label": "Kappa"
     }, headers=headers)
     res2 = response2.json
     print(res2)
     assert response2.status_code == 403
+
+
+def test_modify_inconsistent_dates(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.post('/admin/project/testproject', json={
+        "projectEnd": "1992-04-05"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    response2 = client.get('/admin/project/testproject', headers=header)
+    print(response2.text)
+
+
+def test_modify_nothing(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.post('/admin/project/testproject', json={
+
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == "Either the label, comment, projectStart or projectEnd needs to be modified"
+    print(res)
+
+
+def test_randomstuff(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.post('/admin/project/testproject', json={
+        "label": ""
+    }, headers=header)
+
+    # assert response.status_code == 400
+    res = response.json
+    print(res)
+    response2 = client.get('/admin/project/testproject', headers=header)
+    print(response2.text)

@@ -99,7 +99,7 @@ def test_create_project_with_missing_projectstart(client, token_headers):
         "label": ["unittest@en", "unittest@de"],
         "comment": ["For testing@en", "Für Tests@de"],
         "namespaceIri": "http://unitest.org/project/unittest#",
-        "projectEnd": "2000-01-10"
+        "projectEnd": "2222-01-10"
     }, headers=header)
 
     assert response.status_code == 200
@@ -150,6 +150,7 @@ def test_inconsistent_start_and_enddate(client, token_headers):
     assert response.status_code == 400
     res = response.json
     print(res)
+
 
 def test_bad_token(client, token_headers):
     header = token_headers[1]
@@ -252,3 +253,66 @@ def test_bad_iri(client, token_headers, testuser):
     assert res["message"] == 'Invalid value for IRI: "2000"'
     print(res)
 
+
+def test_create_empty_label(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": [],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == 'A meaningful label and comment need to be provided and can not be empty'
+    print(res)
+
+
+def test_create_empty_comment(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": [],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == 'A meaningful label and comment need to be provided and can not be empty'
+    print(res)
+
+
+def test_create_randomstuff(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={}, headers=header)
+
+    # assert response.status_code == 200
+    res = response.json
+    print(res)
+    response2 = client.get('/admin/project/testproject', headers=header)
+    print(response2.text)
+
+
+def test_bad_projectid(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject123<:!$', json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)

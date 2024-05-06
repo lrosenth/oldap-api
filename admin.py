@@ -131,7 +131,6 @@ def create_user(userid):
 @bp.route('/user/<userid>', methods=['GET'])
 def read_users(userid):
 
-    # TODO: Was kommt zurück wenn optional nicht definiert ist??? -> leerer array
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -148,7 +147,6 @@ def read_users(userid):
     except OmasErrorNotFound as error:
         return jsonify({"message": f'User {userid} not found'}), 404
 
-    # TODO: Abfangen, dass in projects und has permissions empty sein könnten!!
     # Building the response json
     answer = {
         "userIri": str(user.userIri),
@@ -426,6 +424,9 @@ def modify_project(projectid):
         projectStart = data.get("projectStart", None)
         projectEnd = data.get("projectEnd", None)
 
+        if label is None and comment is None and projectStart is None and projectEnd is None:
+            return jsonify({'message': 'Either the label, comment, projectStart or projectEnd needs to be modified'}), 400
+
         try:
             con = Connection(server='http://localhost:7200',
                              repo="omas",
@@ -448,18 +449,16 @@ def modify_project(projectid):
             if projectEnd:
                 project.projectEnd = Xsd_date(projectEnd)
         except OmasErrorValue as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 400
+        except OmasErrorInconsistency as error:
+            return jsonify({'message': str(error)}), 400
         except OmasError as error:
-            return jsonify({"message": str(error)})
+            return jsonify({"message": str(error)}), 500
 
         try:
             project.update()
         except OmasErrorNoPermission as error:
             return jsonify({"message": str(error)}), 403
-        except OmasErrorInconsistency as error:
-            return jsonify({'message': str(error)}), 400
-        except OmasErrorValue as error:
-            return jsonify({'message': str(error)}), 400
         except OmasErrorUpdateFailed as error:  # hard to test
             return jsonify({"message": str(error)}), 500
         except OmasError as error:  # should not be reachable

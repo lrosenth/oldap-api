@@ -232,7 +232,7 @@ def test_malicious_modify_haspermission(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": ['Gagaga+++kappa<!$'] # TODO: wenn man Gagaga+++kappa<!$ eingibt dann kommt komischer error. Injection?
+        "hasPermissions": ['Gagaga+++kappa<!$']
     }, headers=header)
 
     assert response.status_code == 400
@@ -249,7 +249,6 @@ def test_bad_general_modify_request(client, token_headers, testuser):
 
 
 def test_blanks_in_modify(client, token_headers, testuser):
-    # TODO: Should blanks be allowed in Names?
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
@@ -320,7 +319,6 @@ def test_bad_token(client, token_headers):
 
 
 def test_no_permission_modify(client, token_headers, testuser):
-    # TODO: Funktioniert nicht. Warum?! --> Probably bug in Backend
     header = token_headers[1]
 
     client.put('/admin/user/rosmankappa', json={
@@ -347,3 +345,16 @@ def test_no_permission_modify(client, token_headers, testuser):
         "givenName": "Kappa"
     }, headers=headers)
     assert response2.status_code == 403
+
+
+def test_modify_nonsense(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={}, headers=header)
+
+    # assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    print(readed)

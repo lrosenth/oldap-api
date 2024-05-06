@@ -253,7 +253,6 @@ def test_empty_hasPermissions(client, token_headers):
 
 
 def test_bad_userid(client, token_headers):
-    # TODO: Hier noch Bug im Backend
     header = token_headers[1]
 
     response = client.put('/admin/user/rosman123<:!$', json={
@@ -303,3 +302,10 @@ def test_bad_token(client, token_headers):
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
 
+
+def test_create_randomstuff(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/rosman', json={}, headers=header)
+    res = response.json
+    print(res)
