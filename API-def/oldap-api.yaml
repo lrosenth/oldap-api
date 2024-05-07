@@ -528,6 +528,20 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                label:
+                  type: string
+                comment:
+                  type: string
+                projectStart:
+                  type: string
+                projectEnd:
+                  type: string
+        required: true
       responses:
         "200":
           description: "OK"
@@ -585,6 +599,15 @@ paths:
           application/json:
             schema:
               properties:
+                label:
+                  type: string
+                comment:
+                  type: string
+                projectStart:
+                  type: string
+                projectEnd:
+                  type: string
+        required: true
 
       responses:
         "200":
