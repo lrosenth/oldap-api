@@ -152,6 +152,7 @@ def read_users(userid):
         "userIri": str(user.userIri),
         "userId": str(user.userId),
         "family_name": str(user.familyName),
+        "isActive": str(user.isActive),
         "given_name": str(user.givenName),
         "in_projects": [],
         "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
@@ -202,9 +203,10 @@ def modify_user(userid):
         password = data.get("password", None)
         inprojects = data.get('inProjects', None)
         haspermissions = data.get('hasPermissions', None)
+        isactive = data.get('isActive', None)
 
-        if firstname is None and lastname is None and password is None and inprojects is None and haspermissions is None:
-            return jsonify({"message": "Either the firstname, lastname, password, inProjects or hasPermissions needs to be modified"}), 400
+        if firstname is None and lastname is None and password is None and inprojects is None and haspermissions is None and isactive is None:
+            return jsonify({"message": "Either the firstname, lastname, password, isactive, inProjects or hasPermissions needs to be modified"}), 400
 
         in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
 
@@ -251,6 +253,10 @@ def modify_user(userid):
             user2.familyName = Xsd_string(lastname)
         if password:
             user2.credentials = Xsd_string(password)
+        if isactive is not None and isactive.lower() == 'true':
+            user2.isActive = True
+        else:
+            user2.isActive = False
         if in_project_dict:
             user2.inProject = InProjectClass(in_project_dict)
         if in_project_dict == {}:

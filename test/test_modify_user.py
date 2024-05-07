@@ -347,6 +347,30 @@ def test_no_permission_modify(client, token_headers, testuser):
     assert response2.status_code == 403
 
 
+def test_modify_active(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "isActive": "false"
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed['isActive'] == 'false'
+
+    response2 = client.post('/admin/user/rosman', json={
+        "isActive": "TRUE"
+    }, headers=header)
+    read2 = client.get('/admin/user/rosman', headers=header)
+    readed2 = read2.json
+    assert readed2['isActive'] == 'true'
+
+
+
 def test_modify_nonsense(client, token_headers, testuser):
     header = token_headers[1]
 

@@ -101,6 +101,8 @@ paths:
                     type: string
                   given_name:
                     type: string
+                  is_active:
+                    type: string
                   in_projects:
                     type: array
                     items:
@@ -299,6 +301,8 @@ paths:
                 familyName:
                   type: string
                 password:
+                  type: string
+                isActive:
                   type: string
                 inProjects:
                   type: array
