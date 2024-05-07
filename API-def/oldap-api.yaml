@@ -44,7 +44,7 @@ paths:
                   message:
                     type: string
                     example: "Invalid content type, JSON required"
-        "401":
+        "403":
           description: "Unauthorized"
           content:
             application/json:
@@ -118,7 +118,7 @@ paths:
                     type: array
                     items:
                       type: string
-        "401":
+        "403":
           description: "Unauthorized"
           content:
             application/json:
@@ -136,8 +136,6 @@ paths:
                   message:
                     type: string
                     example: "User {userId} not found"
-        500:
-          description: "Internal Server error"
     delete:
       summary: "Delete a user"
       description: "The user that has the rights (given by his token) deletes another user"
@@ -159,7 +157,7 @@ paths:
                   message:
                     type: string
                     example: "User {userid} deleted"
-        "401":
+        "403":
           description: "Unauthorized"
           content:
             application/json:
@@ -167,7 +165,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Connection failed: {OmasError}"
+                    example: "Connection failed: {OmasError}//Actor has no ADMIN_USERS permission for project {proj}"
         "404":
           description: "Not Found"
           content:
@@ -177,8 +175,6 @@ paths:
                   message:
                     type: string
                     example: "User {userId} not found"
-        500:
-          description: "Internal Server error"
     put:
       summary: "Create a new user"
       description: "Create a new user with the given data"
@@ -261,6 +257,15 @@ paths:
                   message:
                     type: string
                     example: "Missing field {field_name}//JSON expected. Instead received {request.content_type}//The given projectname is not a valid anyIri"
+        403:
+          description: "Connection failed"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OmasError}"
         409:
           description: "Userid or useriri already exists"
           content:
@@ -270,14 +275,6 @@ paths:
                   message:
                     type: string
                     example: "A user with a user ID {userId} already exists"
-        422:
-          description: "Passwort zu insicher - wird daher nicht bearbeitet"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
         500:
           description: "Internal Server error"
     post:
@@ -339,6 +336,15 @@ paths:
                   message:
                     type: string
                     example: "JSON expected. Instead received {request.content_type}"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OmasError}"
         404:
           description: "Userid not found"
           content:
@@ -512,14 +518,6 @@ paths:
                   message:
                     type: string
                     example: 'Project with IRI/shortname "projectdoesnotexist" not found.'
-        500:
-          description: "Internal Server error"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
 
     post:
       summary: "Modify/updates a project"

@@ -34,12 +34,12 @@ def login(userid):
                              userId=userid,
                              credentials=password,
                              context_name="DEFAULT")
-            resp = jsonify({'message': 'Login succeeded', 'token': con.token})
+            resp = jsonify({'message': 'Login succeeded', 'token': con.token}), 200
             return resp
         except OmasErrorNotFound as err:
             return jsonify({'message': str(err)}), 404
         except OmasError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 401
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
@@ -121,6 +121,8 @@ def create_user(userid):
             return jsonify({"message": str(error)}), 409
         except OmasErrorValue as error:
             return jsonify({'message': str(error)}), 400
+        except OmasError as error:
+            return jsonify({'message': str(error)})
 
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
@@ -185,6 +187,8 @@ def delete_user(userid):
         user3.delete()
     except OmasErrorNotFound as error:
         return jsonify({"message": str(error)}), 404
+    except OmasErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
 
     return jsonify({"message": f"User {userid} deleted"}), 200
 
