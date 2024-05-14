@@ -3,12 +3,13 @@ from typing import Dict, Set
 from flask import Blueprint, request, jsonify
 from omaslib.src.connection import Connection
 from omaslib.src.dtypes.namespaceiri import NamespaceIRI
-from omaslib.src.enums.permissions import AdminPermission
+from omaslib.src.enums.permissions import AdminPermission, DataPermission
 from omaslib.src.helpers.langstring import LangString
 from omaslib.src.helpers.observable_set import ObservableSet
 from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue, \
     OmasErrorUpdateFailed, OmasErrorNoPermission, OmasErrorInconsistency
 from omaslib.src.in_project import InProjectClass
+from omaslib.src.permissionset import PermissionSet
 from omaslib.src.project import Project
 from omaslib.src.user import User
 from omaslib.src.xsd.iri import Iri
@@ -132,7 +133,6 @@ def create_user(userid):
 # Function to read the contents of a user
 @bp.route('/user/<userid>', methods=['GET'])
 def read_users(userid):
-
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -170,7 +170,6 @@ def read_users(userid):
 # Function to delete a user
 @bp.route('/user/<userid>', methods=['DELETE'])
 def delete_user(userid):
-
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -210,7 +209,8 @@ def modify_user(userid):
         isactive = data.get('isActive', None)
 
         if firstname is None and lastname is None and password is None and inprojects is None and haspermissions is None and isactive is None:
-            return jsonify({"message": "Either the firstname, lastname, password, isactive, inProjects or hasPermissions needs to be modified"}), 400
+            return jsonify({
+                               "message": "Either the firstname, lastname, password, isactive, inProjects or hasPermissions needs to be modified"}), 400
 
         in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
 
@@ -289,7 +289,6 @@ def modify_user(userid):
 
 @bp.route('/project/<projectid>', methods=['PUT'])
 def create_project(projectid):
-
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -304,7 +303,8 @@ def create_project(projectid):
         projectEnd = data.get('projectEnd', None)
 
         if label is None or namespaceIri is None or projectShortName is None:
-            return jsonify({"message": f"To create a project, at least the projectshortname, label, comment and namespaceIri are required"}), 400
+            return jsonify({
+                               "message": f"To create a project, at least the projectshortname, label, comment and namespaceIri are required"}), 400
         if label == [] or comment == []:
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
         try:
@@ -369,7 +369,6 @@ def delete_project(projectid):
 
 @bp.route('/project/<projectid>', methods=['GET'])
 def read_project(projectid):
-
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -390,7 +389,6 @@ def read_project(projectid):
 
 @bp.route('/project/search', methods=['GET'])
 def search_project():
-
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -419,7 +417,6 @@ def search_project():
 
 @bp.route('/project/<projectid>', methods=['POST'])
 def modify_project(projectid):
-
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -435,7 +432,8 @@ def modify_project(projectid):
         projectEnd = data.get("projectEnd", None)
 
         if label is None and comment is None and projectStart is None and projectEnd is None:
-            return jsonify({'message': 'Either the label, comment, projectStart or projectEnd needs to be modified'}), 400
+            return jsonify(
+                {'message': 'Either the label, comment, projectStart or projectEnd needs to be modified'}), 400
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -478,3 +476,59 @@ def modify_project(projectid):
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
+
+@bp.route('/permissionset/<permisionsetid>', methods=['PUT'])
+def create_permissionset(permisionsetid):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+
+        data = request.get_json()
+        label = data.get("label", None)  # Necessary
+        comment = data.get("comment", None)  # Enum: Datapermission
+        givesPermission = data.get("givesPermission", None)  # Necessary
+        definedByProject = data.get('definedByProject', None)  # Necessary
+
+        if label is None or givesPermission is None or definedByProject is None:
+            return jsonify({
+                               "message": f"To create a permissionset, at least the label, givesPermission and definedByProject are required"}), 400
+        if label == [] or comment == []:
+            return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
+
+        if isinstance(givesPermission, list):
+            return jsonify({"message": "Only one permission can be provided and it must not be a List"}), 400
+
+        try:
+            givesPermission = DataPermission.from_string(givesPermission)
+        except ValueError as error:
+            return jsonify({"message": str(error)}), 400
+
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="omas",
+                             token=token,
+                             context_name="DEFAULT")
+        except OmasError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        try:
+            permissionset = PermissionSet(con=con,
+                                          label=LangString(label),
+                                          comment=LangString(comment),
+                                          givesPermission=givesPermission,
+                                          definedByProject=Iri(definedByProject))
+            permissionset.create()
+        except OmasErrorNoPermission as error:
+            return jsonify({'message': str(error)}), 403
+        except OmasErrorAlreadyExists as error:
+            return jsonify({'message': str(error)}), 409
+        except OmasErrorInconsistency as error:
+            return jsonify({'message': str(error)}), 400
+        except OmasErrorValue as error:
+            return jsonify({'message': str(error)}), 400
+        except OmasError as error:  # should not be reachable
+            return jsonify({'message': str(error)}), 500
+
+        return jsonify({"message": "Project successfully created"}), 200
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
