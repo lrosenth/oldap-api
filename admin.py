@@ -55,6 +55,7 @@ def logout(userid):
 # Function to create a user
 @bp.route('/user/<userid>', methods=['PUT'])
 def create_user(userid):
+    known_json_fields = {"givenName", "familyName", "password", "inProjects", "hasPermissions"}
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
     try:
@@ -65,6 +66,9 @@ def create_user(userid):
     b, token = out.split()
     if request.is_json:
         data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a user. Aborded operation"}), 400
         try:
             familyname = Xsd_string(data['familyName'])
             givenname = Xsd_string(data['givenName'])
@@ -195,7 +199,6 @@ def delete_user(userid):
 # Function to alter/modify a user
 @bp.route('/user/<userid>', methods=['POST'])
 def modify_user(userid):
-    # TODO: Modify isActive
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -257,10 +260,11 @@ def modify_user(userid):
             user2.familyName = Xsd_string(lastname)
         if password:
             user2.credentials = Xsd_string(password)
-        if isactive is not None and isactive.lower() == 'true':
-            user2.isActive = True
-        else:
-            user2.isActive = False
+        if isactive is not None:
+            if isactive.lower() == 'true':
+                user2.isActive = True
+            elif isactive.lower() == 'false':
+                user2.isActive = False
         if in_project_dict:
             user2.inProject = InProjectClass(in_project_dict)
         if in_project_dict == {}:
