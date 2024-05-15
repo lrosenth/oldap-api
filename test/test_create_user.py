@@ -303,9 +303,27 @@ def test_bad_token(client, token_headers):
     assert res["message"] == "Connection failed: Wrong credentials"
 
 
-def test_create_randomstuff(client, token_headers):
+def test_json_with_unknown_fields(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/user/rosman', json={}, headers=header)
+    response = client.put('/admin/user/rosman', json={
+        "kappa": "kappa1234",
+        "gaga": "gaga",
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasPermissions": [
+            "GenericView"
+        ]
+    }, headers=header)
+    assert response.status_code == 400
     res = response.json
-    print(res)
+    assert res["message"] == "The Field/s {'kappa', 'gaga'} is/are not used to create a user. Aborded operation"
