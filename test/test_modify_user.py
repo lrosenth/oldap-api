@@ -245,7 +245,7 @@ def test_bad_general_modify_request(client, token_headers, testuser):
 
     res = response.json
     assert response.status_code == 400
-    assert res["message"] == "Either the firstname, lastname, password, inProjects or hasPermissions needs to be modified"
+    assert res["message"] == "The Field/s {'random shit'} is/are not used to modify a user. Aborded operation"
 
 
 def test_blanks_in_modify(client, token_headers, testuser):
@@ -388,3 +388,16 @@ def test_modify_nonsense(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
+
+
+def test_json_with_unknown_fields(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "kappa": "Kappa"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "The Field/s {'kappa'} is/are not used to modify a user. Aborded operation"

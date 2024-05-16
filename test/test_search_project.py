@@ -33,7 +33,7 @@ def test_no_label_or_comment(client, token_headers):
 
     assert response.status_code == 400
     res = response.json
-    assert res["message"] == "Either label or comment needs to be provided"
+    assert res["message"] == "The Field/s {'nolabelorcomment'} is/are not used to search for a project. Aborded operation"
 
 
 def test_not_found_search(client, token_headers):
@@ -76,4 +76,17 @@ def test_find_several_projects(client, token_headers, testproject):
     assert response.status_code == 200
     res = response.json
     assert res["message"] == '[Iri("http://unittest.org/project/testproject"), Iri("http://unittest.org/project/kappaproject")]'
+    print(res)
+
+
+def test_json_with_unknown_fields(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.get('/admin/project/search', json={
+        "kappa": "unittest"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == "The Field/s {'kappa'} is/are not used to search for a project. Aborded operation"
     print(res)

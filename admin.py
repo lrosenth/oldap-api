@@ -56,6 +56,7 @@ def logout(userid):
 @bp.route('/user/<userid>', methods=['PUT'])
 def create_user(userid):
     known_json_fields = {"givenName", "familyName", "password", "inProjects", "hasPermissions"}
+    mandatory_json_fields = {"givenName", "familyName", "password"}
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
     try:
@@ -196,14 +197,17 @@ def delete_user(userid):
     return jsonify({"message": f"User {userid} deleted"}), 200
 
 
-# Function to alter/modify a user
 @bp.route('/user/<userid>', methods=['POST'])
 def modify_user(userid):
+    known_json_fields = {"givenName", "familyName", "password", "inProjects", "hasPermissions", "isActive"}
     out = request.headers['Authorization']
     b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a user. Aborded operation"}), 400
         firstname = data.get("givenName", None)
         lastname = data.get("familyName", None)
         password = data.get("password", None)
@@ -211,9 +215,9 @@ def modify_user(userid):
         haspermissions = data.get('hasPermissions', None)
         isactive = data.get('isActive', None)
 
-        if firstname is None and lastname is None and password is None and inprojects is None and haspermissions is None and isactive is None:
-            return jsonify({
-                               "message": "Either the firstname, lastname, password, isactive, inProjects or hasPermissions needs to be modified"}), 400
+        # should not be reachable
+        # if not set(data.keys()) & known_json_fields:
+        #     return jsonify({"message": "Either the firstname, lastname, password, isactive, inProjects or hasPermissions needs to be modified"}), 400
 
         in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
 
@@ -293,11 +297,16 @@ def modify_user(userid):
 
 @bp.route('/project/<projectid>', methods=['PUT'])
 def create_project(projectid):
+    known_json_fields = {"projectIri", "label", "comment", "namespaceIri", "projectStart", "projectEnd"}
+    mandatory_json_fields = {"label", "namespaceIri"}
     out = request.headers['Authorization']
     b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a project. Aborded operation"}), 400
         projectIri = data.get("projectIri", None)
         projectShortName = projectid  # Necessary
         label = data.get("label", None)  # Necessary
@@ -393,16 +402,18 @@ def read_project(projectid):
 
 @bp.route('/project/search', methods=['GET'])
 def search_project():
+    known_json_fields = {"label", "comment"}
     out = request.headers['Authorization']
     b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a project. Aborded operation"}), 400
         label = data.get("label", None)
         comment = data.get('comment', None)
 
-        if label is None and comment is None:
-            return jsonify({'message': 'Either label or comment needs to be provided'}), 400
         try:
             con = Connection(server='http://localhost:7200',
                              repo="omas",
@@ -421,14 +432,15 @@ def search_project():
 
 @bp.route('/project/<projectid>', methods=['POST'])
 def modify_project(projectid):
+    known_json_fields = {"label", "comment", "projectStart", "projectEnd"}
     out = request.headers['Authorization']
     b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
-        if (data.get("projectShortName", None) is not None or data.get("projectIri", None) is not None
-                or data.get("namespaceIri", None) is not None):
-            return jsonify({"message": f"projectShortName, projectIri and namespaceIri must not be modified"}), 403
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Aborded operation"}), 400
 
         label = data.get("label", None)
         comment = data.get("comment", None)

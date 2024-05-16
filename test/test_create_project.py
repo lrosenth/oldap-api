@@ -123,18 +123,6 @@ def test_create_project_with_missing_projectend(client, token_headers):
     print(res)
 
 
-def test_create_nonsensicle_project(client, token_headers):
-    header = token_headers[1]
-
-    response = client.put('/admin/project/testproject', json={
-        "nonsens": "this is nonsense1234",
-    }, headers=header)
-
-    assert response.status_code == 400
-    res = response.json
-    assert res["message"] == "To create a project, at least the projectshortname, label, comment and namespaceIri are required"
-
-
 def test_inconsistent_start_and_enddate(client, token_headers):
     header = token_headers[1]
 
@@ -315,4 +303,23 @@ def test_bad_projectid(client, token_headers):
     }, headers=header)
     assert response.status_code == 400
     res = response.json
+    print(res)
+
+
+def test_json_with_unknown_fields(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/project/testproject', json={
+        "kappa": "random kappa",
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == "The Field/s {'kappa'} is/are not used to create a project. Aborded operation"
     print(res)
