@@ -401,3 +401,41 @@ def test_json_with_unknown_fields(client, token_headers, testuser):
     res = response.json
     print(res)
     assert res["message"] == "The Field/s {'kappa'} is/are not used to modify a user. Aborded operation"
+
+
+def test_change_own_user_pw(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/rosman', json={
+        "givenName": "Manuel",
+        "familyName": "Rosenthaler",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasPermissions": [
+            "GenericView"
+        ]
+    }, headers=header)
+
+    response2 = client.post('/admin/auth/rosman', json={'password': 'kappa1234'})
+    res = response2.json
+    assert res["message"] == "Login succeeded"
+    usertoken = res["token"]
+    headerss = {
+        'Authorization': f'Bearer {usertoken}'
+    }
+
+    response3 = client.post('/admin/user/rosman', json={
+        "password": "gaga"
+    }, headers=headerss)
+    res3 = response3.json
+
+    response4 = client.post('/admin/auth/rosman', json={'password': 'gaga'})
+    res4 = response4.json
+    assert res4["message"] == "Login succeeded"

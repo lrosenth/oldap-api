@@ -215,10 +215,6 @@ def modify_user(userid):
         haspermissions = data.get('hasPermissions', None)
         isactive = data.get('isActive', None)
 
-        # should not be reachable
-        # if not set(data.keys()) & known_json_fields:
-        #     return jsonify({"message": "Either the firstname, lastname, password, isactive, inProjects or hasPermissions needs to be modified"}), 400
-
         in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
 
         if inprojects is not None:
@@ -495,20 +491,21 @@ def modify_project(projectid):
 
 @bp.route('/permissionset/<permisionsetid>', methods=['PUT'])
 def create_permissionset(permisionsetid):
+    known_json_fields = {"label", "comment", "givesPermission", "definedByProject"}
     out = request.headers['Authorization']
     b, token = out.split()
 
     if request.is_json:
 
         data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Aborded operation"}), 400
         label = data.get("label", None)  # Necessary
         comment = data.get("comment", None)  # Enum: Datapermission
         givesPermission = data.get("givesPermission", None)  # Necessary
         definedByProject = data.get('definedByProject', None)  # Necessary
 
-        if label is None or givesPermission is None or definedByProject is None:
-            return jsonify({
-                               "message": f"To create a permissionset, at least the label, givesPermission and definedByProject are required"}), 400
         if label == [] or comment == []:
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
 
@@ -516,7 +513,7 @@ def create_permissionset(permisionsetid):
             return jsonify({"message": "Only one permission can be provided and it must not be a List"}), 400
 
         try:
-            givesPermission = DataPermission.from_string(givesPermission)
+            givesPermission = DataPermission.from_string(f'omas:{givesPermission}')
         except ValueError as error:
             return jsonify({"message": str(error)}), 400
 
@@ -545,6 +542,6 @@ def create_permissionset(permisionsetid):
         except OmasError as error:  # should not be reachable
             return jsonify({'message': str(error)}), 500
 
-        return jsonify({"message": "Project successfully created"}), 200
+        return jsonify({"message": "Permissionset successfully created"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
