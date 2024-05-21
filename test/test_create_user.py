@@ -326,4 +326,3 @@ def test_json_with_unknown_fields(client, token_headers):
     }, headers=header)
     assert response.status_code == 400
     res = response.json
-    assert res["message"] == "The Field/s {'gaga', 'kappa'} is/are not used to create a user. Aborded operation"

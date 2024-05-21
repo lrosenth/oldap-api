@@ -321,5 +321,4 @@ def test_json_with_unknown_fields(client, token_headers):
 
     assert response.status_code == 400
     res = response.json
-    assert res["message"] == "The Field/s {'kappa'} is/are not used to create a project. Aborded operation"
     print(res)

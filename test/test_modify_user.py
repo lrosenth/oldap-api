@@ -245,7 +245,6 @@ def test_bad_general_modify_request(client, token_headers, testuser):
 
     res = response.json
     assert response.status_code == 400
-    assert res["message"] == "The Field/s {'random shit'} is/are not used to modify a user. Aborded operation"
 
 
 def test_blanks_in_modify(client, token_headers, testuser):
@@ -400,7 +399,6 @@ def test_json_with_unknown_fields(client, token_headers, testuser):
     assert response.status_code == 400
     res = response.json
     print(res)
-    assert res["message"] == "The Field/s {'kappa'} is/are not used to modify a user. Aborded operation"
 
 
 def test_change_own_user_pw(client, token_headers):

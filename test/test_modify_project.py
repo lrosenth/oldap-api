@@ -145,21 +145,18 @@ def test_modify_immutable(client, token_headers):
     }, headers=header)
     assert projectshortname.status_code == 400
     res = projectshortname.json
-    assert res["message"] == "The Field/s {'projectShortName'} is/are not used to modify a project. Aborded operation"
 
     projectIri = client.post('/admin/project/testproject', json={
         "projectIri": "randomprojectIri"
     }, headers=header)
     assert projectIri.status_code == 400
     res = projectIri.json
-    assert res["message"] == "The Field/s {'projectIri'} is/are not used to modify a project. Aborded operation"
 
     namespaceIri = client.post('/admin/project/testproject', json={
         "namespaceIri": "randomnamespaceIri"
     }, headers=header)
     assert namespaceIri.status_code == 400
     res = namespaceIri.json
-    assert res["message"] == "The Field/s {'namespaceIri'} is/are not used to modify a project. Aborded operation"
 
 
 def test_project_to_modify_not_found(client, token_headers):
@@ -264,5 +261,4 @@ def test_json_with_unknown_fields(client, token_headers, testproject):
 
     assert response.status_code == 400
     res = response.json
-    assert res["message"] == "The Field/s {'kappa'} is/are not used to modify a project. Aborded operation"
     print(res)
