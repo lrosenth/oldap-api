@@ -69,7 +69,7 @@ def create_user(userid):
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a user. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a user. Usable are {known_json_fields}. Aborded operation"}), 400
         try:
             familyname = Xsd_string(data['familyName'])
             givenname = Xsd_string(data['givenName'])
@@ -207,7 +207,7 @@ def modify_user(userid):
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a user. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a user. Usable are {known_json_fields}. Aborded operation"}), 400
         firstname = data.get("givenName", None)
         lastname = data.get("familyName", None)
         password = data.get("password", None)
@@ -302,7 +302,7 @@ def create_project(projectid):
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a project. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a project. Usable are {known_json_fields}. Aborded operation"}), 400
         projectIri = data.get("projectIri", None)
         projectShortName = projectid  # Necessary
         label = data.get("label", None)  # Necessary
@@ -406,7 +406,7 @@ def search_project():
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a project. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a project. Usable are {known_json_fields}. Aborded operation"}), 400
         label = data.get("label", None)
         comment = data.get('comment', None)
 
@@ -436,7 +436,7 @@ def modify_project(projectid):
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
 
         label = data.get("label", None)
         comment = data.get("comment", None)
@@ -500,7 +500,7 @@ def create_permissionset(permisionsetid):
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
         label = data.get("label", None)  # Necessary
         comment = data.get("comment", None)  # Enum: Datapermission
         givesPermission = data.get("givesPermission", None)  # Necessary
@@ -543,5 +543,56 @@ def create_permissionset(permisionsetid):
             return jsonify({'message': str(error)}), 500
 
         return jsonify({"message": "Permissionset successfully created"}), 200
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+
+@bp.route('/permissionset/<permisionsetid>', methods=['GET'])
+def read_permissionset(permissionsetid):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="omas",
+                         token=token,
+                         context_name="DEFAULT")
+    except OmasError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    try:
+        ps = PermissionSet.read(con=con, permissionSetIri=permissionsetid)
+    except OmasErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    return jsonify({"message": str(ps)}), 200
+
+
+@bp.route('/permissionset/search', methods=['GET'])
+def search_permissionset():
+    known_json_fields = {"definedByProject", "givesPermission", "label"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
+        label = data.get("label", None)
+        givespermission = data.get('givesPermission', None)
+        definedbyproject = data.get("definedByProject", None)
+
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="omas",
+                             token=token,
+                             context_name="DEFAULT")
+        except OmasError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        try:
+            permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
+            return jsonify({"message": str(permissionset)}), 200
+        except OmasErrorNotFound as error:
+            return jsonify({'message': str(error)}), 404
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
