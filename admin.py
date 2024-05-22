@@ -547,8 +547,8 @@ def create_permissionset(permisionsetid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@bp.route('/permissionset/<permisionsetid>', methods=['GET'])
-def read_permissionset(permissionsetid):
+@bp.route('/permissionset/<permissionlabel>', methods=['GET'])
+def read_permissionset(permissionlabel):
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -559,8 +559,14 @@ def read_permissionset(permissionsetid):
                          context_name="DEFAULT")
     except OmasError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
     try:
-        ps = PermissionSet.read(con=con, permissionSetIri=permissionsetid)
+        permissionsetIri = PermissionSet.search(con=con, label=permissionlabel)[0]
+    except IndexError as error:
+        return jsonify({"message": "Permissionset not found"}), 404
+
+    try:
+        ps = PermissionSet.read(con=con, permissionSetIri=permissionsetIri)
     except OmasErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -596,3 +602,36 @@ def search_permissionset():
             return jsonify({'message': str(error)}), 404
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+
+@bp.route('/permissionset/<permissionlabel>', methods=['DELETE'])
+def delete_permissionset(permissionlabel):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="omas",
+                         token=token,
+                         context_name="DEFAULT")
+    except OmasError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        permissionsetIri = PermissionSet.search(con=con, label=permissionlabel)[0]
+    except IndexError as error:
+        return jsonify({"message": "Permissionset not found"}), 404
+
+    try:
+        ps = PermissionSet.read(con=con, permissionSetIri=permissionsetIri)
+    except OmasErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    try:
+        ps.delete()
+    except OmasErrorNoPermission as error:
+        return jsonify({'message': str(error)}), 403
+    except OmasError as error:  # Should not be reachable!
+        return jsonify({'message': str(error)}), 500
+
+    return jsonify({"message": "Permissionset successfully deleted"}), 200

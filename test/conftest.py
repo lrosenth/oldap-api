@@ -105,7 +105,7 @@ def testpermissionset(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/permissionset/testpermissionset', json={
-        "label": ["testPerm@en", "test@Perm@de"],
+        "label": ["testPerm@en", "test@Perm@de", "testpermission"],
         "comment": ["For testing@en", "Für Tests@de"],
         "givesPermission": "DATA_UPDATE",
         "definedByProject": "omas:SystemProject"
@@ -113,5 +113,5 @@ def testpermissionset(client, token_headers):
 
     yield
 
-    # client.delete('/admin/project/testproject', headers=header)
+    client.delete('/admin/permissionset/testpermission', headers=header)
 
