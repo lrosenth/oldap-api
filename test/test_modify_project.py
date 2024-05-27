@@ -1,4 +1,5 @@
 import re
+from pprint import pprint
 
 
 def test_modify_label(client, token_headers, testproject):
@@ -9,24 +10,10 @@ def test_modify_label(client, token_headers, testproject):
     }, headers=header)
 
     assert response.status_code == 200
-    res = response.json
-    print(res)
 
     response2 = client.get('/admin/project/testproject', headers=header)
-    # Regex to find the content of "Comment"
-    match = re.search(r'Label:\s*(.+?)(?=\\n)', response2.text)
-    comments_raw = match.group(1)
-    # Remove unnecessary backslashes before quotes (around the entire entry and language tags)
-    comments_cleaned = re.sub(r'\\(?=")', '', comments_raw)  # Remove \ before "
-    comments_cleaned = re.sub(r'"@', '@', comments_cleaned)  # Remove " before @
-
-    # Correctly place the quotation marks and handle the final quotation mark
-    comments_cleaned = re.sub(r',\s', '", ', comments_cleaned)  # Add closing " before comma
-
-    # Decode unicode escapes
-    comments_decoded = bytes(comments_cleaned, "utf-8").decode("unicode_escape")
-
-    assert comments_decoded == '"Kappa@fr"'
+    res = response2.json
+    assert res.get('label') == ['Kappa@fr']
 
 
 def test_bad_modify_label(client, token_headers, testproject):
@@ -54,16 +41,9 @@ def test_modify_comment(client, token_headers, testproject):
 
     response2 = client.get('/admin/project/testproject', headers=header)
     # Regex to find the content of "Comment"
-    match = re.search(r'Comment:\s*(.+?)(?=\\n)', response2.text)
-    comments_raw = match.group(1)
-    # Remove unnecessary backslashes before quotes (around the entire entry and language tags)
-    comments_cleaned = re.sub(r'\\(?=")', '', comments_raw)  # Remove \ before "
-    comments_cleaned = re.sub(r'"@', '@', comments_cleaned)  # Remove " before @
-
-    # Decode unicode escapes
-    comments_decoded = bytes(comments_cleaned, "utf-8").decode("unicode_escape")
-
-    assert comments_decoded == '"For testing@en", "FÜR DAS TESTEN@de", "Pour les tests@fr"'
+    result = response2.json
+    pprint(result)
+    assert set(result['comment']) == {"For testing@en", "FÜR DAS TESTEN@de", "Pour les tests@fr"}
 
 
 def test_bad_modify_comment(client, token_headers, testproject):
@@ -76,7 +56,8 @@ def test_bad_modify_comment(client, token_headers, testproject):
     res = response.json
     print(res)
     response2 = client.get('/admin/project/testproject', headers=header)
-    print(response2.text)
+    res = response2.json
+    assert res.get('comment') == ["Gaga\"++-usw@en"]
 
 
 def test_modify_startdate(client, token_headers, testproject):
@@ -87,12 +68,9 @@ def test_modify_startdate(client, token_headers, testproject):
     }, headers=header)
 
     assert response.status_code == 200
-    res = response.json
     response2 = client.get('/admin/project/testproject', headers=header)
-    # Regex to find the content of "Comment"
-    match = re.search(r'start:\s*(.+?)(?=\\n)', response2.text)
-    comments_raw = match.group(1)
-    assert comments_raw == "1995-05-28"
+    res = response2.json
+    assert res['projectStart'] == "1995-05-28"
 
 
 def test_modify_bad_startdate(client, token_headers, testproject):
@@ -115,12 +93,9 @@ def test_modify_enddate(client, token_headers, testproject):
     }, headers=header)
 
     assert response.status_code == 200
-    res = response.json
     response2 = client.get('/admin/project/testproject', headers=header)
-    # Regex to find the content of "Comment"
-    match = re.search(r'end:\s*(.+?)(?=\\n)', response2.text)
-    comments_raw = match.group(1)
-    assert comments_raw == "2024-05-28"
+    res = response2.json
+    assert res['projectEnd'] == "2024-05-28"
 
 
 def test_bad_token(client, token_headers):

@@ -36,7 +36,8 @@ def app():
                      credentials="RioGrande",
                      context_name="DEFAULT")
     con.clear_graph(Xsd_QName('oldap:admin'))
-    con.upload_turtle("/Users/rosman00/Library/Caches/pypoetry/virtualenvs/oldap-api-rl24mTKu-py3.12/lib/python3.12/site-packages/oldaplib/ontologies/admin.trig")
+    #con.upload_turtle("/Users/rosman00/Library/Caches/pypoetry/virtualenvs/oldap-api-rl24mTKu-py3.12/lib/python3.12/site-packages/oldaplib/ontologies/admin.trig")
+    con.upload_turtle("../../oldaplib/oldaplib/ontologies/admin.trig")
     sleep(1)
     yield app
 

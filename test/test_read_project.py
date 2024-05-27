@@ -1,11 +1,20 @@
 def test_read_project(client, token_headers, testproject):
+    expected = {
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }
     header = token_headers[1]
 
     response = client.get('/admin/project/testproject', headers=header)
 
     assert response.status_code == 200
     res = response.json
-    print(res)
+    for key, val in expected.items():
+        assert res[key] == val
 
 
 def test_bad_token(client, token_headers):

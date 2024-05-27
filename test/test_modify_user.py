@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import jwt
 from flask import jsonify
 from oldaplib.src.connection import Connection
@@ -404,6 +406,9 @@ def test_json_with_unknown_fields(client, token_headers, testuser):
 def test_change_own_user_pw(client, token_headers):
     header = token_headers[1]
 
+    #
+    # Create a new user
+    #
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
@@ -421,19 +426,28 @@ def test_change_own_user_pw(client, token_headers):
         ]
     }, headers=header)
 
+    #
+    # Login with the new user
+    #
     response2 = client.post('/admin/auth/rosman', json={'password': 'kappa1234'})
     res = response2.json
     assert res["message"] == "Login succeeded"
     usertoken = res["token"]
+
+    #
+    # Change the password of "myself"
+    #
     headerss = {
         'Authorization': f'Bearer {usertoken}'
     }
-
     response3 = client.post('/admin/user/rosman', json={
         "password": "gaga"
     }, headers=headerss)
     res3 = response3.json
 
+    #
+    # Login with the new password
+    #
     response4 = client.post('/admin/auth/rosman', json={'password': 'gaga'})
     res4 = response4.json
     assert res4["message"] == "Login succeeded"

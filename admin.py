@@ -21,7 +21,7 @@ Available endpoints:
 
 The implementation includes error handling and validation for most operations.
 """
-
+from pprint import pprint
 from typing import Dict, Set
 
 from flask import Blueprint, request, jsonify
@@ -307,9 +307,9 @@ def modify_user(userid):
         haspermissions = data.get('hasPermissions', None)
         isactive = data.get('isActive', None)
 
-        in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
-
+        in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] | None = None
         if inprojects is not None:
+            in_project_dict = {}  # we need an empty dict to fill it
             for item in inprojects:
                 project_name = item["project"]
 
@@ -357,10 +357,8 @@ def modify_user(userid):
                 user2.isActive = True
             elif isactive.lower() == 'false':
                 user2.isActive = False
-        if in_project_dict:
+        if in_project_dict is not None:
             user2.inProject = InProjectClass(in_project_dict)
-        if in_project_dict == {}:
-            user2.inProject = InProjectClass()
         if permission_set:
             user2.hasPermissions = permission_set
         if permission_set == set():
@@ -511,8 +509,22 @@ def read_project(projectid):
         project = Project.read(con=con, projectIri_SName=projectid)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
+    res = {
+        'projectIri': str(project.projectIri),
+        'creator': str(project.creator),
+        'created': str(project.created),
+        'contributor': str(project.contributor),
+        'modified': str(project.modified),
+        'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()] if project.label else None,
+        'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()] if project.comment else None,
+        'projectShortname': str(project.projectShortName),
+        'namespaceIri': str(project.namespaceIri),
+        'projectStart': str(project.projectStart) if project.projectStart else None,
+        'projectEnd': str(project.projectEnd) if project.projectEnd else None
+    }
+    return res
 
-    return jsonify({"message": str(project)}), 200
+    #return jsonify({"message": str(project)}), 200
 
 
 @bp.route('/project/search', methods=['GET'])
