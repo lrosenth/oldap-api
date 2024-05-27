@@ -1,6 +1,6 @@
 """
 This script provides a RESTful API for managing users and projects and permissionsets.
-It uses Flask and omaslib to perform CRUD operations on user, project data and permissionsets.
+It uses Flask and oldaplib to perform CRUD operations on user, project data and permissionsets.
 The API offers endpoints for creating, reading, updating, searching and deleting users, projects nad permissionsets.
 
 Available endpoints:
@@ -25,22 +25,22 @@ The implementation includes error handling and validation for most operations.
 from typing import Dict, Set
 
 from flask import Blueprint, request, jsonify
-from omaslib.src.connection import Connection
-from omaslib.src.dtypes.namespaceiri import NamespaceIRI
-from omaslib.src.enums.permissions import AdminPermission, DataPermission
-from omaslib.src.helpers.langstring import LangString
-from omaslib.src.helpers.observable_set import ObservableSet
-from omaslib.src.helpers.omaserror import OmasError, OmasErrorNotFound, OmasErrorAlreadyExists, OmasErrorValue, \
-    OmasErrorUpdateFailed, OmasErrorNoPermission, OmasErrorInconsistency
-from omaslib.src.in_project import InProjectClass
-from omaslib.src.permissionset import PermissionSet
-from omaslib.src.project import Project
-from omaslib.src.user import User
-from omaslib.src.xsd.iri import Iri
-from omaslib.src.xsd.xsd_date import Xsd_date
-from omaslib.src.xsd.xsd_ncname import Xsd_NCName
-from omaslib.src.xsd.xsd_qname import Xsd_QName
-from omaslib.src.xsd.xsd_string import Xsd_string
+from oldaplib.src.connection import Connection
+from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
+from oldaplib.src.enums.permissions import AdminPermission, DataPermission
+from oldaplib.src.helpers.langstring import LangString
+from oldaplib.src.helpers.observable_set import ObservableSet
+from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorAlreadyExists, OldapErrorValue, \
+    OldapErrorUpdateFailed, OldapErrorNoPermission, OldapErrorInconsistency
+from oldaplib.src.in_project import InProjectClass
+from oldaplib.src.permissionset import PermissionSet
+from oldaplib.src.project import Project
+from oldaplib.src.user import User
+from oldaplib.src.xsd.iri import Iri
+from oldaplib.src.xsd.xsd_date import Xsd_date
+from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
+from oldaplib.src.xsd.xsd_qname import Xsd_QName
+from oldaplib.src.xsd.xsd_string import Xsd_string
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -62,15 +62,15 @@ def login(userid):
             return jsonify({"message": "Invalid content type, JSON required"}), 400
         try:
             con = Connection(server='http://localhost:7200',
-                             repo="omas",
+                             repo="oldap",
                              userId=userid,
                              credentials=password,
                              context_name="DEFAULT")
             resp = jsonify({'message': 'Login succeeded', 'token': con.token}), 200
             return resp
-        except OmasErrorNotFound as err:
+        except OldapErrorNotFound as err:
             return jsonify({'message': str(err)}), 404
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
@@ -83,7 +83,7 @@ def logout(userid):
     :param userid: The userid of the logout account.
     :return:
     """
-    # TODO: how to make a logout??? OMASLIB does not yet have a solution! So we just return 200
+    # TODO: how to make a logout??? oldaplib does not yet have a solution! So we just return 200
     return '', 200
 
 
@@ -98,10 +98,10 @@ def create_user(userid):
         "familyName": "Doe",
         "password": "nicepw",
         "in_projects": [{
-            "permissions": ['omas:ADMIN_USERS', (...)],
+            "permissions": ['oldap:ADMIN_USERS', (...)],
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
             }, {...}],
-        "has_permissions": ['omas:GenericView', (...)]
+        "has_permissions": ['oldap:GenericView', (...)]
     }
     :param userid: The userid of the useraccount that should be created
     :return: A JSON containing the userIri that has the following form:
@@ -113,7 +113,7 @@ def create_user(userid):
     # that contains user information
     try:
         Xsd_NCName(userid)
-    except OmasErrorValue as err:
+    except OldapErrorValue as err:
         return jsonify({"message": str(err)}), 400
     out = request.headers['Authorization']
     b, token = out.split()
@@ -139,31 +139,31 @@ def create_user(userid):
                 project_name = item["project"]
                 try:
                     if item.get("permissions") is not None:
-                        permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}
+                        permissions = {AdminPermission(f'oldap:{x}') for x in item["permissions"]}
                     else:
                         permissions = set()
                 except ValueError as error:
                     return jsonify({'message': f'The given project project permission is not a valid one'}), 400
                 try:
                     in_project_dict[Iri(project_name)] = permissions
-                except OmasErrorValue as error:
+                except OldapErrorValue as error:
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
         # If "haspermissions" is given by the creation json, fill it...
         if haspermissions is not None:
             try:
-                permission_set = {Xsd_QName(f'omas:{x}') for x in haspermissions}
-            except OmasErrorValue as error:
+                permission_set = {Xsd_QName(f'oldap:{x}') for x in haspermissions}
+            except OldapErrorValue as error:
                 return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
             permission_set = set()
 
         try:
             con = Connection(server='http://localhost:7200',
-                             repo="omas",
+                             repo="oldap",
                              token=token,
                              context_name="DEFAULT")
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             user = User(con=con,
@@ -175,11 +175,11 @@ def create_user(userid):
                         hasPermissions=permission_set,
                         isActive=True)
             user.create()
-        except OmasErrorAlreadyExists as error:
+        except OldapErrorAlreadyExists as error:
             return jsonify({"message": str(error)}), 409
-        except OmasErrorValue as error:
+        except OldapErrorValue as error:
             return jsonify({'message': str(error)}), 400
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({'message': str(error)})
 
     else:
@@ -197,9 +197,9 @@ def read_users(userid):
     json={
     'family_name': 'John',
     'given_name': 'Doe',
-    'has_permissions': ['omas:GenericView', (...)],
+    'has_permissions': ['oldap:GenericView', (...)],
     'in_projects': [{
-        'permissions': ['omas:ADMIN_USERS', (...)],
+        'permissions': ['oldap:ADMIN_USERS', (...)],
         'project': 'http://www.salsah.org/version/2.0/SwissBritNet'
         }, {...}],
     'isActive': 'true',
@@ -212,15 +212,15 @@ def read_users(userid):
 
     try:
         con = Connection(server='http://localhost:7200',
-                         repo="omas",
+                         repo="oldap",
                          token=token,
                          context_name="DEFAULT")
-    except OmasError as error:
+    except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
         user = User.read(con=con, userId=userid)
-    except OmasErrorNotFound as error:
+    except OldapErrorNotFound as error:
         return jsonify({"message": f'User {userid} not found'}), 404
 
     # Building the response json
@@ -255,18 +255,18 @@ def delete_user(userid):
 
     try:
         con = Connection(server='http://localhost:7200',
-                         repo="omas",
+                         repo="oldap",
                          token=token,
                          context_name="DEFAULT")
-    except OmasError as error:
+    except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
         user3 = User.read(con=con, userId=userid)
         user3.delete()
-    except OmasErrorNotFound as error:
+    except OldapErrorNotFound as error:
         return jsonify({"message": str(error)}), 404
-    except OmasErrorNoPermission as error:
+    except OldapErrorNoPermission as error:
         return jsonify({"message": str(error)}), 403
 
     return jsonify({"message": f"User {userid} deleted"}), 200
@@ -282,10 +282,10 @@ def modify_user(userid):
         "familyName": "Doe",
         "password": "nicepw",
         "in_projects": [{
-            "permissions": ['omas:ADMIN_USERS', (...)],
+            "permissions": ['oldap:ADMIN_USERS', (...)],
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
             }, {...}],
-        "has_permissions": ['omas:GenericView', (...)]
+        "has_permissions": ['oldap:GenericView', (...)]
     }
     :param userid: The userid of the user that should be modified.
     :return: A JSON to denote the success of the operation that has the following form:
@@ -315,35 +315,35 @@ def modify_user(userid):
 
                 if item.get("permissions") is not None:
                     try:
-                        permissions = {AdminPermission(f'omas:{x}') for x in item["permissions"]}
+                        permissions = {AdminPermission(f'oldap:{x}') for x in item["permissions"]}
                     except ValueError as error:
                         return jsonify({'message': f'The given project permission is not a valid one'}), 400
                 else:
                     permissions = set()
                 try:
                     in_project_dict[Iri(project_name)] = permissions
-                except OmasErrorValue as error:
+                except OldapErrorValue as error:
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
         if haspermissions is not None:
             try:
-                permission_set = {Iri(f'omas:{x}') for x in haspermissions}
-            except OmasErrorValue as error:
+                permission_set = {Iri(f'oldap:{x}') for x in haspermissions}
+            except OldapErrorValue as error:
                 return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
             permission_set = None
 
         try:
             con = Connection(server='http://localhost:7200',
-                             repo="omas",
+                             repo="oldap",
                              token=token,
                              context_name="DEFAULT")
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
         try:
             user2 = User.read(con=con, userId=Xsd_NCName(userid))  # read the user from the triple store
-        except OmasErrorNotFound as error:
+        except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
 
         if firstname:
@@ -368,13 +368,13 @@ def modify_user(userid):
 
         try:
             user2.update()
-        except OmasErrorUpdateFailed as error:  # hard to test
+        except OldapErrorUpdateFailed as error:  # hard to test
             return jsonify({"message": str(error)}), 500
-        except OmasErrorValue as error:
+        except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 404
-        except OmasErrorNoPermission as error:  # prob bug in backend -- not reachable yet
+        except OldapErrorNoPermission as error:  # prob bug in backend -- not reachable yet
             return jsonify({"message": str(error)}), 403
-        except OmasError as error:  # should not be reachable
+        except OldapError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 500
 
         return jsonify({"message": "User updated successfully"}), 200
@@ -425,10 +425,10 @@ def create_project(projectid):
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
         try:
             con = Connection(server='http://localhost:7200',
-                             repo="omas",
+                             repo="oldap",
                              token=token,
                              context_name="DEFAULT")
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             project = Project(con=con,
@@ -441,15 +441,15 @@ def create_project(projectid):
                               projectEnd=Xsd_date(projectEnd) if projectEnd else None
                               )
             project.create()
-        except OmasErrorNoPermission as error:
+        except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
-        except OmasErrorAlreadyExists as error:
+        except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
-        except OmasErrorInconsistency as error:
+        except OldapErrorInconsistency as error:
             return jsonify({'message': str(error)}), 400
-        except OmasErrorValue as error:
+        except OldapErrorValue as error:
             return jsonify({'message': str(error)}), 400
-        except OmasError as error:  # should not be reachable
+        except OldapError as error:  # should not be reachable
             return jsonify({'message': str(error)}), 500
 
         return jsonify({"message": "Project successfully created"}), 200
@@ -470,20 +470,20 @@ def delete_project(projectid):
 
     try:
         con = Connection(server='http://localhost:7200',
-                         repo="omas",
+                         repo="oldap",
                          token=token,
                          context_name="DEFAULT")
-    except OmasError as error:
+    except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
         project = Project.read(con=con, projectIri_SName=Xsd_NCName(projectid))
-    except OmasErrorNotFound as error:
+    except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     try:
         project.delete()
-    except OmasErrorNoPermission as error:
+    except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
-    except OmasError as error:  # Should not be reachable!
+    except OldapError as error:  # Should not be reachable!
         return jsonify({'message': str(error)}), 500
 
     return jsonify({"message": "Project successfully deleted"}), 200
@@ -502,14 +502,14 @@ def read_project(projectid):
 
     try:
         con = Connection(server='http://localhost:7200',
-                         repo="omas",
+                         repo="oldap",
                          token=token,
                          context_name="DEFAULT")
-    except OmasError as error:
+    except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
         project = Project.read(con=con, projectIri_SName=projectid)
-    except OmasErrorNotFound as error:
+    except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
     return jsonify({"message": str(project)}), 200
@@ -531,16 +531,15 @@ def search_project():
 
         try:
             con = Connection(server='http://localhost:7200',
-                             repo="omas",
+                             repo="oldap",
                              token=token,
                              context_name="DEFAULT")
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-        try:
-            projects = Project.search(con=con, label=label, comment=comment)
-            return jsonify({"message": str(projects)}), 200
-        except OmasErrorNotFound as error:
-            return jsonify({'message': str(error)}), 404
+
+        projects = Project.search(con=con, label=label, comment=comment)
+        return jsonify({"message": str(projects)}), 200
+
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
@@ -568,14 +567,14 @@ def modify_project(projectid):
 
         try:
             con = Connection(server='http://localhost:7200',
-                             repo="omas",
+                             repo="oldap",
                              token=token,
                              context_name="DEFAULT")
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             project = Project.read(con=con, projectIri_SName=projectid)
-        except OmasErrorNotFound as error:
+        except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
 
         try:
@@ -587,20 +586,20 @@ def modify_project(projectid):
                 project.projectStart = Xsd_date(projectStart)
             if projectEnd:
                 project.projectEnd = Xsd_date(projectEnd)
-        except OmasErrorValue as error:
+        except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
-        except OmasErrorInconsistency as error:
+        except OldapErrorInconsistency as error:
             return jsonify({'message': str(error)}), 400
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({"message": str(error)}), 500
 
         try:
             project.update()
-        except OmasErrorNoPermission as error:
+        except OldapErrorNoPermission as error:
             return jsonify({"message": str(error)}), 403
-        except OmasErrorUpdateFailed as error:  # hard to test
+        except OldapErrorUpdateFailed as error:  # hard to test
             return jsonify({"message": str(error)}), 500
-        except OmasError as error:  # should not be reachable
+        except OldapError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 500
 
         return jsonify({"message": "Project updated successfully"}), 200
@@ -633,16 +632,16 @@ def create_permissionset(permisionsetid):
             return jsonify({"message": "Only one permission can be provided and it must not be a List"}), 400
 
         try:
-            givesPermission = DataPermission.from_string(f'omas:{givesPermission}')
+            givesPermission = DataPermission.from_string(f'oldap:{givesPermission}')
         except ValueError as error:
             return jsonify({"message": str(error)}), 400
 
         try:
             con = Connection(server='http://localhost:7200',
-                             repo="omas",
+                             repo="oldap",
                              token=token,
                              context_name="DEFAULT")
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             permissionset = PermissionSet(con=con,
@@ -651,15 +650,15 @@ def create_permissionset(permisionsetid):
                                           givesPermission=givesPermission,
                                           definedByProject=Iri(definedByProject))
             permissionset.create()
-        except OmasErrorNoPermission as error:
+        except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
-        except OmasErrorAlreadyExists as error:
+        except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
-        except OmasErrorInconsistency as error:
+        except OldapErrorInconsistency as error:
             return jsonify({'message': str(error)}), 400
-        except OmasErrorValue as error:
+        except OldapErrorValue as error:
             return jsonify({'message': str(error)}), 400
-        except OmasError as error:  # should not be reachable
+        except OldapError as error:  # should not be reachable
             return jsonify({'message': str(error)}), 500
 
         return jsonify({"message": "Permissionset successfully created"}), 200
@@ -674,10 +673,10 @@ def read_permissionset(permissionlabel):
 
     try:
         con = Connection(server='http://localhost:7200',
-                         repo="omas",
+                         repo="oldap",
                          token=token,
                          context_name="DEFAULT")
-    except OmasError as error:
+    except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
@@ -687,7 +686,7 @@ def read_permissionset(permissionlabel):
 
     try:
         ps = PermissionSet.read(con=con, permissionSetIri=permissionsetIri)
-    except OmasErrorNotFound as error:
+    except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
     return jsonify({"message": str(ps)}), 200
@@ -710,15 +709,15 @@ def search_permissionset():
 
         try:
             con = Connection(server='http://localhost:7200',
-                             repo="omas",
+                             repo="oldap",
                              token=token,
                              context_name="DEFAULT")
-        except OmasError as error:
+        except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
             return jsonify({"message": str(permissionset)}), 200
-        except OmasErrorNotFound as error:
+        except OldapErrorNotFound as error:
             return jsonify({'message': str(error)}), 404
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
@@ -731,10 +730,10 @@ def delete_permissionset(permissionlabel):
 
     try:
         con = Connection(server='http://localhost:7200',
-                         repo="omas",
+                         repo="oldap",
                          token=token,
                          context_name="DEFAULT")
-    except OmasError as error:
+    except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
@@ -744,14 +743,14 @@ def delete_permissionset(permissionlabel):
 
     try:
         ps = PermissionSet.read(con=con, permissionSetIri=permissionsetIri)
-    except OmasErrorNotFound as error:
+    except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
     try:
         ps.delete()
-    except OmasErrorNoPermission as error:
+    except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
-    except OmasError as error:  # Should not be reachable!
+    except OldapError as error:  # Should not be reachable!
         return jsonify({'message': str(error)}), 500
 
     return jsonify({"message": "Permissionset successfully deleted"}), 200

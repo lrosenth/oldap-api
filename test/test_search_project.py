@@ -42,9 +42,9 @@ def test_not_found_search(client, token_headers):
         "label": "doesnotexist"
     }, headers=header)
 
-    assert response.status_code == 404
+    assert response.status_code == 200
     res = response.json
-    print(res)
+    assert res["message"] == '[]'
 
 
 def test_no_json(client, token_headers):

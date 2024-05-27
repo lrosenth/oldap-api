@@ -1,4 +1,4 @@
-from omaslib.src.connection import Connection
+from oldaplib.src.connection import Connection
 
 import factory
 

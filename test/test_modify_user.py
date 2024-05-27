@@ -1,7 +1,7 @@
 import jwt
 from flask import jsonify
-from omaslib.src.connection import Connection
-from omaslib.src.helpers.omaserror import OmasErrorNotFound, OmasError
+from oldaplib.src.connection import Connection
+from oldaplib.src.helpers.oldaperror import OldapErrorNotFound, OldapError
 
 
 def test_modify_givenname(client, token_headers, testuser):
@@ -49,7 +49,7 @@ def test_modify_credentials(client, token_headers, testuser):
 
     # Wenn Connection funktioniert dann update erfolgreich.
     con = Connection(server='http://localhost:7200',
-                     repo="omas",
+                     repo="oldap",
                      userId="rosman",
                      credentials="Kappa",
                      context_name="DEFAULT")
@@ -167,7 +167,7 @@ def test_modify_empty_inproject_name(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["in_projects"][0]["permissions"] == ["omas:ADMIN_USERS"]
+    assert readed["in_projects"][0]["permissions"] == ["oldap:ADMIN_USERS"]
     assert readed["in_projects"][0]["project"] == "http://www.salsah.org/version/2.0/SwissBritNet"
 
 
@@ -185,7 +185,7 @@ def test_modify_haspermission(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["has_permissions"] == ['omas:GenericView']
+    assert readed["has_permissions"] == ['oldap:GenericView']
 
 
 def test_modify_empty_haspermission(client, token_headers, testuser):

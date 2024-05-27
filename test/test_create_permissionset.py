@@ -5,7 +5,7 @@ def test_create_permissionset(client, token_headers):
         "label": ["testPerm@en", "test@Perm@de"],
         "comment": ["For testing@en", "Für Tests@de"],
         "givesPermission": "DATA_UPDATE",
-        "definedByProject": "omas:SystemProject"
+        "definedByProject": "oldap:SystemProject"
     }, headers=header)
 
     assert response.status_code == 200
@@ -19,7 +19,7 @@ def test_create_permissionset_with_empty_fields(client, token_headers):
     response = client.put('/admin/permissionset/testpermissionset', json={
         "comment": ["For testing@en", "Für Tests@de"],
         "givesPermission": "DATA_UPDATE",
-        "definedByProject": "omas:SystemProject"
+        "definedByProject": "oldap:SystemProject"
     }, headers=header)
 
     # assert response.status_code == 200

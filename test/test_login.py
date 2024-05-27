@@ -2,7 +2,7 @@ import json
 
 import jwt
 import pytest
-from omaslib.src.helpers.serializer import serializer
+from oldaplib.src.helpers.serializer import serializer
 
 
 def test_login_succeed(client, connection_manager):

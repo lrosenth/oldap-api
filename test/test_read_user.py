@@ -9,9 +9,9 @@ def test_read_user(client, token_headers, testuser):
     res = response.json
     assert res["family_name"] == "Rosenthaler"
     assert res["given_name"] == "Manuel"
-    assert res["has_permissions"] == ['omas:GenericView']
+    assert res["has_permissions"] == ['oldap:GenericView']
     assert res["in_projects"] == [
-        {'project': 'http://www.salsah.org/version/2.0/SwissBritNet', 'permissions': ['omas:ADMIN_USERS']}]
+        {'project': 'http://www.salsah.org/version/2.0/SwissBritNet', 'permissions': ['oldap:ADMIN_USERS']}]
     assert res["userId"] == "rosman"
 
     user_iri = res.get("userIri", "")
