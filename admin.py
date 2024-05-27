@@ -1,3 +1,27 @@
+"""
+This script provides a RESTful API for managing users and projects and permissionsets.
+It uses Flask and omaslib to perform CRUD operations on user, project data and permissionsets.
+The API offers endpoints for creating, reading, updating, searching and deleting users, projects nad permissionsets.
+
+Available endpoints:
+- POST /admin/auth/<userid>: Logs in a user and returns a token.
+- DELETE /admin/auth/<userid>: Logs out a user.
+- PUT /admin/user/<userid>: Creates a new user.
+- GET /admin/user/<userid>: Reads the data of a user.
+- DELETE /admin/user/<userid>: Deletes a user.
+- POST /admin/user/<userid>: Updates the data of a user.
+- PUT /admin/project/<projectid>: Creates a new project.
+- GET /admin/project/<projectid>: Reads the data of a project.
+- DELETE /admin/project/<projectid>: Deletes a project.
+- POST /admin/project/<projectid>: Updates the data of a project.
+- PUT /admin/permissionset/<permissionsetid>: Creates a new permission set.
+- GET /admin/permissionset/<permissionlabel>: Reads the data of a permission set.
+- DELETE /admin/permissionset/<permissionlabel>: Deletes a permission set.
+- GET /admin/permissionset/search: Searches for permission sets.
+
+The implementation includes error handling and validation for most operations.
+"""
+
 from typing import Dict, Set
 
 from flask import Blueprint, request, jsonify
@@ -24,6 +48,13 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 # Function to log into a user
 @bp.route('/auth/<userid>', methods=['POST'])
 def login(userid):
+    """
+    Viewfunction to log into a user. A JSON is expected with the password. The userid is given via the URL parameter.
+    The JSON that needs to be provided has the following form: json={'password': 'RioGrande'}
+    :param userid: The userid of the loginaccount.
+    :return: A JSON with the token that has the following form:
+    json={'message': 'Login succeeded', 'token': token}
+    """
     if request.is_json:
         data = request.get_json()
         password = data.get('password')
@@ -47,7 +78,11 @@ def login(userid):
 
 @bp.route('/auth/<userid>', methods=['DELETE'])
 def logout(userid):
-    #
+    """
+    Viewfunction to log out of a user.
+    :param userid: The userid of the logout account.
+    :return:
+    """
     # TODO: how to make a logout??? OMASLIB does not yet have a solution! So we just return 200
     return '', 200
 
@@ -55,6 +90,23 @@ def logout(userid):
 # Function to create a user
 @bp.route('/user/<userid>', methods=['PUT'])
 def create_user(userid):
+    """
+    Viewfunction to create a new user. A JSON with the necessary credentials is expected.
+    The JSON has the following form:
+    json={
+        "givenName": "John",
+        "familyName": "Doe",
+        "password": "nicepw",
+        "in_projects": [{
+            "permissions": ['omas:ADMIN_USERS', (...)],
+            "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
+            }, {...}],
+        "has_permissions": ['omas:GenericView', (...)]
+    }
+    :param userid: The userid of the useraccount that should be created
+    :return: A JSON containing the userIri that has the following form:
+    json={"message": f"User {userid} created", "userIri": f"{userid}"}
+    """
     known_json_fields = {"givenName", "familyName", "password", "inProjects", "hasPermissions"}
     mandatory_json_fields = {"givenName", "familyName", "password"}
     # We get a html request with a header that contains a user token as well as a body with a json
@@ -138,6 +190,23 @@ def create_user(userid):
 # Function to read the contents of a user
 @bp.route('/user/<userid>', methods=['GET'])
 def read_users(userid):
+    """
+    Viewfunction to retrieve the information about a user.
+    :param userid: The userid of the user for that the information should be retrieved.
+    :return: A JSON containing the information about the given user. It has the following form:
+    json={
+    'family_name': 'John',
+    'given_name': 'Doe',
+    'has_permissions': ['omas:GenericView', (...)],
+    'in_projects': [{
+        'permissions': ['omas:ADMIN_USERS', (...)],
+        'project': 'http://www.salsah.org/version/2.0/SwissBritNet'
+        }, {...}],
+    'isActive': 'true',
+    'userId': 'Jodoe',
+    'userIri': 'urn:uuid:5a8fe5ef-90d7-4af8-9ea9-85173e5ee021'
+    }
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -175,6 +244,12 @@ def read_users(userid):
 # Function to delete a user
 @bp.route('/user/<userid>', methods=['DELETE'])
 def delete_user(userid):
+    """
+    Viewfunction to delete a user.
+    :param userid: The userid of the user that should be deleted.
+    :return: A JSON that confirms the deletion of the user that has the following form:
+    json={"message": "User {userid} deleted"}
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -199,6 +274,23 @@ def delete_user(userid):
 
 @bp.route('/user/<userid>', methods=['POST'])
 def modify_user(userid):
+    """
+    Veiwfunction to modify a user. A JSON is expected with the information that should be modified. It has the following
+    form:
+    json={
+        "givenName": "John",
+        "familyName": "Doe",
+        "password": "nicepw",
+        "in_projects": [{
+            "permissions": ['omas:ADMIN_USERS', (...)],
+            "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
+            }, {...}],
+        "has_permissions": ['omas:GenericView', (...)]
+    }
+    :param userid: The userid of the user that should be modified.
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "User updated successfully"}
+    """
     known_json_fields = {"givenName", "familyName", "password", "inProjects", "hasPermissions", "isActive"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -293,6 +385,21 @@ def modify_user(userid):
 
 @bp.route('/project/<projectid>', methods=['PUT'])
 def create_project(projectid):
+    """
+    Viewfunction to create a new project. A JSON is expectet that contains the necessary information to create a new
+    project that has the following form:
+    json={
+        "projectIri": "http://unittest.org/project/testproject",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittest#",
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }
+    :param projectid: The projectid (nikname/shortname) for the new project.
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Project successfully created"}
+    """
     known_json_fields = {"projectIri", "label", "comment", "namespaceIri", "projectStart", "projectEnd"}
     mandatory_json_fields = {"label", "namespaceIri"}
     out = request.headers['Authorization']
@@ -352,6 +459,12 @@ def create_project(projectid):
 
 @bp.route('/project/<projectid>', methods=['DELETE'])
 def delete_project(projectid):
+    """
+    Viewfunction to delete a project.
+    :param projectid: The projectid ot the project that should to be deleted.
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Project successfully deleted"}
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -378,6 +491,12 @@ def delete_project(projectid):
 
 @bp.route('/project/<projectid>', methods=['GET'])
 def read_project(projectid):
+    """
+    Viewfunction to retrieve information about the project given by the projectid.
+    :param projectid: The projectid of the project for that the information should be retrieved.
+    :return: A JSON containing the information about the given project. It has the following form:
+
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -492,6 +611,7 @@ def modify_project(projectid):
 @bp.route('/permissionset/<permisionsetid>', methods=['PUT'])
 def create_permissionset(permisionsetid):
     known_json_fields = {"label", "comment", "givesPermission", "definedByProject"}
+    mandatory_json_fields = {"label", "namespaceIri"}
     out = request.headers['Authorization']
     b, token = out.split()
 
