@@ -23,7 +23,6 @@ The implementation includes error handling and validation for most operations.
 """
 from pprint import pprint
 from typing import Dict, Set
-
 from flask import Blueprint, request, jsonify
 from oldaplib.src.connection import Connection
 from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
@@ -493,7 +492,16 @@ def read_project(projectid):
     Viewfunction to retrieve information about the project given by the projectid.
     :param projectid: The projectid of the project for that the information should be retrieved.
     :return: A JSON containing the information about the given project. It has the following form:
-
+    json={
+    'Project': 'http://unittest.org/project/testproject',
+    'Creation': '2024-05-27T18:32:43.120691 by https://orcid.org/0000-0003-1681-4036',
+    Modified: 2024-05-27T18:32:43.120691 by https://orcid.org/0000-0003-1681-4036,
+    Label: "unittest@en", "unittest@de",
+    Comment: "For testing@en", "Für Tests@de",
+    ShortName: testproject,
+    Namespace IRI: http://unitest.org/project/unittest#,
+    Project start: 1993-04-05,
+    Project end: 2000-01-10
     """
     out = request.headers['Authorization']
     b, token = out.split()
@@ -522,9 +530,7 @@ def read_project(projectid):
         'projectStart': str(project.projectStart) if project.projectStart else None,
         'projectEnd': str(project.projectEnd) if project.projectEnd else None
     }
-    return res
-
-    #return jsonify({"message": str(project)}), 200
+    return res, 200
 
 
 @bp.route('/project/search', methods=['GET'])
@@ -619,10 +625,10 @@ def modify_project(projectid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@bp.route('/permissionset/<permisionsetid>', methods=['PUT'])
-def create_permissionset(permisionsetid):
-    known_json_fields = {"label", "comment", "givesPermission", "definedByProject"}
-    mandatory_json_fields = {"label", "namespaceIri"}
+@bp.route('/permissionset/<projectshortname>/<permisionsetid>', methods=['PUT'])
+def create_permissionset(projectshortname, permisionsetid):
+    known_json_fields = {"label", "comment", "givesPermission", "definedByProject", "id"}
+    mandatory_json_fields = {"label", "givesPermission"}
     out = request.headers['Authorization']
     b, token = out.split()
 
