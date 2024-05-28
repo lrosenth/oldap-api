@@ -497,9 +497,26 @@ paths:
             application/json:
               schema:
                 properties:
+                  project:
+                    type: string
+                  creation:
+                    type: string
+                  modified:
+                    type: string
+                  label:
+                    type: string
+                  comment:
+                    type: string
                   message:
                     type: string
-                    example: 'Project: http://unittest.org/project/testproject\n  Creation: 2024-04-26T16:55:12.917387 by https://orcid.org/0000-0003-1681-4036\n  Modified: 2024-04-26T16:55:12.917387 by https://orcid.org/0000-0003-1681-4036\n  Label: "unittest"@en, "unittest"@de\n  Comment: "For testing"@en, "Für Tests"@de\n  ShortName: testproject\n  Namespace IRI: http://unitest.org/project/unittest#\n  Project start: 1993-04-05\n  Project end: 2000-01-10\n'
+                  shortName:
+                    type: string
+                  namespace IRI:
+                    type: string
+                  project start:
+                    type: string
+                  project end:
+                    type: string
         403:
           description: "Unauthorized"
           content:
