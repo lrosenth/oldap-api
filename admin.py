@@ -535,6 +535,16 @@ def read_project(projectid):
 
 @bp.route('/project/search', methods=['GET'])
 def search_project():
+    """
+    Viewfunction to search for a project. It is possible to search for label and comment.
+    A JSON is expected that has the following form:
+    json={
+    "label": examplelabel,
+    "comment": examplecomment
+    }
+    :return: A JSON containing the Iri's about the found projects. It has the following form:
+    json={'message': '[Iri("http://unittest.org/project/testproject")]'}
+    """
     known_json_fields = {"label", "comment"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -564,6 +574,19 @@ def search_project():
 
 @bp.route('/project/<projectid>', methods=['POST'])
 def modify_project(projectid):
+    """
+    Veiwfunction to modify a project given its projectid. The lavel, comment, projectstart and projectend can be modified this way.
+    A JSON is expectet that has the following form - all the fields are optionals:
+    json={
+    "label": "["unittest@en", "..."]"
+    "comment": ["For testing@en", "..."],
+    "projectstart": "1995-05-28",
+    "projectend": "2001-09-18"
+    }
+    :param projectid: The projectid of the project that should be modified.
+    :return: A JSON informing about the success of the operation that has the following form:
+    json={"message": "Project updated successfully"}
+    """
     known_json_fields = {"label", "comment", "projectStart", "projectEnd"}
     out = request.headers['Authorization']
     b, token = out.split()
