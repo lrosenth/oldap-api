@@ -56,6 +56,14 @@ def test_no_json(client, token_headers):
     assert res['message'] == "JSON expected. Instead received None"
 
 
+def test_empty_json(client, token_headers):
+    header = token_headers[1]
+    response = client.get('/admin/project/search', json={}, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+
 def test_find_several_projects(client, token_headers, testproject):
     header = token_headers[1]
 

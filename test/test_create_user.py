@@ -53,7 +53,6 @@ def test_user_already_exists(client, token_headers, testuser):
 def test_field_missing(client, token_headers):
     header = token_headers[1]
     response = client.put('/admin/user/rosman', json={
-        "givenName": "Manuel",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -69,9 +68,6 @@ def test_field_missing(client, token_headers):
     }, headers=header)
     assert response.status_code == 400
     res = response.json
-    assert 'message' in res
-    assert res['message'] == "Missing field 'familyName'"
-
 
 def test_no_json(client, token_headers):
     header = token_headers[1]

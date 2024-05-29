@@ -293,6 +293,14 @@ def test_no_json(client, token_headers, testuser):
     assert res['message'] == "JSON expected. Instead received None"
 
 
+def test_empty_json(client, token_headers, testuser):
+    header = token_headers[1]
+    response = client.post('/admin/user/rosman', json={}, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+
 def test_modify_nonexisting_user(client, token_headers):
     header = token_headers[1]
 

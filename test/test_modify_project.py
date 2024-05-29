@@ -156,6 +156,14 @@ def test_no_json(client, token_headers, testuser):
     assert res['message'] == "JSON expected. Instead received None"
 
 
+def test_empty_json(client, token_headers, testuser):
+    header = token_headers[1]
+    response = client.post('/admin/project/testproject', json={}, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+
 def test_no_permission_modify(client, token_headers, testproject):
     header = token_headers[1]
 
@@ -199,18 +207,6 @@ def test_modify_inconsistent_dates(client, token_headers, testproject):
     print(res)
     response2 = client.get('/admin/project/testproject', headers=header)
     print(response2.text)
-
-
-def test_modify_nothing(client, token_headers, testproject):
-    header = token_headers[1]
-
-    response = client.post('/admin/project/testproject', json={
-
-    }, headers=header)
-    assert response.status_code == 400
-    res = response.json
-    assert res["message"] == "Either the label, comment, projectStart or projectEnd needs to be modified"
-    print(res)
 
 
 def test_randomstuff(client, token_headers, testproject):

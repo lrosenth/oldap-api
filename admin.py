@@ -121,11 +121,15 @@ def create_user(userid):
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a user. Usable are {known_json_fields}. Aborded operation"}), 400
+
+        if not mandatory_json_fields.issubset(set(data.keys())):
+            return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a user. Used where {set(data.keys())}. Usablable are {known_json_fields}"}), 400
+
         try:
             familyname = Xsd_string(data['familyName'])
             givenname = Xsd_string(data['givenName'])
             credentials = Xsd_string(data['password'])
-        except KeyError as error:
+        except KeyError as error:  # Should not be reachable. Redundancy
             return jsonify({'message': f'Missing field {str(error)}'}), 400
 
         inprojects = data.get('inProjects', None)
@@ -261,8 +265,8 @@ def delete_user(userid):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        user3 = User.read(con=con, userId=userid)
-        user3.delete()
+        user = User.read(con=con, userId=userid)
+        user.delete()
     except OldapErrorNotFound as error:
         return jsonify({"message": str(error)}), 404
     except OldapErrorNoPermission as error:
@@ -299,6 +303,8 @@ def modify_user(userid):
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a user. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
         firstname = data.get("givenName", None)
         lastname = data.get("familyName", None)
         password = data.get("password", None)
@@ -398,7 +404,7 @@ def create_project(projectid):
     json={"message": "Project successfully created"}
     """
     known_json_fields = {"projectIri", "label", "comment", "namespaceIri", "projectStart", "projectEnd"}
-    mandatory_json_fields = {"label", "namespaceIri"}
+    mandatory_json_fields = {"namespaceIri"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -408,16 +414,15 @@ def create_project(projectid):
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a project. Usable are {known_json_fields}. Aborded operation"}), 400
         projectIri = data.get("projectIri", None)
-        projectShortName = projectid  # Necessary
-        label = data.get("label", None)  # Necessary
+        projectShortName = projectid
+        label = data.get("label", None)
         comment = data.get('comment', None)
-        namespaceIri = data.get('namespaceIri', None)  # Necessary
+        namespaceIri = data.get('namespaceIri', None)
         projectStart = data.get('projectStart', None)
         projectEnd = data.get('projectEnd', None)
 
-        if label is None or namespaceIri is None or projectShortName is None:
-            return jsonify({
-                               "message": f"To create a project, at least the projectshortname, label, comment and namespaceIri are required"}), 400
+        if not mandatory_json_fields.issubset(set(data.keys())):
+            return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a user. Used where {set(data.keys())}. Usablable are {known_json_fields}"}), 400
         if label == [] or comment == []:
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
         try:
@@ -554,6 +559,8 @@ def search_project():
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a project. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to search for a project. Usablable for the search-viewfunction are {known_json_fields}"}), 400
         label = data.get("label", None)
         comment = data.get('comment', None)
 
@@ -596,15 +603,12 @@ def modify_project(projectid):
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
-
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
         label = data.get("label", None)
         comment = data.get("comment", None)
         projectStart = data.get("projectStart", None)
         projectEnd = data.get("projectEnd", None)
-
-        if label is None and comment is None and projectStart is None and projectEnd is None:
-            return jsonify(
-                {'message': 'Either the label, comment, projectStart or projectEnd needs to be modified'}), 400
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -650,8 +654,8 @@ def modify_project(projectid):
 
 @bp.route('/permissionset/<projectshortname>/<permisionsetid>', methods=['PUT'])
 def create_permissionset(projectshortname, permisionsetid):
-    known_json_fields = {"label", "comment", "givesPermission", "definedByProject", "id"}
-    mandatory_json_fields = {"label", "givesPermission"}
+    known_json_fields = {"label", "comment", "givesPermission", "definedByProject", "permissionSetId"}
+    mandatory_json_fields = {"givesPermission"}
     out = request.headers['Authorization']
     b, token = out.split()
 
