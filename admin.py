@@ -652,9 +652,9 @@ def modify_project(projectid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@bp.route('/permissionset/<projectshortname>/<permisionsetid>', methods=['PUT'])
-def create_permissionset(projectshortname, permisionsetid):
-    known_json_fields = {"label", "comment", "givesPermission", "definedByProject", "permissionSetId"}
+@bp.route('/permissionset/<definedByProject>/<permisionsetid>', methods=['PUT'])
+def create_permissionset(definedByProject, permisionsetid):
+    known_json_fields = {"label", "comment", "givesPermission"}
     mandatory_json_fields = {"givesPermission"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -665,10 +665,11 @@ def create_permissionset(projectshortname, permisionsetid):
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
-        label = data.get("label", None)  # Necessary
+        if not mandatory_json_fields.issubset(set(data.keys())):
+            return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a permissionset. Used where {set(data.keys())}. Usablable are {known_json_fields}"}), 400
+        label = data.get("label", None)
         comment = data.get("comment", None)  # Enum: Datapermission
         givesPermission = data.get("givesPermission", None)  # Necessary
-        definedByProject = data.get('definedByProject', None)  # Necessary
 
         if label == [] or comment == []:
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
@@ -690,10 +691,11 @@ def create_permissionset(projectshortname, permisionsetid):
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             permissionset = PermissionSet(con=con,
+                                          permissionSetId=permisionsetid,
                                           label=LangString(label),
                                           comment=LangString(comment),
                                           givesPermission=givesPermission,
-                                          definedByProject=Iri(definedByProject))
+                                          definedByProject=definedByProject)
             permissionset.create()
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
@@ -711,8 +713,8 @@ def create_permissionset(projectshortname, permisionsetid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@bp.route('/permissionset/<permissionlabel>', methods=['GET'])
-def read_permissionset(permissionlabel):
+@bp.route('/permissionset/<definedbyproject>/<permisionsetid>', methods=['GET'])
+def read_permissionset(definedbyproject, permisionsetid):
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -725,16 +727,11 @@ def read_permissionset(permissionlabel):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        permissionsetIri = PermissionSet.search(con=con, label=permissionlabel)[0]
-    except IndexError as error:
-        return jsonify({"message": "Permissionset not found"}), 404
-
-    try:
-        ps = PermissionSet.read(con=con, permissionSetIri=permissionsetIri)
+        ps = PermissionSet.read(con=con, permissionSetId=permisionsetid, definedByProject=definedbyproject)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
-    return jsonify({"message": str(ps)}), 200
+    return jsonify({"message": str(ps)}), 200  # TODO: JSON Object wie oben
 
 
 @bp.route('/permissionset/search', methods=['GET'])

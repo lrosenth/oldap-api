@@ -105,11 +105,10 @@ def testproject(client, token_headers):
 def testpermissionset(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/testpermissionset', json={
-        "label": ["testPerm@en", "test@Perm@de", "testpermission"],
+    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
+        "label": ["testPerm@en", "test@Perm@de"],
         "comment": ["For testing@en", "Für Tests@de"],
         "givesPermission": "DATA_UPDATE",
-        "definedByProject": "oldap:SystemProject"
     }, headers=header)
 
     yield
