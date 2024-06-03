@@ -713,7 +713,7 @@ def create_permissionset(definedByProject, permisionsetid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@bp.route('/permissionset/<definedbyproject>/<permisionsetid>', methods=['GET'])
+@bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['GET'])
 def read_permissionset(definedbyproject, permissionsetid):
     out = request.headers['Authorization']
     b, token = out.split()
