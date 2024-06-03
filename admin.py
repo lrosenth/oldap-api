@@ -731,7 +731,18 @@ def read_permissionset(definedbyproject, permisionsetid):
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
-    return jsonify({"message": str(ps)}), 200  # TODO: JSON Object wie oben
+    res = {
+        'permisionsetid': str(ps.permissionSetId),
+        'creation': str(ps.created),
+        'contributor': str(ps.contributor),
+        'modified': str(ps.modified),
+        'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()] if ps.label else None,
+        'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()] if ps.comment else None,
+        'givesPermission': str(ps.givesPermission),
+        'definedByProject': str(ps.definedByProject),
+    }
+
+    return res, 200
 
 
 @bp.route('/permissionset/search', methods=['GET'])
