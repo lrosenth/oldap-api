@@ -182,7 +182,7 @@ def create_user(userid):
             return jsonify({"message": str(error)}), 409
         except OldapErrorValue as error:
             return jsonify({'message': str(error)}), 400
-        except OldapError as error:
+        except OldapError as error:  # Should not be reachable... is only raised when no connection was established
             return jsonify({'message': str(error)})
 
     else:
