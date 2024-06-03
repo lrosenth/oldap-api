@@ -635,8 +635,6 @@ def modify_project(projectid):
             return jsonify({"message": str(error)}), 400
         except OldapErrorInconsistency as error:
             return jsonify({'message': str(error)}), 400
-        except OldapError as error:
-            return jsonify({"message": str(error)}), 500
 
         try:
             project.update()
