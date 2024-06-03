@@ -277,18 +277,6 @@ def test_create_empty_comment(client, token_headers):
     print(res)
 
 
-def test_create_randomstuff(client, token_headers):
-    header = token_headers[1]
-
-    response = client.put('/admin/project/testproject', json={}, headers=header)
-
-    # assert response.status_code == 200
-    res = response.json
-    print(res)
-    response2 = client.get('/admin/project/testproject', headers=header)
-    print(response2.text)
-
-
 def test_bad_projectid(client, token_headers):
     header = token_headers[1]
 
