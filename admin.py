@@ -714,7 +714,7 @@ def create_permissionset(definedByProject, permisionsetid):
 
 
 @bp.route('/permissionset/<definedbyproject>/<permisionsetid>', methods=['GET'])
-def read_permissionset(definedbyproject, permisionsetid):
+def read_permissionset(definedbyproject, permissionsetid):
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -727,7 +727,7 @@ def read_permissionset(definedbyproject, permisionsetid):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        ps = PermissionSet.read(con=con, permissionSetId=permisionsetid, definedByProject=definedbyproject)
+        ps = PermissionSet.read(con=con, permissionSetId=permissionsetid, definedByProject=definedbyproject)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -756,6 +756,8 @@ def search_permissionset():
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to search for a permissionset. Usable for the search-viewfunction are {known_json_fields}"}), 400
         label = data.get("label", None)
         givespermission = data.get('givesPermission', None)
         definedbyproject = data.get("definedByProject", None)
@@ -769,15 +771,15 @@ def search_permissionset():
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
-            return jsonify({"message": str(permissionset)}), 200
+            return jsonify(str(permissionset)), 200
         except OldapErrorNotFound as error:
             return jsonify({'message': str(error)}), 404
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@bp.route('/permissionset/<permissionlabel>', methods=['DELETE'])
-def delete_permissionset(permissionlabel):
+@bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['DELETE'])
+def delete_permissionset(definedbyproject, permissionsetid):
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -790,12 +792,7 @@ def delete_permissionset(permissionlabel):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        permissionsetIri = PermissionSet.search(con=con, label=permissionlabel)[0]
-    except IndexError as error:
-        return jsonify({"message": "Permissionset not found"}), 404
-
-    try:
-        ps = PermissionSet.read(con=con, permissionSetIri=permissionsetIri)
+        ps = PermissionSet.read(con=con, permissionSetId=permissionsetid, definedByProject=definedbyproject)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
