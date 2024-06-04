@@ -25,7 +25,6 @@ def test_bad_token(client, token_headers):
 
 
 def test_no_permission_delete(client, token_headers, testproject):
-    # TODO: Funktioniert nicht. Warum?! --> Probably bug in Backend
     header = token_headers[1]
 
     client.put('/admin/user/rosmankappa', json={
