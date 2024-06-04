@@ -44,7 +44,7 @@ def test_not_found_search(client, token_headers):
 
     assert response.status_code == 200
     res = response.json
-    assert res["message"] == '[]'
+    assert res == '[]'
 
 
 def test_no_json(client, token_headers):
@@ -82,7 +82,7 @@ def test_find_several_projects(client, token_headers, testproject):
 
     assert response.status_code == 200
     res = response.json
-    assert res["message"] == '[Iri("http://unittest.org/project/testproject"), Iri("http://unittest.org/project/kappaproject")]'
+    assert res == '[Iri("http://unittest.org/project/testproject"), Iri("http://unittest.org/project/kappaproject")]'
     print(res)
 
 

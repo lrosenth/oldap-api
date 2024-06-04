@@ -573,7 +573,7 @@ def search_project():
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
         projects = Project.search(con=con, label=label, comment=comment)
-        return jsonify({"message": str(projects)}), 200
+        return jsonify(str(projects)), 200
 
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
@@ -767,11 +767,10 @@ def search_permissionset():
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-        try:
-            permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
-            return jsonify(str(permissionset)), 200
-        except OldapErrorNotFound as error:
-            return jsonify({'message': str(error)}), 404
+
+        permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
+        return jsonify(str(permissionset)), 200
+
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
