@@ -650,8 +650,8 @@ def modify_project(projectid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@bp.route('/permissionset/<definedByProject>/<permisionsetid>', methods=['PUT'])
-def create_permissionset(definedByProject, permisionsetid):
+@bp.route('/permissionset/<definedByProject>/<permissionsetid>', methods=['PUT'])
+def create_permissionset(definedByProject, permissionsetid):
     known_json_fields = {"label", "comment", "givesPermission"}
     mandatory_json_fields = {"givesPermission"}
     out = request.headers['Authorization']
@@ -689,7 +689,7 @@ def create_permissionset(definedByProject, permisionsetid):
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             permissionset = PermissionSet(con=con,
-                                          permissionSetId=permisionsetid,
+                                          permissionSetId=permissionsetid,
                                           label=LangString(label),
                                           comment=LangString(comment),
                                           givesPermission=givesPermission,
@@ -801,3 +801,58 @@ def delete_permissionset(definedbyproject, permissionsetid):
         return jsonify({'message': str(error)}), 500
 
     return jsonify({"message": "Permissionset successfully deleted"}), 200
+
+
+@bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['POST'])
+def modify_permissionset(definedbyproject, permissionsetid):
+    known_json_fields = {"label", "comment", "givesPermission"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+        label = data.get("label", None)
+        comment = data.get("comment", None)
+        givesPermission = data.get("givesPermission", None)
+
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="oldap",
+                             token=token,
+                             context_name="DEFAULT")
+        except OldapError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        try:
+            ps = PermissionSet.read(con=con, permissionSetId=permissionsetid, definedByProject=definedbyproject)
+        except OldapErrorNotFound as error:
+            return jsonify({"message": str(error)}), 404
+
+        try:
+            if label:
+                ps.label = LangString(label)
+            if comment:
+                ps.comment = LangString(comment)
+            if givesPermission:
+                ps.givesPermission = givesPermission
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
+        except OldapErrorInconsistency as error:
+            return jsonify({'message': str(error)}), 400
+
+        try:
+            ps.update()
+        except OldapErrorNoPermission as error:
+            return jsonify({"message": str(error)}), 403
+        except OldapErrorUpdateFailed as error:  # hard to test
+            return jsonify({"message": str(error)}), 500
+        except OldapError as error:  # should not be reachable
+            return jsonify({"message": str(error)}), 500
+
+        return jsonify({"message": "Project updated successfully"}), 200
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
