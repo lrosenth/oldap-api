@@ -838,11 +838,9 @@ def modify_permissionset(definedbyproject, permissionsetid):
             if comment:
                 ps.comment = LangString(comment)
             if givesPermission:
-                ps.givesPermission = givesPermission
+                ps.givesPermission = DataPermission[givesPermission]
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
-        except OldapErrorInconsistency as error:
-            return jsonify({'message': str(error)}), 400
 
         try:
             ps.update()
