@@ -49,6 +49,90 @@ def test_modify_gives_permission(client, token_headers, testpermissionset):
     assert res.get('givesPermission') == 'DataPermission.DATA_VIEW'
 
 
+def test_modify_bad_label(client, token_headers, testpermissionset):
+    header = token_headers[1]
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": 1234,
+        "comment": "random comment",
+        "givesPermission": "DATA_VIEW"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+
+def test_modify_bad_comment(client, token_headers, testpermissionset):
+    header = token_headers[1]
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": ["testPerm@en", "test@Perm@de"],
+        "comment": 1234,
+        "givesPermission": "DATA_VIEW"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+
+def test_modify_bad_givespermission(client, token_headers, testpermissionset):
+    header = token_headers[1]
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": ["testPerm@en", "test@Perm@de"],
+        "comment": "random comment",
+        "givesPermission": 1234
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+def test_modify_empty_label(client, token_headers, testpermissionset):
+    header = token_headers[1]
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "comment": "random comment",
+        "givesPermission": "DATA_VIEW"
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+
+
+def test_modify_empty_comment(client, token_headers, testpermissionset):
+    header = token_headers[1]
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": ["testPerm@en", "test@Perm@de"],
+        "givesPermission": "DATA_VIEW"
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+
+def test_modify_empty_givespermission(client, token_headers, testpermissionset):
+    header = token_headers[1]
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": ["testPerm@en", "test@Perm@de"],
+        "comment": "random comment",
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+
 def test_bad_token(client, token_headers):
     header = token_headers[1]
     token = header['Authorization'].split(' ')[1]
@@ -116,3 +200,36 @@ def test_bad_langstring(client, token_headers, testpermissionset):
     assert response.status_code == 400
     res = response.json
     print(res)
+
+
+def test_no_permission_modify(client, token_headers, testpermissionset):
+    header = token_headers[1]
+
+    client.put('/admin/user/rosmankappa', json={
+        "givenName": "Kappauser",
+        "familyName": "KappaKappatest",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+            }
+        ],
+        "hasPermissions": [
+            "GenericRestricted"
+        ]
+    }, headers=header)
+
+    login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})
+    token = login.json['token']
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+
+    response2 = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": "Kappa@fr",
+        "comment": "random comment",
+        "givesPermission": "DATA_UPDATE"
+    }, headers=headers)
+    res2 = response2.json
+    print(res2)
+    assert response2.status_code == 403

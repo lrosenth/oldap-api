@@ -806,6 +806,7 @@ def delete_permissionset(definedbyproject, permissionsetid):
 @bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['POST'])
 def modify_permissionset(definedbyproject, permissionsetid):
     known_json_fields = {"label", "comment", "givesPermission"}
+    known_permissions = {"DATA_RESTRICTED", "DATA_VIEW", "DATA_EXTEND", "DATA_UPDATE", "DATA_DELETE", "DATA_PERMISSIONS"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -841,6 +842,8 @@ def modify_permissionset(definedbyproject, permissionsetid):
                 ps.givesPermission = DataPermission[givesPermission]
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
+        except KeyError as error:
+            return jsonify({"message": f"{givesPermission} is not a valid permission. Supportet are {known_permissions}"}), 400
 
         try:
             ps.update()
