@@ -106,7 +106,7 @@ def testpermissionset(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/permissionset/oldap/testpermissionset', json={
-        "label": ["testPerm@en", "test@Perm@de"],
+        "label": ["testPerm@en", "test@de"],
         "comment": ["For testing@en", "Für Tests@de"],
         "givesPermission": "DATA_UPDATE",
     }, headers=header)
