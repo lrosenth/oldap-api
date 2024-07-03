@@ -26,6 +26,7 @@ from typing import Dict, Set
 from flask import Blueprint, request, jsonify
 from oldaplib.src.connection import Connection
 from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
+from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.permissions import AdminPermission, DataPermission
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.observable_set import ObservableSet
@@ -817,9 +818,9 @@ def modify_permissionset(definedbyproject, permissionsetid):
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
-        label = data.get("label", None)
-        comment = data.get("comment", None)
-        givesPermission = data.get("givesPermission", None)
+        label = data.get("label", "NotSent")
+        comment = data.get("comment", "NotSent")
+        givesPermission = data.get("givesPermission", "NotSent")
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -834,11 +835,42 @@ def modify_permissionset(definedbyproject, permissionsetid):
             return jsonify({"message": str(error)}), 404
 
         try:
-            if label:
-                ps.label = LangString(label)
-            if comment:
-                ps.comment = LangString(comment)
-            if givesPermission:
+            if label != "NotSent":
+                if isinstance(label, str):
+                    return jsonify({"message": f"For the label either a list or a dict is expected, not a string"}), 400
+                if isinstance(label, list):
+                    ps.label = LangString(label)
+                elif isinstance(label, dict):
+                    if "add" in label:
+                        for item in label["add"]:
+                            lang = item[-2:].upper()
+                            ps.label[Language[lang]] = item[:-3]
+                    if "del" in label:
+                        for item in label["del"]:
+                            lang = item[-2:].upper()
+                            del ps.label[Language[lang]]
+                elif label is None:
+                    # del ps.label
+                    return jsonify({"message": f"The label is mandatory. You can however delete label entries."}), 400
+
+            if comment != "NotSent":
+                if isinstance(comment, str):
+                    return jsonify({"message": f"For the comment either a list or a dict is expected, not a string"}), 400
+                if isinstance(comment, list):
+                    ps.comment = LangString(comment)
+                elif isinstance(comment, dict):
+                    if "add" in comment:
+                        for item in comment["add"]:
+                            lang = item[-2:].upper()
+                            ps.comment[Language[lang]] = item[:-3]
+                    if "del" in comment:
+                        for item in comment["del"]:
+                            lang = item[-2:].upper()
+                            del ps.comment[Language[lang]]
+                elif comment is None:
+                    del ps.label
+                    # return jsonify({"message": f"The comment is mandatory. You can however delete label entries."}), 400
+            if givesPermission != "NotSent":
                 ps.givesPermission = DataPermission[givesPermission]
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400

@@ -233,3 +233,21 @@ def test_no_permission_modify(client, token_headers, testpermissionset):
     res2 = response2.json
     print(res2)
     assert response2.status_code == 403
+
+
+def test_modify_label_weird(client, token_headers, testpermissionset):
+    header = token_headers[1]
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": {
+            "add": ["spaghetti@it", "zuzu@zu"],
+            "del": ["testPerm@en"]
+        },
+    }, headers=header)
+
+    assert response.status_code == 200
+
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    # assert res.get('label') == ['Kappa@fr']
