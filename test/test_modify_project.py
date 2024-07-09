@@ -138,7 +138,7 @@ def test_project_to_modify_not_found(client, token_headers):
     header = token_headers[1]
 
     response = client.post('/admin/project/notexistingproject', json={
-        "label": "Kappa@fr"
+        "label": ["Kappa@fr"]
     }, headers=header)
 
     assert response.status_code == 404

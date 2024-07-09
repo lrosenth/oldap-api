@@ -44,6 +44,193 @@ from oldaplib.src.xsd.xsd_string import Xsd_string
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
+known_languages = [
+    "AB:Abkhazian",
+    "AA:Afar",
+    "AF:Afrikaans",
+    "AK:Akan",
+    "SQ:Albanian",
+    "AM:Amharic",
+    "AR:Arabic",
+    "AN:Aragonese",
+    "HY:Armenian",
+    "AS:Assamese",
+    "AV:Avaric",
+    "AE:Avestan",
+    "AY:Aymara",
+    "AZ:Azerbaijani",
+    "BM:Bambara",
+    "BA:Bashkir",
+    "EU:Basque",
+    "BE:Belarusian",
+    "BN:Bengali",
+    "BH:Bihari languages",
+    "BI:Bislama",
+    "BS:Bosnian",
+    "BR:Breton",
+    "BG:Bulgarian",
+    "MY:Burmese",
+    "CA:Catalan, Valencian",
+    "CH:Chamorro",
+    "CE:Chechen",
+    "NY:Chichewa, Chewa, Nyanja",
+    "ZH:Chinese",
+    "CV:Chuvash",
+    "KW:Cornish",
+    "CO:Corsican",
+    "CR:Cree",
+    "HR:Croatian",
+    "CS:Czech",
+    "DA:Danish",
+    "DV:Divehi, Dhivehi, Maldivian",
+    "NL:Dutch, Flemish",
+    "DZ:Dzongkha",
+    "EN:English",
+    "EO:Esperanto",
+    "ET:Estonian",
+    "EE:Ewe",
+    "FO:Faroese",
+    "FJ:Fijian",
+    "FI:Finnish",
+    "FR:French",
+    "FF:Fulah",
+    "GL:Galician",
+    "KA:Georgian",
+    "DE:German",
+    "EL:Greek, Modern (1453-)",
+    "GN:Guarani",
+    "GU:Gujarati",
+    "HT:Haitian, Haitian Creole",
+    "HA:Hausa",
+    "HE:Hebrew",
+    "HZ:Herero",
+    "HI:Hindi",
+    "HO:Hiri Motu",
+    "HU:Hungarian",
+    "IA:Interlingua (International Auxiliary Language Association)",
+    "ID:Indonesian",
+    "IE:Interlingue, Occidental",
+    "GA:Irish",
+    "IG:Igbo",
+    "IK:Inupiaq",
+    "IO:Ido",
+    "IS:Icelandic",
+    "IT:Italian",
+    "IU:Inuktitut",
+    "JA:Japanese",
+    "JV:Javanese",
+    "KL:Kalaallisut, Greenlandic",
+    "KN:Kannada",
+    "KR:Kanuri",
+    "KS:Kashmiri",
+    "KK:Kazakh",
+    "KM:Central Khmer",
+    "KI:Kikuyu, Gikuyu",
+    "RW:Kinyarwanda",
+    "KY:Kirghiz, Kyrgyz",
+    "KV:Komi",
+    "KG:Kongo",
+    "KO:Korean",
+    "KU:Kurdish",
+    "KJ:Kuanyama, Kwanyama",
+    "LA:Latin",
+    "LB:Luxembourgish, Letzeburgesch",
+    "LG:Ganda",
+    "LI:Limburgan, Limburger, Limburgish",
+    "LN:Lingala",
+    "LO:Lao",
+    "LT:Lithuanian",
+    "LU:Luba-Katanga",
+    "LV:Latvian",
+    "GV:Manx",
+    "MK:Macedonian",
+    "MG:Malagasy",
+    "MS:Malay",
+    "ML:Malayalam",
+    "MT:Maltese",
+    "MI:Maori",
+    "MR:Marathi",
+    "MH:Marshallese",
+    "MN:Mongolian",
+    "NA:Nauru",
+    "NV:Navajo, Navaho",
+    "ND:North Ndebele",
+    "NE:Nepali",
+    "NG:Ndonga",
+    "NB:Norwegian Bokmål",
+    "NN:Norwegian Nynorsk",
+    "NO:Norwegian",
+    "II:Sichuan Yi, Nuosu",
+    "NR:South Ndebele",
+    "OC:Occitan",
+    "OJ:Ojibwa",
+    "CU:Church Slavic, Old Slavonic, Church Slavonic, Old Bulgarian, Old Church Slavonic",
+    "OM:Oromo",
+    "OR:Oriya",
+    "OS:Ossetian, Ossetic",
+    "PA:Panjabi, Punjabi",
+    "PI:Pali",
+    "FA:Persian",
+    "PL:Polish",
+    "PS:Pashto, Pushto",
+    "PT:Portuguese",
+    "QU:Quechua",
+    "RM:Romansh",
+    "RN:Rundi",
+    "RO:Romanian, Moldavian, Moldovan",
+    "RU:Russian",
+    "SA:Sanskrit",
+    "SC:Sardinian",
+    "SD:Sindhi",
+    "SE:Northern Sami",
+    "SM:Samoan",
+    "SG:Sango",
+    "SR:Serbian",
+    "GD:Gaelic, Scottish Gaelic",
+    "SN:Shona",
+    "SI:Sinhala, Sinhalese",
+    "SK:Slovak",
+    "SL:Slovenian",
+    "SO:Somali",
+    "ST:Southern Sotho",
+    "ES:Spanish, Castilian",
+    "SU:Sundanese",
+    "SW:Swahili",
+    "SS:Swati",
+    "SV:Swedish",
+    "TA:Tamil",
+    "TE:Telugu",
+    "TG:Tajik",
+    "TH:Thai",
+    "TI:Tigrinya",
+    "BO:Tibetan",
+    "TK:Turkmen",
+    "TL:Tagalog",
+    "TN:Tswana",
+    "TO:Tonga (Tonga Islands)",
+    "TR:Turkish",
+    "TS:Tsonga",
+    "TT:Tatar",
+    "TW:Twi",
+    "TY:Tahitian",
+    "UG:Uighur, Uyghur",
+    "UK:Ukrainian",
+    "UR:Urdu",
+    "UZ:Uzbek",
+    "VE:Venda",
+    "VI:Vietnamese",
+    "VO:Volapük",
+    "WA:Walloon",
+    "CY:Welsh",
+    "WO:Wolof",
+    "FY:Western Frisian",
+    "XH:Xhosa",
+    "YI:Yiddish",
+    "YO:Yoruba",
+    "ZA:Zhuang, Chuang",
+    "ZU:Zulu"
+]
+
 
 # Function to log into a user
 @bp.route('/auth/<userid>', methods=['POST'])
@@ -238,9 +425,10 @@ def read_users(userid):
         "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
     }
 
-    for projname, permissions in user.inProject.items():
-        proj = {"project": str(projname), "permissions": [x.value for x in permissions] if permissions else []}
-        answer["in_projects"].append(proj)
+    if user.inProject is not None:
+        for projname, permissions in user.inProject.items():
+            proj = {"project": str(projname), "permissions": [x.value for x in permissions] if permissions else []}
+            answer["in_projects"].append(proj)
 
     return jsonify(answer), 200
 
@@ -839,43 +1027,106 @@ def modify_permissionset(definedbyproject, permissionsetid):
                 if isinstance(label, str):
                     return jsonify({"message": f"For the label either a list or a dict is expected, not a string"}), 400
                 if isinstance(label, list):
+                    for item in label:
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                     ps.label = LangString(label)
                 elif isinstance(label, dict):
                     if "add" in label:
+                        if not isinstance(label["add"], list):
+                            return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
                         for item in label["add"]:
+                            try:
+                                if item[-3] != '@':
+                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            except IndexError as error:
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                             lang = item[-2:].upper()
-                            ps.label[Language[lang]] = item[:-3]
+                            try:
+                                ps.label[Language[lang]] = item[:-3]
+                            except KeyError as error:
+                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                     if "del" in label:
+                        if not isinstance(label["del"], list):
+                            return jsonify({"message": f"The delete entry needs to be a list, not a string."}), 400
                         for item in label["del"]:
+                            try:
+                                if item[-3] != '@':
+                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            except IndexError as error:
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                             lang = item[-2:].upper()
-                            del ps.label[Language[lang]]
+                            try:
+                                del ps.label[Language[lang]]
+                            except KeyError as error:
+                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                    if "add" not in label and "del" not in label:
+                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 elif label is None:
                     # del ps.label
                     return jsonify({"message": f"The label is mandatory. You can however delete label entries."}), 400
+                else:
+                    return jsonify({"message": f"Either a List or a dict is required."}), 400
 
             if comment != "NotSent":
                 if isinstance(comment, str):
                     return jsonify({"message": f"For the comment either a list or a dict is expected, not a string"}), 400
                 if isinstance(comment, list):
+                    for item in comment:
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                     ps.comment = LangString(comment)
                 elif isinstance(comment, dict):
                     if "add" in comment:
+                        if not isinstance(comment["add"], list):
+                            return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
                         for item in comment["add"]:
+                            try:
+                                if item[-3] != '@':
+                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            except IndexError as error:
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                             lang = item[-2:].upper()
-                            ps.comment[Language[lang]] = item[:-3]
+                            try:
+                                ps.label[Language[lang]] = item[:-3]
+                            except KeyError as error:
+                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                     if "del" in comment:
+                        if not isinstance(comment["del"], list):
+                            return jsonify({"message": f"The delete entry needs to be a list, not a string."}), 400
                         for item in comment["del"]:
+                            try:
+                                if item[-3] != '@':
+                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            except IndexError as error:
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                             lang = item[-2:].upper()
-                            del ps.comment[Language[lang]]
+                            try:
+                                del ps.label[Language[lang]]
+                            except KeyError as error:
+                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                    if "add" not in comment and "del" not in comment:
+                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 elif comment is None:
                     del ps.label
                     # return jsonify({"message": f"The comment is mandatory. You can however delete label entries."}), 400
+                else:
+                    return jsonify({"message": f"Either a List or a dict is required."}), 400
+
             if givesPermission != "NotSent":
                 ps.givesPermission = DataPermission[givesPermission]
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
         except KeyError as error:
             return jsonify({"message": f"{givesPermission} is not a valid permission. Supportet are {known_permissions}"}), 400
+        except OldapError as error:
+            return jsonify({"message": f'{str(error)}, Could not delete the given entry'}), 500
 
         try:
             ps.update()
