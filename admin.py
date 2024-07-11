@@ -1121,8 +1121,6 @@ def modify_permissionset(definedbyproject, permissionsetid):
 
             if givesPermission != "NotSent":
                 ps.givesPermission = DataPermission[givesPermission]
-        except OldapErrorValue as error:
-            return jsonify({"message": str(error)}), 400
         except KeyError as error:
             return jsonify({"message": f"{givesPermission} is not a valid permission. Supportet are {known_permissions}"}), 400
         except OldapError as error:
