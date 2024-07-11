@@ -37,6 +37,7 @@ from oldaplib.src.permissionset import PermissionSet
 from oldaplib.src.project import Project
 from oldaplib.src.user import User
 from oldaplib.src.xsd.iri import Iri
+from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
 from oldaplib.src.xsd.xsd_date import Xsd_date
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
@@ -548,9 +549,9 @@ def modify_user(userid):
             user2.credentials = Xsd_string(password)
         if isactive is not None:
             if isactive.lower() == 'true':
-                user2.isActive = True
+                user2.isActive = Xsd_boolean(True)
             elif isactive.lower() == 'false':
-                user2.isActive = False
+                user2.isActive = Xsd_boolean(False)
         if in_project_dict is not None:
             user2.inProject = InProjectClass(in_project_dict)
         if permission_set:
@@ -1066,8 +1067,7 @@ def modify_permissionset(definedbyproject, permissionsetid):
                     if "add" not in label and "del" not in label:
                         return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 elif label is None:
-                    # del ps.label
-                    return jsonify({"message": f"The label is mandatory. You can however delete label entries."}), 400
+                    del ps.label
                 else:
                     return jsonify({"message": f"Either a List or a dict is required."}), 400
 
@@ -1089,12 +1089,12 @@ def modify_permissionset(definedbyproject, permissionsetid):
                         for item in comment["add"]:
                             try:
                                 if item[-3] != '@':
-                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                                    return jsonify({"message": f"Please add a correct language tag e.g. @de"}), 400
                             except IndexError as error:
                                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                             lang = item[-2:].upper()
                             try:
-                                ps.label[Language[lang]] = item[:-3]
+                                ps.comment[Language[lang]] = item[:-3]
                             except KeyError as error:
                                 return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                     if "del" in comment:
@@ -1108,13 +1108,13 @@ def modify_permissionset(definedbyproject, permissionsetid):
                                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                             lang = item[-2:].upper()
                             try:
-                                del ps.label[Language[lang]]
+                                del ps.comment[Language[lang]]
                             except KeyError as error:
                                 return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                     if "add" not in comment and "del" not in comment:
                         return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 elif comment is None:
-                    del ps.label
+                    del ps.comment
                     # return jsonify({"message": f"The comment is mandatory. You can however delete label entries."}), 400
                 else:
                     return jsonify({"message": f"Either a List or a dict is required."}), 400

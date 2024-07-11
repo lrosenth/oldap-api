@@ -20,7 +20,7 @@ def test_modify_label(client, token_headers, testpermissionset):
     assert res.get('label') == ['Kappa@fr', 'test@de']
 
     responsedict = client.post('/admin/permissionset/oldap/testpermissionset', json={
-        "label": {"add": ["Kappa@fr"], "del": ["test@de"]}
+        "label": {"add": ["Kappa@it"], "del": ["test@de"]}
     }, headers=header)
     res = responsedict.json
     print(res)
@@ -28,7 +28,7 @@ def test_modify_label(client, token_headers, testpermissionset):
     responsedict2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
     res = responsedict2.json
     print(res)
-    assert res.get('label') == ['Kappa@fr']
+    assert res.get('label') == ['Kappa@fr', "Kappa@it"]
 
 
 def test_modify_comment(client, token_headers, testpermissionset):
