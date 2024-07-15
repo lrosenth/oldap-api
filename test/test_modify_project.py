@@ -1,63 +1,214 @@
 import re
 from pprint import pprint
 
-
 def test_modify_label(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": "Kappa@fr"
     }, headers=header)
-
-    assert response.status_code == 200
-
-    response2 = client.get('/admin/project/testproject', headers=header)
-    res = response2.json
-    assert res.get('label') == ['Kappa@fr']
-
-
-def test_bad_modify_label(client, token_headers, testproject):
-    header = token_headers[1]
-
-    response = client.post('/admin/project/testproject', json={
-        "label": "Gaga\"++-usw@en"
-    }, headers=header)
-    assert response.status_code == 200
     res = response.json
     print(res)
-    response2 = client.get('/admin/project/testproject', headers=header)
-    print(response2.text)
+    assert response.status_code == 400
+
+    responselist = client.post('/admin/project/testproject', json={
+        "label": ["Kappa@fr", "test@de"]
+    }, headers=header)
+    res = responselist.json
+    print(res)
+    assert responselist.status_code == 200
+    responselist2 = client.get('/admin/project/testproject', headers=header)
+    res = responselist2.json
+    print(res)
+    assert res.get('label') == ['Kappa@fr', 'test@de']
+
+    responsedict = client.post('/admin/project/testproject', json={
+        "label": {"add": ["Kappa@it"], "del": ["test@de"]}
+    }, headers=header)
+    res = responsedict.json
+    print(res)
+    assert responsedict.status_code == 200
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    print(res)
+    assert res.get('label') == ['Kappa@fr', "Kappa@it"]
 
 
 def test_modify_comment(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
-        "comment": ["For testing@en", "FÜR DAS TESTEN@de", "Pour les tests@fr"]
+        "comment": "random changed comment@en"
     }, headers=header)
-
-    assert response.status_code == 200
     res = response.json
+    print(res)
+    assert response.status_code == 400
 
-    response2 = client.get('/admin/project/testproject', headers=header)
-    # Regex to find the content of "Comment"
-    result = response2.json
-    pprint(result)
-    assert set(result['comment']) == {"For testing@en", "FÜR DAS TESTEN@de", "Pour les tests@fr"}
+    responselist = client.post('/admin/project/testproject', json={
+        "comment": ["random changed comment@en", "another comment@de"]
+    }, headers=header)
+    res = responselist.json
+    print(res)
+    assert responselist.status_code == 200
+    responselist2 = client.get('/admin/project/testproject', headers=header)
+    res = responselist2.json
+    print(res)
+    assert res.get('comment') == ["random changed comment@en", "another comment@de"]
+
+    responsedict = client.post('/admin/project/testproject', json={
+        "comment": {"add": ["newcomment@it"], "del": ["another comment@de"]}
+    }, headers=header)
+    res = responsedict.json
+    print(res)
+    assert responsedict.status_code == 200
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    print(res)
+    assert res.get('comment') == ['random changed comment@en', 'newcomment@it']
 
 
-def test_bad_modify_comment(client, token_headers, testproject):
+def test_modify_bad_label(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
-        "comment": "Gaga\"++-usw@en"
+        "label": 1234
     }, headers=header)
-    assert response.status_code == 200
+
+    assert response.status_code == 400
     res = response.json
     print(res)
-    response2 = client.get('/admin/project/testproject', headers=header)
-    res = response2.json
-    assert res.get('comment') == ["Gaga\"++-usw@en"]
+
+    response = client.post('/admin/project/testproject', json={
+        "label": "kappa"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": ["gugugugu", "gagagagagag@en"]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"crap": "gugugugu", "alsocrap": "gagagagagag@en"}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"add": ["u"], "del": ["gagagagagag@en"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"add": ["u@asdfgasdg"], "del": ["gagagagagag@en"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"add": ["u@at"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"del": ["doesnotexist@zu"]}
+    }, headers=header)
+
+    assert response.status_code == 500
+    res = response.json
+    print(res)
+
+
+def test_modify_bad_comment(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": 1234
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": "kappa"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": ["gugugugu", "gagagagagag@en"]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"crap": "gugugugu", "alsocrap": "gagagagagag@en"}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"add": ["u"], "del": ["gagagagagag@en"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"add": ["u@asdfgasdg"], "del": ["gagagagagag@en"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"add": ["u@at"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"del": ["doesnotexist@zu"]}
+    }, headers=header)
+
+    assert response.status_code == 500
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"del": ["doesnotexist@at"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
 
 
 def test_modify_startdate(client, token_headers, testproject):
@@ -188,7 +339,7 @@ def test_no_permission_modify(client, token_headers, testproject):
     }
 
     response2 = client.post('/admin/project/testproject', json={
-        "label": "Kappa"
+        "label": ["Kappa@de"]
     }, headers=headers)
     res2 = response2.json
     print(res2)

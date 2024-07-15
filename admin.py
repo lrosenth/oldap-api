@@ -772,11 +772,12 @@ def search_project():
 @bp.route('/project/<projectid>', methods=['POST'])
 def modify_project(projectid):
     """
-    Veiwfunction to modify a project given its projectid. The lavel, comment, projectstart and projectend can be modified this way.
-    A JSON is expectet that has the following form - all the fields are optionals:
+    Veiwfunction to modify a project given its projectid. The label, comment, projectstart and projectend can be modified this way.
+    A JSON is expectet that has the following form - all the fields are optionals, a list exchanges the
+    whole field, a dict adds/removes entries:
     json={
-    "label": "["unittest@en", "..."]"
-    "comment": ["For testing@en", "..."],
+    "label": "["unittest@en", "..."]" or "{"add": ["tobeadded@it", ...], "del": ["tobedeleted@en"]},
+    "comment": ["For testing@en", "..."] or "{"add": ["tobeadded@it", ...], "del": ["tobedeleted@en"]},
     "projectstart": "1995-05-28",
     "projectend": "2001-09-18"
     }
@@ -795,8 +796,8 @@ def modify_project(projectid):
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
-        label = data.get("label", None)
-        comment = data.get("comment", None)
+        label = data.get("label", "NotSent")
+        comment = data.get("comment", "NotSent")
         projectStart = data.get("projectStart", None)
         projectEnd = data.get("projectEnd", None)
 
@@ -813,10 +814,99 @@ def modify_project(projectid):
             return jsonify({"message": str(error)}), 404
 
         try:
-            if label:
-                project.label = LangString(label)
-            if comment:
-                project.comment = LangString(comment)
+            if label != "NotSent":
+                if isinstance(label, str):
+                    return jsonify({"message": f"For the label either a list or a dict is expected, not a string"}), 400
+                if isinstance(label, list):
+                    for item in label:
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    project.label = LangString(label)
+                elif isinstance(label, dict):
+                    if "add" in label:
+                        if not isinstance(label["add"], list):
+                            return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
+                        for item in label["add"]:
+                            try:
+                                if item[-3] != '@':
+                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            except IndexError as error:
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            lang = item[-2:].upper()
+                            try:
+                                project.label[Language[lang]] = item[:-3]
+                            except KeyError as error:
+                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                    if "del" in label:
+                        if not isinstance(label["del"], list):
+                            return jsonify({"message": f"The delete entry needs to be a list, not a string."}), 400
+                        for item in label["del"]:
+                            try:
+                                if item[-3] != '@':
+                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            except IndexError as error:
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            lang = item[-2:].upper()
+                            try:
+                                del project.label[Language[lang]]
+                            except KeyError as error:
+                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                    if "add" not in label and "del" not in label:
+                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
+                elif label is None:
+                    del project.label
+                else:
+                    return jsonify({"message": f"Either a List or a dict is required."}), 400
+
+            if comment != "NotSent":
+                if isinstance(comment, str):
+                    return jsonify({"message": f"For the comment either a list or a dict is expected, not a string"}), 400
+                if isinstance(comment, list):
+                    for item in comment:
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    project.comment = LangString(comment)
+                elif isinstance(comment, dict):
+                    if "add" in comment:
+                        if not isinstance(comment["add"], list):
+                            return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
+                        for item in comment["add"]:
+                            try:
+                                if item[-3] != '@':
+                                    return jsonify({"message": f"Please add a correct language tag e.g. @de"}), 400
+                            except IndexError as error:
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            lang = item[-2:].upper()
+                            try:
+                                project.comment[Language[lang]] = item[:-3]
+                            except KeyError as error:
+                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                    if "del" in comment:
+                        if not isinstance(comment["del"], list):
+                            return jsonify({"message": f"The delete entry needs to be a list, not a string."}), 400
+                        for item in comment["del"]:
+                            try:
+                                if item[-3] != '@':
+                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            except IndexError as error:
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                            lang = item[-2:].upper()
+                            try:
+                                del project.comment[Language[lang]]
+                            except KeyError as error:
+                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                    if "add" not in comment and "del" not in comment:
+                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
+                elif comment is None:
+                    del project.comment
+                else:
+                    return jsonify({"message": f"Either a List or a dict is required."}), 400
             if projectStart:
                 project.projectStart = Xsd_date(projectStart)
             if projectEnd:
@@ -825,6 +915,8 @@ def modify_project(projectid):
             return jsonify({"message": str(error)}), 400
         except OldapErrorInconsistency as error:
             return jsonify({'message': str(error)}), 400
+        except OldapError as error:
+            return jsonify({"message": str(error)}), 500
 
         try:
             project.update()

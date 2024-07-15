@@ -214,7 +214,6 @@ def test_modify_bad_comment(client, token_headers, testpermissionset):
     res = response.json
     print(res)
 
-
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "comment": {"del": ["doesnotexist@at"]}
     }, headers=header)
