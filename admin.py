@@ -981,8 +981,6 @@ def create_permissionset(definedByProject, permissionsetid):
             return jsonify({'message': str(error)}), 403
         except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
-        except OldapErrorInconsistency as error:
-            return jsonify({'message': str(error)}), 400
         except OldapErrorValue as error:
             return jsonify({'message': str(error)}), 400
         except OldapError as error:  # should not be reachable

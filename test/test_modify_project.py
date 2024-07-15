@@ -134,6 +134,62 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+    response = client.post('/admin/project/testproject', json={
+        "label": ["u"]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"add": "u"}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"del": "u"}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"del": ["uasdf"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"del": ["u"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": {"del": ["u@at"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "label": None
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
 
 def test_modify_bad_comment(client, token_headers, testproject):
     header = token_headers[1]
@@ -207,6 +263,62 @@ def test_modify_bad_comment(client, token_headers, testproject):
     }, headers=header)
 
     assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": ["d"]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"add": "abc@de"}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": "abc@de"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"del": ["abc"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"del": ["a"]}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": {"del": "a@de"}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/project/testproject', json={
+        "comment": None
+    }, headers=header)
+
+    assert response.status_code == 200
     res = response.json
     print(res)
 
