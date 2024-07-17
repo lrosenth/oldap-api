@@ -474,11 +474,21 @@ def modify_user(userid):
         "givenName": "John",
         "familyName": "Doe",
         "password": "nicepw",
-        "in_projects": [{
-            "permissions": ['oldap:ADMIN_USERS', (...)],
+        "isActive": True/False
+        "in_projects": [
+            {
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
-            }, {...}],
-        "has_permissions": ['oldap:GenericView', (...)]
+            "permissions": ['oldap:ADMIN_USERS', (...)] or
+                {
+                "add": ["oldap:GenericView", (...)],
+                "del": ["oldap:GenericView", (...)]
+                }
+            }, {...}
+        ],
+        "has_permissions": ['oldap:GenericView', (...)] or {
+        "add": ["oldap:GenericView", (...)],
+        "del": ["oldap:GenericView", (...)]
+        }
     }
     :param userid: The userid of the user that should be modified.
     :return: A JSON to denote the success of the operation that has the following form:
@@ -499,8 +509,21 @@ def modify_user(userid):
         lastname = data.get("familyName", None)
         password = data.get("password", None)
         inprojects = data.get('inProjects', None)
-        haspermissions = data.get('hasPermissions', None)
+        haspermissions = data.get('hasPermissions', "NotSent")
         isactive = data.get('isActive', None)
+
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="oldap",
+                             token=token,
+                             context_name="DEFAULT")
+        except OldapError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+        try:
+            user = User.read(con=con, userId=Xsd_NCName(userid))  # read the user from the triple store
+        except OldapErrorNotFound as error:
+            return jsonify({"message": str(error)}), 404
 
         in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] | None = None
         if inprojects is not None:
@@ -520,47 +543,65 @@ def modify_user(userid):
                 except OldapErrorValue as error:
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
-        if haspermissions is not None:
-            try:
-                permission_set = {Iri(f'oldap:{x}') for x in haspermissions}
-            except OldapErrorValue as error:
-                return jsonify({'message': f'The given permission is not a QName'}), 400
-        else:
-            permission_set = None
-
+        permission_set = None  # only needed if a list is sent
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-
-        try:
-            user2 = User.read(con=con, userId=Xsd_NCName(userid))  # read the user from the triple store
-        except OldapErrorNotFound as error:
-            return jsonify({"message": str(error)}), 404
+            if haspermissions != "NotSent":
+                if isinstance(haspermissions, str):
+                    return jsonify({"message": f"For the permissionset either a list or a dict is expected, not a string"}), 400
+                if isinstance(haspermissions, list):
+                    permission_set = set()
+                    for item in haspermissions:
+                        permission_set.add(Iri(f'oldap:{item}'))
+                elif isinstance(haspermissions, dict):
+                    if "add" in haspermissions:
+                        if not isinstance(haspermissions["add"], list):
+                            return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
+                        for item in haspermissions["add"]:
+                            user.hasPermissions.add(Iri(f'oldap:{item}'))
+                    if "del" in haspermissions:
+                        if not isinstance(haspermissions["del"], list):
+                            return jsonify({"message": f"The delete entry needs to be a list, not a string."}), 400
+                        for item in haspermissions["del"]:
+                            try:
+                                user.hasPermissions.remove(Iri(f'oldap:{item}'))
+                            except AttributeError as error:
+                                return jsonify({"message": f"The Element {item} does not exist and thus cant be deleted"}), 404
+                    if "add" not in haspermissions and "del" not in haspermissions:
+                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
+                elif haspermissions is None:
+                    del user.hasPermissions
+                else:
+                    return jsonify({"message": f"Either a List or a dict is required."}), 400
+        except OldapErrorValue as error:
+            return jsonify({'message': f'The given permission is not a QName'}), 400
+        # if haspermissions is not None:
+        #     try:
+        #         permission_set = {Iri(f'oldap:{x}') for x in haspermissions}
+        #     except OldapErrorValue as error:
+        #         return jsonify({'message': f'The given permission is not a QName'}), 400
+        # else:
+        #     permission_set = None
 
         if firstname:
-            user2.givenName = Xsd_string(firstname)
+            user.givenName = Xsd_string(firstname)
         if lastname:
-            user2.familyName = Xsd_string(lastname)
+            user.familyName = Xsd_string(lastname)
         if password:
-            user2.credentials = Xsd_string(password)
+            user.credentials = Xsd_string(password)
         if isactive is not None:
             if isactive.lower() == 'true':
-                user2.isActive = Xsd_boolean(True)
+                user.isActive = Xsd_boolean(True)
             elif isactive.lower() == 'false':
-                user2.isActive = Xsd_boolean(False)
+                user.isActive = Xsd_boolean(False)
         if in_project_dict is not None:
-            user2.inProject = InProjectClass(in_project_dict)
+            user.inProject = InProjectClass(in_project_dict)
         if permission_set:
-            user2.hasPermissions = permission_set
+            user.hasPermissions = permission_set
         if permission_set == set():
-            user2.hasPermissions = set()
+            user.hasPermissions = set()
 
         try:
-            user2.update()
+            user.update()
         except OldapErrorUpdateFailed as error:  # hard to test
             return jsonify({"message": str(error)}), 500
         except OldapErrorValue as error:

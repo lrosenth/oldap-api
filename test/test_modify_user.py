@@ -178,6 +178,7 @@ def test_modify_haspermission(client, token_headers, testuser):
 
     response = client.post('/admin/user/rosman', json={
         "hasPermissions": [
+            "GenericRestricted",
             "GenericView"
         ]
     }, headers=header)
@@ -187,7 +188,28 @@ def test_modify_haspermission(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["has_permissions"] == ['oldap:GenericView']
+    assert sorted(readed["has_permissions"]) == sorted(['oldap:GenericRestricted', 'oldap:GenericView'])
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": {"del": ["GenericRestricted", "GenericView"]}
+    }, headers=header)
+    assert response.status_code == 200
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed["has_permissions"] == []
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": {"del": ["GenericRestricted"]}
+    }, headers=header)
+    assert response.status_code == 404
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": None
+    }, headers=header)
+    assert response.status_code == 200
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed["has_permissions"] == []
 
 
 def test_modify_empty_haspermission(client, token_headers, testuser):
@@ -216,6 +238,14 @@ def test_notwellformed_modify_haspermission(client, token_headers, testuser):
     res = response.json
     assert res["message"] == "The given permission is not a QName"
 
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": 'Gagaga+++kappa'
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == "For the permissionset either a list or a dict is expected, not a string"
+
 
 def test_bad_modify_haspermission(client, token_headers, testuser):
     header = token_headers[1]
@@ -228,6 +258,60 @@ def test_bad_modify_haspermission(client, token_headers, testuser):
     res = response.json
     print(res)
     assert res["message"] == "One of the permission sets is not existing!"
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": {"add": "abcd"}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": {"add": ["GenericRestricted"]}
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert sorted(readed["has_permissions"]) == sorted(["oldap:GenericRestricted", "oldap:GenericView"])
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": {"add": ["GenericRestricted"], "del": ["GenericView"]}
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed["has_permissions"] == ["oldap:GenericRestricted"]
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": {"del": "GenericRestricted"}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "The delete entry needs to be a list, not a string."
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": {"kappa": "GenericRestricted"}
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    assert res["message"] == "The sended command (keyword in dict) is not known"
+
+    response = client.post('/admin/user/rosman', json={
+        "hasPermissions": 1234
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "Either a List or a dict is required."
 
 
 def test_malicious_modify_haspermission(client, token_headers, testuser):
