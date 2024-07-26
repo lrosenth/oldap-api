@@ -508,7 +508,7 @@ def modify_user(userid):
         firstname = data.get("givenName", None)
         lastname = data.get("familyName", None)
         password = data.get("password", None)
-        inprojects = data.get('inProjects', None)
+        inprojects = data.get('inProjects', "NotSent")
         haspermissions = data.get('hasPermissions', "NotSent")
         isactive = data.get('isActive', None)
 
@@ -525,23 +525,40 @@ def modify_user(userid):
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
 
+        # user.inProject = inprojects
         in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] | None = None
-        if inprojects is not None:
-            in_project_dict = {}  # we need an empty dict to fill it
-            for item in inprojects:
-                project_name = item["project"]
-
-                if item.get("permissions") is not None:
-                    try:
-                        permissions = {AdminPermission(f'oldap:{x}') for x in item["permissions"]}
-                    except ValueError as error:
-                        return jsonify({'message': f'The given project permission is not a valid one'}), 400
-                else:
-                    permissions = set()
+        #  TODO: Implementieren dass wenn man None schickt einfach alle projekte gelöscht werden
+        if inprojects == []:
+            return jsonify({"message": "If you want to modify a project pls send the projectIri that should be modifiead as well as the desired changes"}), 400
+        if inprojects != "NotSent":
+            for newproject in inprojects:
+                if newproject["project"] == "":
+                    return jsonify({"message": "The Name of the permissionset is missing"}), 400
                 try:
-                    in_project_dict[Iri(project_name)] = permissions
+                    if Iri(newproject["project"]) in user.inProject:
+                        if "permissions" not in newproject:
+                            return jsonify({"message": "The Permissions are missing for the project"}), 400
+                        if isinstance(newproject["permissions"], list) or newproject["permissions"] is None:
+                            user.inProject[Iri(newproject["project"])] = {AdminPermission(f'oldap:{x}') for x in newproject["permissions"]}
+                        elif isinstance(newproject["permissions"], dict):
+                            if "add" in newproject["permissions"]:
+                                if not isinstance(newproject["permissions"]["add"], list):
+                                    return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
+                                for item in newproject["permissions"]["add"]:
+                                    user.inProject[newproject["project"]].add(AdminPermission(f'oldap:{item}'))
+                            if "del" in newproject["permissions"]:
+                                if not isinstance(newproject["permissions"]["del"], list):
+                                    return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
+                                for item in newproject["permissions"]["del"]:
+                                    user.inProject[newproject["permissions"]["project"]].remove(AdminPermission(f'oldap:{item}'))
+                        else:
+                            return jsonify({"message": f"Either a List or a dict is expected for a modify request."}), 400
+                    else:
+                        return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
+                except ValueError as error:
+                    return jsonify({"message": str(error)}), 400
                 except OldapErrorValue as error:
-                    return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
+                    return jsonify({"message": str(error)}), 400
 
         permission_set = None  # only needed if a list is sent
         try:
@@ -574,13 +591,6 @@ def modify_user(userid):
                     return jsonify({"message": f"Either a List or a dict is required."}), 400
         except OldapErrorValue as error:
             return jsonify({'message': f'The given permission is not a QName'}), 400
-        # if haspermissions is not None:
-        #     try:
-        #         permission_set = {Iri(f'oldap:{x}') for x in haspermissions}
-        #     except OldapErrorValue as error:
-        #         return jsonify({'message': f'The given permission is not a QName'}), 400
-        # else:
-        #     permission_set = None
 
         if firstname:
             user.givenName = Xsd_string(firstname)
@@ -593,8 +603,6 @@ def modify_user(userid):
                 user.isActive = Xsd_boolean(True)
             elif isactive.lower() == 'false':
                 user.isActive = Xsd_boolean(False)
-        if in_project_dict is not None:
-            user.inProject = InProjectClass(in_project_dict)
         if permission_set:
             user.hasPermissions = permission_set
         if permission_set == set():

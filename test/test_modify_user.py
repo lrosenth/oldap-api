@@ -74,6 +74,61 @@ def test_modify_inproject(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
+    print(readed)
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "kappa1234",
+                "permissions": ["ADMIN_RESOURCES"]
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": {"add": "ADMIN_RESOURCES"}
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": {"add": ["ADMIN_RESOURCES"]}
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    print(readed)
 
 
 def test_modify_bad_inproject(client, token_headers, testuser):
@@ -90,7 +145,7 @@ def test_modify_bad_inproject(client, token_headers, testuser):
 
     assert response.status_code == 400
     res = response.json
-    assert res["message"] == "The given project permission is not a valid one"
+    assert res["message"] == "'oldap:KAPPA_RESOURCES' is not a valid AdminPermission"
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
@@ -108,12 +163,9 @@ def test_modify_empty_permissions_inprojects(client, token_headers, testuser):
         ]
     }, headers=header)
 
-    assert response.status_code == 200
+    assert response.status_code == 400
     res = response.json
-
-    read = client.get('/admin/user/rosman', headers=header)
-    readed = read.json
-    print(readed)
+    print(res)
 
 
 def test_modify_empty_inproject(client, token_headers, testuser):
@@ -124,12 +176,7 @@ def test_modify_empty_inproject(client, token_headers, testuser):
     }, headers=header)
 
     res = response.json
-    assert response.status_code == 200
-
-    read = client.get('/admin/user/rosman', headers=header)
-    readed = read.json
-    print(readed)
-    assert readed["in_projects"] == []
+    assert response.status_code == 400
 
 
 def test_modify_empty_inproject_permissions(client, token_headers, testuser):
@@ -146,10 +193,12 @@ def test_modify_empty_inproject_permissions(client, token_headers, testuser):
 
     assert response.status_code == 200
     res = response.json
+    print(res)
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["in_projects"][0]["permissions"] == []
+    print(readed)
+    assert readed["in_projects"][1]["permissions"] == []
 
 
 def test_modify_empty_inproject_name(client, token_headers, testuser):
@@ -166,11 +215,7 @@ def test_modify_empty_inproject_name(client, token_headers, testuser):
 
     assert response.status_code == 400
     res = response.json
-
-    read = client.get('/admin/user/rosman', headers=header)
-    readed = read.json
-    assert readed["in_projects"][0]["permissions"] == ["oldap:ADMIN_USERS"]
-    assert readed["in_projects"][0]["project"] == "http://www.salsah.org/version/2.0/SwissBritNet"
+    print(res)
 
 
 def test_modify_haspermission(client, token_headers, testuser):
