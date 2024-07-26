@@ -71,6 +71,12 @@ def testuser(client, token_headers):
                 "permissions": [
                     "ADMIN_USERS"
                 ]
+            },
+            {
+                "project": "oldap:HyperHamlet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
             }
         ],
         "hasPermissions": [
