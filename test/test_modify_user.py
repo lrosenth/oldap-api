@@ -61,19 +61,29 @@ def test_modify_inproject(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
-        "inProjects": [
-            {
-                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-                "permissions": None
-            }
-        ]
+        "inProjects": None
     }, headers=header)
     assert response.status_code == 200
     res = response.json
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
-    assert sorted(readed["in_projects"][1]["permissions"]) == sorted([])
+    assert readed["in_projects"] == []
+
+    # response = client.post('/admin/user/rosman', json={
+    #     "inProjects": [
+    #         {
+    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+    #             "permissions": None
+    #         }
+    #     ]
+    # }, headers=header)
+    # assert response.status_code == 200
+    # res = response.json
+    # read = client.get('/admin/user/rosman', headers=header)
+    # readed = read.json
+    # print(readed)
+    # assert sorted(readed["in_projects"][1]["permissions"]) == sorted([])
 
     # response = client.post('/admin/user/rosman', json={
     #     "inProjects": [

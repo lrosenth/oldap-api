@@ -525,12 +525,11 @@ def modify_user(userid):
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
 
-        # user.inProject = inprojects
-        in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] | None = None
-        #  TODO: Implementieren dass wenn man None schickt einfach alle projekte gelöscht werden
         if inprojects == []:
             return jsonify({"message": "If you want to modify a project pls send the projectIri that should be modifiead as well as the desired changes"}), 400
-        if inprojects != "NotSent":
+        if inprojects is None:
+            user.inProject = None
+        if inprojects != "NotSent" and inprojects is not None:
             for newproject in inprojects:
                 if newproject["project"] == "":
                     return jsonify({"message": "The Name of the permissionset is missing"}), 400
