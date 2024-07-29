@@ -538,7 +538,9 @@ def modify_user(userid):
                     if Iri(newproject["project"]) in user.inProject:
                         if "permissions" not in newproject:
                             return jsonify({"message": "The Permissions are missing for the project"}), 400
-                        if isinstance(newproject["permissions"], list) or newproject["permissions"] is None:
+                        if newproject["permissions"] is None:
+                            user.inProject[Iri(newproject["project"])] = None
+                        elif isinstance(newproject["permissions"], list):
                             user.inProject[Iri(newproject["project"])] = {AdminPermission(f'oldap:{x}') for x in newproject["permissions"]}
                         elif isinstance(newproject["permissions"], dict):
                             if "add" in newproject["permissions"]:
@@ -548,15 +550,17 @@ def modify_user(userid):
                                     user.inProject[newproject["project"]].add(AdminPermission(f'oldap:{item}'))
                             if "del" in newproject["permissions"]:
                                 if not isinstance(newproject["permissions"]["del"], list):
-                                    return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
+                                    return jsonify({"message": f"The del entry needs to be a list, not a string."}), 400
                                 for item in newproject["permissions"]["del"]:
-                                    user.inProject[newproject["permissions"]["project"]].remove(AdminPermission(f'oldap:{item}'))
+                                    user.inProject[newproject["project"]].remove(AdminPermission(f'oldap:{item}'))
                         else:
                             return jsonify({"message": f"Either a List or a dict is expected for a modify request."}), 400
                     else:
                         return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
                 except ValueError as error:
                     return jsonify({"message": str(error)}), 400
+                except KeyError as error:
+                    return jsonify({"message": f'The permission {item} is not present in the database'}), 400
                 except OldapErrorValue as error:
                     return jsonify({"message": str(error)}), 400
 
