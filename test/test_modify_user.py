@@ -61,6 +61,219 @@ def test_modify_inproject(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": ["ADMIN_RESOURCES"]
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    print(readed)
+    assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_RESOURCES'])
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": {"add": ["ADMIN_USERS"]}
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_USERS', 'oldap:ADMIN_RESOURCES'])
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": {"del": ["ADMIN_RESOURCES"]}
+            }
+        ]
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    print(readed)
+    assert readed["in_projects"][1]["permissions"] == ['oldap:ADMIN_USERS']
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": []
+            }
+        ]
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    print(readed)
+    assert readed["in_projects"][1]["permissions"] == []
+
+
+def test_modify_bad_inproject(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": {"add": "ADMIN_RESOURCES"}
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "The add entry needs to be a list, not a string."
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "The Permissions are missing for the project"
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "kappa1234",
+                "permissions": ["ADMIN_RESOURCES"]
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == 'Invalid string for IRI: "kappa1234"'
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": ["KAPPA_RESOURCES"]
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "'oldap:KAPPA_RESOURCES' is not a valid AdminPermission"
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": {"add": "KAPPA_RESOURCES"}
+            }
+        ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "The add entry needs to be a list, not a string."
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": {"del": "KAPPA_RESOURCES"}
+            }
+        ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "The del entry needs to be a list, not a string."
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": 1234
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "Either a List or a dict is expected for a modify request."
+
+    response = client.post('/admin/user/rosman', json={
+            "inProjects": [
+                {
+                    "project": 1234,
+                    "permissions": {"del": "KAPPA_RESOURCES"}
+                }
+            ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == 'Invalid value for IRI: "1234"'
+
+    response = client.post('/admin/user/rosman', json={
+            "inProjects": [
+                {
+                    "project": "oldap:doesnotexist",
+                    "permissions": {"del": "KAPPA_RESOURCES"}
+                }
+            ]
+    }, headers=header)
+    assert response.status_code == 404
+    res = response.json
+    print(res)
+    assert res["message"] == "Project 'oldap:doesnotexist' to modify does not exist"
+
+    response = client.post('/admin/user/rosman', json={
+            "inProjects": [
+                {
+                    "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                    "permissions": {"del": ["ADMIN_LISTS"]}
+                }
+            ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "The permission ADMIN_LISTS is not present in the database"
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "kappa": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": ["ADMIN_RESOURCES"]
+            }
+        ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "The project-field is missing in the request"
+
+
+def test_inprojects_none(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
         "inProjects": None
     }, headers=header)
     assert response.status_code == 200
@@ -70,163 +283,24 @@ def test_modify_inproject(client, token_headers, testuser):
     print(readed)
     assert readed["in_projects"] == []
 
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-    #             "permissions": None
-    #         }
-    #     ]
-    # }, headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # read = client.get('/admin/user/rosman', headers=header)
-    # readed = read.json
-    # print(readed)
-    # assert sorted(readed["in_projects"][1]["permissions"]) == sorted([])
 
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-    #             "permissions": ["ADMIN_RESOURCES"]
-    #         }
-    #     ]
-    # }, headers=header)
-    #
-    # assert response.status_code == 200
-    # res = response.json
-    # read = client.get('/admin/user/rosman', headers=header)
-    # readed = read.json
-    # print(readed)
-    # assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_RESOURCES'])
-
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-    #             "permissions": {"add": ["ADMIN_RESOURCES"]}
-    #         }
-    #     ]
-    # }, headers=header)
-    #
-    # assert response.status_code == 200
-    # res = response.json
-    # print(res)
-    # read = client.get('/admin/user/rosman', headers=header)
-    # readed = read.json
-    # assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_USERS', 'oldap:ADMIN_RESOURCES'])
-
-    #
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-    #             "permissions": {"del": ["ADMIN_RESOURCES"]}
-    #         }
-    #     ]
-    # }, headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # print(res)
-    # read = client.get('/admin/user/rosman', headers=header)
-    # readed = read.json
-    # print(readed)
-
-
-def test_modify_bad_inproject(client, token_headers, testuser):
+def test_inprojects_permission_none(client, token_headers, testuser):
     header = token_headers[1]
-
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-    #             "permissions": {"add": "ADMIN_RESOURCES"}
-    #         }
-    #     ]
-    # }, headers=header)
-    #
-    # assert response.status_code == 400
-    # res = response.json
-    # print(res)
-
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-    #         }
-    #     ]
-    # }, headers=header)
-    #
-    # assert response.status_code == 400
-    # res = response.json
-    # print(res)
-
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "kappa1234",
-    #             "permissions": ["ADMIN_RESOURCES"]
-    #         }
-    #     ]
-    # }, headers=header)
-    #
-    # assert response.status_code == 400
-    # res = response.json
-    # print(res)
-
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-    #             "permissions": ["KAPPA_RESOURCES"]
-    #         }
-    #     ]
-    # }, headers=header)
-    #
-    # assert response.status_code == 400
-    # res = response.json
-    # assert res["message"] == "'oldap:KAPPA_RESOURCES' is not a valid AdminPermission"
-    # # read = client.get('/admin/user/rosman', headers=header)
-    # # readed = read.json
-    # # print(readed)
-    #
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-    #             "permissions": {"add": "KAPPA_RESOURCES"}
-    #         }
-    #     ]
-    # }, headers=header)
-    # assert response.status_code == 400
-    # res = response.json
-    # assert res["message"] == "The add entry needs to be a list, not a string."
-    #
-    # response = client.post('/admin/user/rosman', json={
-    #     "inProjects": [
-    #         {
-    #             "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-    #             "permissions": {"del": "KAPPA_RESOURCES"}
-    #         }
-    #     ]
-    # }, headers=header)
-    # assert response.status_code == 400
-    # res = response.json
-    # assert res["message"] == "The del entry needs to be a list, not a string."
 
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
             {
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-                "permissions": {"del": ["KAPPA_RESOURCES"]}
+                "permissions": None
             }
         ]
     }, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
-    print(res)
-    # assert res["message"] == "The del entry needs to be a list, not a string."
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    print(readed)
+    assert sorted(readed["in_projects"][1]["permissions"]) == sorted([])
 
 
 def test_modify_empty_permissions_inprojects(client, token_headers, testuser):

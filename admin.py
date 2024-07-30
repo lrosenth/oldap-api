@@ -529,8 +529,12 @@ def modify_user(userid):
             return jsonify({"message": "If you want to modify a project pls send the projectIri that should be modifiead as well as the desired changes"}), 400
         if inprojects is None:
             user.inProject = None
-        if inprojects != "NotSent" and inprojects is not None:
+        elif inprojects != "NotSent":
+            if not (isinstance(inprojects, list) or isinstance(inprojects, dict)):
+                return jsonify({"message": f"Either a List or a dict is expected for a modify request."}), 400
             for newproject in inprojects:
+                if "project" not in newproject:
+                    return jsonify({"message": "The project-field is missing in the request"}), 400
                 if newproject["project"] == "":
                     return jsonify({"message": "The Name of the permissionset is missing"}), 400
                 try:
@@ -553,7 +557,7 @@ def modify_user(userid):
                                 for item in newproject["permissions"]["del"]:
                                     user.inProject[newproject["project"]].remove(AdminPermission(f'oldap:{item}'))
                         else:
-                            return jsonify({"message": f"Either a List or a dict is expected for a modify request."}), 400
+                            return jsonify({"message": f"Either a list or a dict is expected for the content of the permissions field"}), 400
                     else:
                         return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
                 except ValueError as error:
