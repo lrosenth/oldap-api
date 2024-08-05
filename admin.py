@@ -990,6 +990,19 @@ def modify_project(projectid):
 
 @bp.route('/permissionset/<definedByProject>/<permissionsetid>', methods=['PUT'])
 def create_permissionset(definedByProject, permissionsetid):
+    '''
+    Viewfunction to create a new permissionset. A JSON is expectet that contains the necessary information to create a new
+    permissionset that has the following form:
+    json={
+        "label": ["testPerm@en", "test@Perm@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "givesPermission": "DATA_UPDATE",
+    }
+    :param definedByProject: The project that defines this permission set (either the IRI or the shortname)
+    :param permissionsetid: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+    :return: A JSON informing about the success of the operation that has the following form:
+    json={"message": "Project updated successfully"}
+    '''
     known_json_fields = {"label", "comment", "givesPermission"}
     mandatory_json_fields = {"givesPermission"}
     out = request.headers['Authorization']
@@ -1049,6 +1062,22 @@ def create_permissionset(definedByProject, permissionsetid):
 
 @bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['GET'])
 def read_permissionset(definedbyproject, permissionsetid):
+    '''
+    Viewfunction to retrieve information about the project given by the projectid.
+    :param definedbyproject: The project that defines this permission set (either the IRI or the shortname)
+    :param permissionsetid: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+    :return: A JSON containing the information about the given project. It has the following form:
+    json={
+        'permisionsetid': 'testpermissionset',
+        'creation': '2024-07-31T16:27:22.918232',
+        'contributor': 'https://orcid.org/0000-0003-1681-4036',
+        'modified': '2024-07-31T16:27:22.918232',
+        'label': ['testPerm@en', 'test@de'],
+        'comment': ['For testing@en', 'Für Tests@de'],
+        'givesPermission': 'DataPermission.DATA_UPDATE',
+        'definedByProject': 'oldap:SystemProject'
+    }
+    '''
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -1081,6 +1110,17 @@ def read_permissionset(definedbyproject, permissionsetid):
 
 @bp.route('/permissionset/search', methods=['GET'])
 def search_permissionset():
+    '''
+    Viewfunction to search for a permissionset. It is possible to search for definedByProject, givesPermission and label.
+    A JSON is expected that has the following form (at least one keyword is needed):
+    json={
+    "label": examplelabel,
+    "definedByProject": exampledefinedByProject,
+    "givesPermission": examplegivesPermission
+    }
+    :return: A JSON containing the Iri's about the found projects. It has the following form:
+    json={'message': '[Iri("http://unittest.org/project/testproject")]'}
+    '''
     known_json_fields = {"definedByProject", "givesPermission", "label"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -1113,6 +1153,13 @@ def search_permissionset():
 
 @bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['DELETE'])
 def delete_permissionset(definedbyproject, permissionsetid):
+    '''
+    Viewfunction to delete a project.
+    :param definedbyproject: The project that defines this permission set (either the IRI or the shortname)
+    :param permissionsetid: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Project successfully deleted"}
+    '''
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -1141,6 +1188,20 @@ def delete_permissionset(definedbyproject, permissionsetid):
 
 @bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['POST'])
 def modify_permissionset(definedbyproject, permissionsetid):
+    '''
+    Veiwfunction to modify a permissionset given its permissionsetid and its definedbyproject. The label, comment and
+    givesPermission can be modified this way. A JSON is expectet that has the following form - all the fields are
+    optionals, a list exchanges the whole field, a dict adds/removes entries:
+    json={
+    "label": "["unittest@en", "..."]" or "{"add": ["tobeadded@it", ...], "del": ["tobedeleted@en"]},
+    "comment": ["For testing@en", "..."] or "{"add": ["tobeadded@it", ...], "del": ["tobedeleted@en"]},
+    "givesPermission": ["DATA_VIEW", "..."] or "{"add": ["DATA_VIEW", ...], "del": ["DATA_EXTEND"]}
+    }
+    :param definedbyproject: The project that defines this permission set (either the IRI or the shortname)
+    :param permissionsetid: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+    :return: A JSON informing about the success of the operation that has the following form:
+    json={"message": "Project updated successfully"}
+    '''
     known_json_fields = {"label", "comment", "givesPermission"}
     known_permissions = {"DATA_RESTRICTED", "DATA_VIEW", "DATA_EXTEND", "DATA_UPDATE", "DATA_DELETE", "DATA_PERMISSIONS"}
     out = request.headers['Authorization']

@@ -54,7 +54,7 @@ def test_bad_token(client, token_headers):
     assert res["message"] == "Connection failed: Wrong credentials"
 
 
-def test_search_permissionset(client, token_headers, testpermissionset):
+def test_search_permissionset_other_things(client, token_headers, testpermissionset):
     header = token_headers[1]
 
     response = client.get('/admin/permissionset/search', json={
