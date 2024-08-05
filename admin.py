@@ -372,7 +372,7 @@ def create_user(userid):
         except OldapErrorValue as error:
             return jsonify({'message': str(error)}), 400
         except OldapError as error:  # Should not be reachable... is only raised when no connection was established
-            return jsonify({'message': str(error)})
+            return jsonify({'message': str(error)}), 500
 
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
@@ -563,7 +563,7 @@ def modify_user(userid):
                 except ValueError as error:
                     return jsonify({"message": str(error)}), 400
                 except KeyError as error:
-                    return jsonify({"message": f'The permission {item} is not present in the database'}), 400
+                    return jsonify({"message": f'The permission {item} is not present in the database'}), 404
                 except OldapErrorValue as error:
                     return jsonify({"message": str(error)}), 400
 
@@ -621,7 +621,7 @@ def modify_user(userid):
             return jsonify({"message": str(error)}), 500
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 404
-        except OldapErrorNoPermission as error:  # prob bug in backend -- not reachable yet
+        except OldapErrorNoPermission as error:
             return jsonify({"message": str(error)}), 403
         except OldapError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 500
@@ -693,7 +693,7 @@ def create_project(projectid):
             return jsonify({'message': str(error)}), 403
         except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
-        except OldapErrorInconsistency as error:
+        except OldapErrorInconsistency as error:  # inconsistent start and enddate
             return jsonify({'message': str(error)}), 400
         except OldapErrorValue as error:
             return jsonify({'message': str(error)}), 400
@@ -969,7 +969,7 @@ def modify_project(projectid):
                 project.projectEnd = Xsd_date(projectEnd)
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
-        except OldapErrorInconsistency as error:
+        except OldapErrorInconsistency as error:  # inconsistent start and enddate
             return jsonify({'message': str(error)}), 400
         except OldapError as error:
             return jsonify({"message": str(error)}), 500
@@ -1322,7 +1322,6 @@ def modify_permissionset(definedbyproject, permissionsetid):
                         return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 elif comment is None:
                     del ps.comment
-                    # return jsonify({"message": f"The comment is mandatory. You can however delete label entries."}), 400
                 else:
                     return jsonify({"message": f"Either a List or a dict is required."}), 400
 
