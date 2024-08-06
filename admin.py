@@ -299,6 +299,8 @@ def create_user(userid):
     mandatory_json_fields = {"givenName", "familyName", "password"}
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
+
+    # TODO: IsActive noch einbauen
     try:
         Xsd_NCName(userid)
     except OldapErrorValue as err:
@@ -318,8 +320,13 @@ def create_user(userid):
             familyname = Xsd_string(data['familyName'])
             givenname = Xsd_string(data['givenName'])
             credentials = Xsd_string(data['password'])
+            isActive = bool(data.get('isActive', True))  # TODO:New Line
         except KeyError as error:  # Should not be reachable. Redundancy
             return jsonify({'message': f'Missing field {str(error)}'}), 400
+        # TODO: Exception wenn bool kein bool ist  # TODO:New Line
+        # TODO: Wird dabei das gross und klein true/false abgefangen?  # TODO:New Line
+        # except boolerror as error:  # TODO:New Line
+        #   return jsonify({'message': f'the given isActive is not a bool. It needs to be either True or False'})  # TODO:New Line
 
         inprojects = data.get('inProjects', None)
         haspermissions = data.get('hasPermissions', None)
@@ -365,7 +372,7 @@ def create_user(userid):
                         credentials=credentials,
                         inProject=in_project_dict,
                         hasPermissions=permission_set,
-                        isActive=True)
+                        isActive=isActive)  # TODO:New Line
             user.create()
         except OldapErrorAlreadyExists as error:
             return jsonify({"message": str(error)}), 409

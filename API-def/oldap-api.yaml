@@ -33,8 +33,12 @@ paths:
             application/json:
               schema:
                 properties:
+                  message:
+                    type: string
+                    example: "Login succeeded"
                   token:
                     type: string
+                    example: "exampletoken"
         400:
           description: "Invalid content type"
           content:
@@ -52,7 +56,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Wrong credentials"
+                    example: "Connection failed: Wrong credentials"
         404:
           description: "User not found"
           content:
@@ -75,106 +79,6 @@ paths:
         500:
           description: "Internal Server error"
   /admin/user/{userId}:
-    get:
-      summary: "Get user info"
-      description: "Get all information about a user"
-      security:
-        - AccessToken: [ ]
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                properties:
-                  userIri:
-                    type: string
-                  userId:
-                    type: string
-                  family_name:
-                    type: string
-                  given_name:
-                    type: string
-                  is_active:
-                    type: string
-                  in_projects:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        project:
-                          type: string
-                        permissions:
-                          type: array
-                          items:
-                            type: string
-                  has_permissions:
-                    type: array
-                    items:
-                      type: string
-        "403":
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "Connection failed: {OmasError}"
-        "404":
-          description: "Not Found"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "User {userId} not found"
-    delete:
-      summary: "Delete a user"
-      description: "The user that has the rights (given by his token) deletes another user"
-      security:
-        - AccessToken: [ ]
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "User {userid} deleted"
-        "403":
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "Connection failed: {OmasError}//Actor has no ADMIN_USERS permission for project {proj}"
-        "404":
-          description: "Not Found"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "User {userId} not found"
     put:
       summary: "Create a new user"
       description: "Create a new user with the given data"
@@ -277,6 +181,106 @@ paths:
                     example: "A user with a user ID {userId} already exists"
         500:
           description: "Internal Server error"
+    delete:
+      summary: "Delete a user"
+      description: "The user that has the rights (given by his token) deletes another user"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "User {userid} deleted"
+        "403":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OmasError}//Actor has no ADMIN_USERS permission for project {proj}"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "User {userId} not found"
+    get:
+      summary: "Get user info"
+      description: "Get all information about a user"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  userIri:
+                    type: string
+                  userId:
+                    type: string
+                  family_name:
+                    type: string
+                  given_name:
+                    type: string
+                  is_active:
+                    type: string
+                  in_projects:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project:
+                          type: string
+                        permissions:
+                          type: array
+                          items:
+                            type: string
+                  has_permissions:
+                    type: array
+                    items:
+                      type: string
+        "403":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OmasError}"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "User {userId} not found"
     post:
       summary: "Modify a user"
       description: "Modify value(s) of a user definition."
