@@ -251,7 +251,7 @@ def test_modify_bad_inproject(client, token_headers, testuser):
                 }
             ]
     }, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 404
     res = response.json
     print(res)
     assert res["message"] == "The permission ADMIN_LISTS is not present in the database"
