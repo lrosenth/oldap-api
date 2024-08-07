@@ -5,7 +5,7 @@ def test_create_user(client, token_headers):
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
         "password": "kappa1234",
-        "isActive": "false",
+        "isActive": False,
         "inProjects": [
             {
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
@@ -58,7 +58,7 @@ def test_isActive(client, token_headers):
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
         "password": "kappa1234",
-        "isActive": "False",
+        "isActive": False,
         "inProjects": [
             {
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
@@ -75,8 +75,9 @@ def test_isActive(client, token_headers):
 
     response = client.get('/admin/user/rosman', headers=header)
     res = response.json
-    assert res["isActive"] == 'false'
+    assert res["isActive"] is False
     print(res)
+
 
 def test_bad_isActive(client, token_headers):
     header = token_headers[1]
@@ -100,28 +101,7 @@ def test_bad_isActive(client, token_headers):
     }, headers=header)
     assert response.status_code == 400
     res = response.json
-    assert res["message"] == 'Invalid input for isActive: must be "true" or "false"'
-
-    response = client.put('/admin/user/rosman', json={
-        "givenName": "Manuel",
-        "familyName": "Rosenthaler",
-        "password": "kappa1234",
-        "isActive": True,
-        "inProjects": [
-            {
-                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-                "permissions": [
-                    "ADMIN_USERS"
-                ]
-            }
-        ],
-        "hasPermissions": [
-            "GenericView"
-        ]
-    }, headers=header)
-    assert response.status_code == 400
-    res = response.json
-    assert res["message"] == 'Invalid input for isActive: must be a string thats "true" or "false"'
+    assert res["message"] == "Invalid input for isActive: must be a bool -- true or false"
 
 
 def test_field_missing(client, token_headers):

@@ -285,6 +285,7 @@ def create_user(userid):
         "givenName": "John",
         "familyName": "Doe",
         "password": "nicepw",
+        "isActive": True,
         "in_projects": [{
             "permissions": ['oldap:ADMIN_USERS', (...)],
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
@@ -319,19 +320,12 @@ def create_user(userid):
             familyname = Xsd_string(data['familyName'])
             givenname = Xsd_string(data['givenName'])
             credentials = Xsd_string(data['password'])
-            isActive = data.get('isActive', "true")
+            isActive = data.get('isActive', True)
         except KeyError as error:  # Should not be reachable. Redundancy
             return jsonify({'message': f'Missing field {str(error)}'}), 400
 
-        if isinstance(isActive, str):
-            if isActive.lower() == "true":
-                isActive = True
-            elif isActive.lower() == "false":
-                isActive = False
-            else:
-                return jsonify({'message': 'Invalid input for isActive: must be "true" or "false"'}), 400
-        else:
-            return jsonify({'message': 'Invalid input for isActive: must be a string thats "true" or "false"'}), 400
+        if not isinstance(isActive, bool):
+            return jsonify({'message': 'Invalid input for isActive: must be a bool -- true or false'}), 400
 
         inprojects = data.get('inProjects', None)
         haspermissions = data.get('hasPermissions', None)
@@ -406,7 +400,7 @@ def read_users(userid):
         'permissions': ['oldap:ADMIN_USERS', (...)],
         'project': 'http://www.salsah.org/version/2.0/SwissBritNet'
         }, {...}],
-    'isActive': 'true',
+    'isActive': True,
     'userId': 'Jodoe',
     'userIri': 'urn:uuid:5a8fe5ef-90d7-4af8-9ea9-85173e5ee021'
     }
@@ -432,7 +426,7 @@ def read_users(userid):
         "userIri": str(user.userIri),
         "userId": str(user.userId),
         "family_name": str(user.familyName),
-        "isActive": str(user.isActive),
+        "isActive": bool(user.isActive),
         "given_name": str(user.givenName),
         "in_projects": [],
         "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
@@ -618,10 +612,10 @@ def modify_user(userid):
         if password:
             user.credentials = Xsd_string(password)
         if isactive is not None:
-            if isactive.lower() == 'true':
-                user.isActive = Xsd_boolean(True)
-            elif isactive.lower() == 'false':
-                user.isActive = Xsd_boolean(False)
+            if not isinstance(isactive, bool):
+                return jsonify({'message': f'isActive needs to be a bool -- einter true or false'}), 400
+            else:
+                user.isActive = Xsd_boolean(isactive)
         if permission_set:
             user.hasPermissions = permission_set
         if permission_set == set():

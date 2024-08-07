@@ -169,7 +169,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Connection failed: {OmasError}"
+                    example: "Connection failed: {OldapError}"
         409:
           description: "Userid or useriri already exists"
           content:
@@ -210,7 +210,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Connection failed: {OmasError}//Actor has no ADMIN_USERS permission for project {proj}"
+                    example: "Connection failed: {OldapError}//Actor has no ADMIN_USERS permission for project {proj}"
         "404":
           description: "Not Found"
           content:
@@ -247,7 +247,7 @@ paths:
                   given_name:
                     type: string
                   is_active:
-                    type: string
+                    type: boolean
                   in_projects:
                     type: array
                     items:
@@ -271,7 +271,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Connection failed: {OmasError}"
+                    example: "Connection failed: {OldapError}"
         "404":
           description: "Not Found"
           content:
@@ -304,7 +304,7 @@ paths:
                 password:
                   type: string
                 isActive:
-                  type: string
+                  type: boolean
                 inProjects:
                   type: array
                   items:
@@ -348,7 +348,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Connection failed: {OmasError}"
+                    example: "Connection failed: {OldapError}"
         404:
           description: "Userid not found"
           content:
@@ -464,7 +464,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Connection failed: {OmasError}//No permission to delete project {project}."
+                    example: "Connection failed: {OldapError}//No permission to delete project {project}."
         "404":
           description: "Not Found"
           content:
@@ -529,7 +529,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Connection failed: {OmasError}"
+                    example: "Connection failed: {OldapError}"
         "404":
           description: "Not Found"
           content:
@@ -659,7 +659,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Connection failed: {OmasError}"
+                    example: "Connection failed: {OldapError}"
         "404":
           description: "Not Found"
           content:
@@ -711,7 +711,7 @@ components:
       properties:
         message:
           type: string
-          example: "Connection failed: {OmasError}"
+          example: "Connection failed: {OldapError}"
     admin_project_body:
       type: object
       properties:
@@ -760,7 +760,7 @@ components:
       properties:
         message:
           type: string
-          example: "{OmasError}"
+          example: "{OldapError}"
     auth_response_404:
       description: if user not found
       type: object

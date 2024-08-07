@@ -640,7 +640,7 @@ def test_modify_active(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
-        "isActive": "false"
+        "isActive": False
     }, headers=header)
 
     assert response.status_code == 200
@@ -648,22 +648,15 @@ def test_modify_active(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed['isActive'] == 'false'
+    assert readed['isActive'] is False
 
     response2 = client.post('/admin/user/rosman', json={
         "isActive": "TRUE"
     }, headers=header)
+    assert response2.status_code == 400
     read2 = client.get('/admin/user/rosman', headers=header)
     readed2 = read2.json
-    assert readed2['isActive'] == 'true'
-
-    response3 = client.post('/admin/user/rosman', json={
-        "givenName": "Kappa"
-    }, headers=header)
-    read3 = client.get('/admin/user/rosman', headers=header)
-    readed3 = read3.json
-    print(readed3)
-    assert readed3['isActive'] == 'true'
+    assert readed2['isActive'] is False
 
 
 def test_modify_nonsense(client, token_headers, testuser):
