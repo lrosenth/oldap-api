@@ -313,13 +313,35 @@ paths:
                       project:
                         type: string
                       permissions:
-                        type: array
-                        items:
-                          type: string
+                        oneOf:
+                          - type: array
+                            items:
+                              type: string
+                          - type: object
+                            properties:
+                              add:
+                                type: array
+                                items:
+                                  type: string
+                              del:
+                                type: array
+                                items:
+                                  type: string
                 hasPermissions:
-                  type: array
-                  items:
-                    type: string
+                  oneOf:
+                    - type: array
+                      items:
+                        type: string
+                    - type: object
+                      properties:
+                        add:
+                          type: array
+                          items:
+                            type: string
+                        del:
+                          type: array
+                          items:
+                            type: string
         required: true
       responses:
         "200":
@@ -508,9 +530,9 @@ paths:
                   modified:
                     type: string
                   label:
-                    type: string
+                    $ref: '#/components/schemas/LangString'
                   comment:
-                    type: string
+                    $ref: '#/components/schemas/LangString'
                   message:
                     type: string
                   shortName:
@@ -557,9 +579,23 @@ paths:
             schema:
               properties:
                 label:
-                  type: string
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
                 comment:
-                  type: string
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
                 projectStart:
                   type: string
                 projectEnd:
@@ -626,10 +662,6 @@ paths:
                   type: string
                 comment:
                   type: string
-                projectStart:
-                  type: string
-                projectEnd:
-                  type: string
         required: true
 
       responses:
@@ -669,14 +701,6 @@ paths:
                   message:
                     type: string
                     example: 'No matching projects found.'
-        500:
-          description: "Internal Server error"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
 
 components:
   schemas:
@@ -840,12 +864,13 @@ components:
 
     LangString:
           oneOf:
-            - type: string
-              description: Single string with optional language tag (e.g., "Lastname@en").
             - type: array
               description: List of strings, each with an optional language tag (e.g., ["Lastname@en", "Nachname@de"])
               items:
                 type: string
+            - type: string
+              description: Single string with optional language tag (e.g., "Lastname@en").
+
 
 
   securitySchemes:

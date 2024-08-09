@@ -645,8 +645,8 @@ def create_project(projectid):
     project that has the following form:
     json={
         "projectIri": "http://unittest.org/project/testproject",
-        "label": ["unittest@en", "unittest@de"],
-        "comment": ["For testing@en", "Für Tests@de"],
+        "label": ["unittest@en", "unittest@de"], or "unittest@en"
+        "comment": ["For testing@en", "Für Tests@de"], or "For testing@en"
         "namespaceIri": "http://unitest.org/project/unittest#",
         "projectStart": "1993-04-05",
         "projectEnd": "2000-01-10"
@@ -686,10 +686,10 @@ def create_project(projectid):
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             project = Project(con=con,
-                              projectShortName=Xsd_NCName(projectShortName),  # NO
-                              projectIri=Iri(projectIri),  # NO
+                              projectShortName=Xsd_NCName(projectShortName),
+                              projectIri=Iri(projectIri),
                               label=LangString(label),
-                              namespaceIri=NamespaceIRI(namespaceIri),  # NO
+                              namespaceIri=NamespaceIRI(namespaceIri),
                               comment=LangString(comment),
                               projectStart=Xsd_date(projectStart) if projectEnd else None,
                               projectEnd=Xsd_date(projectEnd) if projectEnd else None
