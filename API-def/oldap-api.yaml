@@ -40,7 +40,7 @@ paths:
                     type: string
                     example: "exampletoken"
         400:
-          description: "Invalid content type"
+          description: "Several Errors that involve bad requests"
           content:
             application/json:
               schema:
@@ -75,9 +75,9 @@ paths:
         "200":
           description: "OK"
         "400":
-          description: "Bad Request"
+          description: "Several Errors that involve bad requests"
         500:
-          description: "Internal Server error"
+          description: "Internal Server error. Should not be reachable"
   /admin/user/{userId}:
     put:
       summary: "Create a new user"
@@ -153,7 +153,7 @@ paths:
                     type: string
                     example: "{userIri}"
         400:
-          description: "Feldrequirement fehlt"
+          description: "Several Errors that involve bad requests"
           content:
             application/json:
               schema:
@@ -180,7 +180,7 @@ paths:
                     type: string
                     example: "A user with a user ID {userId} already exists"
         500:
-          description: "Internal Server error"
+          description: "Internal Server error. Should not be reachable"
     delete:
       summary: "Delete a user"
       description: "The user that has the rights (given by his token) deletes another user"
@@ -354,7 +354,7 @@ paths:
                     type: string
                     example: "User {userid} created, 'userIri': '{userid}'"
         400:
-          description: "Form/Inhalt der übermittelten Daten stimmt nicht"
+          description: "Several Errors that involve bad requests"
           content:
             application/json:
               schema:
@@ -381,7 +381,7 @@ paths:
                     type: string
                     example: "A user with a user ID '{userId}' already exists"
         500:
-          description: "Internal Server error"
+          description: "Internal Server error. Should not be reachable"
 
   /admin/project/{projectId}:
     put:
@@ -422,7 +422,7 @@ paths:
                     type: string
                     example: "Project successfully created"
         400:
-          description: "Invalid content type"
+          description: "Several Errors that involve bad requests"
           content:
             application/json:
               schema:
@@ -449,7 +449,7 @@ paths:
                     type: string
                     example: 'A Project with a projectIri "http://unittest.org/project/testproject" already exists'
         500:
-          description: "Internal Server error"
+          description: "Internal Server error. Should not be reachable"
           content:
             application/json:
               schema:
@@ -497,7 +497,7 @@ paths:
                     type: string
                     example: 'Project with IRI/shortname "nonexistingproject" not found.'
         500:
-          description: "Internal Server error"
+          description: "Internal Server error. Should not be reachable"
           content:
             application/json:
               schema:
@@ -612,7 +612,7 @@ paths:
                     type: string
                     example: 'Project updated successfully'
         400:
-          description: "Expected JSON, received something else"
+          description: "Several Errors that involve bad requests"
           content:
             application/json:
               schema:
@@ -639,7 +639,7 @@ paths:
                     type: string
                     example: 'Project with IRI/shortname "notexistingproject" not found.'
         500:
-          description: "Internal Server error"
+          description: "Internal Server error. Should not be reachable"
           content:
             application/json:
               schema:
@@ -675,14 +675,203 @@ paths:
                     type: string
                     example: '[Iri("http://unittest.org/project/testproject")]'
         400:
-          description: "Expected JSON, received something else//Either label or comment needs to be provided"
+          description: "Several Errors that involve bad requests"
           content:
             application/json:
               schema:
                 properties:
                   message:
                     type: string
-                    example: "JSON expected. Instead received {request.content_type}"
+                    example: "Expected JSON, received something else//Either label or comment needs to be provided"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+
+  /admin/permissionset/{definedByProject}/{permissionsetid}:
+    put:
+      summary: Permissionset creation
+      description: Creates a new permissionset in the database
+      parameters:
+        - name: definedByProject
+          description: The project that defines this permission set (either the IRI or the shortname)
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: permissionsetid
+          description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+          in: path
+          required: true
+          schema:
+            type: string
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                label:
+                  $ref: '#/components/schemas/LangString'
+                comment:
+                  $ref: '#/components/schemas/LangString'
+                givesPermission:
+                  type: string
+                  enum:
+                    - DATA_RESTRICTED
+                    - DATA_VIEW
+                    - DATA_EXTEND
+                    - DATA_UPDATE
+                    - DATA_DELETE
+                    - DATA_PERMISSIONS
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Permissionset successfully created"
+        400:
+          description: "Several Errors that involve bad requests"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "JSON expected. Instead received {request.content_type}//The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation// (...)"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "No permission to create a new project.//Connection failed: {str(error)}"
+        409:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'A permission set "oldap:testpermissionset" already exists'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+    delete:
+      summary: "Delete a permissionset"
+      description: "The user that has the rights (given by his token) deletes a permissionset"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: definedByProject
+          description: The project that defines this permission set (either the IRI or the shortname)
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: permissionsetid
+          description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Permissionset successfully deleted"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'No permission set "oldap:nonexistingproject"'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+    get:
+      summary: "Gets/reads Information about a permissionset"
+      description: "The user that has the rights (given by his token) gets Information about a permissionset"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: definedByProject
+          description: The project that defines this permission set (either the IRI or the shortname)
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: permissionsetid
+          description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  permisionsetid:
+                    type: string
+                  creation:
+                    type: string
+                  contributor:
+                    type: string
+                  modified:
+                    type: string
+                  label:
+                    $ref: '#/components/schemas/LangString'
+                  comment:
+                    $ref: '#/components/schemas/LangString'
+                  givesPermission:
+                    type: string
+                  definedByProject:
+                    type: string
         403:
           description: "Unauthorized"
           content:
@@ -700,7 +889,174 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: 'No matching projects found.'
+                    example: 'No permission set "oldap:doesnotexist"'
+    post:
+      summary: "Modify/updates a permissionset"
+      description: "The user that has the rights (given by his token) modifies a permissionset"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: definedByProject
+          description: The project that defines this permission set (either the IRI or the shortname)
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: permissionsetid
+          description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                label:
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                comment:
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                givesPermission:
+                  oneOf:
+                    - type: array
+                      items:
+                        type: string
+                    - type: object
+                      properties:
+                        add:
+                          type: array
+                          items:
+                            type: string
+                            enum:
+                              - DATA_RESTRICTED
+                              - DATA_VIEW
+                              - DATA_EXTEND
+                              - DATA_UPDATE
+                              - DATA_DELETE
+                              - DATA_PERMISSIONS
+                        del:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              type: string
+                              enum:
+                                - DATA_RESTRICTED
+                                - DATA_VIEW
+                                - DATA_EXTEND
+                                - DATA_UPDATE
+                                - DATA_DELETE
+                                - DATA_PERMISSIONS
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Permissionset updated successfully'
+        400:
+          description: "Several Errors that involve bad requests"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "JSON expected. Instead received {request.content_type}//For the label either a list or a dict is expected, not a string//(...)"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'No permission set "oldap:notexistingproject"'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+  /admin/permissionset/search:
+    get:
+      summary: "Searches for given parameters"
+      description: "The user that has the rights (given by his token) searches for given parameters in permissionsets"
+      security:
+        - AccessToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                label:
+                  type: string
+                definedByProject:
+                  type: string
+                givesPermission:
+                  type: string
+        required: true
+
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: '[Iri("oldap:testpermissionset")]'
+        400:
+          description: "Several Errors that involve bad requests"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Expected JSON, received something else//The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation//(...)"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+
 
 components:
   schemas:
@@ -863,13 +1219,13 @@ components:
             type: string
 
     LangString:
-          oneOf:
-            - type: array
-              description: List of strings, each with an optional language tag (e.g., ["Lastname@en", "Nachname@de"])
-              items:
-                type: string
-            - type: string
-              description: Single string with optional language tag (e.g., "Lastname@en").
+      oneOf:
+        - type: array
+          description: List of strings, each with an optional language tag (e.g., ["Lastname@en", "Nachname@de"])
+          items:
+            type: string
+        - type: string
+          description: Single string with optional language tag (e.g., "Lastname@en").
 
 
 

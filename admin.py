@@ -1347,6 +1347,6 @@ def modify_permissionset(definedbyproject, permissionsetid):
         except OldapError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 500
 
-        return jsonify({"message": "Project updated successfully"}), 200
+        return jsonify({"message": "Permissionset updated successfully"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
