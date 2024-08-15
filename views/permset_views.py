@@ -1,3 +1,17 @@
+"""
+This script is part of a RESTful API for managing functionalities of oldaplib.
+It uses Flask and oldaplib to perform CRUD operations on user, project data, permissionsets and more.
+The API offers endpoints for creating, reading, updating, searching and deleting functions to interact with the database.
+
+Available endpoints:
+- PUT /admin/permissionset/<permissionsetid>: Creates a new permission set.
+- GET /admin/permissionset/<permissionlabel>: Reads the data of a permission set.
+- DELETE /admin/permissionset/<permissionlabel>: Deletes a permission set.
+- POST /admin/permissionset/<definedbyproject>/<permissionsetid>: Modifies an existing permission set.
+- GET /admin/permissionset/search: Searches for permission sets.
+
+The implementation includes error handling and validation for most operations.
+"""
 from flask import request, jsonify, Blueprint
 from oldaplib.src.connection import Connection
 from oldaplib.src.enums.language import Language

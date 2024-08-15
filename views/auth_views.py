@@ -1,3 +1,15 @@
+"""
+This script is part of a RESTful API for managing functionalities of oldaplib.
+It uses Flask and oldaplib to perform CRUD operations on user, project data, permissionsets and more.
+The API offers endpoints for creating, reading, updating, searching and deleting functions to interact with the database.
+
+Available endpoints:
+- POST /admin/auth/<userid>: Logs in a user and returns a token.
+- DELETE /admin/auth/<userid>: Logs out a user.
+
+The implementation includes error handling and validation for most operations.
+"""
+
 from flask import request, jsonify, Blueprint
 from oldaplib.src.connection import Connection
 from oldaplib.src.helpers.oldaperror import OldapErrorNotFound, OldapError
