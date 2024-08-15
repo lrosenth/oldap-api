@@ -25,7 +25,7 @@ from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_date import Xsd_date
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 
-from languages import known_languages
+from views import known_languages
 
 project_bp = Blueprint('project', __name__, url_prefix='/admin')
 

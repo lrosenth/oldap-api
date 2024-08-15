@@ -21,7 +21,7 @@ from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, 
     OldapErrorValue, OldapErrorNotFound, OldapErrorUpdateFailed
 from oldaplib.src.permissionset import PermissionSet
 
-from languages import known_languages
+from views import known_languages
 
 permset_bp = Blueprint('permissionset', __name__, url_prefix='/admin')
 
