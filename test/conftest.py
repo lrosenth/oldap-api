@@ -4,6 +4,7 @@ from time import sleep
 import pytest
 import jwt
 from oldaplib.src.connection import Connection
+from oldaplib.src.datamodel import DataModel
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
 from factory import factory
@@ -120,4 +121,13 @@ def testpermissionset(client, token_headers):
     yield
 
     client.delete('/admin/permissionset/testpermission', headers=header)
+
+
+@pytest.fixture()
+def testemptydatamodel(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha', json={}, headers=header)
+
+    yield
 
