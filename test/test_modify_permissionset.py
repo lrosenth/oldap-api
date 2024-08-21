@@ -76,7 +76,7 @@ def test_modify_gives_permission(client, token_headers, testpermissionset):
     response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
     res = response2.json
     print(res)
-    assert res.get('givesPermission') == 'DataPermission.DATA_VIEW'
+    assert res.get('givesPermission') == 'oldap:DATA_VIEW'
 
 
 def test_modify_bad_label(client, token_headers, testpermissionset):

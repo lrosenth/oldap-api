@@ -14,8 +14,8 @@ The implementation includes error handling and validation for most operations.
 """
 from flask import request, jsonify, Blueprint
 from oldaplib.src.connection import Connection
+from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.enums.language import Language
-from oldaplib.src.enums.permissions import DataPermission
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
     OldapErrorValue, OldapErrorNotFound, OldapErrorUpdateFailed

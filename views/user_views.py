@@ -16,7 +16,7 @@ from typing import Dict, Set
 
 from flask import jsonify, request, Blueprint
 from oldaplib.src.connection import Connection
-from oldaplib.src.enums.permissions import AdminPermission
+from oldaplib.src.enums.adminpermissions import AdminPermission
 from oldaplib.src.helpers.observable_set import ObservableSet
 from oldaplib.src.helpers.oldaperror import OldapErrorValue, OldapError, OldapErrorAlreadyExists, OldapErrorNotFound, \
     OldapErrorNoPermission, OldapErrorUpdateFailed
