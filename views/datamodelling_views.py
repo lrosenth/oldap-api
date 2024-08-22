@@ -110,11 +110,9 @@ def add_standalone_property_to_datamodel(project):
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
         try:
-            proj = Project.read(con, project)
-            #dm = DataModel.read(con, project, ignore_cache=True)  # should be used in new version
-            dm = DataModel.read(con, proj)
+            dm = DataModel.read(con, project, ignore_cache=True)
             prop = PropertyClass(con=con,
-                                   project=proj,  # will be project in new version!
+                                   project=project,
                                    property_class_iri=Iri(iri),
                                    datatype=XsdDatatypes(datatype),
                                    name=LangString(name),
@@ -125,4 +123,10 @@ def add_standalone_property_to_datamodel(project):
 
         except OldapError as error:
             return jsonify({"message": str(error)}), 400
-        return jsonify({"message": f"Standalone property in datamodel {proj.projectIri} successfully created"}), 200  # {project} should be used in new version
+        return jsonify({"message": f"Standalone property in datamodel {project} successfully created"}), 200
+
+
+@datamodel_bp.route('/datamodel/<project>/resource', methods=['PUT'])
+def add_resource_to_datamodel(project):
+
+    pass

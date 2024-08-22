@@ -5,6 +5,7 @@ import pytest
 import jwt
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
+from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
 from factory import factory
@@ -38,6 +39,8 @@ def app():
                      credentials="RioGrande",
                      context_name="DEFAULT")
     con.clear_graph(Xsd_QName('oldap:admin'))
+    con.clear_graph(Xsd_QName('hyha:shacl'))
+    con.clear_graph(Xsd_QName('hyha:onto'))
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin.trig")
     sleep(1)
     yield app
