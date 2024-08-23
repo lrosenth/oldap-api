@@ -1094,17 +1094,6 @@ paths:
                     - type: object
                       properties:
                         property:
-                          type: string
-                          description: iri of property
-                        maxCount:
-                          type: integer
-                        minCount:
-                          type: integer
-                        order:
-                          type: number
-                    - type: object
-                      properties:
-                        property:
                           type: object
                           properties:
                             iri:
@@ -1196,6 +1185,12 @@ paths:
                               type: string
                               description: The (numerical) value must be smaller or equal than the value that is given in the Property - referenced by the given IRI. Iri("myproj:deathDate")
                               example: "myproj:deathDate"
+                        maxCount:
+                          type: integer
+                        minCount:
+                          type: integer
+                        order:
+                          type: number
 
               required:
                 - iri
