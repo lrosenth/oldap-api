@@ -134,3 +134,20 @@ def testemptydatamodel(client, token_headers):
 
     yield
 
+
+@pytest.fixture()
+def testfulldatamodel(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/property', json={
+        "iri": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+        "uniqueLang": True,
+        "minLength": 1,
+        "maxLength": 50,
+        "languageIn": ["en", "fr", "it", "de"],
+    }, headers=header)
+
+    yield
