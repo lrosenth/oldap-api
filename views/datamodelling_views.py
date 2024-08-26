@@ -22,6 +22,7 @@ from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
+from oldaplib.src.xsd.xsd_string import Xsd_string
 
 datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
 
@@ -62,7 +63,7 @@ def create_empty_datamodel(project):
 @datamodel_bp.route('/datamodel/<project>/property', methods=['PUT'])
 def add_standalone_property_to_datamodel(project):
 
-    known_json_fields = {"iri", "subpropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
+    known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
                          "maxInclusive", "lessThan", "lessThanOrEquals",}
     mandatory_json_fields = {"iri"} # entweder class oder datatype sind mandatory. eines von beiden MUSS drinn sein! wenn property auf literal zeigt -> datatype. wenn prop auf andere ressourceinstanz zeigt -> class von instanz angeben
@@ -78,7 +79,7 @@ def add_standalone_property_to_datamodel(project):
         if not mandatory_json_fields.issubset(set(data.keys())):
             return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a permissionset. Used where {set(data.keys())}. Usablable are {known_json_fields}"}), 400
         iri = data.get("iri", None)  # Iri, z.B. "myproj:pageOf"
-        subpropertyOf = data.get("subpropertyOf", None)  # Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf is generischer Fall von pageOf
+        subPropertyOf = data.get("subPropertyOf", None)  # Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf is generischer Fall von pageOf
         toClass = data.get("class", None)  # an Iri(). Beschreibt die Klasse der Instanz, auf die diese Property zeigen muss, Z.B. "myproj:Book" heisst, dass die Property auf ein Buch zeigen muss
         datatype = data.get("datatype", None)  # "xsd:string", oder "xsd:integer" etc. Datentyp, wenn die Property durch einen Literal repräsentiert wird
         name = data.get("name", None)  # Human readable Name, ist ein LangString (kann also in verschiedenen Sprachen vorkommen, z.B. ["Seite@de", Page@fr", "Page@en"]
@@ -111,13 +112,28 @@ def add_standalone_property_to_datamodel(project):
 
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
-            prop = PropertyClass(con=con,
-                                   project=project,
-                                   property_class_iri=Iri(iri),
-                                   datatype=XsdDatatypes(datatype),
-                                   name=LangString(name),
-                                   description=LangString(description),
-                                   uniqueLang=Xsd_boolean(uniqueLang))
+            prop = PropertyClass(
+                con = con,
+                project = project,
+                property_class_iri = Iri(iri),
+                subPropertyOf = subPropertyOf,
+                toClass = toClass,
+                datatype=XsdDatatypes(datatype),
+                name=LangString(name),
+                description=LangString(description),
+                languageIn = languageIn,
+                uniqueLang=Xsd_boolean(uniqueLang),
+                inSet=inSet,
+                minLength=minLength,
+                maxLength=maxLength,
+                pattern=pattern,
+                minExclusive=minExclusive,
+                minInclusive=minInclusive,
+                maxExclusive=maxExclusive,
+                maxInclusive=maxInclusive,
+                lessThan=lessThan,
+                lessThanOrEquals=lessThanOrEquals,
+            )
             dm[Iri(iri)] = prop
             dm.update()
 
@@ -130,3 +146,35 @@ def add_standalone_property_to_datamodel(project):
 def add_resource_to_datamodel(project):
 
     pass
+
+@datamodel_bp.route('/datamodel/<project>', methods=['GET'])
+def read_datamodel(project):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    #zuerst alle properties holen mit dm.get_propclasses() dann alle properties zusammenbauen mit ressourcen wie im yaml
+    dm = DataModel.read(con, project, ignore_cache=True)
+    info = set(dm.get_propclasses())
+    testprop = dm[Iri("hyha:testProp")]
+    maxlength = testprop.maxLength
+    # res = {
+    #     'permisionsetid': str(ps.permissionSetId),
+    #     'creation': str(ps.created),
+    #     'contributor': str(ps.contributor),
+    #     'modified': str(ps.modified),
+    #     'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()] if ps.label else None,
+    #     'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()] if ps.comment else None,
+    #     'givesPermission': str(ps.givesPermission),
+    #     'definedByProject': str(ps.definedByProject),
+    # }
+
+    return {"Testing": int(maxlength)}, 200
+
