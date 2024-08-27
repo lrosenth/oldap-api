@@ -136,7 +136,7 @@ def testemptydatamodel(client, token_headers):
 
 
 @pytest.fixture()
-def testfulldatamodel(client, token_headers, testemptydatamodel):
+def testhalffulldatamodel(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/property', json={
@@ -151,3 +151,31 @@ def testfulldatamodel(client, token_headers, testemptydatamodel):
     }, headers=header)
 
     yield
+
+
+@pytest.fixture()
+def testfulldatamodel(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/property', json={
+        "iri": "hyha:testProp2",
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "in": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        # "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp"
+    }, headers=header)
+
+    yield
+
