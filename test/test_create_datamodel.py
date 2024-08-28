@@ -7,7 +7,7 @@ def test_create_datamodel(client, token_headers):
     res = response.json
     print(res)
 
-def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testfulldatamodel):
+def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testhalffulldatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/property', json={

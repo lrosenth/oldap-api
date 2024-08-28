@@ -147,6 +147,29 @@ def add_resource_to_datamodel(project):
 
     pass
 
+# Read datamodell
+# Datamodel:
+# {
+#  „project“: „proj-iri“,
+#  „properties“: [<PropertyDef>, <PropertyDef>,…]
+#  „resources: [<ResDef>, <ResDef>, …]
+# }
+#
+# <PropDef>:
+# {
+#  …
+# }
+#
+# <ResDef>:
+# {
+#  ...,
+#  „hasProperty“:[ {
+#   „minCount“: num,
+#   „maxCount“: num,
+#   „order“: decimal
+#   „property“: <PropDef> oder „an_iri“
+#  }, {…},…]
+# }
 @datamodel_bp.route('/datamodel/<project>', methods=['GET'])
 def read_datamodel(project):
     out = request.headers['Authorization']
@@ -162,19 +185,48 @@ def read_datamodel(project):
 
     #zuerst alle properties holen mit dm.get_propclasses() dann alle properties zusammenbauen mit ressourcen wie im yaml
     dm = DataModel.read(con, project, ignore_cache=True)
-    info = set(dm.get_propclasses())
-    testprop = dm[Iri("hyha:testProp")]
-    maxlength = testprop.maxLength
-    # res = {
-    #     'permisionsetid': str(ps.permissionSetId),
-    #     'creation': str(ps.created),
-    #     'contributor': str(ps.contributor),
-    #     'modified': str(ps.modified),
-    #     'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()] if ps.label else None,
-    #     'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()] if ps.comment else None,
-    #     'givesPermission': str(ps.givesPermission),
-    #     'definedByProject': str(ps.definedByProject),
-    # }
+    propclasses = set(dm.get_propclasses())
+    resclasses = set(dm.get_resclasses())
+    # testprop = dm[Iri("hyha:testProp")]
+    # maxlength = testprop.maxLength
 
-    return {"Testing": int(maxlength)}, 200
+    # Setting all property entries to None to fill the available entries afterwards.
+    # (property_class_iri, subPropertyOf, toClass, datatype, name, description, languageIn, uniqueLang,
+    #  inSet, minLength, maxLength, pattern, minExclusive, minInclusive, maxExclusive, maxInclusive, lessThan,
+    #  lessThanOrEquals) = (None,) * 18
+
+
+
+    res = {
+        "project": project,
+        "standaloneProperties": [],
+        "resources": []
+    }
+
+    for prop in propclasses:
+
+        kappa = {
+            "iri": str(prop),
+            "subpropertyOf": str(dm[prop].subPropertyOf),
+            "toClass": str(dm[prop].toClass),
+            "datatype": str(dm[prop].datatype),
+            "name": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].name.items()] if dm[prop].name else None,
+            "description": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].description.items()] if dm[prop].description else None,
+            "languageIn": [f'{tag}'[-2:].lower() for tag in dm[prop].languageIn] if dm[prop].languageIn else None,
+            "uniqueLang": bool(dm[prop].uniqueLang),
+            "in": str(dm[prop].inSet),
+            "minLength": str(dm[prop].minLength),
+            "maxLength": str(dm[prop].maxLength),
+            "pattern": str(dm[prop].pattern),
+            "minExclusive": str(dm[prop].minExclusive),
+            "minInclusive": str(dm[prop].minInclusive),
+            "maxExclusive": str(dm[prop].maxExclusive),
+            "maxInclusive": str(dm[prop].maxInclusive),
+            "lessThan": str(dm[prop].lessThan),
+            "lessThanOrEquals": str(dm[prop].lessThanOrEquals),
+        }
+
+        res["standaloneProperties"].append(kappa)
+
+    return res, 200
 
