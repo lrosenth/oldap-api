@@ -1094,97 +1094,101 @@ paths:
                     - type: object
                       properties:
                         property:
-                          type: object
-                          properties:
-                            iri:
-                              type: string
-                              example: "myproj:pageOf"
-                            subpropertyOf:
-                              type: string
-                              description: Iri() of the the Superclass.  ; partOf is generic case of pageOf
-                              example: "myproj:partOf"
-                            toClass:
-                              type: string
-                              description: An Iri(). Describes the class of the instance that this property must point to. E.g. "myproj:Book" means that the property must point to a book
-                              example: "myproj:Book"
-                            datatype:
-                              type: string
-                              description: Datatype when the property is represented by a literal
-                              example: xsd:string or xsd:integer etc.
-                            name:
-                              type: string
-                              description: Human readable Name. Is a LangString ["Seite@de", Page@fr", "Page@en"]
-                              example: ["Seite@de", "Page@fr", "Page@en"]
-                            description:
-                              $ref: '#/components/schemas/LangString'
-                              description: Description as Langstring.
-                              example: ["Eine Buchseite@de", "A page of a book@en"]
-                            languageIn:
-                              type: string
-                              description: Available languages for this property
-                              example: ["en", "fr", "it", "de"]
-                            uniqueLang:
-                              type: boolean
-                              description: Each language must be present only once True/False. Only matters if property itself is a Langstring datatype
-                            in:
-                              type: array
-                              description: The set of possible things it could be.
-                              example: ["Renault", "Opel", "BMW", "Mercedes"]
-                            minLength:
-                              type: integer
-                              description: The minimal length of the string. Only when the property is either a xsd:string or rdf:langString
-                              example: 5
-                            maxLength:
-                              type: integer
-                              description: The maximal length of the string. Only when the property is either a xsd:string or rdf:langString
-                              example: 20
-                            pattern:
-                              type: string
-                              description: Contains the regex that the string must follow. Only when the property is either a xsd:string or rdf:langString
-                            minExclusive:
-                              description: Minimal value (exclusive) for a numerical datatype of the property
-                              oneOf:
-                                - type: integer
+                          oneOf:
+                            - type: object
+                              properties:
+                                iri:
+                                  type: string
+                                  example: "myproj:pageOf"
+                                subpropertyOf:
+                                  type: string
+                                  description: Iri() of the the Superclass.  ; partOf is generic case of pageOf
+                                  example: "myproj:partOf"
+                                toClass:
+                                  type: string
+                                  description: An Iri(). Describes the class of the instance that this property must point to. E.g. "myproj:Book" means that the property must point to a book
+                                  example: "myproj:Book"
+                                datatype:
+                                  type: string
+                                  description: Datatype when the property is represented by a literal
+                                  example: xsd:string or xsd:integer etc.
+                                name:
+                                  type: string
+                                  description: Human readable Name. Is a LangString ["Seite@de", Page@fr", "Page@en"]
+                                  example: ["Seite@de", "Page@fr", "Page@en"]
+                                description:
+                                  $ref: '#/components/schemas/LangString'
+                                  description: Description as Langstring.
+                                  example: ["Eine Buchseite@de", "A page of a book@en"]
+                                languageIn:
+                                  type: string
+                                  description: Available languages for this property
+                                  example: ["en", "fr", "it", "de"]
+                                uniqueLang:
+                                  type: boolean
+                                  description: Each language must be present only once True/False. Only matters if property itself is a Langstring datatype
+                                in:
+                                  type: array
+                                  description: The set of possible things it could be.
+                                  example: ["Renault", "Opel", "BMW", "Mercedes"]
+                                minLength:
+                                  type: integer
+                                  description: The minimal length of the string. Only when the property is either a xsd:string or rdf:langString
                                   example: 5
-                                - type: number
-                                  example: 6.23
-                                - type: string
-                                  description: A xsd_date
-                            minInclusive:
-                              description: Minimal value (inclusive) for a numerical datatype of the property
-                              oneOf:
-                                - type: integer
-                                  example: 5
-                                - type: number
-                                  example: 6.23
-                                - type: string
-                                  description: A xsd_date
-                            maxExclusive:
-                              description: Maximal value (exclusive) for a numerical datatype of the property
-                              oneOf:
-                                - type: integer
-                                  example: 5
-                                - type: number
-                                  example: 6.23
-                                - type: string
-                                  description: A xsd_date
-                            maxInclusive:
-                              description: Maximal value (inclusive) for a numerical datatype of the property
-                              oneOf:
-                                - type: integer
-                                  example: 5
-                                - type: number
-                                  example: 6.23
-                                - type: string
-                                  description: A xsd_date
-                            lessThan:
-                              type: string
-                              description: The (numerical) value must be smaller than the value that is given in the Property - referenced by the given IRI. Iri("myproj:deathDate")
-                              example: "myproj:deathDate"
-                            lessThanOrEquals:
-                              type: string
-                              description: The (numerical) value must be smaller or equal than the value that is given in the Property - referenced by the given IRI. Iri("myproj:deathDate")
-                              example: "myproj:deathDate"
+                                maxLength:
+                                  type: integer
+                                  description: The maximal length of the string. Only when the property is either a xsd:string or rdf:langString
+                                  example: 20
+                                pattern:
+                                  type: string
+                                  description: Contains the regex that the string must follow. Only when the property is either a xsd:string or rdf:langString
+                                minExclusive:
+                                  description: Minimal value (exclusive) for a numerical datatype of the property
+                                  oneOf:
+                                    - type: integer
+                                      example: 5
+                                    - type: number
+                                      example: 6.23
+                                    - type: string
+                                      description: A xsd_date
+                                minInclusive:
+                                  description: Minimal value (inclusive) for a numerical datatype of the property
+                                  oneOf:
+                                    - type: integer
+                                      example: 5
+                                    - type: number
+                                      example: 6.23
+                                    - type: string
+                                      description: A xsd_date
+                                maxExclusive:
+                                  description: Maximal value (exclusive) for a numerical datatype of the property
+                                  oneOf:
+                                    - type: integer
+                                      example: 5
+                                    - type: number
+                                      example: 6.23
+                                    - type: string
+                                      description: A xsd_date
+                                maxInclusive:
+                                  description: Maximal value (inclusive) for a numerical datatype of the property
+                                  oneOf:
+                                    - type: integer
+                                      example: 5
+                                    - type: number
+                                      example: 6.23
+                                    - type: string
+                                      description: A xsd_date
+                                lessThan:
+                                  type: string
+                                  description: The (numerical) value must be smaller than the value that is given in the Property - referenced by the given IRI. Iri("myproj:deathDate")
+                                  example: "myproj:deathDate"
+                                lessThanOrEquals:
+                                  type: string
+                                  description: The (numerical) value must be smaller or equal than the value that is given in the Property - referenced by the given IRI. Iri("myproj:deathDate")
+                                  example: "myproj:deathDate"
+                            - type: string
+                              description: The reference to a standalone property
+
                         maxCount:
                           type: integer
                         minCount:
