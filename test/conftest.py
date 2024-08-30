@@ -168,7 +168,7 @@ def testfulldatamodel(client, token_headers, testemptydatamodel):
         "in": ["Kappa", "Gaga", "gugus"],
         "minLength": 1,
         "maxLength": 50,
-        # "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
         "minExclusive": 5.5,
         "minInclusive": 5.5,
         "maxExclusive": 5.5,
@@ -176,6 +176,54 @@ def testfulldatamodel(client, token_headers, testemptydatamodel):
         "lessThan": "hyha:testProp",
         "lessThanOrEquals": "hyha:testProp"
     }, headers=header)
+
+    yield
+
+
+@pytest.fixture()
+def testtwofulldatamodel(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/property', json={
+        "iri": "hyha:testProp2",
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "in": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp"
+    }, headers=header)
+
+    response = client.put('/admin/datamodel/hyha/property', json={
+        "iri": "hyha:testProp3",
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["Second Test Property@en", "Zweite Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de", "zweite testfeld beschreibung@en"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "in": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp"
+    }, headers=header)
+
 
     yield
 
