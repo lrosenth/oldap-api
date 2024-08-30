@@ -17,7 +17,7 @@ from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.helpers.langstring import LangString
-from oldaplib.src.helpers.oldaperror import OldapError
+from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound
 from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
 from oldaplib.src.xsd.iri import Iri
@@ -183,7 +183,12 @@ def read_datamodel(project):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    dm = DataModel.read(con, project, ignore_cache=True)
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+
     propclasses = set(dm.get_propclasses())
     resclasses = set(dm.get_resclasses())
 

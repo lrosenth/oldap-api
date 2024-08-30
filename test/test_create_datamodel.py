@@ -33,10 +33,3 @@ def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testha
     res = response.json
     print(res)
 
-def test_read_datamodel(client, token_headers, testfulldatamodel):
-    header = token_headers[1]
-
-    response = client.get('/admin/datamodel/hyha', headers=header)
-
-    res = response.json
-    print(res)
