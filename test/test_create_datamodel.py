@@ -21,7 +21,7 @@ def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testha
         "in": ["Kappa", "Gaga", "gugus"],
         "minLength": 1,
         "maxLength": 50,
-        # "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
         "minExclusive": 5.5,
         "minInclusive": 5.5,
         "maxExclusive": 5.5,

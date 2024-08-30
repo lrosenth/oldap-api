@@ -183,19 +183,9 @@ def read_datamodel(project):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    #zuerst alle properties holen mit dm.get_propclasses() dann alle properties zusammenbauen mit ressourcen wie im yaml
     dm = DataModel.read(con, project, ignore_cache=True)
     propclasses = set(dm.get_propclasses())
     resclasses = set(dm.get_resclasses())
-    # testprop = dm[Iri("hyha:testProp")]
-    # maxlength = testprop.maxLength
-
-    # Setting all property entries to None to fill the available entries afterwards.
-    # (property_class_iri, subPropertyOf, toClass, datatype, name, description, languageIn, uniqueLang,
-    #  inSet, minLength, maxLength, pattern, minExclusive, minInclusive, maxExclusive, maxInclusive, lessThan,
-    #  lessThanOrEquals) = (None,) * 18
-
-
 
     res = {
         "project": project,
@@ -204,7 +194,6 @@ def read_datamodel(project):
     }
 
     for prop in propclasses:
-
         kappa = {
             "iri": str(prop),
             "subpropertyOf": str(dm[prop].subPropertyOf),
@@ -225,7 +214,6 @@ def read_datamodel(project):
             "lessThan": str(dm[prop].lessThan),
             "lessThanOrEquals": str(dm[prop].lessThanOrEquals),
         }
-
         res["standaloneProperties"].append(kappa)
 
     return res, 200
