@@ -16,11 +16,13 @@ from flask import Blueprint, request, jsonify
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
+from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound
 from oldaplib.src.iconnection import IConnection
 from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
+from oldaplib.src.resourceclass import ResourceClass
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
 from oldaplib.src.xsd.xsd_string import Xsd_string
@@ -30,11 +32,6 @@ from apierror import ApiError
 datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
 
 
-# name von datamodel == name projekt
-# project == project-shortname
-# /datamodel/mydatamodelname -- create empty datamodel
-# /datamodel/mydatamodelname/myressourcename -- create ressource for that datamodel
-# Schritt 1: leeres datamodel erzeugen
 @datamodel_bp.route('/datamodel/<project>', methods=['PUT'])
 def create_empty_datamodel(project):
     # known_json_fields = {"label", "comment", "givesPermission"}
@@ -159,8 +156,76 @@ def add_standalone_property_to_datamodel(project):
 
 @datamodel_bp.route('/datamodel/<project>/resource', methods=['PUT'])
 def add_resource_to_datamodel(project):
+    # Diese stimmen für das äussere. im hasProperty ist dann wenn {} steht drinn ein property sein. maxcount usw sind dann wieder freiwillig
+    # Das heisst ich muss dan nochmals known json fields machen mit mandatory property
+    known_json_fields = {"iri", "superclass", "label", "comment", "closed", "hasProperty"}
+    mandatory_json_fields = {"iri"}
+    known_hasproperty_fields = {"property", "maxCount", "minCount", "order"}
+    mandatory_hasproperty_fields = {"property"}
+    out = request.headers['Authorization']
+    b, token = out.split()
 
-    pass
+    if request.is_json:
+
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="oldap",
+                             token=token,
+                             context_name="DEFAULT")
+        except OldapError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+        data = request.get_json()
+
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not mandatory_json_fields.issubset(set(data.keys())):
+            return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a resource. Used where {set(data.keys())}. Usablable are {known_json_fields}"})
+
+        iri = data.get("iri", None)
+        superclass = data.get("superclass", None)
+        label = data.get("label", None)
+        comment = data.get("comment", None)
+        closed = data.get("closed", None)
+        hasProperty = data.get("hasProperty", None)
+
+        try:
+            dm = DataModel.read(con, project, ignore_cache=True)
+        except OldapError as error:
+            return jsonify({"message": str(error)}), 400
+
+        resource = ResourceClass(con=con, project=project, owlclass_iri=Iri(iri), comment=comment, closed=closed, label=label)
+        if resource.superclass is not None:
+            try:
+                resource.superclass = superclass
+            except OldapError as error:
+                return jsonify({"message": str(error)}), 403
+        dm[Iri(iri)] = resource
+        dm.update()
+
+        # TODO: correct oldap that this is not necessary to reread the dm
+        try:
+            dm = DataModel.read(con, project, ignore_cache=True)
+        except OldapError as error:
+            return jsonify({"message": str(error)}), 400
+
+
+        if hasProperty and isinstance(hasProperty, list):
+            for prop in hasProperty:
+                try:
+                    endprop = process_property(con=con, project=project, data=prop["property"])
+                    hp1 = HasProperty(con=con, prop=endprop, minCount=prop["minCount"], maxCount=prop["maxCount"], order=prop["order"])
+                except ApiError as error:
+                    return jsonify({"message": str(error)}), 400
+                dm[Iri(iri)][endprop.property_class_iri] = hp1
+
+        try:
+            dm.update()
+        except OldapError as error:
+            return jsonify({"message": str(error)}), 400
+        return jsonify({"message": f"Resource in datamodel {project} successfully created"}), 200
+
 
 # Read datamodell
 # Datamodel:
