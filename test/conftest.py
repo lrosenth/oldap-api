@@ -136,7 +136,7 @@ def testemptydatamodel(client, token_headers):
 
 
 @pytest.fixture()
-def testhalffulldatamodel(client, token_headers, testemptydatamodel):
+def testhalffulldatamodelstandaloneprop(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/property', json={
@@ -154,7 +154,7 @@ def testhalffulldatamodel(client, token_headers, testemptydatamodel):
 
 
 @pytest.fixture()
-def testfulldatamodel(client, token_headers, testemptydatamodel):
+def testfulldatamodelstandaloneprop(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/property', json={
@@ -181,7 +181,7 @@ def testfulldatamodel(client, token_headers, testemptydatamodel):
 
 
 @pytest.fixture()
-def testtwofulldatamodel(client, token_headers, testemptydatamodel):
+def testfulldatamodeltwostandaloneprop(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/property', json={
@@ -227,3 +227,49 @@ def testtwofulldatamodel(client, token_headers, testemptydatamodel):
 
     yield
 
+
+@pytest.fixture()
+def testfulldatamodelresource(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/resource', json={
+        "iri": "hyha:Sheep",
+        # "superclass": "hyha:Animal",
+        "label": [
+            "Eine Buchseite@de",
+            "A page of a book@en"
+        ],
+        "comment": [
+            "Eine Buchseite@de",
+            "A page of a book@en"
+        ],
+        "closed": True,
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:testProp2",
+                    "subPropertyOf": "hyha:testProp",
+                    "datatype": "rdf:langString",
+                    "name": ["Test Property@en", "Test Feld@de"],
+                    "description": ["Test Feld Beschreibung@de"],
+                    "languageIn": ["en", "fr", "it", "de"],
+                    "uniqueLang": True,
+                    "in": ["Kappa", "Gaga", "gugus"],
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+                    "minExclusive": 5.5,
+                    "minInclusive": 5.5,
+                    "maxExclusive": 5.5,
+                    "maxInclusive": 5.5,
+                    "lessThan": "hyha:testProp",
+                    "lessThanOrEquals": "hyha:testProp"
+                },
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            }
+        ]
+    }, headers=header)
+
+    yield

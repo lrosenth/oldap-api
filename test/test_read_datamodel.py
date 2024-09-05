@@ -1,4 +1,4 @@
-def test_read_datamodel(client, token_headers, testfulldatamodel):
+def test_read_standaloneporp_datamodel(client, token_headers, testfulldatamodelstandaloneprop):
     header = token_headers[1]
 
     response = client.get('/admin/datamodel/hyha', headers=header)

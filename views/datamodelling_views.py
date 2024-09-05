@@ -59,11 +59,11 @@ def create_empty_datamodel(project):
     return jsonify({"message": "Empty datamodel successfully created"}), 200
 
 
-def process_property(con: IConnection, project: Project, data: dict)-> PropertyClass:
+def process_property(con: IConnection, project: Project, data: dict) -> PropertyClass:
     known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
-                         "maxInclusive", "lessThan", "lessThanOrEquals",}
-    mandatory_json_fields = {"iri"} # entweder class oder datatype sind mandatory. eines von beiden MUSS drinn sein! wenn property auf literal zeigt -> datatype. wenn prop auf andere ressourceinstanz zeigt -> class von instanz angeben
+                         "maxInclusive", "lessThan", "lessThanOrEquals", }
+    mandatory_json_fields = {"iri"}  # entweder class oder datatype sind mandatory. eines von beiden MUSS drinn sein! wenn property auf literal zeigt -> datatype. wenn prop auf andere ressourceinstanz zeigt -> class von instanz angeben
 
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
@@ -123,7 +123,6 @@ def process_property(con: IConnection, project: Project, data: dict)-> PropertyC
 # Dieser Pfad ist für standalone Property. der andere Pfad wird für ressource sein. dies sind dann bereits alle pfade
 @datamodel_bp.route('/datamodel/<project>/property', methods=['PUT'])
 def add_standalone_property_to_datamodel(project):
-
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -210,7 +209,6 @@ def add_resource_to_datamodel(project):
         except OldapError as error:
             return jsonify({"message": str(error)}), 400
 
-
         if hasProperty and isinstance(hasProperty, list):
             for prop in hasProperty:
                 try:
@@ -268,7 +266,6 @@ def read_datamodel(project):
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
-
     propclasses = set(dm.get_propclasses())
     resclasses = set(dm.get_resclasses())
 
@@ -301,5 +298,41 @@ def read_datamodel(project):
         }
         res["standaloneProperties"].append(kappa)
 
+    for resource in resclasses:
+        gaga = {
+            "iri": str(resource),
+            "superclass": str(dm[resource].superclass),
+            "label": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].label.items()] if dm[resource].label else None,
+            "comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].comment.items()] if dm[resource].comment else None,
+            "closed": bool(dm[resource].closed),
+            "hasProperty": []
+        }
+        for iri, hp in dm[resource].properties.items():
+            hp.prop.subPropertyOf
+            papa = {
+                "property": {
+                    "iri": str(iri),
+                    "subPropertyOf": str(hp.prop.subPropertyOf),
+                    "datatype": str(hp.prop.datatype),
+                    "name": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.name.items()] if hp.prop.name else None,
+                    "description": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.description.items()] if hp.prop.description else None,
+                    "languageIn": [f'{tag}'[-2:].lower() for tag in hp.prop.languageIn] if hp.prop.languageIn else None,
+                    "uniqueLang": bool(hp.prop.uniqueLang),
+                    "in": str(hp.prop.inSet),
+                    "minLength": str(hp.prop.minLength),
+                    "maxLength": str(hp.prop.maxLength),
+                    "pattern": str(hp.prop.pattern),
+                    "minExclusive": str(hp.prop.minExclusive),
+                    "minInclusive": str(hp.prop.minInclusive),
+                    "maxExclusive": str(hp.prop.maxExclusive),
+                    "maxInclusive": str(hp.prop.maxInclusive),
+                    "lessThan": str(hp.prop.lessThan),
+                    "lessThanOrEquals": str(hp.prop.lessThanOrEquals)
+                },
+                "maxCount": str(hp.maxCount),
+                "minCount": str(hp.minCount),
+                "order": str(hp.order)
+            }
+            gaga["hasProperty"].append(papa)
+        res["resources"].append(gaga)
     return res, 200
-
