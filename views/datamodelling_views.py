@@ -155,8 +155,6 @@ def add_standalone_property_to_datamodel(project):
 
 @datamodel_bp.route('/datamodel/<project>/resource', methods=['PUT'])
 def add_resource_to_datamodel(project):
-    # Diese stimmen für das äussere. im hasProperty ist dann wenn {} steht drinn ein property sein. maxcount usw sind dann wieder freiwillig
-    # Das heisst ich muss dan nochmals known json fields machen mit mandatory property
     known_json_fields = {"iri", "superclass", "label", "comment", "closed", "hasProperty"}
     mandatory_json_fields = {"iri"}
     known_hasproperty_fields = {"property", "maxCount", "minCount", "order"}
@@ -211,6 +209,11 @@ def add_resource_to_datamodel(project):
 
         if hasProperty and isinstance(hasProperty, list):
             for prop in hasProperty:
+                unknown_hasproperty_field = set(prop.keys()) - known_hasproperty_fields
+                if unknown_hasproperty_field:
+                    return jsonify({"message": f"The Field/s {unknown_hasproperty_field} is/are not used to create a property in a resource. Usable are {known_hasproperty_fields}. Aborded operation"}), 400
+                if not mandatory_hasproperty_fields.issubset(set(prop.keys())):
+                    return jsonify({"message": f"The Fields {mandatory_hasproperty_fields} are required to create a resource. Used where {set(prop.keys())}. Usablable are {known_hasproperty_fields}"}), 400
                 try:
                     endprop = process_property(con=con, project=project, data=prop["property"])
                     hp1 = HasProperty(con=con, prop=endprop, minCount=prop["minCount"], maxCount=prop["maxCount"], order=prop["order"])
@@ -225,29 +228,6 @@ def add_resource_to_datamodel(project):
         return jsonify({"message": f"Resource in datamodel {project} successfully created"}), 200
 
 
-# Read datamodell
-# Datamodel:
-# {
-#  „project“: „proj-iri“,
-#  „properties“: [<PropertyDef>, <PropertyDef>,…]
-#  „resources: [<ResDef>, <ResDef>, …]
-# }
-#
-# <PropDef>:
-# {
-#  …
-# }
-#
-# <ResDef>:
-# {
-#  ...,
-#  „hasProperty“:[ {
-#   „minCount“: num,
-#   „maxCount“: num,
-#   „order“: decimal
-#   „property“: <PropDef> oder „an_iri“
-#  }, {…},…]
-# }
 @datamodel_bp.route('/datamodel/<project>', methods=['GET'])
 def read_datamodel(project):
     out = request.headers['Authorization']
@@ -336,3 +316,17 @@ def read_datamodel(project):
             gaga["hasProperty"].append(papa)
         res["resources"].append(gaga)
     return res, 200
+
+
+@datamodel_bp.route('/datamodel/<project>/delete', methods=['PUT'])
+def delete_whole_datamodel(project):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
