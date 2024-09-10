@@ -318,8 +318,24 @@ def read_datamodel(project):
     return res, 200
 
 
-@datamodel_bp.route('/datamodel/<project>/delete', methods=['PUT'])
+# TODO
+@datamodel_bp.route('/datamodel/<project>/delete', methods=['DELETE'])
 def delete_whole_datamodel(project):
+    pass
+    # out = request.headers['Authorization']
+    # b, token = out.split()
+    #
+    # try:
+    #     con = Connection(server='http://localhost:7200',
+    #                      repo="oldap",
+    #                      token=token,
+    #                      context_name="DEFAULT")
+    # except OldapError as error:
+    #     return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+
+@datamodel_bp.route('/datamodel/<project>/<standaloneprop>/del', methods=['DELETE'])
+def delete_whole_standalone_property(project, standaloneprop):
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -330,3 +346,18 @@ def delete_whole_datamodel(project):
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    try:
+        del dm[Iri(standaloneprop)]
+        dm.update()
+    except KeyError as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+    return jsonify({'message': 'Data model successfully deleted'}), 200
+
