@@ -15,6 +15,8 @@ The implementation includes error handling and validation for most operations.
 from flask import Blueprint, request, jsonify
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
+from oldaplib.src.dtypes.xsdset import XsdSet
+from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.langstring import LangString
@@ -361,3 +363,208 @@ def delete_whole_standalone_property(project, standaloneprop):
         return jsonify({'message': str(error)}), 500
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
+
+@datamodel_bp.route('/datamodel/<project>/<resource>/del', methods=['DELETE'])
+def delete_whole_resource(project, resource):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    try:
+        del dm[Iri(resource)]
+        dm.update()
+    except KeyError as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+    return jsonify({'message': 'Data model successfully deleted'}), 200
+
+
+@datamodel_bp.route('/datamodel/<project>/<resource>/<property>/del', methods=['DELETE'])
+def delete_prop_in_resource(project, resource, property):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    try:
+        del dm[Iri(resource)][Iri(property)]
+        dm.update()
+    except KeyError as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+    return jsonify({'message': 'Data model successfully deleted'}), 200
+
+
+@datamodel_bp.route('/datamodel/<project>/<property>/mod', methods=['POST'])
+def modify_standalone_property(project, property):
+
+    known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    if request.is_json:
+        data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+
+        # TODO: inSet und languageIn muss mit Paps zusammen gemacht werden. Ausserdem: Wieder das mit [] und {add: ..., del: ...} erlaubn?
+        # if data.get("in", None):
+        #     indata = XsdSet({Xsd_string(x) for x in data.get("in")})
+        # else:
+        #     indata = None
+
+        attributes = {
+            "iri": data.get("iri", None),
+            "subPropertyOf": data.get("subPropertyOf", None),
+            "toClass": data.get("toClass", None),
+            "datatype": data.get("datatype", None),
+            "name": LangString(data.get("name", None)),
+            "description": LangString(data.get("description", None)),
+            # "languageIn": data.get("languageIn", None),
+            "uniqueLang": data.get("uniqueLang", None),
+            # "inSet": indata,
+            "minLength": data.get("minLength", None),
+            "maxLength": data.get("maxLength", None),
+            "pattern": data.get("pattern", None),
+            "minExclusive": data.get("minExclusive", None),
+            "minInclusive": data.get("minInclusive", None),
+            "maxExclusive": data.get("maxExclusive", None),
+            "maxInclusive": data.get("maxInclusive", None),
+            "lessThan": data.get("lessThan", None),
+            "lessThanOrEquals": data.get("lessThanOrEquals", None)
+        }
+
+        if attributes["toClass"] and attributes["datatype"]:
+            return jsonify({"message": "It is not allowed to simultaniously give a 'toClass' and a 'datatype'"})
+        if dm[Iri(property)].toClass and attributes["datatype"]:
+            return jsonify({"message": "A 'toClass' is still present in the property. Therefore it is not allowed to set a datatype since they are mutualy exclusive"})
+        if dm[Iri(property)].datatype and attributes["toClass"]:
+            return jsonify({"message": "A 'datatype' is still present in the property. Therefore it is not allowed to set a toClass since they are mutualy exclusive"})
+
+        for attr, value in attributes.items():
+            if value:
+                setattr(dm[Iri(property)], attr, value)
+
+    try:
+        dm.update()
+    except KeyError as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+    return jsonify({'message': 'Data model successfully modified'}), 200
+
+
+@datamodel_bp.route('/datamodel/<project>/<property>/mod', methods=['POST'])
+def modify_standalone_property(project, property):
+
+    known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    if request.is_json:
+        data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+
+        # TODO: inSet und languageIn muss mit Paps zusammen gemacht werden. Ausserdem: Wieder das mit [] und {add: ..., del: ...} erlaubn?
+        # if data.get("in", None):
+        #     indata = XsdSet({Xsd_string(x) for x in data.get("in")})
+        # else:
+        #     indata = None
+
+        attributes = {
+            "iri": data.get("iri", None),
+            "subPropertyOf": data.get("subPropertyOf", None),
+            "toClass": data.get("toClass", None),
+            "datatype": data.get("datatype", None),
+            "name": LangString(data.get("name", None)),
+            "description": LangString(data.get("description", None)),
+            # "languageIn": data.get("languageIn", None),
+            "uniqueLang": data.get("uniqueLang", None),
+            # "inSet": indata,
+            "minLength": data.get("minLength", None),
+            "maxLength": data.get("maxLength", None),
+            "pattern": data.get("pattern", None),
+            "minExclusive": data.get("minExclusive", None),
+            "minInclusive": data.get("minInclusive", None),
+            "maxExclusive": data.get("maxExclusive", None),
+            "maxInclusive": data.get("maxInclusive", None),
+            "lessThan": data.get("lessThan", None),
+            "lessThanOrEquals": data.get("lessThanOrEquals", None)
+        }
+
+        if attributes["toClass"] and attributes["datatype"]:
+            return jsonify({"message": "It is not allowed to simultaniously give a 'toClass' and a 'datatype'"})
+        if dm[Iri(property)].toClass and attributes["datatype"]:
+            return jsonify({"message": "A 'toClass' is still present in the property. Therefore it is not allowed to set a datatype since they are mutualy exclusive"})
+        if dm[Iri(property)].datatype and attributes["toClass"]:
+            return jsonify({"message": "A 'datatype' is still present in the property. Therefore it is not allowed to set a toClass since they are mutualy exclusive"})
+
+        for attr, value in attributes.items():
+            if value:
+                setattr(dm[Iri(property)], attr, value)
+
+    try:
+        dm.update()
+    except KeyError as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+    return jsonify({'message': 'Data model successfully modified'}), 200
