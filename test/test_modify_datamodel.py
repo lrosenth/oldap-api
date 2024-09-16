@@ -32,3 +32,19 @@ def test_modify_minLength(client, token_headers, testfulldatamodelstandaloneprop
     assert res["standaloneProperties"][0]["minInclusive"] == '5.6'
     assert res["standaloneProperties"][0]["maxExclusive"] == '5.6'
     assert res["standaloneProperties"][0]["maxInclusive"] == '5.6'
+
+def test_modify_resource(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/mod/hyha/hyha:Sheep', json={
+        "closed": False,
+        # "label": ["Ein Test@de"]
+    }, headers=header)
+    res = response.json
+    print(res)
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    assert res["resources"][0]["closed"] == False
