@@ -517,10 +517,21 @@ def modify_resource(project, resource):
 
     if request.is_json:
         data = request.get_json()
+        respropertynames = dm[Iri(resource)].properties.keys()
 
         attributes = {
             "closed": data.get("closed", None),
+            "label": LangString(data.get("label", None)),
+            "comment": LangString(data.get("comment", None)),
         }
+
+        if "hasProperty" in data:
+            for prop in respropertynames:
+                for resprop in data["hasProperty"]:
+                    if prop == resprop["property"]["iri"]:
+                        attributes["hasProperty"] = resprop
+
+
         for attr, value in attributes.items():
             if value is not None:
                 setattr(dm[Iri(resource)], attr, value)

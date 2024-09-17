@@ -38,7 +38,20 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
 
     response = client.post('/admin/datamodel/mod/hyha/hyha:Sheep', json={
         "closed": False,
-        # "label": ["Ein Test@de"]
+        "label": ["Ein Test@de"],
+        "comment": ["A test comment@en"],
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:testProp2",
+                    "uniqueLang": False,
+                },
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            }
+        ]
+
     }, headers=header)
     res = response.json
     print(res)
@@ -48,3 +61,5 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
     res = response.json
     print(res)
     assert res["resources"][0]["closed"] == False
+    assert res["resources"][0]["label"] == ["Ein Test@de"]
+    assert res["resources"][0]["comment"] == ["A test comment@en"]
