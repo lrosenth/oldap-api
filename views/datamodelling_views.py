@@ -16,6 +16,7 @@ from flask import Blueprint, request, jsonify
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.dtypes.xsdset import XsdSet
+from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.hasproperty import HasProperty
@@ -30,6 +31,7 @@ from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
 from oldaplib.src.xsd.xsd_string import Xsd_string
 
 from apierror import ApiError
+from views import known_languages
 
 datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
 
@@ -201,13 +203,13 @@ def add_resource_to_datamodel(project):
             except OldapError as error:
                 return jsonify({"message": str(error)}), 403
         dm[Iri(iri)] = resource
-        dm.update()
+        # dm.update()
 
         # TODO: correct oldap that this is not necessary to reread the dm
-        try:
-            dm = DataModel.read(con, project, ignore_cache=True)
-        except OldapError as error:
-            return jsonify({"message": str(error)}), 400
+        # try:
+        #     dm = DataModel.read(con, project, ignore_cache=True)
+        # except OldapError as error:
+        #     return jsonify({"message": str(error)}), 400
 
         if hasProperty and isinstance(hasProperty, list):
             for prop in hasProperty:
@@ -259,34 +261,34 @@ def read_datamodel(project):
 
     for prop in propclasses:
         kappa = {
-            "iri": str(prop),
-            "subpropertyOf": str(dm[prop].subPropertyOf),
-            "toClass": str(dm[prop].toClass),
-            "datatype": str(dm[prop].datatype),
+            "iri": str(prop) if prop is not None else None,
+            "subpropertyOf": str(dm[prop].subPropertyOf) if dm[prop].subPropertyOf is not None else None,
+            "toClass": str(dm[prop].toClass) if dm[prop].toClass is not None else None,
+            "datatype": str(dm[prop].datatype) if dm[prop].datatype is not None else None,
             "name": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].name.items()] if dm[prop].name else None,
             "description": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].description.items()] if dm[prop].description else None,
             "languageIn": [f'{tag}'[-2:].lower() for tag in dm[prop].languageIn] if dm[prop].languageIn else None,
-            "uniqueLang": bool(dm[prop].uniqueLang),
-            "in": str(dm[prop].inSet),
-            "minLength": str(dm[prop].minLength),
-            "maxLength": str(dm[prop].maxLength),
-            "pattern": str(dm[prop].pattern),
-            "minExclusive": str(dm[prop].minExclusive),
-            "minInclusive": str(dm[prop].minInclusive),
-            "maxExclusive": str(dm[prop].maxExclusive),
-            "maxInclusive": str(dm[prop].maxInclusive),
-            "lessThan": str(dm[prop].lessThan),
-            "lessThanOrEquals": str(dm[prop].lessThanOrEquals),
+            "uniqueLang": bool(dm[prop].uniqueLang) if dm[prop].uniqueLang is not None else None,
+            "in": str(dm[prop].inSet) if dm[prop].inSet is not None else None,
+            "minLength": str(dm[prop].minLength) if dm[prop].minLength is not None else None,
+            "maxLength": str(dm[prop].maxLength) if dm[prop].maxLength is not None else None,
+            "pattern": str(dm[prop].pattern) if dm[prop].pattern is not None else None,
+            "minExclusive": str(dm[prop].minExclusive) if dm[prop].minExclusive is not None else None,
+            "minInclusive": str(dm[prop].minInclusive) if dm[prop].minInclusive is not None else None,
+            "maxExclusive": str(dm[prop].maxExclusive) if dm[prop].maxExclusive is not None else None,
+            "maxInclusive": str(dm[prop].maxInclusive) if dm[prop].maxInclusive is not None else None,
+            "lessThan": str(dm[prop].lessThan) if dm[prop].lessThan is not None else None,
+            "lessThanOrEquals": str(dm[prop].lessThanOrEquals) if dm[prop].lessThanOrEquals is not None else None,
         }
         res["standaloneProperties"].append(kappa)
 
     for resource in resclasses:
         gaga = {
             "iri": str(resource),
-            "superclass": str(dm[resource].superclass),
+            "superclass": str(dm[resource].superclass) if dm[resource].superclass is not None else None,
             "label": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].label.items()] if dm[resource].label else None,
             "comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].comment.items()] if dm[resource].comment else None,
-            "closed": bool(dm[resource].closed),
+            "closed": bool(dm[resource].closed) if dm[resource].closed is not None else None,
             "hasProperty": []
         }
         for iri, hp in dm[resource].properties.items():
@@ -294,26 +296,26 @@ def read_datamodel(project):
             papa = {
                 "property": {
                     "iri": str(iri),
-                    "subPropertyOf": str(hp.prop.subPropertyOf),
-                    "datatype": str(hp.prop.datatype),
+                    "subPropertyOf": str(hp.prop.subPropertyOf) if hp.prop.subPropertyOf is not None else None,
+                    "datatype": str(hp.prop.datatype) if hp.prop.datatype is not None else None,
                     "name": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.name.items()] if hp.prop.name else None,
                     "description": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.description.items()] if hp.prop.description else None,
                     "languageIn": [f'{tag}'[-2:].lower() for tag in hp.prop.languageIn] if hp.prop.languageIn else None,
-                    "uniqueLang": bool(hp.prop.uniqueLang),
-                    "in": str(hp.prop.inSet),
-                    "minLength": str(hp.prop.minLength),
-                    "maxLength": str(hp.prop.maxLength),
-                    "pattern": str(hp.prop.pattern),
-                    "minExclusive": str(hp.prop.minExclusive),
-                    "minInclusive": str(hp.prop.minInclusive),
-                    "maxExclusive": str(hp.prop.maxExclusive),
-                    "maxInclusive": str(hp.prop.maxInclusive),
-                    "lessThan": str(hp.prop.lessThan),
-                    "lessThanOrEquals": str(hp.prop.lessThanOrEquals)
+                    "uniqueLang": bool(hp.prop.uniqueLang) if hp.prop.uniqueLang is not None else None,
+                    "in": str(hp.prop.inSet) if hp.prop.inSet is not None else None,
+                    "minLength": str(hp.prop.minLength) if hp.prop.minLength is not None else None,
+                    "maxLength": str(hp.prop.maxLength) if hp.prop.maxLength is not None else None,
+                    "pattern": str(hp.prop.pattern) if hp.prop.pattern is not None else None,
+                    "minExclusive": str(hp.prop.minExclusive) if hp.prop.minExclusive is not None else None,
+                    "minInclusive": str(hp.prop.minInclusive) if hp.prop.minInclusive is not None else None,
+                    "maxExclusive": str(hp.prop.maxExclusive) if hp.prop.maxExclusive is not None else None,
+                    "maxInclusive": str(hp.prop.maxInclusive) if hp.prop.maxInclusive is not None else None,
+                    "lessThan": str(hp.prop.lessThan) if hp.prop.lessThan is not None else None,
+                    "lessThanOrEquals": str(hp.prop.lessThanOrEquals) if hp.prop.lessThanOrEquals is not None else None,
                 },
-                "maxCount": str(hp.maxCount),
-                "minCount": str(hp.minCount),
-                "order": str(hp.order)
+                "maxCount": str(hp.maxCount) if hp.maxCount is not None else None,
+                "minCount": str(hp.minCount) if hp.minCount is not None else None,
+                "order": str(hp.order) if hp.order is not None else None,
             }
             gaga["hasProperty"].append(papa)
         res["resources"].append(gaga)
@@ -393,7 +395,7 @@ def delete_whole_resource(project, resource):
 
 
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>/del', methods=['DELETE'])
-def delete_prop_in_resource(project, resource, property):
+def delete_hasprop_in_resource(project, resource, property):
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -418,6 +420,9 @@ def delete_prop_in_resource(project, resource, property):
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
     return jsonify({'message': 'Data model successfully deleted'}), 200
+
+# TODO
+#def delete_attribute_in_res_prop
 
 
 @datamodel_bp.route('/datamodel/<project>/<property>/mod', methods=['POST'])
@@ -448,43 +453,48 @@ def modify_standalone_property(project, property):
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
 
-        # TODO: inSet und languageIn muss mit Paps zusammen gemacht werden. Ausserdem: Wieder das mit [] und {add: ..., del: ...} erlaubn?
-        # if data.get("in", None):
-        #     indata = XsdSet({Xsd_string(x) for x in data.get("in")})
-        # else:
-        #     indata = None
+        # TODO: inSet und languageIn muss mit Paps zusammen gemacht werden.
 
-        attributes = {
-            "iri": data.get("iri", None),
-            "subPropertyOf": data.get("subPropertyOf", None),
-            "toClass": data.get("toClass", None),
-            "datatype": data.get("datatype", None),
-            "name": LangString(data.get("name", None)),
-            "description": LangString(data.get("description", None)),
-            # "languageIn": data.get("languageIn", None),
-            "uniqueLang": data.get("uniqueLang", None),
-            # "inSet": indata,
-            "minLength": data.get("minLength", None),
-            "maxLength": data.get("maxLength", None),
-            "pattern": data.get("pattern", None),
-            "minExclusive": data.get("minExclusive", None),
-            "minInclusive": data.get("minInclusive", None),
-            "maxExclusive": data.get("maxExclusive", None),
-            "maxInclusive": data.get("maxInclusive", None),
-            "lessThan": data.get("lessThan", None),
-            "lessThanOrEquals": data.get("lessThanOrEquals", None)
-        }
-
-        if attributes["toClass"] and attributes["datatype"]:
-            return jsonify({"message": "It is not allowed to simultaniously give a 'toClass' and a 'datatype'"})
-        if dm[Iri(property)].toClass and attributes["datatype"]:
-            return jsonify({"message": "A 'toClass' is still present in the property. Therefore it is not allowed to set a datatype since they are mutualy exclusive"})
-        if dm[Iri(property)].datatype and attributes["toClass"]:
-            return jsonify({"message": "A 'datatype' is still present in the property. Therefore it is not allowed to set a toClass since they are mutualy exclusive"})
-
-        for attr, value in attributes.items():
-            if value is not None:
-                setattr(dm[Iri(property)], attr, value)
+        for attrname, attrval in data.items():
+            if attrname == "languageIn" or attrname == "inSet":
+                continue  # TODO: Should also be processed -> complicated...
+            if attrname == "name" or attrname == "description":
+                if isinstance(attrval, list):
+                    setattr(dm[Iri(property)], attrname, LangString(attrval))
+                elif isinstance(attrval, dict):
+                    adding = attrval.get("add", [])
+                    for item in adding:
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        lang = item[-2:].upper()
+                        try:
+                            dm[Iri(property)]['sh:'+ attrname][Language[lang]] = item[:-3]
+                        except KeyError as error:
+                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                    deleting = attrval.get("del", [])
+                    for item in deleting:
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        lang = item[-2:].upper()
+                        try:
+                            del dm[Iri(property)]['sh:' + attrname][Language[lang]]
+                        except KeyError as error:
+                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                elif attrval is None:
+                    delattr(dm[Iri(property)], attrname)
+                else:
+                    return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
+                continue
+            if data.get(attrname) is None:
+                delattr(dm[Iri(property)], attrname)
+            else:
+                setattr(dm[Iri(property)], attrname, attrval)
 
         try:
             dm.update()
@@ -526,15 +536,36 @@ def modify_resource(project, resource):
         }
 
         if "hasProperty" in data:
+            for hasprop in data["hasProperty"]:
+                if hasprop.get("property"):
+                    prop_iri = hasprop["property"]["iri"]
+                if hasprop.get("maxCount"):
+                    dm[Iri(resource)].properties[prop_iri].maxCount = hasprop["maxCount"]
+                if hasprop.get("minCount"):
+                    dm[Iri(resource)].properties[prop_iri].minCount = hasprop["minCount"]
+                if hasprop.get("order"):
+                    dm[Iri(resource)].properties[prop_iri].order = hasprop["order"]
+                if hasprop.get("property"):
+                    for key, value in hasprop["property"].items():
+                        if key == "iri":
+                            continue
+                        dm[Iri(resource)].properties[prop_iri].prop[key] = value
+
+
+        if "hasProperty" in data:
             for prop in respropertynames:
                 for resprop in data["hasProperty"]:
                     if prop == resprop["property"]["iri"]:
                         attributes["hasProperty"] = resprop
+                        # hp1 = HasProperty(con=con, prop=resprop, minCount=resprop["minCount"], maxCount=resprop["maxCount"], order=resprop["order"])
+                        # attributes["hasProperty"] = hp1
+
 
 
         for attr, value in attributes.items():
             if value is not None:
                 setattr(dm[Iri(resource)], attr, value)
+                dm[Iri(resource)].properties[attr] = value
         try:
             dm.update()
         except KeyError as error:
@@ -542,3 +573,6 @@ def modify_resource(project, resource):
         except OldapError as error:
             return jsonify({'message': str(error)}), 500
     return jsonify({'message': 'Data model successfully modified'}), 200
+
+
+# def modify_attribute_in_has_prop()

@@ -1,4 +1,4 @@
-def test_modify_minLength(client, token_headers, testfulldatamodelstandaloneprop):
+def test_modify_standaloneprop(client, token_headers, testfulldatamodelstandaloneprop):
     header = token_headers[1]
 
 
