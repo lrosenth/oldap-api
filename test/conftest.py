@@ -162,7 +162,7 @@ def testfulldatamodelstandaloneprop(client, token_headers, testemptydatamodel):
         "subPropertyOf": "hyha:testProp",
         "datatype": "rdf:langString",
         "name": ["Test Property@en", "Test Feld@de"],
-        "description": ["Test Feld Beschreibung@de"],
+        # "description": ["Test Feld Beschreibung@de"],
         "languageIn": ["en", "fr", "it", "de"],
         "uniqueLang": True,
         "in": ["Kappa", "Gaga", "gugus"],

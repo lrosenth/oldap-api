@@ -5,7 +5,8 @@ def test_modify_standaloneprop(client, token_headers, testfulldatamodelstandalon
     response = client.post('/admin/datamodel/hyha/hyha:testProp2/mod', json={
         "name": ["kappa@de"],
         "description": ["gigakappa@de"],
-        # "languageIn": ["en", "de"],
+        #"languageIn": ["en", "de"],
+        "languageIn": {'add': ['zu'], 'del': ['fr', 'it']},
         "uniqueLang": True,
         # "in": ["gugus"],
         "minLength": 2,
@@ -16,14 +17,17 @@ def test_modify_standaloneprop(client, token_headers, testfulldatamodelstandalon
         "maxExclusive": 5.6,
         "maxInclusive": 5.6,
     }, headers=header)
+    assert response.status_code == 200
     res = response.json
     print(res)
 
     response = client.get('/admin/datamodel/hyha', headers=header)
     assert response.status_code == 200
     res = response.json
+    print(res)
     assert res["standaloneProperties"][0]["name"] == ["kappa@de"]
     assert res["standaloneProperties"][0]["description"] == ["gigakappa@de"]
+    assert set(res["standaloneProperties"][0]["languageIn"]) == set(["en", "de", "zu"])
     assert res["standaloneProperties"][0]["uniqueLang"] == True
     assert res["standaloneProperties"][0]["minLength"] == '2'
     assert res["standaloneProperties"][0]["maxLength"] == '51'

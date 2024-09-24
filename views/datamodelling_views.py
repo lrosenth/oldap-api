@@ -15,6 +15,7 @@ The implementation includes error handling and validation for most operations.
 from flask import Blueprint, request, jsonify
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
+from oldaplib.src.dtypes.languagein import LanguageIn
 from oldaplib.src.dtypes.xsdset import XsdSet
 from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.propertyclassattr import PropClassAttr
@@ -456,7 +457,24 @@ def modify_standalone_property(project, property):
         # TODO: inSet und languageIn muss mit Paps zusammen gemacht werden.
 
         for attrname, attrval in data.items():
-            if attrname == "languageIn" or attrname == "inSet":
+            if attrname == "languageIn":
+                if isinstance(attrval, list):
+                    tmpval = [Language[x.upper()] for x in attrval]
+                    setattr(dm[Iri(property)], attrname, LanguageIn(tmpval))
+                elif isinstance(attrval, dict):
+                    adding = attrval.get("add", [])
+                    for item in adding:
+                        dm[Iri(property)].languageIn.add(Language[item.upper()])
+                    deleting = attrval.get("del", [])
+                    for item in deleting:
+                        dm[Iri(property)].languageIn.discard(Language[item.upper()])
+                continue  # TODO: Should also be processed -> complicated...
+            if attrname == "inSet":
+                if isinstance(attrval, list):
+                    tmpval = [Language[x.upper()] for x in attrval]
+                    setattr(dm[Iri(property)], attrname, XsdSet(tmpval))
+                elif isinstance(attrval, dict):
+                    pass
                 continue  # TODO: Should also be processed -> complicated...
             if attrname == "name" or attrname == "description":
                 if isinstance(attrval, list):
