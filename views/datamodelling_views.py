@@ -455,8 +455,7 @@ def modify_standalone_property(project, property):
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
 
-        # TODO: inSet und languageIn muss mit Paps zusammen gemacht werden.
-
+        # TODO: Was tun wenn attrval = None? Abfangen!
         for attrname, attrval in data.items():
             if attrname == "languageIn":
                 if isinstance(attrval, list):
@@ -556,41 +555,51 @@ def modify_resource(project, resource):
 
         attributes = {
             "closed": data.get("closed", None),
-            "label": LangString(data.get("label", None)),
-            "comment": LangString(data.get("comment", None)),
+            "label": data.get("label", None),
+            "comment": data.get("comment", None),
         }
 
-        if "hasProperty" in data:
-            for hasprop in data["hasProperty"]:
-                if hasprop.get("property"):
-                    prop_iri = hasprop["property"]["iri"]
-                if hasprop.get("maxCount"):
-                    dm[Iri(resource)].properties[prop_iri].maxCount = hasprop["maxCount"]
-                if hasprop.get("minCount"):
-                    dm[Iri(resource)].properties[prop_iri].minCount = hasprop["minCount"]
-                if hasprop.get("order"):
-                    dm[Iri(resource)].properties[prop_iri].order = hasprop["order"]
-                if hasprop.get("property"):
-                    for key, value in hasprop["property"].items():
-                        if key == "iri":
-                            continue
-                        dm[Iri(resource)].properties[prop_iri].prop[key] = value
+        for attrname, attrval in attributes.items():
+            if attrname == "label" or attrname == "comment":
+                if isinstance(attrval, list):
+                    setattr(dm[Iri(resource)], attrname, LangString(attrval))
+                elif isinstance(attrval, dict):
+                    adding = attrval.get("add", [])
+                    for item in adding:
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        lang = item[-2:].upper()
+                        try:
+                            tmp = getattr(dm[Iri(resource)], attrname)
+                            tmp[Language[lang]] = item[:-3]
+                            #dm[Iri(resource)]['rdfs:'+ attrname][Language[lang]] = item[:-3]
+                        except KeyError as error:
+                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                    deleting = attrval.get("del", [])
+                    for item in deleting:
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        lang = item[-2:].upper()
+                        try:
+                            tmp = getattr(dm[Iri(resource)], attrname)
+                            del tmp[Language[lang]]
+                            #del dm[Iri(resource)]['rdfs:' + attrname][Language[lang]]
+                        except KeyError as error:
+                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                elif attrval is None:
+                    delattr(dm[Iri(resource)], attrname)
+                else:
+                    return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
+                continue
 
-
-        if "hasProperty" in data:
-            for prop in respropertynames:
-                for resprop in data["hasProperty"]:
-                    if prop == resprop["property"]["iri"]:
-                        attributes["hasProperty"] = resprop
-                        # hp1 = HasProperty(con=con, prop=resprop, minCount=resprop["minCount"], maxCount=resprop["maxCount"], order=resprop["order"])
-                        # attributes["hasProperty"] = hp1
-
-
-
-        for attr, value in attributes.items():
-            if value is not None:
-                setattr(dm[Iri(resource)], attr, value)
-                dm[Iri(resource)].properties[attr] = value
+            if attrval is not None:
+                setattr(dm[Iri(resource)], attrname, attrval)
         try:
             dm.update()
         except KeyError as error:
