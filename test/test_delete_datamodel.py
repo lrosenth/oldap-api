@@ -1,4 +1,4 @@
-def test_delete_standalone_property(client, token_headers, testfulldatamodelstandaloneprop):
+def test_delete_standalone_property(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
     response = client.delete('/admin/datamodel/hyha/hyha:testProp2/del', headers=header)

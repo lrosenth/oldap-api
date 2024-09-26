@@ -21,6 +21,7 @@ from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.hasproperty import HasProperty
+from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound
 from oldaplib.src.iconnection import IConnection
@@ -270,7 +271,7 @@ def read_datamodel(project):
             "description": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].description.items()] if dm[prop].description else None,
             "languageIn": [f'{tag}'[-2:].lower() for tag in dm[prop].languageIn] if dm[prop].languageIn else None,
             "uniqueLang": bool(dm[prop].uniqueLang) if dm[prop].uniqueLang is not None else None,
-            "in": str(dm[prop].inSet) if dm[prop].inSet is not None else None,
+            "inSet": str(dm[prop].inSet) if dm[prop].inSet is not None else None,
             "minLength": str(dm[prop].minLength) if dm[prop].minLength is not None else None,
             "maxLength": str(dm[prop].maxLength) if dm[prop].maxLength is not None else None,
             "pattern": str(dm[prop].pattern) if dm[prop].pattern is not None else None,
@@ -303,7 +304,7 @@ def read_datamodel(project):
                     "description": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.description.items()] if hp.prop.description else None,
                     "languageIn": [f'{tag}'[-2:].lower() for tag in hp.prop.languageIn] if hp.prop.languageIn else None,
                     "uniqueLang": bool(hp.prop.uniqueLang) if hp.prop.uniqueLang is not None else None,
-                    "in": str(hp.prop.inSet) if hp.prop.inSet is not None else None,
+                    "inSet": str(hp.prop.inSet) if hp.prop.inSet is not None else None,
                     "minLength": str(hp.prop.minLength) if hp.prop.minLength is not None else None,
                     "maxLength": str(hp.prop.maxLength) if hp.prop.maxLength is not None else None,
                     "pattern": str(hp.prop.pattern) if hp.prop.pattern is not None else None,
@@ -429,7 +430,7 @@ def delete_hasprop_in_resource(project, resource, property):
 @datamodel_bp.route('/datamodel/<project>/<property>/mod', methods=['POST'])
 def modify_standalone_property(project, property):
 
-    known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -468,14 +469,20 @@ def modify_standalone_property(project, property):
                     deleting = attrval.get("del", [])
                     for item in deleting:
                         dm[Iri(property)].languageIn.discard(Language[item.upper()])
-                continue  # TODO: Should also be processed -> complicated...
+                continue
             if attrname == "inSet":
+                datatype = dm[Iri(property)].datatype
                 if isinstance(attrval, list):
-                    tmpval = [Language[x.upper()] for x in attrval]
+                    tmpval = [convert2datatype(x, datatype) for x in attrval]
                     setattr(dm[Iri(property)], attrname, XsdSet(tmpval))
                 elif isinstance(attrval, dict):
-                    pass
-                continue  # TODO: Should also be processed -> complicated...
+                    adding = attrval.get("add", [])
+                    for item in adding:
+                        dm[Iri(property)].inSet.add(convert2datatype(item, datatype))
+                    deleting = attrval.get("del", [])
+                    for item in deleting:
+                        dm[Iri(property)].inSet.discard(convert2datatype(item, datatype))
+                continue
             if attrname == "name" or attrname == "description":
                 if isinstance(attrval, list):
                     setattr(dm[Iri(property)], attrname, LangString(attrval))
@@ -513,13 +520,13 @@ def modify_standalone_property(project, property):
                 delattr(dm[Iri(property)], attrname)
             else:
                 setattr(dm[Iri(property)], attrname, attrval)
-
         try:
             dm.update()
         except KeyError as error:
             return jsonify({'message': str(error)}), 404
         except OldapError as error:
             return jsonify({'message': str(error)}), 500
+
     return jsonify({'message': 'Data model successfully modified'}), 200
 
 
