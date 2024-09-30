@@ -67,7 +67,7 @@ def create_empty_datamodel(project):
 
 def process_property(con: IConnection, project: Project, data: dict) -> PropertyClass:
     known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
-                         "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
+                         "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
                          "maxInclusive", "lessThan", "lessThanOrEquals", }
     mandatory_json_fields = {"iri"}  # entweder class oder datatype sind mandatory. eines von beiden MUSS drinn sein! wenn property auf literal zeigt -> datatype. wenn prop auf andere ressourceinstanz zeigt -> class von instanz angeben
 
@@ -84,7 +84,7 @@ def process_property(con: IConnection, project: Project, data: dict) -> Property
     description = data.get("description", None)  # Beschreibung (Langstring), z.B. ["Eine Buchseite@de", "A page of a book@en"]
     languageIn = data.get("languageIn", None)  # ["en", "fr", "it", "de"]
     uniqueLang = data.get("uniqueLang", None)  # True | False. Jede Sprache kann nur einmal vorkommen. kommt nur vor wenn property selbst ein langstring datentyp ist
-    inSet = data.get("in", None)  # ["Renault", "Opel", "BMW", "Mercedes"]  (für eine string, oder [0, 1, 2, 3]
+    inSet = data.get("inSet", None)  # ["Renault", "Opel", "BMW", "Mercedes"]  (für eine string, oder [0, 1, 2, 3]
     minLength = data.get("minLength", None)  # Bei xsd:string und rdf:langString die minimale Länge des Strings
     maxLength = data.get("maxLength", None)  # Bei xsd:String und rdf:langString die maximale Läbge des Strings
     pattern = data.get("pattern", None)  # Der String muss dem Regex-pattern entsprechen. z.B. "^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$"
@@ -271,7 +271,7 @@ def read_datamodel(project):
             "description": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].description.items()] if dm[prop].description else None,
             "languageIn": [f'{tag}'[-2:].lower() for tag in dm[prop].languageIn] if dm[prop].languageIn else None,
             "uniqueLang": bool(dm[prop].uniqueLang) if dm[prop].uniqueLang is not None else None,
-            "inSet": str(dm[prop].inSet) if dm[prop].inSet is not None else None,
+            "inSet": list({str(x) for x in dm[prop].inSet}) if dm[prop].inSet is not None else None,
             "minLength": str(dm[prop].minLength) if dm[prop].minLength is not None else None,
             "maxLength": str(dm[prop].maxLength) if dm[prop].maxLength is not None else None,
             "pattern": str(dm[prop].pattern) if dm[prop].pattern is not None else None,
@@ -304,7 +304,7 @@ def read_datamodel(project):
                     "description": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.description.items()] if hp.prop.description else None,
                     "languageIn": [f'{tag}'[-2:].lower() for tag in hp.prop.languageIn] if hp.prop.languageIn else None,
                     "uniqueLang": bool(hp.prop.uniqueLang) if hp.prop.uniqueLang is not None else None,
-                    "inSet": str(hp.prop.inSet) if hp.prop.inSet is not None else None,
+                    "inSet": list({str(x) for x in hp.prop.inSet}) if hp.prop.inSet is not None else None,
                     "minLength": str(hp.prop.minLength) if hp.prop.minLength is not None else None,
                     "maxLength": str(hp.prop.maxLength) if hp.prop.maxLength is not None else None,
                     "pattern": str(hp.prop.pattern) if hp.prop.pattern is not None else None,

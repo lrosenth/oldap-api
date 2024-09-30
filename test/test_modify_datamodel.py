@@ -5,7 +5,6 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
     response = client.post('/admin/datamodel/hyha/hyha:testProp2/mod', json={
         "name": ["kappa@de"],
         "description": ["gigakappa@de"],
-        #"languageIn": ["en", "de"],
         "languageIn": {'add': ['zu'], 'del': ['fr', 'it']},
         "uniqueLang": True,
         "minLength": 2,
@@ -36,6 +35,15 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
     assert res["standaloneProperties"][0]["maxExclusive"] == '5.6'
     assert res["standaloneProperties"][0]["maxInclusive"] == '5.6'
 
+    response = client.post('/admin/datamodel/hyha/hyha:testProp2/mod', json={
+        "languageIn": ["en", "de"],
+    }, headers=header)
+    assert response.status_code == 200
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+    assert set(res["standaloneProperties"][0]["languageIn"]) == set(["en", "de", ])
+
+
 def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelstandalonepropstring):
     header = token_headers[1]
 
@@ -60,6 +68,16 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
     assert response.status_code == 200
     res = response.json
     print(res)
+    assert res["standaloneProperties"][0]["name"] == ["kappa@de"]
+    assert res["standaloneProperties"][0]["description"] == ["gigakappa@de"]
+    assert set(res["standaloneProperties"][0]["inSet"]) == set(["gigi", "Kappa"])
+    assert res["standaloneProperties"][0]["minLength"] == '2'
+    assert res["standaloneProperties"][0]["maxLength"] == '51'
+    assert res["standaloneProperties"][0]["pattern"] == "kappa"
+    assert res["standaloneProperties"][0]["minExclusive"] == '5.6'
+    assert res["standaloneProperties"][0]["minInclusive"] == '5.6'
+    assert res["standaloneProperties"][0]["maxExclusive"] == '5.6'
+    assert res["standaloneProperties"][0]["maxInclusive"] == '5.6'
 
 def test_modify_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
