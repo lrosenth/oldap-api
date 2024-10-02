@@ -16,7 +16,7 @@ def test_delete_standalone_property(client, token_headers, testfulldatamodelstan
 def test_delete_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
-    response = client.delete('/admin/datamodel/hyha/hyha:Sheep/del', headers=header)
+    response = client.delete('/admin/datamodel/del/hyha/hyha:Sheep', headers=header)
 
     assert response.status_code == 200
 

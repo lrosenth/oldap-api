@@ -79,6 +79,18 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
     assert res["standaloneProperties"][0]["maxExclusive"] == '5.6'
     assert res["standaloneProperties"][0]["maxInclusive"] == '5.6'
 
+    response = client.post('/admin/datamodel/hyha/hyha:testProp3/mod', json={
+        "inSet": ["gugus"],
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    assert res["standaloneProperties"][0]["inSet"] == ["gugus"]
+
+
 def test_modify_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 

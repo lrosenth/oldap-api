@@ -368,7 +368,7 @@ def delete_whole_standalone_property(project, standaloneprop):
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
 
-@datamodel_bp.route('/datamodel/<project>/<resource>/del', methods=['DELETE'])
+@datamodel_bp.route('/datamodel/del/<project>/<resource>', methods=['DELETE'])
 def delete_whole_resource(project, resource):
     out = request.headers['Authorization']
     b, token = out.split()

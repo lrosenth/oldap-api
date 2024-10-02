@@ -19,7 +19,7 @@ def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testem
         "description": ["Test Feld Beschreibung@de"],
         "languageIn": ["en", "fr", "it", "de"],
         "uniqueLang": True,
-        "in": ["Kappa", "Gaga", "gugus"],
+        "inSet": ["Kappa", "Gaga", "gugus"],
         "minLength": 1,
         "maxLength": 50,
         "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
@@ -61,7 +61,7 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
                     "description": ["Test Feld Beschreibung@de"],
                     "languageIn": ["en", "fr", "it", "de"],
                     "uniqueLang": True,
-                    "in": ["Kappa", "Gaga", "gugus"],
+                    "inSet": ["Kappa", "Gaga", "gugus"],
                     "minLength": 1,
                     "maxLength": 50,
                     "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
@@ -98,8 +98,7 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
     assert res["resources"][0]["hasProperty"][0]["property"]["description"] == ["Test Feld Beschreibung@de"]
     assert sorted(res["resources"][0]["hasProperty"][0]["property"]["languageIn"]) == sorted(["en", "fr", "it", "de"])
     assert res["resources"][0]["hasProperty"][0]["property"]["uniqueLang"] == True
-    my_list = [item.strip() for item in res["resources"][0]["hasProperty"][0]["property"]["in"].strip("()").split(",")]
-    assert sorted(my_list) == sorted(["Kappa", "Gaga", "gugus"])
+    assert sorted(res["resources"][0]["hasProperty"][0]["property"]["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
     assert res["resources"][0]["hasProperty"][0]["property"]["minLength"] == '1'
     assert res["resources"][0]["hasProperty"][0]["property"]["maxLength"] == '50'
     assert res["resources"][0]["hasProperty"][0]["property"]["pattern"] == "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$"
