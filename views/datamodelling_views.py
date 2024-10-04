@@ -59,7 +59,7 @@ def create_empty_datamodel(project):
 
     try:
         dm.create()
-    except OldapError as error:
+    except OldapError as error:  # Should not be reachable
         return jsonify({"message": str(error)}), 400
 
     return jsonify({"message": "Empty datamodel successfully created"}), 200
@@ -68,14 +68,14 @@ def create_empty_datamodel(project):
 def process_property(con: IConnection, project: Project, data: dict) -> PropertyClass:
     known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
-                         "maxInclusive", "lessThan", "lessThanOrEquals", }
+                         "maxInclusive", "lessThan", "lessThanOrEquals", "toClass"}
     mandatory_json_fields = {"iri"}  # entweder class oder datatype sind mandatory. eines von beiden MUSS drinn sein! wenn property auf literal zeigt -> datatype. wenn prop auf andere ressourceinstanz zeigt -> class von instanz angeben
 
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
-        raise ApiError("The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation")
+        raise ApiError(f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation")
     if not mandatory_json_fields.issubset(set(data.keys())):
-        raise ApiError("The Fields {mandatory_json_fields} are required to create a permissionset. Used where {set(data.keys())}. Usablable are {known_json_fields}")
+        raise ApiError(f"The Fields {mandatory_json_fields} are required to create a permissionset. Used where {set(data.keys())}. Usablable are {known_json_fields}")
     iri = data.get("iri", None)  # Iri, z.B. "myproj:pageOf"
     subPropertyOf = data.get("subPropertyOf", None)  # Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf is generischer Fall von pageOf
     toClass = data.get("class", None)  # an Iri(). Beschreibt die Klasse der Instanz, auf die diese Property zeigen muss, Z.B. "myproj:Book" heisst, dass die Property auf ein Buch zeigen muss
@@ -154,7 +154,7 @@ def add_standalone_property_to_datamodel(project):
             dm[prop.property_class_iri] = prop
             dm.update()
 
-        except OldapError as error:
+        except OldapError as error:  # Should not be reachable
             return jsonify({"message": str(error)}), 400
         return jsonify({"message": f"Standalone property in datamodel {project} successfully created"}), 200
 
@@ -184,7 +184,7 @@ def add_resource_to_datamodel(project):
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborded operation"}), 400
         if not mandatory_json_fields.issubset(set(data.keys())):
-            return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a resource. Used where {set(data.keys())}. Usablable are {known_json_fields}"})
+            return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a resource. Used where {set(data.keys())}. Usablable are {known_json_fields}"}), 400
 
         iri = data.get("iri", None)
         superclass = data.get("superclass", None)
@@ -205,13 +205,6 @@ def add_resource_to_datamodel(project):
             except OldapError as error:
                 return jsonify({"message": str(error)}), 403
         dm[Iri(iri)] = resource
-        # dm.update()
-
-        # TODO: correct oldap that this is not necessary to reread the dm
-        # try:
-        #     dm = DataModel.read(con, project, ignore_cache=True)
-        # except OldapError as error:
-        #     return jsonify({"message": str(error)}), 400
 
         if hasProperty and isinstance(hasProperty, list):
             for prop in hasProperty:
@@ -229,7 +222,7 @@ def add_resource_to_datamodel(project):
 
         try:
             dm.update()
-        except OldapError as error:
+        except OldapError as error:  # Should not be reachable
             return jsonify({"message": str(error)}), 400
         return jsonify({"message": f"Resource in datamodel {project} successfully created"}), 200
 
