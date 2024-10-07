@@ -23,7 +23,7 @@ from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
-from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound
+from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorValue
 from oldaplib.src.iconnection import IConnection
 from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
@@ -354,9 +354,9 @@ def delete_whole_standalone_property(project, standaloneprop):
     try:
         del dm[Iri(standaloneprop)]
         dm.update()
-    except KeyError as error:
+    except OldapErrorValue as error:
         return jsonify({'message': str(error)}), 404
-    except OldapError as error:
+    except OldapError as error:  # Should not be reachable
         return jsonify({'message': str(error)}), 500
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
