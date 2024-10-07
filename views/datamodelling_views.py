@@ -382,10 +382,10 @@ def delete_whole_resource(project, resource):
     try:
         del dm[Iri(resource)]
         dm.update()
-    except KeyError as error:
+    except OldapErrorValue as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
-        return jsonify({'message': str(error)}), 500
+        return jsonify({'message': str(error)}), 500  # Should not be reachable
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
 
@@ -410,10 +410,10 @@ def delete_hasprop_in_resource(project, resource, property):
     try:
         del dm[Iri(resource)][Iri(property)]
         dm.update()
-    except KeyError as error:
+    except OldapErrorValue as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
-        return jsonify({'message': str(error)}), 500
+        return jsonify({'message': str(error)}), 500  # Should not be reachable
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
 # TODO
