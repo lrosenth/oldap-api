@@ -1,7 +1,6 @@
 def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
-
     response = client.post('/admin/datamodel/hyha/hyha:testProp2/mod', json={
         "name": ["kappa@de"],
         "description": ["gigakappa@de"],
@@ -100,8 +99,19 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
         #"comment": ["A test comment@en"],
         "label": {"add": ["Ein Test@zu"], "del": ["Eine Buchseite@de"]},
         "comment": {"add": ["Ein Test@zu"], "del": ["A page of a book@en"]},
-        "hasProperty": [
-            {
+        # "hasProperty": [
+        #     {
+        #         "property": {
+        #             "iri": "hyha:testProp2",
+        #             "uniqueLang": False,
+        #         },
+        #         "maxCount": 3,
+        #         "minCount": 1,
+        #         "order": 1
+        #     }
+        # ]
+        "hasProperty": {"add":
+            [{
                 "property": {
                     "iri": "hyha:testProp2",
                     "uniqueLang": False,
@@ -109,8 +119,8 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
                 "maxCount": 3,
                 "minCount": 1,
                 "order": 1
-            }
-        ]
+            }], "del": {"IRI"}
+    }
 
     }, headers=header)
     res = response.json
@@ -123,3 +133,24 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
     assert res["resources"][0]["closed"] == False
     assert set(res["resources"][0]["label"]) == set(['A page of a book@en', "Ein Test@zu"])
     assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "Ein Test@zu"])
+
+def test_bad_token_standaloneprop(client, token_headers, testfulldatamodelstandaloneproplangstring):
+    header = token_headers[1]
+    token = header['Authorization'].split(' ')[1]
+    modified_token = token + "kappa"
+    header['Authorization'] = 'Bearer ' + modified_token
+
+    response = client.post('/admin/datamodel/hyha/hyha:testProp/mod', headers=header)
+    assert response.status_code == 403
+    res = response.json
+    assert res["message"] == "Connection failed: Wrong credentials"
+
+def test_cantfind_dm_to_modify(client, token_headers, testfulldatamodelstandaloneproplangstring):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/doesnotexist/hyha:testProp/mod', headers=header)
+
+    assert response.status_code == 404
+
+    res = response.json
+    print(res)

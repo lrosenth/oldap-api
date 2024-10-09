@@ -65,18 +65,15 @@ def create_empty_datamodel(project):
     return jsonify({"message": "Empty datamodel successfully created"}), 200
 
 
-def process_property(con: IConnection, project: Project, data: dict) -> PropertyClass:
-    known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
+def process_property(con: IConnection, project: Project, property_iri: str, data: dict) -> PropertyClass:
+    known_json_fields = {"subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
                          "maxInclusive", "lessThan", "lessThanOrEquals", "toClass"}
-    mandatory_json_fields = {"iri"}  # entweder class oder datatype sind mandatory. eines von beiden MUSS drinn sein! wenn property auf literal zeigt -> datatype. wenn prop auf andere ressourceinstanz zeigt -> class von instanz angeben
 
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
         raise ApiError(f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation")
-    if not mandatory_json_fields.issubset(set(data.keys())):
-        raise ApiError(f"The Fields {mandatory_json_fields} are required to create a permissionset. Used where {set(data.keys())}. Usablable are {known_json_fields}")
-    iri = data.get("iri", None)  # Iri, z.B. "myproj:pageOf"
+    iri = property_iri  # Iri, z.B. "myproj:pageOf"
     subPropertyOf = data.get("subPropertyOf", None)  # Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf is generischer Fall von pageOf
     toClass = data.get("class", None)  # an Iri(). Beschreibt die Klasse der Instanz, auf die diese Property zeigen muss, Z.B. "myproj:Book" heisst, dass die Property auf ein Buch zeigen muss
     datatype = data.get("datatype", None)  # "xsd:string", oder "xsd:integer" etc. Datentyp, wenn die Property durch einen Literal repräsentiert wird
@@ -126,9 +123,9 @@ def process_property(con: IConnection, project: Project, data: dict) -> Property
     return prop
 
 
-# Dieser Pfad ist für standalone Property. der andere Pfad wird für ressource sein. dies sind dann bereits alle pfade
-@datamodel_bp.route('/datamodel/<project>/property', methods=['PUT'])
-def add_standalone_property_to_datamodel(project):
+# /datamodel/<project>/property/<propiri>
+@datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['PUT'])
+def add_standalone_property_to_datamodel(project, property):
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -144,7 +141,7 @@ def add_standalone_property_to_datamodel(project):
 
         data = request.get_json()
         try:
-            prop = process_property(con=con, project=project, data=data)
+            prop = process_property(con=con, project=project, property_iri=property, data=data)
         except ApiError as error:
             return jsonify({"message": str(error)}), 400
 
@@ -158,7 +155,7 @@ def add_standalone_property_to_datamodel(project):
             return jsonify({"message": str(error)}), 400
         return jsonify({"message": f"Standalone property in datamodel {project} successfully created"}), 200
 
-
+# /datamodel/<project>/<resiri>
 @datamodel_bp.route('/datamodel/<project>/resource', methods=['PUT'])
 def add_resource_to_datamodel(project):
     known_json_fields = {"iri", "superclass", "label", "comment", "closed", "hasProperty"}
@@ -213,8 +210,11 @@ def add_resource_to_datamodel(project):
                     return jsonify({"message": f"The Field/s {unknown_hasproperty_field} is/are not used to create a property in a resource. Usable are {known_hasproperty_fields}. Aborded operation"}), 400
                 if not mandatory_hasproperty_fields.issubset(set(prop.keys())):
                     return jsonify({"message": f"The Fields {mandatory_hasproperty_fields} are required to create a resource. Used where {set(prop.keys())}. Usablable are {known_hasproperty_fields}"}), 400
+                if prop["property"].get("iri", None) is None:
+                    return jsonify({"message": f"Property IRI is missing in HasProperty"}), 400
                 try:
-                    endprop = process_property(con=con, project=project, data=prop["property"])
+                    property_iri = prop["property"]["iri"]
+                    endprop = process_property(con=con, project=project, property_iri=property_iri, data=prop["property"])
                     hp1 = HasProperty(con=con, prop=endprop, minCount=prop["minCount"], maxCount=prop["maxCount"], order=prop["order"])
                 except ApiError as error:
                     return jsonify({"message": str(error)}), 400
@@ -225,6 +225,39 @@ def add_resource_to_datamodel(project):
         except OldapError as error:  # Should not be reachable
             return jsonify({"message": str(error)}), 400
         return jsonify({"message": f"Resource in datamodel {project} successfully created"}), 200
+
+
+@datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['PUT'])
+def add_property_to_resource(project, resource, property):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="oldap",
+                             token=token,
+                             context_name="DEFAULT")
+        except OldapError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+        data = request.get_json()
+        try:
+            prop = process_property(con=con, project=project, property_iri=property, data=data)
+        except ApiError as error:
+            return jsonify({"message": str(error)}), 400
+
+        try:
+            dm = DataModel.read(con, project, ignore_cache=True)
+        except OldapErrorNotFound as error:
+            return jsonify({'message': str(error)}), 404
+        dm[Iri(resource)][Iri(property)] = prop
+
+        try:
+            dm.update()
+        except OldapError as error:  # Should not be reachable
+            return jsonify({"message": str(error)}), 500
+        return jsonify({"message": f"Property in resource {resource} in datamodel {project} successfully created"}), 200
 
 
 @datamodel_bp.route('/datamodel/<project>', methods=['GET'])
@@ -318,7 +351,7 @@ def read_datamodel(project):
 
 
 # TODO
-@datamodel_bp.route('/datamodel/<project>/delete', methods=['DELETE'])
+@datamodel_bp.route('/datamodel/<project>', methods=['DELETE'])
 def delete_whole_datamodel(project):
     pass
     # out = request.headers['Authorization']
@@ -332,7 +365,7 @@ def delete_whole_datamodel(project):
     # except OldapError as error:
     #     return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-
+# /datamodel/<project>/property/<propiri>
 @datamodel_bp.route('/datamodel/<project>/<standaloneprop>/del', methods=['DELETE'])
 def delete_whole_standalone_property(project, standaloneprop):
     out = request.headers['Authorization']
@@ -360,7 +393,7 @@ def delete_whole_standalone_property(project, standaloneprop):
         return jsonify({'message': str(error)}), 500
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
-
+# /datamodel/<project>/<resiri>
 @datamodel_bp.route('/datamodel/del/<project>/<resource>', methods=['DELETE'])
 def delete_whole_resource(project, resource):
     out = request.headers['Authorization']
@@ -419,7 +452,7 @@ def delete_hasprop_in_resource(project, resource, property):
 # TODO
 #def delete_attribute_in_res_prop
 
-
+# /datamodel/<project>/property/<propiri>
 @datamodel_bp.route('/datamodel/<project>/<property>/mod', methods=['POST'])
 def modify_standalone_property(project, property):
 
@@ -521,7 +554,8 @@ def modify_standalone_property(project, property):
 
     return jsonify({'message': 'Data model successfully modified'}), 200
 
-
+# TODO: Be able to add, delete and modify a property in a resource -- /datamodel/<project>/<resourceiri>/<properiri>
+# /datamodel/<project>/<resiri>
 @datamodel_bp.route('/datamodel/mod/<project>/<resource>', methods=['POST'])
 def modify_resource(project, resource):
 
@@ -544,7 +578,6 @@ def modify_resource(project, resource):
 
     if request.is_json:
         data = request.get_json()
-        respropertynames = dm[Iri(resource)].properties.keys()
 
         attributes = {
             "closed": data.get("closed", None),
@@ -601,5 +634,36 @@ def modify_resource(project, resource):
             return jsonify({'message': str(error)}), 500
     return jsonify({'message': 'Data model successfully modified'}), 200
 
+# /datamodel/<project>/<resiri>/<propiri>
+@datamodel_bp.route('/datamodel/<project>/<resiri>/<propiri>', methods=['POST'])
+def modify_attribute_in_has_prop(project, resiri, propiri):
+    # known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    out = request.headers['Authorization']
+    b, token = out.split()
 
-# def modify_attribute_in_has_prop()
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    if request.is_json:
+        data = request.get_json()
+
+
+
+
+
+
+
+
+
+
+

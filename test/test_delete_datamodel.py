@@ -123,3 +123,13 @@ def test_cantfind_dm_where_hasprop_should_be_deleted(client, token_headers, test
 
     res = response.json
     print(res)
+
+def test_cantfind_prop_to_delete(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.delete('/admin/datamodel/hyha/hyha:Sheep/doesnotexist/del', headers=header)
+
+    assert response.status_code == 404
+
+    res = response.json
+    print(res)
