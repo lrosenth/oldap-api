@@ -225,6 +225,7 @@ def add_resource_to_datamodel(project, resource):
 # TODO: Testing!
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['PUT'])
 def add_property_to_resource(project, resource, property):
+    known_json_fields = {"subPropertyOf", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "minCount", "maxCount", "order"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -238,16 +239,31 @@ def add_property_to_resource(project, resource, property):
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
         data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborded operation"}), 400
+
+        maxcount = data.get("maxCount", None)
+        mincount = data.get("minCount", None)
+        order = data.get("order", None)
+
+        if maxcount:
+            del data["maxCount"]
+        if mincount:
+            del data["minCount"]
+        if order:
+            del data["order"]
+
         try:
             prop = process_property(con=con, project=project, property_iri=property, data=data)
         except ApiError as error:
             return jsonify({"message": str(error)}), 400
-
+        hasprop = HasProperty(con=con, prop=prop, minCount=mincount, maxCount=maxcount, order=order)
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
         except OldapErrorNotFound as error:
             return jsonify({'message': str(error)}), 404
-        dm[Iri(resource)][Iri(property)] = prop
+        dm[Iri(resource)][Iri(property)] = hasprop
 
         try:
             dm.update()
