@@ -66,7 +66,7 @@ def create_empty_datamodel(project):
 
 
 def process_property(con: IConnection, project: Project, property_iri: str, data: dict) -> PropertyClass:
-    known_json_fields = {"subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
+    known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
                          "maxInclusive", "lessThan", "lessThanOrEquals", "toClass"}
 
@@ -123,7 +123,6 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     return prop
 
 
-# /datamodel/<project>/property/<propiri>
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['PUT'])
 def add_standalone_property_to_datamodel(project, property):
     out = request.headers['Authorization']
@@ -155,11 +154,10 @@ def add_standalone_property_to_datamodel(project, property):
             return jsonify({"message": str(error)}), 400
         return jsonify({"message": f"Standalone property in datamodel {project} successfully created"}), 200
 
-# /datamodel/<project>/<resiri>
-@datamodel_bp.route('/datamodel/<project>/resource', methods=['PUT'])
-def add_resource_to_datamodel(project):
-    known_json_fields = {"iri", "superclass", "label", "comment", "closed", "hasProperty"}
-    mandatory_json_fields = {"iri"}
+
+@datamodel_bp.route('/datamodel/<project>/<resource>', methods=['PUT'])
+def add_resource_to_datamodel(project, resource):
+    known_json_fields = {"superclass", "label", "comment", "closed", "hasProperty"}
     known_hasproperty_fields = {"property", "maxCount", "minCount", "order"}
     mandatory_hasproperty_fields = {"property"}
     out = request.headers['Authorization']
@@ -180,10 +178,7 @@ def add_resource_to_datamodel(project):
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborded operation"}), 400
-        if not mandatory_json_fields.issubset(set(data.keys())):
-            return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a resource. Used where {set(data.keys())}. Usablable are {known_json_fields}"}), 400
-
-        iri = data.get("iri", None)
+        iri = resource
         superclass = data.get("superclass", None)
         label = data.get("label", None)
         comment = data.get("comment", None)
@@ -227,6 +222,7 @@ def add_resource_to_datamodel(project):
         return jsonify({"message": f"Resource in datamodel {project} successfully created"}), 200
 
 
+# TODO: Testing!
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['PUT'])
 def add_property_to_resource(project, resource, property):
     out = request.headers['Authorization']
@@ -365,8 +361,8 @@ def delete_whole_datamodel(project):
     # except OldapError as error:
     #     return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-# /datamodel/<project>/property/<propiri>
-@datamodel_bp.route('/datamodel/<project>/<standaloneprop>/del', methods=['DELETE'])
+
+@datamodel_bp.route('/datamodel/<project>/property/<standaloneprop>', methods=['DELETE'])
 def delete_whole_standalone_property(project, standaloneprop):
     out = request.headers['Authorization']
     b, token = out.split()
@@ -394,7 +390,7 @@ def delete_whole_standalone_property(project, standaloneprop):
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
 # /datamodel/<project>/<resiri>
-@datamodel_bp.route('/datamodel/del/<project>/<resource>', methods=['DELETE'])
+@datamodel_bp.route('/datamodel/<project>/<resource>', methods=['DELETE'])
 def delete_whole_resource(project, resource):
     out = request.headers['Authorization']
     b, token = out.split()
@@ -422,7 +418,7 @@ def delete_whole_resource(project, resource):
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
 
-@datamodel_bp.route('/datamodel/<project>/<resource>/<property>/del', methods=['DELETE'])
+@datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['DELETE'])
 def delete_hasprop_in_resource(project, resource, property):
     out = request.headers['Authorization']
     b, token = out.split()
@@ -453,7 +449,7 @@ def delete_hasprop_in_resource(project, resource, property):
 #def delete_attribute_in_res_prop
 
 # /datamodel/<project>/property/<propiri>
-@datamodel_bp.route('/datamodel/<project>/<property>/mod', methods=['POST'])
+@datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['POST'])
 def modify_standalone_property(project, property):
 
     known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
@@ -556,7 +552,7 @@ def modify_standalone_property(project, property):
 
 # TODO: Be able to add, delete and modify a property in a resource -- /datamodel/<project>/<resourceiri>/<properiri>
 # /datamodel/<project>/<resiri>
-@datamodel_bp.route('/datamodel/mod/<project>/<resource>', methods=['POST'])
+@datamodel_bp.route('/datamodel/<project>/<resource>', methods=['POST'])
 def modify_resource(project, resource):
 
     # known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
@@ -634,7 +630,6 @@ def modify_resource(project, resource):
             return jsonify({'message': str(error)}), 500
     return jsonify({'message': 'Data model successfully modified'}), 200
 
-# /datamodel/<project>/<resiri>/<propiri>
 @datamodel_bp.route('/datamodel/<project>/<resiri>/<propiri>', methods=['POST'])
 def modify_attribute_in_has_prop(project, resiri, propiri):
     # known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}

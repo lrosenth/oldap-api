@@ -1,7 +1,7 @@
 def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
-    response = client.post('/admin/datamodel/hyha/hyha:testProp2/mod', json={
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "name": ["kappa@de"],
         "description": ["gigakappa@de"],
         "languageIn": {'add': ['zu'], 'del': ['fr', 'it']},
@@ -34,7 +34,7 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
     assert res["standaloneProperties"][0]["maxExclusive"] == '5.6'
     assert res["standaloneProperties"][0]["maxInclusive"] == '5.6'
 
-    response = client.post('/admin/datamodel/hyha/hyha:testProp2/mod', json={
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "languageIn": ["en", "de"],
     }, headers=header)
     assert response.status_code == 200
@@ -46,7 +46,7 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
 def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelstandalonepropstring):
     header = token_headers[1]
 
-    response = client.post('/admin/datamodel/hyha/hyha:testProp3/mod', json={
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp3', json={
         "name": ["kappa@de"],
         "description": ["gigakappa@de"],
         #"inSet": ["gugus"],
@@ -78,7 +78,7 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
     assert res["standaloneProperties"][0]["maxExclusive"] == '5.6'
     assert res["standaloneProperties"][0]["maxInclusive"] == '5.6'
 
-    response = client.post('/admin/datamodel/hyha/hyha:testProp3/mod', json={
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp3', json={
         "inSet": ["gugus"],
     }, headers=header)
     assert response.status_code == 200
@@ -93,25 +93,14 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
 def test_modify_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
-    response = client.post('/admin/datamodel/mod/hyha/hyha:Sheep', json={
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
         "closed": False,
         #"label": ["Ein Test@de"],
         #"comment": ["A test comment@en"],
         "label": {"add": ["Ein Test@zu"], "del": ["Eine Buchseite@de"]},
         "comment": {"add": ["Ein Test@zu"], "del": ["A page of a book@en"]},
-        # "hasProperty": [
-        #     {
-        #         "property": {
-        #             "iri": "hyha:testProp2",
-        #             "uniqueLang": False,
-        #         },
-        #         "maxCount": 3,
-        #         "minCount": 1,
-        #         "order": 1
-        #     }
-        # ]
-        "hasProperty": {"add":
-            [{
+        "hasProperty": [
+            {
                 "property": {
                     "iri": "hyha:testProp2",
                     "uniqueLang": False,
@@ -119,9 +108,8 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
                 "maxCount": 3,
                 "minCount": 1,
                 "order": 1
-            }], "del": {"IRI"}
-    }
-
+            }
+        ]
     }, headers=header)
     res = response.json
     print(res)

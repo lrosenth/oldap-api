@@ -139,8 +139,7 @@ def testemptydatamodel(client, token_headers):
 def testhalffulldatamodelstandaloneprop(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "iri": "hyha:testProp",
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp', json={
         "datatype": "rdf:langString",
         "name": ["Test Property@en", "Test Feld@de"],
         "description": ["Test Feld Beschreibung@de"],
@@ -157,8 +156,7 @@ def testhalffulldatamodelstandaloneprop(client, token_headers, testemptydatamode
 def testfulldatamodelstandaloneproplangstring(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "iri": "hyha:testProp2",
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "subPropertyOf": "hyha:testProp",
         "datatype": "rdf:langString",
         "name": ["Test Property@en", "Test Feld@de"],
@@ -182,8 +180,7 @@ def testfulldatamodelstandaloneproplangstring(client, token_headers, testemptyda
 def testfulldatamodelstandalonepropstring(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "iri": "hyha:testProp3",
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp3', json={
         "subPropertyOf": "hyha:testProp",
         "datatype": "xsd:string",
         "name": ["Test Property@en", "Test Feld@de"],
@@ -207,8 +204,7 @@ def testfulldatamodelstandalonepropstring(client, token_headers, testemptydatamo
 def testfulldatamodeltwostandaloneprop(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "iri": "hyha:testProp2",
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "subPropertyOf": "hyha:testProp",
         "datatype": "rdf:langString",
         "name": ["Test Property@en", "Test Feld@de"],
@@ -227,8 +223,7 @@ def testfulldatamodeltwostandaloneprop(client, token_headers, testemptydatamodel
         "lessThanOrEquals": "hyha:testProp"
     }, headers=header)
 
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "iri": "hyha:testProp3",
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp3', json={
         "subPropertyOf": "hyha:testProp",
         "datatype": "rdf:langString",
         "name": ["Second Test Property@en", "Zweite Test Feld@de"],
@@ -255,8 +250,7 @@ def testfulldatamodeltwostandaloneprop(client, token_headers, testemptydatamodel
 def testfulldatamodelresource(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/resource', json={
-        "iri": "hyha:Sheep",
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
         # "superclass": "hyha:Animal",
         "label": [
             "Eine Buchseite@de",

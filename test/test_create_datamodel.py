@@ -11,8 +11,7 @@ def test_create_empty_datamodel(client, token_headers):
 def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "iri": "hyha:testProp2",
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "subPropertyOf": "hyha:testProp",
         "datatype": "rdf:langString",
         "name": ["Test Property@en", "Test Feld@de"],
@@ -35,12 +34,17 @@ def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testem
     assert response.status_code == 200
     print(res)
 
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+    print(res)
+
+    assert response.status_code == 200
+
 
 def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/resource', json={
-        "iri": "hyha:Sheep",
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
         # "superclass": "hyha:Animal",
         "label": [
             "Eine Buchseite@de",
@@ -116,8 +120,7 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
 def test_bad_fill_empty_datamodel_with_resource(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/resource', json={
-        "iri": "hyha:Sheep",
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
         # "superclass": "hyha:Animal",
         "label": [
             "Eine Buchseite@de",
@@ -188,23 +191,14 @@ def test_bad_token(client, token_headers):
 def test_bad_json_fields_in_create_property(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "kappa": "doesnotexist",
+    response = client.put('/admin/datamodel/hyha/property/doesnotexist', json={
         "lessThanOrEquals": "hyha:testProp"
     }, headers=header)
     res = response.json
     assert response.status_code == 400
     print(res)
 
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "lessThanOrEquals": "hyha:testProp"
-    }, headers=header)
-    res = response.json
-    assert response.status_code == 400
-    print(res)
-
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "iri": "hyha:testProp2",
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "subPropertyOf": "hyha:testProp",
         "name": ["Test Property@en", "Test Feld@de"],
         "description": ["Test Feld Beschreibung@de"],
@@ -217,8 +211,7 @@ def test_bad_json_fields_in_create_property(client, token_headers, testemptydata
     assert response.status_code == 400
     print(res)
 
-    response = client.put('/admin/datamodel/hyha/property', json={
-        "iri": "hyha:testProp2",
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "subPropertyOf": "hyha:testProp",
         "datatype": "rdf:langString",
         "class": "aToclass",
@@ -233,8 +226,7 @@ def test_bad_json_fields_in_create_property(client, token_headers, testemptydata
     assert response.status_code == 400
     print(res)
 
-    response = client.put('/admin/datamodel/hyha/resource', json={
-        "iri": "hyha:Sheep",
+    response = client.put('/admin/datamodel/hyha/property/hyha:Sheep', json={
         # "superclass": "hyha:Animal",
         "Thisdoesnotexist": "kappa kappa",
     }, headers=header)
@@ -242,19 +234,7 @@ def test_bad_json_fields_in_create_property(client, token_headers, testemptydata
     assert response.status_code == 400
     print(res)
 
-    response = client.put('/admin/datamodel/hyha/resource', json={
-        "superclass": "hyha:Animal",
-        "comment": [
-            "Eine Buchseite@de",
-            "A page of a book@en"
-        ],
-    }, headers=header)
-    res = response.json
-    assert response.status_code == 400
-    print(res)
-
-    response = client.put('/admin/datamodel/hyha/resource', json={
-        "iri": "hyha:Sheep",
+    response = client.put('/admin/datamodel/hyha/property/hyha:Sheep', json={
         "hasProperty": [
             {
                 "maxCount": 3,
@@ -267,8 +247,7 @@ def test_bad_json_fields_in_create_property(client, token_headers, testemptydata
     assert response.status_code == 400
     print(res)
 
-    response = client.put('/admin/datamodel/hyha/resource', json={
-        "iri": "hyha:Sheep",
+    response = client.put('/admin/datamodel/hyha/property/hyha:Sheep', json={
         "hasProperty": [
             {
                 "property": {
@@ -287,8 +266,7 @@ def test_bad_json_fields_in_create_property(client, token_headers, testemptydata
 def test_not_find_superclass_when_creating_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha/resource', json={
-        "iri": "hyha:Sheep",
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
         "superclass": 1234,
     }, headers=header)
     res = response.json
