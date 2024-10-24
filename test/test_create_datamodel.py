@@ -42,6 +42,23 @@ def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testem
     print(res)
 
     assert response.status_code == 200
+    assert res["standaloneProperties"][0]["iri"] == "hyha:testProp2"
+    assert res["standaloneProperties"][0]["subPropertyOf"] == "hyha:testProp"
+    assert res["standaloneProperties"][0]["datatype"] == "rdf:langString"
+    assert res["standaloneProperties"][0]["name"] == ["Test Property@en", "Test Feld@de"]
+    assert res["standaloneProperties"][0]["description"] == ["Test Feld Beschreibung@de"]
+    assert sorted(res["standaloneProperties"][0]["languageIn"]) == sorted(["en", "fr", "it", "de"])
+    assert res["standaloneProperties"][0]["uniqueLang"] == True
+    assert sorted(res["standaloneProperties"][0]["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
+    assert res["standaloneProperties"][0]["minLength"] == '1'
+    assert res["standaloneProperties"][0]["maxLength"] == '50'
+    assert res["standaloneProperties"][0]["pattern"] == "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$"
+    assert res["standaloneProperties"][0]["minExclusive"] == '5.5'
+    assert res["standaloneProperties"][0]["minInclusive"] == '5.5'
+    assert res["standaloneProperties"][0]["maxExclusive"] == '5.5'
+    assert res["standaloneProperties"][0]["maxInclusive"] == '5.5'
+    assert res["standaloneProperties"][0]["lessThan"] == "hyha:testProp"
+    assert res["standaloneProperties"][0]["lessThanOrEquals"] == "hyha:testProp"
 
 
 def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydatamodel):

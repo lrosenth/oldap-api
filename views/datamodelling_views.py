@@ -302,7 +302,7 @@ def read_datamodel(project):
     for prop in propclasses:
         kappa = {
             "iri": str(prop) if prop is not None else None,
-            "subpropertyOf": str(dm[prop].subPropertyOf) if dm[prop].subPropertyOf is not None else None,
+            "subPropertyOf": str(dm[prop].subPropertyOf) if dm[prop].subPropertyOf is not None else None,
             "toClass": str(dm[prop].toClass) if dm[prop].toClass is not None else None,
             "datatype": str(dm[prop].datatype) if dm[prop].datatype is not None else None,
             "name": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].name.items()] if dm[prop].name else None,
@@ -405,7 +405,7 @@ def delete_whole_standalone_property(project, standaloneprop):
         return jsonify({'message': str(error)}), 500
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
-# /datamodel/<project>/<resiri>
+
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['DELETE'])
 def delete_whole_resource(project, resource):
     out = request.headers['Authorization']
@@ -464,6 +464,85 @@ def delete_hasprop_in_resource(project, resource, property):
 # TODO
 #def delete_attribute_in_res_prop
 
+
+def property_modifier(data: dict, property: PropertyClass) -> tuple[dict[str,str], int]:
+    known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    unknown_json_field = set(data.keys()) - known_json_fields
+    if unknown_json_field:
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
+    if not set(data.keys()):
+        return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+
+    for attrname, attrval in data.items():
+        if attrname == "languageIn":
+            if isinstance(attrval, list):
+                tmpval = [Language[x.upper()] for x in attrval]
+                setattr(property, attrname, LanguageIn(tmpval))
+            elif isinstance(attrval, dict):
+                adding = attrval.get("add", [])
+                for item in adding:
+                    property.languageIn.add(Language[item.upper()])
+                deleting = attrval.get("del", [])
+                for item in deleting:
+                    property.languageIn.discard(Language[item.upper()])
+            continue
+        if attrname == "inSet":
+            datatype = property.datatype
+            if isinstance(attrval, list):
+                tmpval = [convert2datatype(x, datatype) for x in attrval]
+                setattr(property, attrname, XsdSet(tmpval))
+            elif isinstance(attrval, dict):
+                adding = attrval.get("add", [])
+                for item in adding:
+                    property.inSet.add(convert2datatype(item, datatype))
+                deleting = attrval.get("del", [])
+                for item in deleting:
+                    property.inSet.discard(convert2datatype(item, datatype))
+            continue
+        if attrname == "name" or attrname == "description":
+            if isinstance(attrval, list):
+                setattr(property, attrname, LangString(attrval))
+            elif isinstance(attrval, dict):
+                adding = attrval.get("add", [])
+                for item in adding:
+                    try:
+                        if item[-3] != '@':
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    except IndexError as error:
+                        return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    lang = item[-2:].upper()
+                    try:
+                        property['sh:' + attrname][Language[lang]] = item[:-3]
+                    except KeyError as error:
+                        return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                deleting = attrval.get("del", [])
+                for item in deleting:
+                    try:
+                        if item[-3] != '@':
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    except IndexError as error:
+                        return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    lang = item[-2:].upper()
+                    try:
+                        del property['sh:' + attrname][Language[lang]]
+                    except KeyError as error:
+                        return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+            elif attrval is None:
+                delattr(property, attrname)
+            else:
+                return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
+            continue
+        if data.get(attrname) is None:
+            delattr(property, attrname)
+
+        else:
+            setattr(property, attrname, attrval)
+        continue
+    return jsonify({"message": "Property in resource successfully updated"}), 200
+
+
+
+
 # /datamodel/<project>/property/<propiri>
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['POST'])
 def modify_standalone_property(project, property):
@@ -487,84 +566,89 @@ def modify_standalone_property(project, property):
 
     if request.is_json:
         data = request.get_json()
-        unknown_json_field = set(data.keys()) - known_json_fields
-        if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
-        if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
 
-        # TODO: Was tun wenn attrval = None? Abfangen!
-        for attrname, attrval in data.items():
-            if attrname == "languageIn":
-                if isinstance(attrval, list):
-                    tmpval = [Language[x.upper()] for x in attrval]
-                    setattr(dm[Iri(property)], attrname, LanguageIn(tmpval))
-                elif isinstance(attrval, dict):
-                    adding = attrval.get("add", [])
-                    for item in adding:
-                        dm[Iri(property)].languageIn.add(Language[item.upper()])
-                    deleting = attrval.get("del", [])
-                    for item in deleting:
-                        dm[Iri(property)].languageIn.discard(Language[item.upper()])
-                continue
-            if attrname == "inSet":
-                datatype = dm[Iri(property)].datatype
-                if isinstance(attrval, list):
-                    tmpval = [convert2datatype(x, datatype) for x in attrval]
-                    setattr(dm[Iri(property)], attrname, XsdSet(tmpval))
-                elif isinstance(attrval, dict):
-                    adding = attrval.get("add", [])
-                    for item in adding:
-                        dm[Iri(property)].inSet.add(convert2datatype(item, datatype))
-                    deleting = attrval.get("del", [])
-                    for item in deleting:
-                        dm[Iri(property)].inSet.discard(convert2datatype(item, datatype))
-                continue
-            if attrname == "name" or attrname == "description":
-                if isinstance(attrval, list):
-                    setattr(dm[Iri(property)], attrname, LangString(attrval))
-                elif isinstance(attrval, dict):
-                    adding = attrval.get("add", [])
-                    for item in adding:
-                        try:
-                            if item[-3] != '@':
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        except IndexError as error:
-                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        lang = item[-2:].upper()
-                        try:
-                            dm[Iri(property)]['sh:'+ attrname][Language[lang]] = item[:-3]
-                        except KeyError as error:
-                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                    deleting = attrval.get("del", [])
-                    for item in deleting:
-                        try:
-                            if item[-3] != '@':
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        except IndexError as error:
-                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        lang = item[-2:].upper()
-                        try:
-                            del dm[Iri(property)]['sh:' + attrname][Language[lang]]
-                        except KeyError as error:
-                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                elif attrval is None:
-                    delattr(dm[Iri(property)], attrname)
-                else:
-                    return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
-                continue
-            if data.get(attrname) is None:
-                delattr(dm[Iri(property)], attrname)
-            else:
-                setattr(dm[Iri(property)], attrname, attrval)
+        jsonmsg, statuscode = property_modifier(data, dm[Iri(property)])
+        if statuscode != 200:
+            return jsonmsg, statuscode
+
+        # unknown_json_field = set(data.keys()) - known_json_fields
+        # if unknown_json_field:
+        #     return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
+        # if not set(data.keys()):
+        #     return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+        #
+        # # TODO: Was tun wenn attrval = None? Abfangen!
+        # for attrname, attrval in data.items():
+        #     if attrname == "languageIn":
+        #         if isinstance(attrval, list):
+        #             tmpval = [Language[x.upper()] for x in attrval]
+        #             setattr(dm[Iri(property)], attrname, LanguageIn(tmpval))
+        #         elif isinstance(attrval, dict):
+        #             adding = attrval.get("add", [])
+        #             for item in adding:
+        #                 dm[Iri(property)].languageIn.add(Language[item.upper()])
+        #             deleting = attrval.get("del", [])
+        #             for item in deleting:
+        #                 dm[Iri(property)].languageIn.discard(Language[item.upper()])
+        #         continue
+        #     if attrname == "inSet":
+        #         datatype = dm[Iri(property)].datatype
+        #         if isinstance(attrval, list):
+        #             tmpval = [convert2datatype(x, datatype) for x in attrval]
+        #             setattr(dm[Iri(property)], attrname, XsdSet(tmpval))
+        #         elif isinstance(attrval, dict):
+        #             adding = attrval.get("add", [])
+        #             for item in adding:
+        #                 dm[Iri(property)].inSet.add(convert2datatype(item, datatype))
+        #             deleting = attrval.get("del", [])
+        #             for item in deleting:
+        #                 dm[Iri(property)].inSet.discard(convert2datatype(item, datatype))
+        #         continue
+        #     if attrname == "name" or attrname == "description":
+        #         if isinstance(attrval, list):
+        #             setattr(dm[Iri(property)], attrname, LangString(attrval))
+        #         elif isinstance(attrval, dict):
+        #             adding = attrval.get("add", [])
+        #             for item in adding:
+        #                 try:
+        #                     if item[-3] != '@':
+        #                         return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+        #                 except IndexError as error:
+        #                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+        #                 lang = item[-2:].upper()
+        #                 try:
+        #                     dm[Iri(property)]['sh:'+ attrname][Language[lang]] = item[:-3]
+        #                 except KeyError as error:
+        #                     return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+        #             deleting = attrval.get("del", [])
+        #             for item in deleting:
+        #                 try:
+        #                     if item[-3] != '@':
+        #                         return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+        #                 except IndexError as error:
+        #                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+        #                 lang = item[-2:].upper()
+        #                 try:
+        #                     del dm[Iri(property)]['sh:' + attrname][Language[lang]]
+        #                 except KeyError as error:
+        #                     return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+        #         elif attrval is None:
+        #             delattr(dm[Iri(property)], attrname)
+        #         else:
+        #             return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
+        #         continue
+        #     if data.get(attrname) is None:
+        #         delattr(dm[Iri(property)], attrname)
+        #     else:
+        #         setattr(dm[Iri(property)], attrname, attrval)
         try:
             dm.update()
         except KeyError as error:
             return jsonify({'message': str(error)}), 404
         except OldapError as error:
             return jsonify({'message': str(error)}), 500
-
     return jsonify({'message': 'Data model successfully modified'}), 200
+
 
 # TODO: Be able to add, delete and modify a property in a resource -- /datamodel/<project>/<resourceiri>/<properiri>
 # /datamodel/<project>/<resiri>
@@ -645,6 +729,7 @@ def modify_resource(project, resource):
         except OldapError as error:
             return jsonify({'message': str(error)}), 500
     return jsonify({'message': 'Data model successfully modified'}), 200
+
 
 @datamodel_bp.route('/datamodel/<project>/<resiri>/<propiri>', methods=['POST'])
 def modify_attribute_in_has_prop(project, resiri, propiri):

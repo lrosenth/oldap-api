@@ -1,3 +1,6 @@
+from pprint import pprint
+
+
 def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
@@ -117,7 +120,7 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
     response = client.get('/admin/datamodel/hyha', headers=header)
     assert response.status_code == 200
     res = response.json
-    print(res)
+    pprint(res)
     assert res["resources"][0]["closed"] == False
     assert set(res["resources"][0]["label"]) == set(['A page of a book@en', "Ein Test@zu"])
     assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "Ein Test@zu"])
