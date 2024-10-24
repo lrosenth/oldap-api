@@ -145,3 +145,19 @@ def test_cantfind_dm_to_modify(client, token_headers, testfulldatamodelstandalon
 
     res = response.json
     print(res)
+
+
+def test_modify_attribute_in_has_prop(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
+        "name": ["pappakappa@de"],
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
