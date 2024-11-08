@@ -12,7 +12,7 @@ Available endpoints:
 
 The implementation includes error handling and validation for most operations.
 """
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.dtypes.languagein import LanguageIn
@@ -465,7 +465,7 @@ def delete_hasprop_in_resource(project, resource, property):
 #def delete_attribute_in_res_prop
 
 
-def property_modifier(data: dict, property: PropertyClass) -> tuple[dict[str,str], int]:
+def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, int]:
     known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
@@ -480,9 +480,13 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[dict[str,str
                 setattr(property, attrname, LanguageIn(tmpval))
             elif isinstance(attrval, dict):
                 adding = attrval.get("add", [])
+                if not isinstance(adding, list):
+                    return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
                 for item in adding:
                     property.languageIn.add(Language[item.upper()])
                 deleting = attrval.get("del", [])
+                if not isinstance(deleting, list):
+                    return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
                 for item in deleting:
                     property.languageIn.discard(Language[item.upper()])
             continue
@@ -683,6 +687,9 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
         data = request.get_json()
 
     jsonmsg, statuscode = property_modifier(data, dm[Iri(resiri)][Iri(propiri)].prop)
+
+    if statuscode != 200:
+        return jsonmsg, statuscode
 
     try:
         dm.update()
