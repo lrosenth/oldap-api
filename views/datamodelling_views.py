@@ -686,10 +686,18 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
     if request.is_json:
         data = request.get_json()
 
-    jsonmsg, statuscode = property_modifier(data, dm[Iri(resiri)][Iri(propiri)].prop)
+    if "minCount" in data:
+        dm[Iri(resiri)][Iri(propiri)].minCount = data["minCount"]
+    if "maxCount" in data:
+        dm[Iri(resiri)][Iri(propiri)].maxCount = data["maxCount"]
+    if "order" in data:
+        dm[Iri(resiri)][Iri(propiri)].order = data["order"]
 
-    if statuscode != 200:
-        return jsonmsg, statuscode
+    property_data = data.get("property", None)
+    if property_data:
+        jsonmsg, statuscode = property_modifier(property_data, dm[Iri(resiri)][Iri(propiri)].prop)
+        if statuscode != 200:
+            return jsonmsg, statuscode
 
     try:
         dm.update()

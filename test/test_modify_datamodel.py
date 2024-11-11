@@ -151,8 +151,13 @@ def test_modify_attribute_in_has_prop(client, token_headers, testfulldatamodelre
     header = token_headers[1]
 
     response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
-        "name": ["pappakappa@de"],
-        "languageIn": {"add": ["zu"], "del": ["fr"]}
+        "property": {
+            "name": ["pappakappa@de"],
+            "languageIn": {"add": ["zu"], "del": ["fr"]}
+        },
+        "maxCount": 4,
+        "minCount": 2,
+        "order": 42
     }, headers=header)
     assert response.status_code == 200
     res = response.json
