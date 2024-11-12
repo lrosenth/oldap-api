@@ -179,7 +179,82 @@ def test_bad_fill_empty_datamodel_with_resource(client, token_headers, testempty
             }
         ]
     }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
 
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
+        "hasProperty": [
+            {
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            }
+        ]
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
+        "hasProperty": [
+            {
+                "doesnotexist": "kappa",
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            }
+        ]
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
+        "hasProperty": [
+            {
+                "property": {
+                    "doesnotexist": "kappa",
+                    "iri": "hyha:testProp2",
+                    "subPropertyOf": "hyha:testProp",
+                    "datatype": "rdf:langString",
+                    "name": ["Test Property@en", "Test Feld@de"],
+                    "description": ["Test Feld Beschreibung@de"],
+                    "languageIn": ["en", "fr", "it", "de"],
+                    "uniqueLang": True,
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+                    "minExclusive": 5.5,
+                    "minInclusive": 5.5,
+                    "maxExclusive": 5.5,
+                    "maxInclusive": 5.5,
+                    "lessThan": "hyha:testProp",
+                    "lessThanOrEquals": "hyha:testProp"
+                },
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            }
+        ]
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
+        "hasProperty": [
+            {
+                "property": {
+                    "doesnotexist": "kappa",
+                },
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            }
+        ]
+    }, headers=header)
     res = response.json
     print(res)
     assert response.status_code == 400
@@ -202,6 +277,11 @@ def test_bad_token(client, token_headers):
     assert res["message"] == "Connection failed: Wrong credentials"
 
     response = client.put('/admin/datamodel/hyha/resource', json={}, headers=header)
+    assert response.status_code == 403
+    res = response.json
+    assert res["message"] == "Connection failed: Wrong credentials"
+
+    response = client.put('/admin/datamodel/hyha/resource/test', json={}, headers=header)
     assert response.status_code == 403
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
@@ -297,7 +377,7 @@ def test_dm_to_add_resource_to_not_found(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/doesnotexist/resource', json={
-        "iri": "hyha:Sheep",
+        "comment": "kappa",
     }, headers=header)
 
     res = response.json

@@ -362,20 +362,30 @@ def read_datamodel(project):
     return res, 200
 
 
-# TODO
+# TODO: Errorhandling
 @datamodel_bp.route('/datamodel/<project>', methods=['DELETE'])
 def delete_whole_datamodel(project):
-    pass
-    # out = request.headers['Authorization']
-    # b, token = out.split()
-    #
-    # try:
-    #     con = Connection(server='http://localhost:7200',
-    #                      repo="oldap",
-    #                      token=token,
-    #                      context_name="DEFAULT")
-    # except OldapError as error:
-    #     return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    try:
+        dm.delete()
+    except OldapError as error:  # Should not be reachable
+        return jsonify({'message': str(error)}), 500
+    return jsonify({'message': 'Data model successfully deleted'}), 200
 
 
 @datamodel_bp.route('/datamodel/<project>/property/<standaloneprop>', methods=['DELETE'])
