@@ -41,6 +41,7 @@ def app():
     con.clear_graph(Xsd_QName('oldap:admin'))
     con.clear_graph(Xsd_QName('hyha:shacl'))
     con.clear_graph(Xsd_QName('hyha:onto'))
+    con.clear_graph(Xsd_QName('hyha:lists'))
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin.trig")
     sleep(1)
     yield app
