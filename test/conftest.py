@@ -291,3 +291,14 @@ def testfulldatamodelresource(client, token_headers, testemptydatamodel):
     }, headers=header)
 
     yield
+
+@pytest.fixture()
+def testemptyhlist(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/hlist/hyha/testhlist', json={
+        "label": ["testlabel@en"],
+        "definition": ["testdefinition@en"]
+    }, headers=header)
+
+    yield
