@@ -3,6 +3,7 @@ from oldaplib.src.connection import Connection
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorValue
 from oldaplib.src.oldaplist import OldapList
+from oldaplib.src.oldaplist_helpers import get_list
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 
 hierarchical_list_bp = Blueprint('hlist', __name__, url_prefix='/admin')
@@ -24,7 +25,7 @@ def create_empty_hlist(project, hlistid):
         if not mandatory_json_fields.issubset(set(data.keys())):
             return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a user. Used where {set(data.keys())}. Usablable are {known_json_fields}"}), 400
         label = data.get("label", None)
-        definition = data.get('comment', None)
+        definition = data.get('definition', None)
 
         if label == []:
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
@@ -70,18 +71,13 @@ def read_hlist(project, hlistid):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
-        hlist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
+        hlist = get_list(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
     except OldapErrorValue as error:
         return jsonify({'message': str(error)}), 404
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
-    res={
-        'listId': str(hlist.oldapListId)
-    }
-
-    return res, 200
-    # return jsonify(hlist), 200  #TODO: For Later
+    return jsonify(hlist), 200
 
 
 
