@@ -137,11 +137,87 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
     assert res["resources"][0]["hasProperty"][0]["order"] == '1.0'
 
 
+def test_create_prop_in_resource(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:newprop', json={
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["New Test Property@en", "New Test Feld@de"],
+        "description": ["New Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "inSet": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp",
+        "minCount": 1,
+        "maxCount": 2,
+        "order": 2
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+    pprint(res)
+
+
 def test_bad_fill_empty_datamodel_with_resource(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
         # "superclass": "hyha:Animal",
+        "label": [
+            "Eine Buchseite@de",
+            "A page of a book@en"
+        ],
+        "comment": [
+            "Eine Buchseite@de",
+            "A page of a book@en"
+        ],
+        "closed": True,
+        "hasProperty": [
+            {
+                "RandomStuff": "abcdefg",
+                "property": {
+                    "iri": "hyha:testProp2",
+                    "subPropertyOf": "hyha:testProp",
+                    "datatype": "rdf:langString",
+                    "name": ["Test Property@en", "Test Feld@de"],
+                    "description": ["Test Feld Beschreibung@de"],
+                    "languageIn": ["en", "fr", "it", "de"],
+                    "uniqueLang": True,
+                    "in": ["Kappa", "Gaga", "gugus"],
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+                    "minExclusive": 5.5,
+                    "minInclusive": 5.5,
+                    "maxExclusive": 5.5,
+                    "maxInclusive": 5.5,
+                    "lessThan": "hyha:testProp",
+                    "lessThanOrEquals": "hyha:testProp"
+                },
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            }
+        ]
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
+        "doesnotexist": "kappa:kappanial",
         "label": [
             "Eine Buchseite@de",
             "A page of a book@en"
@@ -287,7 +363,6 @@ def test_bad_token(client, token_headers):
     assert res["message"] == "Connection failed: Wrong credentials"
 
 
-
 def test_bad_json_fields_in_create_property(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
@@ -363,6 +438,59 @@ def test_bad_json_fields_in_create_property(client, token_headers, testemptydata
     assert response.status_code == 400
     print(res)
 
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:newprop', json={
+        "doesnotexist": "kappa",
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["New Test Property@en", "New Test Feld@de"],
+        "description": ["New Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "inSet": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp",
+        "minCount": 1,
+        "maxCount": 2,
+        "order": 2
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+    print(res)
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:newprop', json={
+        "doesnotexist": "kappa",
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["New Test Property@en", "New Test Feld@de"],
+        "description": ["New Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "inSet": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp",
+        "minCount": 1,
+        "maxCount": 2,
+        "order": 2
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+    print(res)
+
+
 def test_not_find_superclass_when_creating_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
@@ -384,7 +512,7 @@ def test_dm_to_add_resource_to_not_found(client, token_headers):
     print(res)
     assert response.status_code == 400
 
-def test_create_prop_in_resource(client, token_headers, testfulldatamodelresource):
+def test_dm_to_add_property_to_not_found(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:newprop', json={
@@ -408,10 +536,8 @@ def test_create_prop_in_resource(client, token_headers, testfulldatamodelresourc
         "maxCount": 2,
         "order": 2
     }, headers=header)
+
     res = response.json
     print(res)
-    assert response.status_code == 200
+    assert response.status_code == 404
 
-    response = client.get('/admin/datamodel/hyha', headers=header)
-    res = response.json
-    pprint(res)

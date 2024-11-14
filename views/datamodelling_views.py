@@ -218,7 +218,7 @@ def add_resource_to_datamodel(project, resource):
         try:
             dm.update()
         except OldapError as error:  # Should not be reachable
-            return jsonify({"message": str(error)}), 400
+            return jsonify({"message": str(error)}), 500
         return jsonify({"message": f"Resource in datamodel {project} successfully created"}), 200
 
 
@@ -256,7 +256,7 @@ def add_property_to_resource(project, resource, property):
 
         try:
             prop = process_property(con=con, project=project, property_iri=property, data=data)
-        except ApiError as error:
+        except ApiError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 400
         hasprop = HasProperty(con=con, prop=prop, minCount=mincount, maxCount=maxcount, order=order)
         try:
