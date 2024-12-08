@@ -93,7 +93,7 @@ def test_cantfind_dm_to_delete(client, token_headers):
 def test_cantfind_dm_where_standaloneprop_should_delete(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
-    response = client.delete('/admin/datamodel/doesnotexist/hyha:testProp2/del', headers=header)
+    response = client.delete('/admin/datamodel/doesnotexist/property/hyha:testProp2', headers=header)
 
     assert response.status_code == 404
 
@@ -110,36 +110,6 @@ def test_cantfind_standaloneprop(client, token_headers, testfulldatamodelstandal
     res = response.json
     print(res)
 
-def test_bad_token_res(client, token_headers, testfulldatamodelresource):
-    header = token_headers[1]
-    token = header['Authorization'].split(' ')[1]
-    modified_token = token + "kappa"
-    header['Authorization'] = 'Bearer ' + modified_token
-
-    response = client.delete('/admin/datamodel/del/hyha/hyha:Sheep', headers=header)
-    assert response.status_code == 403
-    res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
-
-def test_cantfind_dm_where_resource_should_be_deleted(client, token_headers, testfulldatamodelresource):
-    header = token_headers[1]
-
-    response = client.delete('/admin/datamodel/del/doesnotexist/hyha:Sheep', headers=header)
-
-    assert response.status_code == 404
-
-    res = response.json
-    print(res)
-
-def test_cantfind_res(client, token_headers, testfulldatamodelresource):
-    header = token_headers[1]
-
-    response = client.delete('/admin/datamodel/del/hyha/hyha:doesnotexist', headers=header)
-
-    assert response.status_code == 404
-
-    res = response.json
-    print(res)
 
 def test_bad_token_hasprop(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
@@ -152,20 +122,32 @@ def test_bad_token_hasprop(client, token_headers, testfulldatamodelresource):
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
 
-def test_cantfind_dm_where_hasprop_should_be_deleted(client, token_headers, testfulldatamodelresource):
+def test_bad_token_whole_dm(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
+    token = header['Authorization'].split(' ')[1]
+    modified_token = token + "kappa"
+    header['Authorization'] = 'Bearer ' + modified_token
 
-    response = client.delete('/admin/datamodel/doesnotexist/hyha:Sheep/hyha:testProp2/del', headers=header)
-
-    assert response.status_code == 404
-
+    response = client.delete('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 403
     res = response.json
-    print(res)
+    assert res["message"] == "Connection failed: Wrong credentials"
 
-def test_cantfind_prop_to_delete(client, token_headers, testfulldatamodelresource):
+def test_bad_token_standaloneprop(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+    token = header['Authorization'].split(' ')[1]
+    modified_token = token + "kappa"
+    header['Authorization'] = 'Bearer ' + modified_token
+
+    response = client.delete('/admin/datamodel/doesnotexist/property/hyha:testProp2', headers=header)
+    assert response.status_code == 403
+    res = response.json
+    assert res["message"] == "Connection failed: Wrong credentials"
+
+def test_cantfind_dm_where_whole_dm_should_be_deleted(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
-    response = client.delete('/admin/datamodel/hyha/hyha:Sheep/doesnotexist/del', headers=header)
+    response = client.delete('/admin/datamodel/doesnotexist', headers=header)
 
     assert response.status_code == 404
 

@@ -1,9 +1,12 @@
+import json
+
 from flask import Blueprint, request, jsonify
 from oldaplib.src.connection import Connection
+from oldaplib.src.helpers.json_encoder import SpecialEncoder
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorValue
 from oldaplib.src.oldaplist import OldapList
-from oldaplib.src.oldaplist_helpers import get_list
+from oldaplib.src.oldaplist_helpers import get_nodes_from_list
 from oldaplib.src.oldaplistnode import OldapListNode
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 
@@ -72,13 +75,14 @@ def read_hlist(project, hlistid):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
-        hlist = get_list(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
+        oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
+        hlist = get_nodes_from_list(con=con, oldapList=oldaplist)
     except OldapErrorValue as error:
         return jsonify({'message': str(error)}), 404
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
-    return jsonify(hlist), 200
+    return jsonify(json.dumps(hlist, cls=SpecialEncoder)), 200
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['PUT'])
 def create_root_node(project, hlistid, nodeid):
