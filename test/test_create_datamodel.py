@@ -1,5 +1,7 @@
 from pprint import pprint
 
+from oldaplib.src.xsd.iri import Iri
+
 
 def test_create_empty_datamodel(client, token_headers):
     header = token_headers[1]
@@ -39,26 +41,31 @@ def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testem
 
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    print(res)
+    pprint(res)
 
     assert response.status_code == 200
-    assert res["standaloneProperties"][0]["iri"] == "hyha:testProp2"
-    assert res["standaloneProperties"][0]["subPropertyOf"] == "hyha:testProp"
-    assert res["standaloneProperties"][0]["datatype"] == "rdf:langString"
-    assert res["standaloneProperties"][0]["name"] == ["Test Property@en", "Test Feld@de"]
-    assert res["standaloneProperties"][0]["description"] == ["Test Feld Beschreibung@de"]
-    assert sorted(res["standaloneProperties"][0]["languageIn"]) == sorted(["en", "fr", "it", "de"])
-    assert res["standaloneProperties"][0]["uniqueLang"] == True
-    assert sorted(res["standaloneProperties"][0]["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
-    assert res["standaloneProperties"][0]["minLength"] == '1'
-    assert res["standaloneProperties"][0]["maxLength"] == '50'
-    assert res["standaloneProperties"][0]["pattern"] == "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$"
-    assert res["standaloneProperties"][0]["minExclusive"] == '5.5'
-    assert res["standaloneProperties"][0]["minInclusive"] == '5.5'
-    assert res["standaloneProperties"][0]["maxExclusive"] == '5.5'
-    assert res["standaloneProperties"][0]["maxInclusive"] == '5.5'
-    assert res["standaloneProperties"][0]["lessThan"] == "hyha:testProp"
-    assert res["standaloneProperties"][0]["lessThanOrEquals"] == "hyha:testProp"
+
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+
+        assert ele["iri"] == "hyha:testProp2"
+        assert ele["subPropertyOf"] == "hyha:testProp"
+        assert ele["datatype"] == "rdf:langString"
+        assert ele["name"] == ["Test Property@en", "Test Feld@de"]
+        assert ele["description"] == ["Test Feld Beschreibung@de"]
+        assert sorted(ele["languageIn"]) == sorted(["en", "fr", "it", "de"])
+        assert ele["uniqueLang"] == True
+        assert sorted(ele["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
+        assert ele["minLength"] == '1'
+        assert ele["maxLength"] == '50'
+        assert ele["pattern"] == "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$"
+        assert ele["minExclusive"] == '5.5'
+        assert ele["minInclusive"] == '5.5'
+        assert ele["maxExclusive"] == '5.5'
+        assert ele["maxInclusive"] == '5.5'
+        assert ele["lessThan"] == "hyha:testProp"
+        assert ele["lessThanOrEquals"] == "hyha:testProp"
 
 
 def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydatamodel):

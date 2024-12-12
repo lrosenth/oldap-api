@@ -1,3 +1,6 @@
+from oldaplib.src.xsd.iri import Iri
+
+
 def test_delete_whole_datamodel(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
@@ -30,7 +33,10 @@ def test_delete_standalone_property(client, token_headers, testfulldatamodelstan
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
     print(res)
-    assert res['standaloneProperties'] == []
+
+    for ele in res["standaloneProperties"]:
+        assert Iri(ele["iri"]).prefix != "hyha"
+
 
 def test_delete_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]

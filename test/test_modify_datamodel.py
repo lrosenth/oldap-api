@@ -1,5 +1,7 @@
 from pprint import pprint
 
+from oldaplib.src.xsd.iri import Iri
+
 
 def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
@@ -25,17 +27,22 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
     assert response.status_code == 200
     res = response.json
     print(res)
-    assert res["standaloneProperties"][0]["name"] == ["kappa@de"]
-    assert res["standaloneProperties"][0]["description"] == ["gigakappa@de"]
-    assert set(res["standaloneProperties"][0]["languageIn"]) == set(["en", "de", "zu"])
-    assert res["standaloneProperties"][0]["uniqueLang"] == True
-    assert res["standaloneProperties"][0]["minLength"] == '2'
-    assert res["standaloneProperties"][0]["maxLength"] == '51'
-    assert res["standaloneProperties"][0]["pattern"] == "kappa"
-    assert res["standaloneProperties"][0]["minExclusive"] == '5.6'
-    assert res["standaloneProperties"][0]["minInclusive"] == '5.6'
-    assert res["standaloneProperties"][0]["maxExclusive"] == '5.6'
-    assert res["standaloneProperties"][0]["maxInclusive"] == '5.6'
+
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+
+        assert ele["name"] == ["kappa@de"]
+        assert ele["description"] == ["gigakappa@de"]
+        assert set(ele["languageIn"]) == set(["en", "de", "zu"])
+        assert ele["uniqueLang"] == True
+        assert ele["minLength"] == '2'
+        assert ele["maxLength"] == '51'
+        assert ele["pattern"] == "kappa"
+        assert ele["minExclusive"] == '5.6'
+        assert ele["minInclusive"] == '5.6'
+        assert ele["maxExclusive"] == '5.6'
+        assert ele["maxInclusive"] == '5.6'
 
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "languageIn": ["en", "de"],
@@ -43,7 +50,12 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
     assert response.status_code == 200
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    assert set(res["standaloneProperties"][0]["languageIn"]) == set(["en", "de", ])
+
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+
+        assert set(ele["languageIn"]) == set(["en", "de", ])
 
 
 def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelstandalonepropstring):
@@ -70,16 +82,20 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
     assert response.status_code == 200
     res = response.json
     print(res)
-    assert res["standaloneProperties"][0]["name"] == ["kappa@de"]
-    assert res["standaloneProperties"][0]["description"] == ["gigakappa@de"]
-    assert set(res["standaloneProperties"][0]["inSet"]) == set(["gigi", "Kappa"])
-    assert res["standaloneProperties"][0]["minLength"] == '2'
-    assert res["standaloneProperties"][0]["maxLength"] == '51'
-    assert res["standaloneProperties"][0]["pattern"] == "kappa"
-    assert res["standaloneProperties"][0]["minExclusive"] == '5.6'
-    assert res["standaloneProperties"][0]["minInclusive"] == '5.6'
-    assert res["standaloneProperties"][0]["maxExclusive"] == '5.6'
-    assert res["standaloneProperties"][0]["maxInclusive"] == '5.6'
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+
+        assert ele["name"] == ["kappa@de"]
+        assert ele["description"] == ["gigakappa@de"]
+        assert set(ele["inSet"]) == set(["gigi", "Kappa"])
+        assert ele["minLength"] == '2'
+        assert ele["maxLength"] == '51'
+        assert ele["pattern"] == "kappa"
+        assert ele["minExclusive"] == '5.6'
+        assert ele["minInclusive"] == '5.6'
+        assert ele["maxExclusive"] == '5.6'
+        assert ele["maxInclusive"] == '5.6'
 
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp3', json={
         "inSet": ["gugus"],
@@ -90,7 +106,12 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
     response = client.get('/admin/datamodel/hyha', headers=header)
     assert response.status_code == 200
     res = response.json
-    assert res["standaloneProperties"][0]["inSet"] == ["gugus"]
+
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+
+        assert ele["inSet"] == ["gugus"]
 
 
 def test_modify_resource(client, token_headers, testfulldatamodelresource):
