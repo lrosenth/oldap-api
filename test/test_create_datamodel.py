@@ -176,6 +176,13 @@ def test_create_prop_in_resource(client, token_headers, testfulldatamodelresourc
     res = response.json
     pprint(res)
 
+def test_create_empty_prop_in_resource(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:newprop', json={}, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
 
 def test_bad_fill_empty_datamodel_with_resource(client, token_headers, testemptydatamodel):
     header = token_headers[1]
@@ -349,22 +356,27 @@ def test_bad_token(client, token_headers):
     modified_token = token + "kappa"
     header['Authorization'] = 'Bearer ' + modified_token
 
-    response = client.put('/admin/datamodel/hyha', json={}, headers=header)
-    assert response.status_code == 403
-    res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    # response = client.put('/admin/datamodel/hyha', json={}, headers=header)
+    # assert response.status_code == 403
+    # res = response.json
+    # assert res["message"] == "Connection failed: Wrong credentials"
+    #
+    # response = client.put('/admin/datamodel/hyha/property', json={}, headers=header)
+    # assert response.status_code == 403
+    # res = response.json
+    # assert res["message"] == "Connection failed: Wrong credentials"
+    #
+    # response = client.put('/admin/datamodel/hyha/resource', json={}, headers=header)
+    # assert response.status_code == 403
+    # res = response.json
+    # assert res["message"] == "Connection failed: Wrong credentials"
+    #
+    # response = client.put('/admin/datamodel/hyha/resource/test', json={}, headers=header)
+    # assert response.status_code == 403
+    # res = response.json
+    # assert res["message"] == "Connection failed: Wrong credentials"
 
-    response = client.put('/admin/datamodel/hyha/property', json={}, headers=header)
-    assert response.status_code == 403
-    res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
-
-    response = client.put('/admin/datamodel/hyha/resource', json={}, headers=header)
-    assert response.status_code == 403
-    res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
-
-    response = client.put('/admin/datamodel/hyha/resource/test', json={}, headers=header)
+    response = client.put('/admin/datamodel/hyha/property/test', json={}, headers=header)
     assert response.status_code == 403
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"

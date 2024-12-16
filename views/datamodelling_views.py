@@ -242,6 +242,8 @@ def add_property_to_resource(project, resource, property):
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to add to the resource. Usablable for the add-viewfunction are {known_json_fields}"}), 400
 
         maxcount = data.get("maxCount", None)
         mincount = data.get("minCount", None)
@@ -554,10 +556,6 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
         continue
     return jsonify({"message": "Property in resource successfully updated"}), 200
 
-
-
-
-# /datamodel/<project>/property/<propiri>
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['POST'])
 def modify_standalone_property(project, property):
 
@@ -580,6 +578,11 @@ def modify_standalone_property(project, property):
 
     if request.is_json:
         data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to modify the standalone property. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
 
         jsonmsg, statuscode = property_modifier(data, dm[Iri(property)])
         if statuscode != 200:
@@ -593,12 +596,10 @@ def modify_standalone_property(project, property):
     return jsonify({'message': 'Data model successfully modified'}), 200
 
 
-# TODO: Be able to add, delete and modify a property in a resource -- /datamodel/<project>/<resourceiri>/<properiri>
-# /datamodel/<project>/<resiri>
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['POST'])
 def modify_resource(project, resource):
 
-    # known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    known_json_fields = {"label", "comment", "closed", "hasProperty"}
     out = request.headers['Authorization']
     b, token = out.split()
 
