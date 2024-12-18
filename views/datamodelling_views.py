@@ -204,7 +204,7 @@ def add_resource_to_datamodel(project, resource):
                 if unknown_hasproperty_field:
                     return jsonify({"message": f"The Field/s {unknown_hasproperty_field} is/are not used to create a property in a resource. Usable are {known_hasproperty_fields}. Aborded operation"}), 400
                 if not mandatory_hasproperty_fields.issubset(set(prop.keys())):
-                    return jsonify({"message": f"The Fields {mandatory_hasproperty_fields} are required to create a resource. Used where {set(prop.keys())}. Usablable are {known_hasproperty_fields}"}), 400
+                    return jsonify({"message": f"The Fields {mandatory_hasproperty_fields} are required to create a resource. Used where {set(prop.keys())}. Usable are {known_hasproperty_fields}"}), 400
                 if prop["property"].get("iri", None) is None:
                     return jsonify({"message": f"Property IRI is missing in HasProperty"}), 400
                 try:
@@ -243,7 +243,7 @@ def add_property_to_resource(project, resource, property):
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborded operation"}), 400
         if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to add to the resource. Usablable for the add-viewfunction are {known_json_fields}"}), 400
+            return jsonify({"message": f"At least one field must be given to add to the resource. Usable for the add-viewfunction are {known_json_fields}"}), 400
 
         maxcount = data.get("maxCount", None)
         mincount = data.get("minCount", None)
@@ -483,7 +483,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     if unknown_json_field:
         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
     if not set(data.keys()):
-        return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+        return jsonify({"message": f"At least one field must be given to modify the project. Usable for the modify-viewfunction are {known_json_fields}"}), 400
     # TODO: Was tun wenn attrval = None? Abfangen!
     for attrname, attrval in data.items():
         if attrname == "languageIn":
@@ -582,7 +582,7 @@ def modify_standalone_property(project, property):
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. Aborded operation"}), 400
         if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to modify the standalone property. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+            return jsonify({"message": f"At least one field must be given to modify the standalone property. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
         jsonmsg, statuscode = property_modifier(data, dm[Iri(property)])
         if statuscode != 200:
@@ -677,7 +677,7 @@ def modify_resource(project, resource):
 
 @datamodel_bp.route('/datamodel/<project>/<resiri>/<propiri>', methods=['POST'])
 def modify_attribute_in_has_prop(project, resiri, propiri):
-    # known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "in", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    known_json_fields = {"maxCount", "minCount", "order", "property"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -696,6 +696,11 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
 
     if request.is_json:
         data = request.get_json()
+    unknown_json_field = set(data.keys()) - known_json_fields
+    if unknown_json_field:
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify an attribute of a property in a resource. Usable are {known_json_fields}. Aborded operation"}), 400
+    if not set(data.keys()):
+        return jsonify({"message": f"At least one field must be given to modify an attribute of a property in a resource. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
     if "minCount" in data:
         dm[Iri(resiri)][Iri(propiri)].minCount = data["minCount"]
@@ -705,7 +710,7 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
         dm[Iri(resiri)][Iri(propiri)].order = data["order"]
 
     property_data = data.get("property", None)
-    if property_data:
+    if property_data or property_data == {}:
         jsonmsg, statuscode = property_modifier(property_data, dm[Iri(resiri)][Iri(propiri)].prop)
         if statuscode != 200:
             return jsonmsg, statuscode

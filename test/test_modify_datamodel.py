@@ -189,6 +189,84 @@ def test_modify_attribute_in_has_prop(client, token_headers, testfulldatamodelre
     res = response.json
     pprint(res)
 
+    # response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
+    #     "property": {
+    #         "name": ["pappakappa@de"],
+    #         "languageIn": {"add": ["zu"], "del": ["fr"]}
+    #     },
+    #     "maxCount": 4,
+    #     "minCount": 2,
+    #     "order": 42
+    # }, headers=header)
+    # assert response.status_code == 200
+    # res = response.json
+    # print(res)
+    #
+    # response = client.get('/admin/datamodel/hyha', headers=header)
+    # assert response.status_code == 200
+    # res = response.json
+    # pprint(res)
+
+
+def test_unknown_json_fields_for_property_modifier(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
+        "Doesnotexist": "kappa1234",
+        "property": {
+            "name": ["pappakappa@de"],
+            "languageIn": {"add": ["zu"], "del": ["fr"]}
+        },
+        "maxCount": 4,
+        "minCount": 2,
+        "order": 42
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={}, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+def test_unknown_json_fields_for_property_in_property_modifier(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
+        "property": {
+            "doesnotexist": "kappa1234",
+            "name": ["pappakappa@de"],
+            "languageIn": {"add": ["zu"], "del": ["fr"]}
+        },
+        "maxCount": 4,
+        "minCount": 2,
+        "order": 42
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={}, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
+        "property": {},
+        "maxCount": 4,
+        "minCount": 2,
+        "order": 42
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={}, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
 def test_bad_fields_modify_property(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
@@ -201,3 +279,26 @@ def test_bad_fields_modify_property(client, token_headers, testfulldatamodelreso
         "minCount": 2,
         "order": 42
     }, headers=header)
+
+def test_bad_fields_in_modify_attribute_in_has_prop(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
+        "property": {
+            "name": ["pappakappa@de"],
+            "languageIn": {"add": "zu"}
+        }
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
+        "property": {
+            "name": ["pappakappa@de"],
+            "languageIn": {"del": "zu"}
+        }
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
