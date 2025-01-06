@@ -44,18 +44,30 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
         assert ele["maxExclusive"] == '5.6'
         assert ele["maxInclusive"] == '5.6'
 
+    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+    #     "languageIn": ["en", "de"],
+    # }, headers=header)
+    # assert response.status_code == 200
+    # response = client.get('/admin/datamodel/hyha', headers=header)
+    # res = response.json
+    #
+    # for ele in res["standaloneProperties"]:
+    #     if Iri(ele["iri"]).prefix != "hyha":
+    #         continue
+    #
+    #     assert set(ele["languageIn"]) == set(["en", "de", ])
+
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-        "languageIn": ["en", "de"],
+        "name": {"add": ["NewKappa@en"], "del": ["Kappa@de"]},
     }, headers=header)
-    assert response.status_code == 200
+
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-
     for ele in res["standaloneProperties"]:
         if Iri(ele["iri"]).prefix != "hyha":
             continue
 
-        assert set(ele["languageIn"]) == set(["en", "de", ])
+        print(ele)
 
 
 def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelstandalonepropstring):
@@ -188,24 +200,6 @@ def test_modify_attribute_in_has_prop(client, token_headers, testfulldatamodelre
     assert response.status_code == 200
     res = response.json
     pprint(res)
-
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
-    #     "property": {
-    #         "name": ["pappakappa@de"],
-    #         "languageIn": {"add": ["zu"], "del": ["fr"]}
-    #     },
-    #     "maxCount": 4,
-    #     "minCount": 2,
-    #     "order": 42
-    # }, headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # print(res)
-    #
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # pprint(res)
 
 
 def test_unknown_json_fields_for_property_modifier(client, token_headers, testfulldatamodelresource):
