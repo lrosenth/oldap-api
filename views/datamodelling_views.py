@@ -530,9 +530,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                         return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                     lang = item[-2:].upper()
                     try:
-                        haha = Language[lang]
-                        gaga = property[attrname]
-                        property['sh:' + attrname][Language[lang]] = item[:-3]
+                        property[PropClassAttr.from_name(str(attrname))][Language[lang]] = item[:-3]
                     except KeyError as error:
                         return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                 deleting = attrval.get("del", [])
@@ -544,7 +542,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                         return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                     lang = item[-2:].upper()
                     try:
-                        del property['sh:' + attrname][Language[lang]]
+                        del property[PropClassAttr.from_name(str(attrname))][Language[lang]]
                     except KeyError as error:
                         return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
             elif attrval is None:
