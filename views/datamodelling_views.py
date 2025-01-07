@@ -327,6 +327,8 @@ def read_datamodel(project):
     for resource in resclasses:
         gaga = {
             "iri": str(resource),
+            # **({"superclass": str(dm[resource].superclass)} if dm[resource].superclass is not None else {})
+            # does not add a "superclass": None if dm[resource].superclass is None. That's better...
             "superclass": str(dm[resource].superclass) if dm[resource].superclass is not None else None,
             "label": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].label.items()] if dm[resource].label else None,
             "comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].comment.items()] if dm[resource].comment else None,
