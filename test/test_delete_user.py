@@ -4,6 +4,7 @@ def test_delete_user(client, token_headers):
     client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -30,6 +31,7 @@ def test_delete_nonexisting_user(client, token_headers):
     client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -71,6 +73,7 @@ def test_no_right_delete_user(client, token_headers):
     client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -88,6 +91,7 @@ def test_no_right_delete_user(client, token_headers):
     client.put('/admin/user/kappa', json={
         "givenName": "Kappa",
         "familyName": "Gaga",
+        "email": "gaga@dumdum.com",
         "password": "dumdum",
         "inProjects": [],
         "hasPermissions": []

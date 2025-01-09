@@ -101,6 +101,8 @@ paths:
                   type: string
                 familyName:
                   type: string
+                email:
+                  type: string
                 password:
                   type: string
                   minLength: 8
@@ -246,6 +248,8 @@ paths:
                     type: string
                   given_name:
                     type: string
+                  email:
+                    type: string
                   is_active:
                     type: boolean
                   in_projects:
@@ -300,6 +304,8 @@ paths:
                 givenName:
                   type: string
                 familyName:
+                  type: string
+                email:
                   type: string
                 password:
                   type: string

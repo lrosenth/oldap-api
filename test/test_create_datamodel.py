@@ -52,7 +52,7 @@ def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testem
         assert ele["iri"] == "hyha:testProp2"
         assert ele["subPropertyOf"] == "hyha:testProp"
         assert ele["datatype"] == "rdf:langString"
-        assert ele["name"] == ["Test Property@en", "Test Feld@de"]
+        assert set(ele["name"]) == set(["Test Property@en", "Test Feld@de"])
         assert ele["description"] == ["Test Feld Beschreibung@de"]
         assert sorted(ele["languageIn"]) == sorted(["en", "fr", "it", "de"])
         assert ele["uniqueLang"] == True
@@ -119,13 +119,13 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
 
     assert response.status_code == 200
     assert res["resources"][0]["iri"] == "hyha:Sheep"
-    assert res["resources"][0]["label"] == ["Eine Buchseite@de", "A page of a book@en"]
-    assert res["resources"][0]["comment"] == ["Eine Buchseite@de", "A page of a book@en"]
+    assert set(res["resources"][0]["label"]) == set(["Eine Buchseite@de", "A page of a book@en"])
+    assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "A page of a book@en"])
     assert res["resources"][0]["closed"] == True
     assert res["resources"][0]["hasProperty"][0]["property"]["iri"] == "hyha:testProp2"
     assert res["resources"][0]["hasProperty"][0]["property"]["subPropertyOf"] == "hyha:testProp"
     assert res["resources"][0]["hasProperty"][0]["property"]["datatype"] == "rdf:langString"
-    assert res["resources"][0]["hasProperty"][0]["property"]["name"] == ["Test Property@en", "Test Feld@de"]
+    assert set(res["resources"][0]["hasProperty"][0]["property"]["name"]) == set(["Test Property@en", "Test Feld@de"])
     assert res["resources"][0]["hasProperty"][0]["property"]["description"] == ["Test Feld Beschreibung@de"]
     assert sorted(res["resources"][0]["hasProperty"][0]["property"]["languageIn"]) == sorted(["en", "fr", "it", "de"])
     assert res["resources"][0]["hasProperty"][0]["property"]["uniqueLang"] == True

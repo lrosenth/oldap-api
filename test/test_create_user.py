@@ -4,6 +4,7 @@ def test_create_user(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "isActive": False,
         "inProjects": [
@@ -32,6 +33,7 @@ def test_user_already_exists(client, token_headers, testuser):
     secondlogin = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -57,6 +59,7 @@ def test_isActive(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "isActive": False,
         "inProjects": [
@@ -85,6 +88,7 @@ def test_bad_isActive(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "isActive": "kappa",
         "inProjects": [
@@ -137,6 +141,7 @@ def test_wrong_projectpermission(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -162,6 +167,7 @@ def test_bad_projectname(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -187,6 +193,7 @@ def test_permission_QName(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -212,6 +219,7 @@ def test_haspermission_not_existing(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -237,6 +245,7 @@ def test_userid_NCName_conform(client, token_headers):
     response = client.put('/admin/user/!48ä$', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -262,6 +271,7 @@ def test_empty_permissions(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -283,6 +293,7 @@ def test_empty_hasPermissions(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -308,6 +319,7 @@ def test_bad_userid(client, token_headers):
     response = client.put('/admin/user/rosman123<:!$', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -335,6 +347,7 @@ def test_bad_token(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -361,6 +374,7 @@ def test_json_with_unknown_fields(client, token_headers):
         "gaga": "gaga",
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {

@@ -69,6 +69,7 @@ def testuser(client, token_headers):
     client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {

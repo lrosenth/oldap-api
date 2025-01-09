@@ -38,6 +38,7 @@ def create_user(userid):
     json={
         "givenName": "John",
         "familyName": "Doe",
+        "email": "john.doe@unknown.org",
         "password": "nicepw",
         "isActive": True,
         "in_projects": [{
@@ -50,8 +51,8 @@ def create_user(userid):
     :return: A JSON containing the userIri that has the following form:
     json={"message": f"User {userid} created", "userIri": f"{userid}"}
     """
-    known_json_fields = {"givenName", "familyName", "password","isActive", "inProjects", "hasPermissions"}
-    mandatory_json_fields = {"givenName", "familyName", "password"}
+    known_json_fields = {"givenName", "familyName", "email", "password","isActive", "inProjects", "hasPermissions"}
+    mandatory_json_fields = {"givenName", "familyName", "email", "password"}
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
 
@@ -73,6 +74,7 @@ def create_user(userid):
         try:
             familyname = Xsd_string(data['familyName'])
             givenname = Xsd_string(data['givenName'])
+            email = Xsd_string(data['email'])
             credentials = Xsd_string(data['password'])
             isActive = data.get('isActive', True)
         except KeyError as error:  # Should not be reachable. Redundancy
@@ -122,6 +124,7 @@ def create_user(userid):
                         userId=userid,
                         familyName=familyname,
                         givenName=givenname,
+                        email=email,
                         credentials=credentials,
                         inProject=in_project_dict,
                         hasPermissions=permission_set,
@@ -180,6 +183,7 @@ def read_users(userid):
         "userId": str(user.userId),
         "family_name": str(user.familyName),
         "isActive": bool(user.isActive),
+        "email": str(user.email),
         "given_name": str(user.givenName),
         "in_projects": [],
         "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
@@ -231,6 +235,7 @@ def modify_user(userid):
     json={
         "givenName": "John",
         "familyName": "Doe",
+        "email": "john.doe@unkown.org",
         "password": "nicepw",
         "isActive": True/False
         "in_projects": [
@@ -252,7 +257,7 @@ def modify_user(userid):
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "User updated successfully"}
     """
-    known_json_fields = {"givenName", "familyName", "password", "inProjects", "hasPermissions", "isActive"}
+    known_json_fields = {"givenName", "familyName", "email", "password", "inProjects", "hasPermissions", "isActive"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -265,6 +270,7 @@ def modify_user(userid):
             return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
         firstname = data.get("givenName", None)
         lastname = data.get("familyName", None)
+        email = data.get("email", None)
         password = data.get("password", None)
         inprojects = data.get('inProjects', "NotSent")
         haspermissions = data.get('hasPermissions', "NotSent")
@@ -361,6 +367,8 @@ def modify_user(userid):
             user.givenName = Xsd_string(firstname)
         if lastname:
             user.familyName = Xsd_string(lastname)
+        if email:
+            user.email = Xsd_string(email)
         if password:
             user.credentials = Xsd_string(password)
         if isactive is not None:

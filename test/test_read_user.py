@@ -9,6 +9,7 @@ def test_read_user(client, token_headers, testuser):
     res = response.json
     assert res["family_name"] == "Rosenthaler"
     assert res["given_name"] == "Manuel"
+    assert res["email"] == "manuel.rosenthaler@unibas.ch"
     assert res["has_permissions"] == ['oldap:GenericView']
     assert res["in_projects"] == [{'permissions': ['oldap:ADMIN_USERS'], 'project': 'oldap:HyperHamlet'},
  {'permissions': ['oldap:ADMIN_USERS'],
@@ -37,6 +38,7 @@ def test_empty_has_permissions(client, token_headers):
     client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -62,6 +64,7 @@ def test_empty_projects(client, token_headers):
     client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {

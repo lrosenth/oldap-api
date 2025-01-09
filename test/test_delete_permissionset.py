@@ -42,6 +42,7 @@ def test_no_permission_delete(client, token_headers, testpermissionset):
     client.put('/admin/user/rosmankappa', json={
         "givenName": "Kappauser",
         "familyName": "KappaKappatest",
+        "email": "<kappa@kappa.com>",
         "password": "kappa1234",
         "inProjects": [
             {

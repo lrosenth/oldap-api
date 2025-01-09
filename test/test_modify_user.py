@@ -37,6 +37,21 @@ def test_modify_familyname(client, token_headers, testuser):
     readed = read.json
     assert readed["family_name"] == "Kappa"
 
+def test_modify_email(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "email": "manuel.rosenthaler@stud.unibas.ch"
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    assert res["message"] == "User updated successfully"
+
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed["email"] == "manuel.rosenthaler@stud.unibas.ch"
+
 
 def test_modify_credentials(client, token_headers, testuser):
     header = token_headers[1]
@@ -613,6 +628,7 @@ def test_no_permission_modify(client, token_headers, testuser):
     client.put('/admin/user/rosmankappa', json={
         "givenName": "Kappauser",
         "familyName": "KappaKappatest",
+        "email": "kappa.user@kappa.com",
         "password": "kappa1234",
         "inProjects": [
             {
@@ -693,6 +709,7 @@ def test_change_own_user_pw(client, token_headers):
     response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {

@@ -177,6 +177,7 @@ def test_no_permission_create_project(client, token_headers, testuser):
     client.put('/admin/user/rosmankappa', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
+        "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "inProjects": [
             {
