@@ -44,18 +44,18 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
         assert ele["maxExclusive"] == '5.6'
         assert ele["maxInclusive"] == '5.6'
 
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "languageIn": ["en", "de"],
-    # }, headers=header)
-    # assert response.status_code == 200
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # res = response.json
-    #
-    # for ele in res["standaloneProperties"]:
-    #     if Iri(ele["iri"]).prefix != "hyha":
-    #         continue
-    #
-    #     assert set(ele["languageIn"]) == set(["en", "de", ])
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": ["en", "de"],
+    }, headers=header)
+    assert response.status_code == 200
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+
+        assert set(ele["languageIn"]) == set(["en", "de", ])
 
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "name": {"add": ["NewKappa@en"], "del": ["Kappa@de"]},
@@ -66,9 +66,56 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
     for ele in res["standaloneProperties"]:
         if Iri(ele["iri"]).prefix != "hyha":
             continue
+        print(ele["name"])
+        assert ele["name"] == ["NewKappa@en"]
 
-        print(ele)
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["NewKappa"], "del": ["Kappa"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
 
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["a"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": ["a"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": ["Kappa"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["NewKappa@zz"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["NewKappa@gaga"], "del": ["Kappa@gaga"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": ["Kappa@gaga"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": ["Kappa@zz"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
 
 def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelstandalonepropstring):
     header = token_headers[1]
