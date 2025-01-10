@@ -1,3 +1,6 @@
 /__pycache__
 /test/__pycache__
 /poetry.lock
+/.idea
+/.idea/misc.xml
+/.idea/oldap-api.iml
