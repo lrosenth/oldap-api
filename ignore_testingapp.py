@@ -1,4 +1,4 @@
-from omaslib.src.connection import Connection
+from oldaplib.src.connection import Connection
 
 import factory
 
@@ -9,7 +9,7 @@ app = factory.factory()
 def hello_world():  # put application's code here
     # return "In Helloworld"
     con = Connection(server='http://localhost:7200',
-                     repo="omas",
+                     repo="oldap",
                      userId="rosenth",
                      credentials="RioGrande",
                      context_name="DEFAULT")

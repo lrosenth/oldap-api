@@ -1,6 +1,13 @@
 /__pycache__
 /test/__pycache__
+/.coverage
 /poetry.lock
-/.idea
-/.idea/misc.xml
-/.idea/oldap-api.iml
+/.idea/dataSources.xml
+/views/__pycache__/datamodelling_views.cpython-312.pyc
+/views/__pycache__/permset_views.cpython-312.pyc
+/views/__pycache__/user_views.cpython-312.pyc
+/.idea/swagger-settings.xml
+/views/__pycache__/__init__.cpython-312.pyc
+/views/__pycache__/auth_views.cpython-312.pyc
+/views/__pycache__/project_views.cpython-312.pyc
+/views/__pycache__
