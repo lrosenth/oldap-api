@@ -384,3 +384,43 @@ def modify_project(projectid):
         return jsonify({"message": "Project updated successfully"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+
+@project_bp.route('/project/getid', methods=['GET'])
+def get_projectid():
+    """
+
+    :return:
+    """
+    known_json_fields = {"iri"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used for getting the project id. Usable are {known_json_fields}. Aborted operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to search for a project. Usablable for the search-viewfunction are {known_json_fields}"}), 400
+        iri = data.get("iri", None)
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="oldap",
+                             token=token,
+                             context_name="DEFAULT")
+        except OldapError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+        try:
+            id = Project.get_shortname_from_iri(con=con, iri=Iri(iri))
+        except OldapErrorNotFound as error:
+            return jsonify({"message": f"OldapErrorNotFound: {error}"}), 404
+        except OldapError as error:
+            return jsonify({"message": f"OldapError: {error}"}), 500
+        except Exception as error:
+            return jsonify({"message": f"Generic exception: {error}"}), 500
+        return jsonify({"id": str(id)}), 200
+
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400

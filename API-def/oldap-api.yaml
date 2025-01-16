@@ -239,7 +239,28 @@ paths:
           content:
             application/json:
               schema:
+                type: object
+                required:
+                  - creator
+                  - created
+                  - contributor
+                  - modified
+                  - userId
+                  - userIri
+                  - family_name
+                  - given_name
+                  - email
                 properties:
+                  creator:
+                    type: string
+                  created:
+                    type: string
+                    format: date-time
+                  contributor:
+                    type: string
+                  modified:
+                    type: string
+                    format: date-time
                   userIri:
                     type: string
                   userId:
@@ -529,12 +550,23 @@ paths:
             application/json:
               schema:
                 properties:
-                  project:
+                  projectIri:
                     type: string
-                  creation:
+                    description: An Iri or a QName identifying the project
+                  creator:
                     type: string
+                    description: An Iri or QName describing the user
+                  created:
+                    type: string
+                    format: date
+                    description: Creation date of this project
+                  contributor:
+                    type: string
+                    description: An Iri or QName describing the user
                   modified:
                     type: string
+                    format: date
+                    description: Last modification date of project
                   label:
                     $ref: '#/components/schemas/LangString'
                   comment:
@@ -543,12 +575,15 @@ paths:
                     type: string
                   shortName:
                     type: string
+                    pattern: ^[a-zA-Z_][a-zA-Z0-9._-]*$
                   namespace IRI:
                     type: string
                   project start:
                     type: string
+                    format: date
                   project end:
                     type: string
+                    format: date
         403:
           description: "Unauthorized"
           content:
@@ -698,6 +733,50 @@ paths:
                   message:
                     type: string
                     example: "Connection failed: {OldapError}"
+
+  /admin/project/getid:
+    get:
+      summary: Get project shortname (project id) from Iri
+      description: Get the project shortname from the project IRI
+      security:
+        - AccessToken: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                iri:
+                  type: string
+                  format: url
+        required: true
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                required: [ id ]
+        404:
+          description: "Project not found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                required: [ message ]
+        500:
+          description: "Unknown error"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                required: [ message ]
 
   /admin/permissionset/{definedByProject}/{permissionsetid}:
     put:

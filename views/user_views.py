@@ -179,6 +179,10 @@ def read_users(userid):
 
     # Building the response json
     answer = {
+        "creator": str(user.creator),
+        "created": str(user.created),
+        "contributor": str(user.contributor),
+        "modified": str(user.modified),
         "userIri": str(user.userIri),
         "userId": str(user.userId),
         "family_name": str(user.familyName),
