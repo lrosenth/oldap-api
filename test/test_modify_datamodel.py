@@ -117,6 +117,34 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
     res = response.json
     assert response.status_code == 400
 
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": None,
+    }, headers=header)
+    res = response.json
+    print(res)
+    # assert response.status_code == 400
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": "gaga",
+    }, headers=header)
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        None: "gaga",
+    }, headers=header)
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={}, headers=header)
+    res = response.json
+    print(res)
+
+
 def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelstandalonepropstring):
     header = token_headers[1]
 
@@ -216,13 +244,21 @@ def test_bad_token_standaloneprop(client, token_headers, testfulldatamodelstanda
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
 
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', headers=header)
+    assert response.status_code == 403
+    res = response.json
+    assert res["message"] == "Connection failed: Wrong credentials"
+
 def test_cantfind_dm_to_modify(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
     response = client.post('/admin/datamodel/doesnotexist/hyha:testProp/mod', headers=header)
-
     assert response.status_code == 404
+    res = response.json
+    print(res)
 
+    response = client.post('/admin/datamodel/kappadoesnotexist/property/hyha:testProp2', headers=header)
+    assert response.status_code == 404
     res = response.json
     print(res)
 
@@ -343,3 +379,34 @@ def test_bad_fields_in_modify_attribute_in_has_prop(client, token_headers, testf
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_no_permission_modify_standalone_prop(client, token_headers, testfulldatamodelstandaloneproplangstring):
+    header = token_headers[1]
+
+    client.put('/admin/user/rosmankappa', json={
+        "givenName": "Kappauser",
+        "familyName": "KappaKappatest",
+        "email": "kappa@kappa.com",
+        "password": "kappa1234",
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+            }
+        ],
+        "hasPermissions": [
+            "GenericRestricted"
+        ]
+    }, headers=header)
+
+    login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})
+    token = login.json['token']
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+
+    response2 = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["NewKappa@en"], "del": ["Kappa@de"]},
+    }, headers=headers)
+    res2 = response2.json
+    print(res2)
+    assert response2.status_code == 404

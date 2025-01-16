@@ -23,7 +23,7 @@ from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
-from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorValue
+from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorValue, OldapErrorNoPermission
 from oldaplib.src.iconnection import IConnection
 from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
@@ -550,8 +550,9 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             else:
                 return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
             continue
-        if data.get(attrname) is None:
-            delattr(property, attrname)
+        # TODO: Braucht man dies noch?
+        # if data.get(attrname) is None:
+        #     delattr(property, attrname)
 
         else:
             setattr(property, attrname, attrval)
@@ -591,7 +592,7 @@ def modify_standalone_property(project, property):
             return jsonmsg, statuscode
         try:
             dm.update()
-        except KeyError as error:
+        except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 404
         except OldapError as error:
             return jsonify({'message': str(error)}), 500
