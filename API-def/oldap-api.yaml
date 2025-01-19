@@ -1,5 +1,5 @@
 ---
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: OLDAP-API
   description: RESTful API for oldap
@@ -694,17 +694,20 @@ paths:
       description: "The user that has the rights (given by his token) searches for given parameters in projects"
       security:
         - AccessToken: [ ]
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                label:
-                  type: string
-                comment:
-                  type: string
-        required: true
-
+      parameters:
+        - in: query
+          name: label
+          schema:
+            type: string
+          description: Label or part of label of project
+        - in: query
+          name: comment
+          schema:
+            type: string
+          description: Comment or part of commwent of project
+      oneOf:
+        - required: [label]
+        - required: [comment]
       responses:
         "200":
           description: "OK"

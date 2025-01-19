@@ -194,33 +194,54 @@ def search_project():
     :return: A JSON containing the Iri's about the found projects. It has the following form:
     json={'message': '[Iri("http://unittest.org/project/testproject")]'}
     """
-    known_json_fields = {"label", "comment"}
+    # known_json_fields = {"label", "comment"}
     out = request.headers['Authorization']
     b, token = out.split()
 
-    if request.is_json:
-        data = request.get_json()
-        unknown_json_field = set(data.keys()) - known_json_fields
-        if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a project. Usable are {known_json_fields}. Aborded operation"}), 400
-        if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to search for a project. Usablable for the search-viewfunction are {known_json_fields}"}), 400
-        label = data.get("label", None)
-        comment = data.get('comment', None)
+    if not request.args:
+        return jsonify({"message": f"Query parameters 'label' and/or 'comment' expected – got none"}), 400
 
-        try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    known_query_fields = {"label", "comment"}
+    unknown_query_field = set(request.args.keys() - known_query_fields)
+    if unknown_query_field:
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a project. Usable are {known_query_fields}. Aborted operation"}), 400
+    label = request.args.get('label', None)
+    comment = request.args.get('comment', None)
 
-        projects = Project.search(con=con, label=label, comment=comment)
-        return jsonify(str(projects)), 200
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    else:
-        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+    projects = Project.search(con=con, label=label, comment=comment)
+    return jsonify([str(x) for x in projects]), 200
+
+    # if request.is_json:
+    #     data = request.get_json()
+    #     unknown_json_field = set(data.keys()) - known_json_fields
+    #     if unknown_json_field:
+    #         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a project. Usable are {known_json_fields}. Aborded operation"}), 400
+    #     if not set(data.keys()):
+    #         return jsonify({"message": f"At least one field must be given to search for a project. Usablable for the search-viewfunction are {known_json_fields}"}), 400
+    #     label = data.get("label", None)
+    #     comment = data.get('comment', None)
+    #
+    #     try:
+    #         con = Connection(server='http://localhost:7200',
+    #                          repo="oldap",
+    #                          token=token,
+    #                          context_name="DEFAULT")
+    #     except OldapError as error:
+    #         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    #
+    #     projects = Project.search(con=con, label=label, comment=comment)
+    #     return jsonify(str(projects)), 200
+    #
+    # else:
+    #     return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
 @project_bp.route('/project/<projectid>', methods=['POST'])
