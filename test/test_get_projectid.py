@@ -4,9 +4,7 @@ from pprint import pprint
 def test_get_projectid(client, token_headers, testproject):
     header = token_headers[1]
 
-    response = client.get('/admin/project/getid', json={
-        "iri": "oldap:HyperHamlet"
-    }, headers=header)
+    response = client.get('/admin/project/getid', query_string={'iri': "oldap:HyperHamlet"}, headers=header)
 
     assert response.status_code == 200
     res = response.json
@@ -15,7 +13,7 @@ def test_get_projectid(client, token_headers, testproject):
 def test_get_projectid2(client, token_headers, testproject):
     header = token_headers[1]
 
-    response = client.get('/admin/project/getid', json={
+    response = client.get('/admin/project/getid', query_string={
         "iri": "http://www.salsah.org/version/2.0/SwissBritNet"
     }, headers=header)
 
@@ -23,10 +21,42 @@ def test_get_projectid2(client, token_headers, testproject):
     res = response.json
     assert res["id"] == "britnet"
 
+def test_get_projectid_inavlid_iri(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.get('/admin/project/getid', query_string={
+        "iri": "was soll denn das?"
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res['message'] == 'OldapErrorValue: Invalid string for IRI: "was soll denn das?"'
+
+def test_get_projectid_no_iri(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.get('/admin/project/getid',  headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+    assert res['message'] == 'iri query parameter expected'
+
+def test_get_projectid_unkown_iri(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.get('/admin/project/getid', query_string={
+        "iri": "http://unibas.ch/no/answer"
+    }, headers=header)
+
+    assert response.status_code == 404
+    res = response.json
+    assert res['message'] == 'OldapErrorNotFound: No project shortname found for http://unibas.ch/no/answer'
+
+
 def test_get_project_unknown(client, token_headers, testproject):
     header = token_headers[1]
 
-    response = client.get('/admin/project/getid', json={
+    response = client.get('/admin/project/getid', query_string={
         "iri": "oldap:unknown"
     }, headers=header)
 
@@ -37,7 +67,7 @@ def test_get_project_unknown(client, token_headers, testproject):
 def test_get_project_malformed(client, token_headers, testproject):
     header = token_headers[1]
 
-    response = client.get('/admin/project/getid', json={
+    response = client.get('/admin/project/getid', query_string={
         "iri": "gaga:unknown"
     }, headers=header)
 
@@ -48,7 +78,7 @@ def test_get_project_malformed(client, token_headers, testproject):
 def test_get_project_malformed2(client, token_headers, testproject):
     header = token_headers[1]
 
-    response = client.get('/admin/project/getid', json={
+    response = client.get('/admin/project/getid', query_string={
         "iri": "http://www.example.org/no/project"
     }, headers=header)
 

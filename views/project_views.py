@@ -174,7 +174,7 @@ def read_project(projectid):
         'modified': str(project.modified),
         'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()] if project.label else None,
         'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()] if project.comment else None,
-        'projectShortname': str(project.projectShortName),
+        'projectShortName': str(project.projectShortName),
         'namespaceIri': str(project.namespaceIri),
         'projectStart': str(project.projectStart) if project.projectStart else None,
         'projectEnd': str(project.projectEnd) if project.projectEnd else None
@@ -392,18 +392,12 @@ def get_projectid():
 
     :return:
     """
-    known_json_fields = {"iri"}
     out = request.headers['Authorization']
     b, token = out.split()
 
-    if request.is_json:
-        data = request.get_json()
-        unknown_json_field = set(data.keys()) - known_json_fields
-        if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used for getting the project id. Usable are {known_json_fields}. Aborted operation"}), 400
-        if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to search for a project. Usablable for the search-viewfunction are {known_json_fields}"}), 400
-        iri = data.get("iri", None)
+    iri = request.args.get('iri')
+
+    if iri:
         try:
             con = Connection(server='http://localhost:7200',
                              repo="oldap",
@@ -413,14 +407,16 @@ def get_projectid():
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
         try:
-            id = Project.get_shortname_from_iri(con=con, iri=Iri(iri))
+            proj_id = Project.get_shortname_from_iri(con=con, iri=Iri(iri))
+        except OldapErrorValue as error:
+            return jsonify({"message": f"OldapErrorValue: {error}"}), 400
         except OldapErrorNotFound as error:
             return jsonify({"message": f"OldapErrorNotFound: {error}"}), 404
         except OldapError as error:
             return jsonify({"message": f"OldapError: {error}"}), 500
         except Exception as error:
             return jsonify({"message": f"Generic exception: {error}"}), 500
-        return jsonify({"id": str(id)}), 200
+        return jsonify({"id": str(proj_id)}), 200
 
     else:
-        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+        return jsonify({"message": f"iri query parameter expected"}), 400

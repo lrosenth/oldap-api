@@ -740,15 +740,13 @@ paths:
       description: Get the project shortname from the project IRI
       security:
         - AccessToken: [ ]
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                iri:
-                  type: string
-                  format: url
-        required: true
+      parameters:
+        - in: query
+          name: iri
+          schema:
+            type: string
+          description: Iri of project to get the id from
+          required: true
       responses:
         200:
           description: "OK"
@@ -759,6 +757,15 @@ paths:
                   id:
                     type: string
                 required: [ id ]
+        400:
+          description: Request has wrong or missing parameter
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                required: [ message ]
         404:
           description: "Project not found"
           content:
