@@ -595,7 +595,7 @@ def modify_standalone_property(project, property):
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 404
         except OldapError as error:
-            return jsonify({'message': str(error)}), 500
+            return jsonify({'message': str(error)}), 500  # Should not be reachable
     return jsonify({'message': 'Data model successfully modified'}), 200
 
 
@@ -622,15 +622,14 @@ def modify_resource(project, resource):
     if request.is_json:
         data = request.get_json()
 
-        attributes = {
-            "closed": data.get("closed", None),
-            "label": data.get("label", None),
-            "comment": data.get("comment", None),
-        }
-
-        for attrname, attrval in attributes.items():
+        for attrname, attrval in data.items():
             if attrname == "label" or attrname == "comment":
                 if isinstance(attrval, list):
+                    try:
+                        if attrval[0][-3] != '@':
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    except IndexError as error:
+                        return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                     setattr(dm[Iri(resource)], attrname, LangString(attrval))
                 elif isinstance(attrval, dict):
                     adding = attrval.get("add", [])
@@ -658,11 +657,11 @@ def modify_resource(project, resource):
                         try:
                             tmp = getattr(dm[Iri(resource)], attrname)
                             del tmp[Language[lang]]
-                            #del dm[Iri(resource)]['rdfs:' + attrname][Language[lang]]
                         except KeyError as error:
                             return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                 elif attrval is None:
                     delattr(dm[Iri(resource)], attrname)
+                    # del dm[Iri(resource)][attrname]
                 else:
                     return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
                 continue
@@ -671,10 +670,10 @@ def modify_resource(project, resource):
                 setattr(dm[Iri(resource)], attrname, attrval)
         try:
             dm.update()
-        except KeyError as error:
+        except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 404
         except OldapError as error:
-            return jsonify({'message': str(error)}), 500
+            return jsonify({'message': str(error)}), 500  # Should not be reachable
     return jsonify({'message': 'Data model successfully modified'}), 200
 
 
@@ -720,10 +719,10 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
 
     try:
         dm.update()
-    except KeyError as error:
+    except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
-        return jsonify({'message': str(error)}), 500
+        return jsonify({'message': str(error)}), 500  # Should not be reachable
     return jsonify({'message': 'Data model successfully modified'}), 200
 
 
