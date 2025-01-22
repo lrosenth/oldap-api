@@ -70,6 +70,24 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
         assert ele["name"] == ["NewKappa@en"]
 
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": ["kappa@z"],
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": ["kappa@zz"],
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": ["z"],
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "name": {"add": ["NewKappa"], "del": ["Kappa"]},
     }, headers=header)
     res = response.json
@@ -204,110 +222,110 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
 def test_modify_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "closed": False,
-    #     #"label": ["Ein Test@de"],
-    #     #"comment": ["A test comment@en"],
-    #     "label": {"add": ["Ein Test@zu"], "del": ["Eine Buchseite@de"]},
-    #     "comment": {"add": ["Ein Test@zu"], "del": ["A page of a book@en"]},
-    #     "hasProperty": [
-    #         {
-    #             "property": {
-    #                 "iri": "hyha:testProp2",
-    #                 "uniqueLang": False,
-    #             },
-    #             "maxCount": 3,
-    #             "minCount": 1,
-    #             "order": 1
-    #         }
-    #     ]
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    #
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # pprint(res)
-    # assert res["resources"][0]["closed"] == False
-    # assert set(res["resources"][0]["label"]) == set(['A page of a book@en', "Ein Test@zu"])
-    # assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "Ein Test@zu"])
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": ["Edeutsch kappa@de"],
-    #     "comment": ["english kappa@en"],
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 200
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # res = response.json
-    # pprint(res)
-    # assert res["resources"][0]["label"] == ["Edeutsch kappa@de"]
-    # assert res["resources"][0]["comment"] == ["english kappa@en"]
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": ["Edeutsch kappa@d"],
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": ["d"],
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": {"add": ["Ein Test@z"], "del": ["Eine Buchseite@de"]},
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": {"del": ["Eine Buchseite@d"]},
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": {"add": ["Ei"]},
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": {"del": ["Ei"]},
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": {"add": ["Ein Test@zz"]},
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": {"del": ["Eine Buchseite@zz"]},
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": "kappa",
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "closed": False,
+        #"label": ["Ein Test@de"],
+        #"comment": ["A test comment@en"],
+        "label": {"add": ["Ein Test@zu"], "del": ["Eine Buchseite@de"]},
+        "comment": {"add": ["Ein Test@zu"], "del": ["A page of a book@en"]},
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:testProp2",
+                    "uniqueLang": False,
+                },
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            }
+        ]
+    }, headers=header)
+    res = response.json
+    print(res)
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
+    assert res["resources"][0]["closed"] == False
+    assert set(res["resources"][0]["label"]) == set(['A page of a book@en', "Ein Test@zu"])
+    assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "Ein Test@zu"])
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": ["Edeutsch kappa@de"],
+        "comment": ["english kappa@en"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+    pprint(res)
+    assert res["resources"][0]["label"] == ["Edeutsch kappa@de"]
+    assert res["resources"][0]["comment"] == ["english kappa@en"]
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": ["Edeutsch kappa@d"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": ["d"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"add": ["Ein Test@z"], "del": ["Eine Buchseite@de"]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"del": ["Eine Buchseite@d"]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"add": ["Ei"]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"del": ["Ei"]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"add": ["Ein Test@zz"]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"del": ["Eine Buchseite@zz"]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": "kappa",
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
 
     response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
         "label": None,

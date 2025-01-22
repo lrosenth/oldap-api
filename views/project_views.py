@@ -186,13 +186,13 @@ def read_project(projectid):
 def search_project():
     """
     Viewfunction to search for a project. It is possible to search for label and comment.
-    A JSON is expected that has the following form:
-    json={
+    The querry parameters the following form:
+    query_string={
     "label": examplelabel,
     "comment": examplecomment
     }
     :return: A JSON containing the Iri's about the found projects. It has the following form:
-    json={'message': '[Iri("http://unittest.org/project/testproject")]'}
+    json={[Iri("http://unittest.org/project/testproject")]}
     """
     # known_json_fields = {"label", "comment"}
     out = request.headers['Authorization']
@@ -218,30 +218,6 @@ def search_project():
 
     projects = Project.search(con=con, label=label, comment=comment)
     return jsonify([str(x) for x in projects]), 200
-
-    # if request.is_json:
-    #     data = request.get_json()
-    #     unknown_json_field = set(data.keys()) - known_json_fields
-    #     if unknown_json_field:
-    #         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a project. Usable are {known_json_fields}. Aborded operation"}), 400
-    #     if not set(data.keys()):
-    #         return jsonify({"message": f"At least one field must be given to search for a project. Usablable for the search-viewfunction are {known_json_fields}"}), 400
-    #     label = data.get("label", None)
-    #     comment = data.get('comment', None)
-    #
-    #     try:
-    #         con = Connection(server='http://localhost:7200',
-    #                          repo="oldap",
-    #                          token=token,
-    #                          context_name="DEFAULT")
-    #     except OldapError as error:
-    #         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-    #
-    #     projects = Project.search(con=con, label=label, comment=comment)
-    #     return jsonify(str(projects)), 200
-    #
-    # else:
-    #     return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
 @project_bp.route('/project/<projectid>', methods=['POST'])
@@ -410,8 +386,10 @@ def modify_project(projectid):
 @project_bp.route('/project/getid', methods=['GET'])
 def get_projectid():
     """
-
-    :return:
+    Veiwfunction to get the project id from the submitted project iri.
+    query_param = {iri:<projectiri>}
+    :return: A JSON containing the project id that has the following form:
+    json={"id": str(proj_id)}
     """
     out = request.headers['Authorization']
     b, token = out.split()

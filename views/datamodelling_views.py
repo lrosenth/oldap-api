@@ -519,6 +519,17 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             continue
         if attrname == "name" or attrname == "description":
             if isinstance(attrval, list):
+                for item in attrval:
+                    try:
+                        if item[-3] != '@':
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    except IndexError as error:
+                        return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    lang = item[-2:].upper()
+                    try:
+                        Language[lang]
+                    except KeyError as error:
+                        return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                 setattr(property, attrname, LangString(attrval))
             elif isinstance(attrval, dict):
                 adding = attrval.get("add", [])
@@ -553,7 +564,6 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
         # TODO: Braucht man dies noch?
         # if data.get(attrname) is None:
         #     delattr(property, attrname)
-
         else:
             setattr(property, attrname, attrval)
         continue
