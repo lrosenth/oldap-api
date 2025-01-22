@@ -280,6 +280,12 @@ def modify_permissionset(definedbyproject, permissionsetid):
                                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                         except IndexError as error:
                             return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        lang = item[-2:].upper()
+                        try:
+                            Language[lang]
+                        except KeyError as error:
+                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+
                     ps.label = LangString(label)
                 elif isinstance(label, dict):
                     if "add" in label:
@@ -327,6 +333,11 @@ def modify_permissionset(definedbyproject, permissionsetid):
                                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                         except IndexError as error:
                             return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        lang = item[-2:].upper()
+                        try:
+                            Language[lang]
+                        except KeyError as error:
+                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                     ps.comment = LangString(comment)
                 elif isinstance(comment, dict):
                     if "add" in comment:
