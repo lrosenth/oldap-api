@@ -410,6 +410,68 @@ paths:
         500:
           description: "Internal Server error. Should not be reachable"
 
+  /admin/user/search:
+    get:
+      summary: "Searches for given user"
+      description: "Search for a given user"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+          description: userId of user
+        - in: query
+          name: familyName
+          schema:
+            type: string
+          description: Family name of user
+        - in: query
+          name: givenName
+          schema:
+            type: string
+          description: Given name of user
+        - in: query
+          name: inProject
+          schema:
+            type: string
+          description: Users belonging to given project
+      oneOf:
+        - required: [userId]
+        - required: [familyName]
+        - required: [givenName]
+        - required: [inProject]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: '[Iri("http://unittest.org/project/testproject")]'
+        400:
+          description: "Several Errors that involve bad requests"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Expected JSON, received something else//Either label or comment needs to be provided"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+
+
   /admin/project/{projectId}:
     put:
       summary: Project creation
