@@ -50,7 +50,7 @@ def test_not_found_search(client, token_headers):
     assert res == []
 
 
-def test_no_json(client, token_headers):
+def test_no_query_params(client, token_headers):
     header = token_headers[1]
     response = client.get('/admin/project/search', headers=header)
     assert response.status_code == 400
@@ -59,7 +59,7 @@ def test_no_json(client, token_headers):
     assert res['message'] == "Query parameters 'label' and/or 'comment' expected – got none"
 
 
-def test_empty_json(client, token_headers):
+def test_empty_query_params(client, token_headers):
     header = token_headers[1]
     response = client.get('/admin/project/search', query_string={}, headers=header)
     assert response.status_code == 400

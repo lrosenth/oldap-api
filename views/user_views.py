@@ -411,7 +411,7 @@ def user_search():
     known_query_fields = {"userId", "familyName", "givenName", "inProject"}
     unknown_query_field = set(request.args.keys() - known_query_fields)
     if unknown_query_field:
-        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a project. Usable are {known_query_fields}. Aborted operation"}), 400
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a user. Usable are {known_query_fields}. Aborted operation"}), 400
     userId = request.args.get('userId', None)
     familyName = request.args.get('familyName', None)
     givenName = request.args.get('givenName', None)
