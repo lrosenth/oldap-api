@@ -95,3 +95,19 @@ def test_bad_token(client, token_headers):
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
 
+def test_get_user_by_iri(client, token_headers):
+    header = token_headers[1]
+
+    response = client.get('/admin/user/get', query_string={
+        "iri": "https://orcid.org/0000-0003-1681-4036"
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    assert res["userId"] == "rosenth"
+    assert res["family_name"] == "Rosenthaler"
+    assert res["given_name"] == "Lukas"
+    assert res["email"] == "lukas.rosenthaler@unibas.ch"
+    assert set(res["has_permissions"]) == {'oldap:GenericRestricted', 'oldap:GenericView'}
+
+
+

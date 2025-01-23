@@ -448,10 +448,10 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  message:
-                    type: string
-                    example: '[Iri("http://unittest.org/project/testproject")]'
+                type: array
+                items:
+                  type: string
+                  example: ['https://orcid.org/0000-0003-1681-4036', 'https://orcid.org/0000-0003-1485-4923', 'https://orcid.org/0000-0001-9277-3921']
         400:
           description: "Several Errors that involve bad requests"
           content:
@@ -470,6 +470,93 @@ paths:
                   message:
                     type: string
                     example: "Connection failed: {OldapError}"
+
+  /admin/user/get:
+    get:
+      summary: "Get user by Iri"
+      description: "Get all user data from an userIri"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: query
+          name: iri
+          schema:
+            type: string
+          description: Iri of user
+          required: true
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - creator
+                  - created
+                  - contributor
+                  - modified
+                  - userId
+                  - userIri
+                  - family_name
+                  - given_name
+                  - email
+                properties:
+                  creator:
+                    type: string
+                  created:
+                    type: string
+                    format: date-time
+                  contributor:
+                    type: string
+                  modified:
+                    type: string
+                    format: date-time
+                  userIri:
+                    type: string
+                  userId:
+                    type: string
+                  family_name:
+                    type: string
+                  given_name:
+                    type: string
+                  email:
+                    type: string
+                  is_active:
+                    type: boolean
+                  in_projects:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project:
+                          type: string
+                        permissions:
+                          type: array
+                          items:
+                            type: string
+                  has_permissions:
+                    type: array
+                    items:
+                      type: string
+        "403":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "User {iri} not found"
 
 
   /admin/project/{projectId}:
@@ -776,10 +863,10 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  message:
-                    type: string
-                    example: '[Iri("http://unittest.org/project/testproject")]'
+                type: array
+                items:
+                  type: string
+                  example: ['http://unittest.org/project/testproject', 'oldap:HyHa']
         400:
           description: "Several Errors that involve bad requests"
           content:
