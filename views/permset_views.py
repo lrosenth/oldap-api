@@ -164,30 +164,28 @@ def search_permissionset():
     out = request.headers['Authorization']
     b, token = out.split()
 
-    if request.is_json:
-        data = request.get_json()
-        unknown_json_field = set(data.keys()) - known_json_fields
-        if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
-        if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to search for a permissionset. Usable for the search-viewfunction are {known_json_fields}"}), 400
-        label = data.get("label", None)
-        givespermission = data.get('givesPermission', None)
-        definedbyproject = data.get("definedByProject", None)
+    if not request.args:
+        return jsonify({"message": f"Query parameters 'label' and/or 'definedByProject' and/or ' givesPermission – got none"}), 400
 
-        try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    unknown_json_field = set(request.args.keys()) - known_json_fields
+    if unknown_json_field:
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
+    if not set(request.args.keys()):
+        return jsonify({"message": f"At least one field must be given to search for a permissionset. Usable for the search-viewfunction are {known_json_fields}"}), 400
+    label = request.args.get("label", None)
+    givespermission = request.args.get('givesPermission', None)
+    definedbyproject = request.args.get("definedByProject", None)
 
-        permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
-        return jsonify(str(permissionset)), 200
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    else:
-        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+    permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
+    return jsonify(str(permissionset)), 200
 
 
 @permset_bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['DELETE'])
