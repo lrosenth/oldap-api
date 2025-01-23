@@ -1,5 +1,5 @@
 ---
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: OLDAP-API
   description: RESTful API for oldap
@@ -239,7 +239,28 @@ paths:
           content:
             application/json:
               schema:
+                type: object
+                required:
+                  - creator
+                  - created
+                  - contributor
+                  - modified
+                  - userId
+                  - userIri
+                  - family_name
+                  - given_name
+                  - email
                 properties:
+                  creator:
+                    type: string
+                  created:
+                    type: string
+                    format: date-time
+                  contributor:
+                    type: string
+                  modified:
+                    type: string
+                    format: date-time
                   userIri:
                     type: string
                   userId:
@@ -389,6 +410,68 @@ paths:
         500:
           description: "Internal Server error. Should not be reachable"
 
+  /admin/user/search:
+    get:
+      summary: "Searches for given user"
+      description: "Search for a given user"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+          description: userId of user
+        - in: query
+          name: familyName
+          schema:
+            type: string
+          description: Family name of user
+        - in: query
+          name: givenName
+          schema:
+            type: string
+          description: Given name of user
+        - in: query
+          name: inProject
+          schema:
+            type: string
+          description: Users belonging to given project
+      oneOf:
+        - required: [userId]
+        - required: [familyName]
+        - required: [givenName]
+        - required: [inProject]
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: '[Iri("http://unittest.org/project/testproject")]'
+        400:
+          description: "Several Errors that involve bad requests"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Expected JSON, received something else//Either label or comment needs to be provided"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+
+
   /admin/project/{projectId}:
     put:
       summary: Project creation
@@ -529,12 +612,23 @@ paths:
             application/json:
               schema:
                 properties:
-                  project:
+                  projectIri:
                     type: string
-                  creation:
+                    description: An Iri or a QName identifying the project
+                  creator:
                     type: string
+                    description: An Iri or QName describing the user
+                  created:
+                    type: string
+                    format: date
+                    description: Creation date of this project
+                  contributor:
+                    type: string
+                    description: An Iri or QName describing the user
                   modified:
                     type: string
+                    format: date
+                    description: Last modification date of project
                   label:
                     $ref: '#/components/schemas/LangString'
                   comment:
@@ -543,12 +637,15 @@ paths:
                     type: string
                   shortName:
                     type: string
+                    pattern: ^[a-zA-Z_][a-zA-Z0-9._-]*$
                   namespace IRI:
                     type: string
                   project start:
                     type: string
+                    format: date
                   project end:
                     type: string
+                    format: date
         403:
           description: "Unauthorized"
           content:
@@ -659,17 +756,20 @@ paths:
       description: "The user that has the rights (given by his token) searches for given parameters in projects"
       security:
         - AccessToken: [ ]
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                label:
-                  type: string
-                comment:
-                  type: string
-        required: true
-
+      parameters:
+        - in: query
+          name: label
+          schema:
+            type: string
+          description: Label or part of label of project
+        - in: query
+          name: comment
+          schema:
+            type: string
+          description: Comment or part of commwent of project
+      oneOf:
+        - required: [label]
+        - required: [comment]
       responses:
         "200":
           description: "OK"
@@ -698,6 +798,57 @@ paths:
                   message:
                     type: string
                     example: "Connection failed: {OldapError}"
+
+  /admin/project/getid:
+    get:
+      summary: Get project shortname (project id) from Iri
+      description: Get the project shortname from the project IRI
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: query
+          name: iri
+          schema:
+            type: string
+          description: Iri of project to get the id from
+          required: true
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: string
+                required: [ id ]
+        400:
+          description: Request has wrong or missing parameter
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                required: [ message ]
+        404:
+          description: "Project not found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                required: [ message ]
+        500:
+          description: "Unknown error"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                required: [ message ]
 
   /admin/permissionset/{definedByProject}/{permissionsetid}:
     put:

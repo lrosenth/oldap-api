@@ -179,6 +179,10 @@ def read_users(userid):
 
     # Building the response json
     answer = {
+        "creator": str(user.creator),
+        "created": str(user.created),
+        "contributor": str(user.contributor),
+        "modified": str(user.modified),
         "userIri": str(user.userIri),
         "userId": str(user.userId),
         "family_name": str(user.familyName),
@@ -396,3 +400,34 @@ def modify_user(userid):
 
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+@user_bp.route('/user/search', methods=['GET'])
+def user_search():
+    out = request.headers['Authorization']
+    b, token = out.split()
+    if not request.args:
+        return jsonify({"message": f"Query parameters 'userId', 'familyName', 'givenName', or 'inProject' expected – got none"}), 400
+
+    known_query_fields = {"userId", "familyName", "givenName", "inProject"}
+    unknown_query_field = set(request.args.keys() - known_query_fields)
+    if unknown_query_field:
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a project. Usable are {known_query_fields}. Aborted operation"}), 400
+    userId = request.args.get('userId', None)
+    familyName = request.args.get('familyName', None)
+    givenName = request.args.get('givenName', None)
+    inProject = request.args.get('inProject', None)
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    users = User.search(con=con,
+                       userId=userId,
+                       familyName=familyName,
+                       givenName=givenName,
+                       inProject=inProject)
+    return jsonify([str(x) for x in users]), 200

@@ -378,11 +378,11 @@ def test_bad_token(client, token_headers):
 def test_modify_immutable(client, token_headers):
     header = token_headers[1]
 
-    projectshortname = client.post('/admin/project/testproject', json={
+    projectshortName = client.post('/admin/project/testproject', json={
         "projectShortName": "randomprojectname"
     }, headers=header)
-    assert projectshortname.status_code == 400
-    res = projectshortname.json
+    assert projectshortName.status_code == 400
+    res = projectshortName.json
 
     projectIri = client.post('/admin/project/testproject', json={
         "projectIri": "randomprojectIri"

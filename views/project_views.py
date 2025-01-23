@@ -174,7 +174,7 @@ def read_project(projectid):
         'modified': str(project.modified),
         'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()] if project.label else None,
         'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()] if project.comment else None,
-        'projectShortname': str(project.projectShortName),
+        'projectShortName': str(project.projectShortName),
         'namespaceIri': str(project.namespaceIri),
         'projectStart': str(project.projectStart) if project.projectStart else None,
         'projectEnd': str(project.projectEnd) if project.projectEnd else None
@@ -186,41 +186,38 @@ def read_project(projectid):
 def search_project():
     """
     Viewfunction to search for a project. It is possible to search for label and comment.
-    A JSON is expected that has the following form:
-    json={
+    The querry parameters the following form:
+    query_string={
     "label": examplelabel,
     "comment": examplecomment
     }
     :return: A JSON containing the Iri's about the found projects. It has the following form:
-    json={'message': '[Iri("http://unittest.org/project/testproject")]'}
+    json={[Iri("http://unittest.org/project/testproject")]}
     """
-    known_json_fields = {"label", "comment"}
+    # known_json_fields = {"label", "comment"}
     out = request.headers['Authorization']
     b, token = out.split()
 
-    if request.is_json:
-        data = request.get_json()
-        unknown_json_field = set(data.keys()) - known_json_fields
-        if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a project. Usable are {known_json_fields}. Aborded operation"}), 400
-        if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to search for a project. Usablable for the search-viewfunction are {known_json_fields}"}), 400
-        label = data.get("label", None)
-        comment = data.get('comment', None)
+    if not request.args:
+        return jsonify({"message": f"Query parameters 'label' and/or 'comment' expected – got none"}), 400
 
-        try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    known_query_fields = {"label", "comment"}
+    unknown_query_field = set(request.args.keys() - known_query_fields)
+    if unknown_query_field:
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a project. Usable are {known_query_fields}. Aborted operation"}), 400
+    label = request.args.get('label', None)
+    comment = request.args.get('comment', None)
 
-        projects = Project.search(con=con, label=label, comment=comment)
-        return jsonify(str(projects)), 200
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    else:
-        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+    projects = Project.search(con=con, label=label, comment=comment)
+    return jsonify([str(x) for x in projects]), 200
 
 
 @project_bp.route('/project/<projectid>', methods=['POST'])
@@ -384,3 +381,41 @@ def modify_project(projectid):
         return jsonify({"message": "Project updated successfully"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+
+@project_bp.route('/project/getid', methods=['GET'])
+def get_projectid():
+    """
+    Veiwfunction to get the project id from the submitted project iri.
+    query_param = {iri:<projectiri>}
+    :return: A JSON containing the project id that has the following form:
+    json={"id": str(proj_id)}
+    """
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    iri = request.args.get('iri')
+
+    if iri:
+        try:
+            con = Connection(server='http://localhost:7200',
+                             repo="oldap",
+                             token=token,
+                             context_name="DEFAULT")
+        except OldapError as error:
+            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+        try:
+            proj_id = Project.get_shortname_from_iri(con=con, iri=Iri(iri))
+        except OldapErrorValue as error:
+            return jsonify({"message": f"OldapErrorValue: {error}"}), 400
+        except OldapErrorNotFound as error:
+            return jsonify({"message": f"OldapErrorNotFound: {error}"}), 404
+        except OldapError as error:
+            return jsonify({"message": f"OldapError: {error}"}), 500
+        except Exception as error:
+            return jsonify({"message": f"Generic exception: {error}"}), 500
+        return jsonify({"id": str(proj_id)}), 200
+
+    else:
+        return jsonify({"message": f"iri query parameter expected"}), 400
