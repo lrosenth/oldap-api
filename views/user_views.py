@@ -17,6 +17,7 @@ from typing import Dict, Set
 from flask import jsonify, request, Blueprint
 from oldaplib.src.connection import Connection
 from oldaplib.src.enums.adminpermissions import AdminPermission
+from oldaplib.src.helpers.irincname import IriOrNCName
 from oldaplib.src.helpers.observable_set import ObservableSet
 from oldaplib.src.helpers.oldaperror import OldapErrorValue, OldapError, OldapErrorAlreadyExists, OldapErrorNotFound, \
     OldapErrorNoPermission, OldapErrorUpdateFailed
@@ -411,7 +412,7 @@ def user_search():
     known_query_fields = {"userId", "familyName", "givenName", "inProject"}
     unknown_query_field = set(request.args.keys() - known_query_fields)
     if unknown_query_field:
-        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a project. Usable are {known_query_fields}. Aborted operation"}), 400
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a user. Usable are {known_query_fields}. Aborted operation"}), 400
     userId = request.args.get('userId', None)
     familyName = request.args.get('familyName', None)
     givenName = request.args.get('givenName', None)
@@ -431,3 +432,52 @@ def user_search():
                        givenName=givenName,
                        inProject=inProject)
     return jsonify([str(x) for x in users]), 200
+
+@user_bp.route('/user/get', methods=['GET'])
+def user_get_by_iri():
+    out = request.headers['Authorization']
+    b, token = out.split()
+    if not request.args:
+        return jsonify({"message": f"Query parameter 'iri' expected – got none"}), 400
+
+    known_query_fields = {"iri"}
+    unknown_query_field = set(request.args.keys() - known_query_fields)
+    if unknown_query_field:
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to get a user by iri. Use {known_query_fields}. Aborted operation"}), 400
+    userIri = request.args.get('iri', None)
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        user = User.read(con=con, userId=IriOrNCName(userIri))
+    except OldapErrorNotFound as error:
+        return jsonify({"message": f'User {userIri} not found'}), 404
+
+    # Building the response json
+    answer = {
+        "creator": str(user.creator),
+        "created": str(user.created),
+        "contributor": str(user.contributor),
+        "modified": str(user.modified),
+        "userIri": str(user.userIri),
+        "userId": str(user.userId),
+        "family_name": str(user.familyName),
+        "isActive": bool(user.isActive),
+        "email": str(user.email),
+        "given_name": str(user.givenName),
+        "in_projects": [],
+        "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
+    }
+
+    if user.inProject is not None:
+        for projname, permissions in user.inProject.items():
+            proj = {"project": str(projname), "permissions": [x.value for x in permissions] if permissions else []}
+            answer["in_projects"].append(proj)
+
+    return jsonify(answer), 200

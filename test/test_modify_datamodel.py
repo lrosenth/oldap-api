@@ -272,6 +272,13 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
     assert response.status_code == 400
 
     response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": ["Edeutsch kappa@zz"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
         "label": ["d"],
     }, headers=header)
     res = response.json
