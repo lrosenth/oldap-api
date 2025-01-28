@@ -419,3 +419,33 @@ def get_projectid():
 
     else:
         return jsonify({"message": f"iri query parameter expected"}), 400
+
+@project_bp.route('/project/all', methods=['GET'])
+def get_all_project():
+    """
+    Viewfunction to search for a project. It is possible to search for label and comment.
+    The querry parameters the following form:
+    query_string={
+    "label": examplelabel,
+    "comment": examplecomment
+    }
+    :return: A JSON containing the Iri's about the found projects. It has the following form:
+    json={[Iri("http://unittest.org/project/testproject")]}
+    """
+    # known_json_fields = {"label", "comment"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.args:
+        return jsonify({"message": f"No query parameters expected – got none"}), 400
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    projects = Project.search(con=con)
+    return jsonify([str(x) for x in projects]), 200
