@@ -853,10 +853,7 @@ paths:
           name: comment
           schema:
             type: string
-          description: Comment or part of commwent of project
-      oneOf:
-        - required: [label]
-        - required: [comment]
+          description: Comment or part of comment of project
       responses:
         "200":
           description: "OK"
@@ -865,8 +862,13 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
-                  example: ['http://unittest.org/project/testproject', 'oldap:HyHa']
+                  type: array
+                  items:
+                    type: string
+              example:
+                example1:
+                  summary: Example response
+                  value: [["http://www.gaga/hallo", "hallo"], ["mypr:project", "project"]]
         400:
           description: "Several Errors that involve bad requests"
           content:

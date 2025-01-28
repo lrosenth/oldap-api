@@ -10,7 +10,7 @@ def test_search_project(client, token_headers, testproject):
 
     assert response.status_code == 200
     res = response.json
-    assert res == [Iri("http://unittest.org/project/testproject")]
+    assert res == [["http://unittest.org/project/testproject", 'testproject']]
 
 
 def test_bad_token(client, token_headers):
@@ -53,19 +53,19 @@ def test_not_found_search(client, token_headers):
 def test_no_query_params(client, token_headers):
     header = token_headers[1]
     response = client.get('/admin/project/search', headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
-    assert 'message' in res
-    assert res['message'] == "Query parameters 'label' and/or 'comment' expected – got none"
+    res2 = [(x[0], x[1]) for x in res]
+    assert set(res2) == {('oldap:SystemProject', 'oldap'), ('oldap:HyperHamlet', 'hyha'), ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet')}
 
 
 def test_empty_query_params(client, token_headers):
     header = token_headers[1]
     response = client.get('/admin/project/search', query_string={}, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
-    assert 'message' in res
-    assert res['message'] == "Query parameters 'label' and/or 'comment' expected – got none"
+    res2 = [(x[0], x[1]) for x in res]
+    assert set(res2) == {('oldap:SystemProject', 'oldap'), ('oldap:HyperHamlet', 'hyha'), ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet')}
 
 
 def test_find_several_projects(client, token_headers, testproject):
@@ -86,8 +86,8 @@ def test_find_several_projects(client, token_headers, testproject):
 
     assert response.status_code == 200
     res = response.json
-    assert set(res) == {"http://unittest.org/project/testproject", "http://unittest.org/project/kappaproject"}
-    print(res)
+    res2 = [(x[0], x[1]) for x in res]
+    assert set(res2) == {("http://unittest.org/project/testproject", "testproject"), ("http://unittest.org/project/kappaproject", "kappaproject")}
 
 
 def test_json_with_unknown_fields(client, token_headers, testproject):
@@ -99,4 +99,3 @@ def test_json_with_unknown_fields(client, token_headers, testproject):
 
     assert response.status_code == 400
     res = response.json
-    print(res)

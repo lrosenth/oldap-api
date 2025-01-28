@@ -186,27 +186,28 @@ def read_project(projectid):
 def search_project():
     """
     Viewfunction to search for a project. It is possible to search for label and comment.
-    The querry parameters the following form:
+    The query parameters the following form:
     query_string={
-    "label": examplelabel,
-    "comment": examplecomment
+        "label": examplelabel,
+        "comment": examplecomment
     }
+    if no query parameters are provided, a list of all projects is being returned.
     :return: A JSON containing the Iri's about the found projects. It has the following form:
     json={[Iri("http://unittest.org/project/testproject")]}
     """
-    # known_json_fields = {"label", "comment"}
     out = request.headers['Authorization']
     b, token = out.split()
 
-    if not request.args:
-        return jsonify({"message": f"Query parameters 'label' and/or 'comment' expected – got none"}), 400
-
     known_query_fields = {"label", "comment"}
-    unknown_query_field = set(request.args.keys() - known_query_fields)
-    if unknown_query_field:
-        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a project. Usable are {known_query_fields}. Aborted operation"}), 400
-    label = request.args.get('label', None)
-    comment = request.args.get('comment', None)
+    if request.args:
+        unknown_query_field = set(request.args.keys() - known_query_fields)
+        if unknown_query_field:
+            return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a project. Usable are {known_query_fields}. Aborted operation"}), 400
+        label = request.args.get('label', None)
+        comment = request.args.get('comment', None)
+    else:
+        label = None
+        comment = None
 
     try:
         con = Connection(server='http://localhost:7200',
@@ -217,7 +218,7 @@ def search_project():
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     projects = Project.search(con=con, label=label, comment=comment)
-    return jsonify([str(x) for x in projects]), 200
+    return jsonify([[str(x[0]), str(x[1])] for x in projects]), 200
 
 
 @project_bp.route('/project/<projectid>', methods=['POST'])
