@@ -888,42 +888,6 @@ paths:
                     type: string
                     example: "Connection failed: {OldapError}"
 
-  /admin/project/all:
-    get:
-      summary: "Get all projects existing"
-      description: "The user that has the rights (given by his token) searches for given parameters in projects"
-      security:
-        - AccessToken: [ ]
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-                  example: ['http://unittest.org/project/testproject', 'oldap:HyHa']
-        400:
-          description: "Several Errors that involve bad requests"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "Expected JSON, received something else//Either label or comment needs to be provided"
-        403:
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "Connection failed: {OldapError}"
-
-
   /admin/project/getid:
     get:
       summary: Get project shortname (project id) from Iri
