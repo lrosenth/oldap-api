@@ -222,7 +222,6 @@ def add_resource_to_datamodel(project, resource):
         return jsonify({"message": f"Resource in datamodel {project} successfully created"}), 200
 
 
-# TODO: Testing!
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['PUT'])
 def add_property_to_resource(project, resource, property):
     known_json_fields = {"subPropertyOf", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "minCount", "maxCount", "order"}
@@ -366,7 +365,6 @@ def read_datamodel(project):
     return res, 200
 
 
-# TODO: Errorhandling
 @datamodel_bp.route('/datamodel/<project>', methods=['DELETE'])
 def delete_whole_datamodel(project):
     out = request.headers['Authorization']
@@ -475,9 +473,6 @@ def delete_hasprop_in_resource(project, resource, property):
         return jsonify({'message': str(error)}), 500  # Should not be reachable
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
-# TODO
-#def delete_attribute_in_res_prop
-
 
 def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, int]:
     known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
@@ -486,13 +481,14 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
     if not set(data.keys()):
         return jsonify({"message": f"At least one field must be given to modify the project. Usable for the modify-viewfunction are {known_json_fields}"}), 400
-    # TODO: Was tun wenn attrval = None? Abfangen!
     for attrname, attrval in data.items():
         if attrname == "languageIn":
             if isinstance(attrval, list):
                 tmpval = [Language[x.upper()] for x in attrval]
                 setattr(property, attrname, LanguageIn(tmpval))
             elif isinstance(attrval, dict):
+                if "add" not in attrval and "del" not in attrval:
+                    return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 adding = attrval.get("add", [])
                 if not isinstance(adding, list):
                     return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
@@ -503,6 +499,8 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                     return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
                 for item in deleting:
                     property.languageIn.discard(Language[item.upper()])
+            if attrval is None:
+                delattr(property, attrname)
             continue
         if attrname == "inSet":
             datatype = property.datatype
@@ -510,15 +508,21 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                 tmpval = [convert2datatype(x, datatype) for x in attrval]
                 setattr(property, attrname, XsdSet(tmpval))
             elif isinstance(attrval, dict):
+                if "add" not in attrval and "del" not in attrval:
+                    return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 adding = attrval.get("add", [])
                 for item in adding:
                     property.inSet.add(convert2datatype(item, datatype))
                 deleting = attrval.get("del", [])
                 for item in deleting:
                     property.inSet.discard(convert2datatype(item, datatype))
+            if attrval is None:
+                delattr(property, attrname)
             continue
         if attrname == "name" or attrname == "description":
             if isinstance(attrval, list):
+                if not attrval:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in attrval:
                     try:
                         if item[-3] != '@':
@@ -532,6 +536,10 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                         return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                 setattr(property, attrname, LangString(attrval))
             elif isinstance(attrval, dict):
+                if not attrval:
+                    return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
+                if "add" not in attrval and "del" not in attrval:
+                    return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 adding = attrval.get("add", [])
                 for item in adding:
                     try:
@@ -561,9 +569,8 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             else:
                 return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
             continue
-        # TODO: Braucht man dies noch?
-        # if data.get(attrname) is None:
-        #     delattr(property, attrname)
+        if attrval is None:
+            delattr(property, attrname)
         else:
             setattr(property, attrname, attrval)
         continue
@@ -631,10 +638,17 @@ def modify_resource(project, resource):
 
     if request.is_json:
         data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to modify the standalone property. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
         for attrname, attrval in data.items():
             if attrname == "label" or attrname == "comment":
                 if isinstance(attrval, list):
+                    if not attrval:
+                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                     for item in attrval:
                         try:
                             if item[-3] != '@':
@@ -649,6 +663,10 @@ def modify_resource(project, resource):
 
                         setattr(dm[Iri(resource)], attrname, LangString(attrval))
                 elif isinstance(attrval, dict):
+                    if not attrval:
+                        return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
+                    if "add" not in attrval and "del" not in attrval:
+                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                     adding = attrval.get("add", [])
                     for item in adding:
                         try:
