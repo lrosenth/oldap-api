@@ -303,3 +303,48 @@ def testemptyhlist(client, token_headers):
     }, headers=header)
 
     yield
+
+@pytest.fixture()
+def testfullhlist(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/hlist/hyha/testfullhlist', json={
+        "label": ["testlabel@en"],
+        "definition": ["testdefinition@en"]
+    }, headers=header)
+
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeA', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "root"
+    }, headers=header)
+
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeB', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "right",
+        "refnode": "nodeA"
+    }, headers=header)
+
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeC', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "right",
+        "refnode": "nodeB"
+    }, headers=header)
+
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeBA', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "below",
+        "refnode": "nodeB"
+    }, headers=header)
+
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeBB', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "right",
+        "refnode": "nodeBA"
+    }, headers=header)
+
+    yield

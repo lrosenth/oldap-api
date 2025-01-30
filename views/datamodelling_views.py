@@ -484,19 +484,25 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     for attrname, attrval in data.items():
         if attrname == "languageIn":
             if isinstance(attrval, list):
+                if not attrval:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 tmpval = [Language[x.upper()] for x in attrval]
                 setattr(property, attrname, LanguageIn(tmpval))
             elif isinstance(attrval, dict):
-                if "add" not in attrval and "del" not in attrval:
+                if set(attrval.keys()) != {"add", "del"}:
                     return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 adding = attrval.get("add", [])
                 if not isinstance(adding, list):
                     return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                if not adding:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in adding:
                     property.languageIn.add(Language[item.upper()])
                 deleting = attrval.get("del", [])
                 if not isinstance(deleting, list):
                     return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                if not deleting:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in deleting:
                     property.languageIn.discard(Language[item.upper()])
             if attrval is None:
@@ -505,15 +511,21 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
         if attrname == "inSet":
             datatype = property.datatype
             if isinstance(attrval, list):
+                if not attrval:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 tmpval = [convert2datatype(x, datatype) for x in attrval]
                 setattr(property, attrname, XsdSet(tmpval))
             elif isinstance(attrval, dict):
-                if "add" not in attrval and "del" not in attrval:
+                if set(attrval.keys()) != {"add", "del"}:
                     return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 adding = attrval.get("add", [])
+                if not adding:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in adding:
                     property.inSet.add(convert2datatype(item, datatype))
                 deleting = attrval.get("del", [])
+                if not deleting:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in deleting:
                     property.inSet.discard(convert2datatype(item, datatype))
             if attrval is None:
@@ -538,9 +550,11 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             elif isinstance(attrval, dict):
                 if not attrval:
                     return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
-                if "add" not in attrval and "del" not in attrval:
+                if set(attrval.keys()) != {"add", "del"}:
                     return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 adding = attrval.get("add", [])
+                if not adding:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in adding:
                     try:
                         if item[-3] != '@':
@@ -553,6 +567,8 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                     except KeyError as error:
                         return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                 deleting = attrval.get("del", [])
+                if not deleting:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in deleting:
                     try:
                         if item[-3] != '@':
@@ -665,9 +681,11 @@ def modify_resource(project, resource):
                 elif isinstance(attrval, dict):
                     if not attrval:
                         return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
-                    if "add" not in attrval and "del" not in attrval:
+                    if set(attrval.keys()) != {"add", "del"}:
                         return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                     adding = attrval.get("add", [])
+                    if not adding:
+                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                     for item in adding:
                         try:
                             if item[-3] != '@':
@@ -682,6 +700,8 @@ def modify_resource(project, resource):
                         except KeyError as error:
                             return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                     deleting = attrval.get("del", [])
+                    if not deleting:
+                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                     for item in deleting:
                         try:
                             if item[-3] != '@':
