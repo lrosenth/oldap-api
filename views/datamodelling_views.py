@@ -486,6 +486,9 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             if isinstance(attrval, list):
                 if not attrval:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                for item in attrval:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                 tmpval = [Language[x.upper()] for x in attrval]
                 setattr(property, attrname, LanguageIn(tmpval))
             elif isinstance(attrval, dict):
@@ -497,6 +500,8 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                 if not adding:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in adding:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     property.languageIn.add(Language[item.upper()])
                 deleting = attrval.get("del", [])
                 if not isinstance(deleting, list):
@@ -504,6 +509,8 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                 if not deleting:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in deleting:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     property.languageIn.discard(Language[item.upper()])
             if attrval is None:
                 delattr(property, attrname)
@@ -513,6 +520,9 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             if isinstance(attrval, list):
                 if not attrval:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                for item in attrval:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                 tmpval = [convert2datatype(x, datatype) for x in attrval]
                 setattr(property, attrname, XsdSet(tmpval))
             elif isinstance(attrval, dict):
@@ -522,11 +532,15 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                 if not adding:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in adding:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     property.inSet.add(convert2datatype(item, datatype))
                 deleting = attrval.get("del", [])
                 if not deleting:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in deleting:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     property.inSet.discard(convert2datatype(item, datatype))
             if attrval is None:
                 delattr(property, attrname)
@@ -536,6 +550,8 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                 if not attrval:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in attrval:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     try:
                         if item[-3] != '@':
                             return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
@@ -556,6 +572,8 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                 if not adding:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in adding:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     try:
                         if item[-3] != '@':
                             return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
@@ -570,6 +588,8 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                 if not deleting:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                 for item in deleting:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     try:
                         if item[-3] != '@':
                             return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
@@ -666,6 +686,8 @@ def modify_resource(project, resource):
                     if not attrval:
                         return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                     for item in attrval:
+                        if item is None:
+                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
                             if item[-3] != '@':
                                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
@@ -687,6 +709,8 @@ def modify_resource(project, resource):
                     if not adding:
                         return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                     for item in adding:
+                        if item is None:
+                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
                             if item[-3] != '@':
                                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
@@ -703,6 +727,8 @@ def modify_resource(project, resource):
                     if not deleting:
                         return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                     for item in deleting:
+                        if item is None:
+                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
                             if item[-3] != '@':
                                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400

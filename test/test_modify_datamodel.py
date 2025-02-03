@@ -6,205 +6,205 @@ from oldaplib.src.xsd.iri import Iri
 def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": ["kappa@de"],
-    #     "description": ["gigakappa@de"],
-    #     "languageIn": {'add': ['zu'], 'del': ['fr', 'it']},
-    #     "uniqueLang": True,
-    #     "minLength": 2,
-    #     "maxLength": 51,
-    #     "pattern": "kappa",
-    #     "minExclusive": 5.6,
-    #     "minInclusive": 5.6,
-    #     "maxExclusive": 5.6,
-    #     "maxInclusive": 5.6,
-    # }, headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # print(res)
-    #
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # print(res)
-    # for ele in res["standaloneProperties"]:
-    #     if Iri(ele["iri"]).prefix != "hyha":
-    #         continue
-    #     pprint(ele)
-    #     assert ele["name"] == ["kappa@de"]
-    #     assert ele["description"] == ["gigakappa@de"]
-    #     assert set(ele["languageIn"]) == set(["en", "de", "zu"])
-    #     assert ele["uniqueLang"] == True
-    #     assert ele["minLength"] == '2'
-    #     assert ele["maxLength"] == '51'
-    #     assert ele["pattern"] == "kappa"
-    #     assert ele["minExclusive"] == '5.6'
-    #     assert ele["minInclusive"] == '5.6'
-    #     assert ele["maxExclusive"] == '5.6'
-    #     assert ele["maxInclusive"] == '5.6'
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "languageIn": ["en", "de"],
-    # }, headers=header)
-    # assert response.status_code == 200
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # res = response.json
-    # for ele in res["standaloneProperties"]:
-    #     if Iri(ele["iri"]).prefix != "hyha":
-    #         continue
-    #     assert set(ele["languageIn"]) == set(["en", "de", ])
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": {"add": ["NewKappa@en"], "del": ["Kappa@de"]},
-    # }, headers=header)
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # res = response.json
-    # for ele in res["standaloneProperties"]:
-    #     if Iri(ele["iri"]).prefix != "hyha":
-    #         continue
-    #     print(ele["name"])
-    #     assert ele["name"] == ["NewKappa@en"]
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": ["kappa@z"],
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": ["kappa@zz"],
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": ["z"],
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": {"add": ["NewKappa"], "del": ["Kappa"]},
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": {"add": ["a"]},
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": {"del": ["a"]},
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": {"del": ["Kappa"]},
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": {"add": ["NewKappa@zz"]},
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": {"add": ["NewKappa@gaga"], "del": ["Kappa@gaga"]},
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": {"del": ["Kappa@gaga"]},
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": {"del": ["Kappa@zz"]},
-    # }, headers=header)
-    # res = response.json
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": None,
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 200
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # for ele in res["standaloneProperties"]:
-    #     if Iri(ele["iri"]).prefix != "hyha":
-    #         continue
-    #     assert "name" not in ele
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "name": "gaga",
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     None: "gaga",
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={}, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "languageIn": None,
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 200
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # pprint(res)
-    # for item in res["standaloneProperties"]:
-    #     if item["iri"] == "hyha:testProp2":
-    #         assert "languageIn" not in item
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "minLength": None,
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 200
-    # response = client.get('/admin/datamodel/hyha', headers=header)
-    # assert response.status_code == 200
-    # res = response.json
-    # for ele in res["standaloneProperties"]:
-    #     if Iri(ele["iri"]).prefix != "hyha":
-    #         continue
-    #     assert "minLength" not in ele
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "languageIn": [],
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "languageIn": {"add": "gaga", "kappa": "gigi"},
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": ["kappa@de"],
+        "description": ["gigakappa@de"],
+        "languageIn": {'add': ['zu'], 'del': ['fr', 'it']},
+        "uniqueLang": True,
+        "minLength": 2,
+        "maxLength": 51,
+        "pattern": "kappa",
+        "minExclusive": 5.6,
+        "minInclusive": 5.6,
+        "maxExclusive": 5.6,
+        "maxInclusive": 5.6,
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+        pprint(ele)
+        assert ele["name"] == ["kappa@de"]
+        assert ele["description"] == ["gigakappa@de"]
+        assert set(ele["languageIn"]) == set(["en", "de", "zu"])
+        assert ele["uniqueLang"] == True
+        assert ele["minLength"] == '2'
+        assert ele["maxLength"] == '51'
+        assert ele["pattern"] == "kappa"
+        assert ele["minExclusive"] == '5.6'
+        assert ele["minInclusive"] == '5.6'
+        assert ele["maxExclusive"] == '5.6'
+        assert ele["maxInclusive"] == '5.6'
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": ["en", "de"],
+    }, headers=header)
+    assert response.status_code == 200
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+        assert set(ele["languageIn"]) == set(["en", "de", ])
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["NewKappa@en"], "del": ["Kappa@de"]},
+    }, headers=header)
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+        print(ele["name"])
+        assert ele["name"] == ["NewKappa@en"]
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": ["kappa@z"],
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": ["kappa@zz"],
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": ["z"],
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["NewKappa"], "del": ["Kappa"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["a"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": ["a"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": ["Kappa"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["NewKappa@zz"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["NewKappa@gaga"], "del": ["Kappa@gaga"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": ["Kappa@gaga"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": ["Kappa@zz"]},
+    }, headers=header)
+    res = response.json
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": None,
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+        assert "name" not in ele
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": "gaga",
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        None: "gaga",
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={}, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": None,
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
+    for item in res["standaloneProperties"]:
+        if item["iri"] == "hyha:testProp2":
+            assert "languageIn" not in item
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "minLength": None,
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+        assert "minLength" not in ele
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": [],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": {"add": "gaga", "kappa": "gigi"},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
 
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "languageIn": {"add": "gaga", "del": "gigakappa", "kappa": "gigi"},
@@ -570,12 +570,12 @@ def test_bad_fields_modify_resource(client, token_headers, testfulldatamodelreso
     res = response.json
     print(res)
     assert response.status_code == 400
-
-    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-        "label": {"gaga": "kappa"},
-    }, headers=header)
-    res = response.json
-    print(res)
+    #
+    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+    #     "label": {"gaga": "kappa"},
+    # }, headers=header)
+    # res = response.json
+    # print(res)
 
 
 def test_bad_fields_in_modify_attribute_in_has_prop(client, token_headers, testfulldatamodelresource):
