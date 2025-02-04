@@ -213,6 +213,167 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
     print(res)
     assert response.status_code == 400
 
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": [None],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": {"add": "kappa"},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": {"add": []},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": {"add": [None]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": {"del": "kappa"},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": {"del": []},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": {"del": [None]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "languageIn": {"del": "kappa"},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "inSet": [],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "inSet": [None],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "inSet": {"add": ["kappa"], "doesnotexist": ["kappa2"]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "inSet": {"add": []},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "inSet": {"add": [None]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "inSet": {"del": []},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "inSet": {"del": [None]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": [],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": [None],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": ["kappa"], "doesnotexist": ["kappa2"]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": []},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"add": [None]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": []},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "name": {"del": [None]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
 
 def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelstandalonepropstring):
     header = token_headers[1]
@@ -408,6 +569,49 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
         if resource["iri"] == "hyha:Sheep":
             assert resource["label"] is None
 
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": [],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"add": []},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"add": [None]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"del": []},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"del": [None]},
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+
 def test_bad_token_standaloneprop(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
     token = header['Authorization'].split(' ')[1]
@@ -570,12 +774,12 @@ def test_bad_fields_modify_resource(client, token_headers, testfulldatamodelreso
     res = response.json
     print(res)
     assert response.status_code == 400
-    #
-    # response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-    #     "label": {"gaga": "kappa"},
-    # }, headers=header)
-    # res = response.json
-    # print(res)
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"gaga": "kappa"},
+    }, headers=header)
+    res = response.json
+    print(res)
 
 
 def test_bad_fields_in_modify_attribute_in_has_prop(client, token_headers, testfulldatamodelresource):
