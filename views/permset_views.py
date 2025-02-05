@@ -269,10 +269,12 @@ def modify_permissionset(definedbyproject, permissionsetid):
 
         try:
             if label != "NotSent":
-                if isinstance(label, str):
-                    return jsonify({"message": f"For the label either a list or a dict is expected, not a string"}), 400
                 if isinstance(label, list):
+                    if not label:
+                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
                     for item in label:
+                        if item is None:
+                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
                             if item[-3] != '@':
                                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
@@ -286,10 +288,19 @@ def modify_permissionset(definedbyproject, permissionsetid):
 
                     ps.label = LangString(label)
                 elif isinstance(label, dict):
+                    if not label:
+                        return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
+                    if not set(label.keys()).issubset({"add", "del"}):
+                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                     if "add" in label:
-                        if not isinstance(label["add"], list):
-                            return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
-                        for item in label["add"]:
+                        adding = label.get("add", [])
+                        if not isinstance(adding, list):
+                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                        if not adding:
+                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                        for item in adding:
+                            if item is None:
+                                return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                             try:
                                 if item[-3] != '@':
                                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
@@ -301,9 +312,14 @@ def modify_permissionset(definedbyproject, permissionsetid):
                             except KeyError as error:
                                 return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                     if "del" in label:
-                        if not isinstance(label["del"], list):
-                            return jsonify({"message": f"The delete entry needs to be a list, not a string."}), 400
-                        for item in label["del"]:
+                        deleting = label.get("del", [])
+                        if not isinstance(deleting, list):
+                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                        if not deleting:
+                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                        for item in deleting:
+                            if item is None:
+                                return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                             try:
                                 if item[-3] != '@':
                                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
@@ -314,8 +330,6 @@ def modify_permissionset(definedbyproject, permissionsetid):
                                 del ps.label[Language[lang]]
                             except KeyError as error:
                                 return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                    if "add" not in label and "del" not in label:
-                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
                 elif label is None:
                     del ps.label
                 else:
@@ -339,12 +353,17 @@ def modify_permissionset(definedbyproject, permissionsetid):
                     ps.comment = LangString(comment)
                 elif isinstance(comment, dict):
                     if "add" in comment:
-                        if not isinstance(comment["add"], list):
-                            return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
-                        for item in comment["add"]:
+                        adding = comment.get("add", [])
+                        if not isinstance(adding, list):
+                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                        if not adding:
+                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                        for item in adding:
+                            if item is None:
+                                return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                             try:
                                 if item[-3] != '@':
-                                    return jsonify({"message": f"Please add a correct language tag e.g. @de"}), 400
+                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                             except IndexError as error:
                                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
                             lang = item[-2:].upper()
@@ -353,9 +372,14 @@ def modify_permissionset(definedbyproject, permissionsetid):
                             except KeyError as error:
                                 return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
                     if "del" in comment:
-                        if not isinstance(comment["del"], list):
-                            return jsonify({"message": f"The delete entry needs to be a list, not a string."}), 400
-                        for item in comment["del"]:
+                        deleting = comment.get("del", [])
+                        if not isinstance(deleting, list):
+                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                        if not deleting:
+                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                        for item in deleting:
+                            if item is None:
+                                return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                             try:
                                 if item[-3] != '@':
                                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
