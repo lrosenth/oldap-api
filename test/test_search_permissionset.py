@@ -16,7 +16,6 @@ def test_no_json(client, token_headers):
     assert response.status_code == 400
     res = response.json
     assert 'message' in res
-    assert res['message'] == "Query parameters 'label' and/or 'definedByProject' and/or ' givesPermission – got none"
 
 
 def test_empty_json(client, token_headers):

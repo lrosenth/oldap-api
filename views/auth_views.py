@@ -21,7 +21,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/admin')
 def login(userid):
     """
     Viewfunction to log into a user. A JSON is expected with the password. The userid is given via the URL parameter.
-    The JSON that needs to be provided has the following form: json={'password': 'RioGrande'}
+    The JSON that needs to be provided has the following form: json={'password': '*******'}
     :param userid: The userid of the loginaccount.
     :return: A JSON with the token that has the following form:
     json={'message': 'Login succeeded', 'token': token}
