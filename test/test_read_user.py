@@ -31,6 +31,14 @@ def test_read_user_not_found(client, token_headers, testuser):
     assert 'message' in res
     assert res["message"] == "User kappa not found"
 
+    response = client.get('/admin/user/get', query_string={
+        "iri": "https://orcid.org/0000-0003-1681-4038"
+    }, headers=header)
+    assert response.status_code == 404
+    res = response.json
+    print(res)
+    assert res["message"] == "User https://orcid.org/0000-0003-1681-4038 not found"
+
 
 def test_empty_has_permissions(client, token_headers):
     header = token_headers[1]
@@ -95,6 +103,11 @@ def test_bad_token(client, token_headers):
     res = response.json
     assert res["message"] == "Connection failed: Wrong credentials"
 
+    response = client.get('/admin/user/get', query_string={
+        "iri": "https://orcid.org/0000-0003-1681-4036"
+    }, headers=header)
+    assert response.status_code == 403
+
 def test_get_user_by_iri(client, token_headers):
     header = token_headers[1]
 
@@ -109,5 +122,12 @@ def test_get_user_by_iri(client, token_headers):
     assert res["email"] == "lukas.rosenthaler@unibas.ch"
     assert set(res["has_permissions"]) == {'oldap:GenericRestricted', 'oldap:GenericView'}
 
+    response = client.get('/admin/user/get', query_string={
+    }, headers=header)
+    assert response.status_code == 400
 
+    response = client.get('/admin/user/get', query_string={
+        "kappa": "gugus"
+    }, headers=header)
+    assert response.status_code == 400
 

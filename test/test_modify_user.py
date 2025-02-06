@@ -139,6 +139,19 @@ def test_modify_inproject(client, token_headers, testuser):
     print(readed)
     assert readed["in_projects"][1]["permissions"] == []
 
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": 1234
+            }
+        ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "Either a list or a dict is expected for the content of the permissions field"
+
 
 def test_modify_bad_inproject(client, token_headers, testuser):
     header = token_headers[1]
