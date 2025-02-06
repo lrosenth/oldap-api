@@ -85,7 +85,6 @@ def test_modify_bad_label(client, token_headers, testpermissionset):
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": 1234
     }, headers=header)
-
     assert response.status_code == 400
     res = response.json
     print(res)
@@ -93,7 +92,6 @@ def test_modify_bad_label(client, token_headers, testpermissionset):
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": "kappa"
     }, headers=header)
-
     assert response.status_code == 400
     res = response.json
     print(res)
@@ -101,7 +99,6 @@ def test_modify_bad_label(client, token_headers, testpermissionset):
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": ["gugugugu", "gagagagagag@en"]
     }, headers=header)
-
     assert response.status_code == 400
     res = response.json
     print(res)
@@ -109,7 +106,6 @@ def test_modify_bad_label(client, token_headers, testpermissionset):
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": {"crap": "gugugugu", "alsocrap": "gagagagagag@en"}
     }, headers=header)
-
     assert response.status_code == 400
     res = response.json
     print(res)
@@ -117,7 +113,6 @@ def test_modify_bad_label(client, token_headers, testpermissionset):
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": {"add": ["u"], "del": ["gagagagagag@en"]}
     }, headers=header)
-
     assert response.status_code == 400
     res = response.json
     print(res)
@@ -125,7 +120,6 @@ def test_modify_bad_label(client, token_headers, testpermissionset):
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": {"add": ["u@asdfgasdg"], "del": ["gagagagagag@en"]}
     }, headers=header)
-
     assert response.status_code == 400
     res = response.json
     print(res)
@@ -133,7 +127,6 @@ def test_modify_bad_label(client, token_headers, testpermissionset):
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": {"add": ["u@at"]}
     }, headers=header)
-
     assert response.status_code == 400
     res = response.json
     print(res)
@@ -141,7 +134,6 @@ def test_modify_bad_label(client, token_headers, testpermissionset):
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": {"del": ["doesnotexist@zu"]}
     }, headers=header)
-
     assert response.status_code == 500
     res = response.json
     print(res)
@@ -149,7 +141,83 @@ def test_modify_bad_label(client, token_headers, testpermissionset):
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": ["kappa@zz"]
     }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
 
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": []
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": [None]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": {}
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": {"add": []}
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": {"add": [None]}
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": {"del": []}
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "label": {"del": [None]}
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "comment": {"add": []}
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "comment": {"add": [None]}
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "comment": {"del": []}
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/permissionset/oldap/testpermissionset', json={
+        "comment": {"del": [None]}
+    }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)

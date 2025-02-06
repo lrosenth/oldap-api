@@ -60,7 +60,11 @@ def test_search_permissionset_other_things(client, token_headers, testpermission
     response = client.get('/admin/permissionset/search', query_string={
         "BadStuff": 1234
     }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
 
+    response = client.get('/admin/permissionset/search', query_string={}, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)

@@ -164,9 +164,6 @@ def search_permissionset():
     out = request.headers['Authorization']
     b, token = out.split()
 
-    if not request.args:
-        return jsonify({"message": f"Query parameters 'label' and/or 'definedByProject' and/or ' givesPermission – got none"}), 400
-
     unknown_json_field = set(request.args.keys()) - known_json_fields
     if unknown_json_field:
         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
