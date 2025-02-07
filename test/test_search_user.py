@@ -83,18 +83,26 @@ def test_not_found_search(client, token_headers):
 def test_no_query_params(client, token_headers):
     header = token_headers[1]
     response = client.get('/admin/user/search', headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
-    assert 'message' in res
-    assert res['message'] == "Query parameters 'userId', 'familyName', 'givenName', or 'inProject' expected – got none"
+    assert set(res) == {'https://orcid.org/0000-0003-1681-4036',
+                        'https://orcid.org/0000-0003-1485-4923',
+                        'urn:uuid:7e56b6c4-42e5-4a9d-94cf-d6e22577fb4b',
+                        'https://orcid.org/0000-0001-9277-3921',
+                        'https://orcid.org/0000-0002-7403-9595',
+                        'urn:uuid:3c9bdb26-2451-443c-9ece-edf285639dcc'}
 
 def test_empty_query_params(client, token_headers):
     header = token_headers[1]
     response = client.get('/admin/user/search', query_string={}, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
-    assert 'message' in res
-    assert res['message'] == "Query parameters 'userId', 'familyName', 'givenName', or 'inProject' expected – got none"
+    assert set(res) == {'https://orcid.org/0000-0003-1681-4036',
+                        'https://orcid.org/0000-0003-1485-4923',
+                        'urn:uuid:7e56b6c4-42e5-4a9d-94cf-d6e22577fb4b',
+                        'https://orcid.org/0000-0001-9277-3921',
+                        'https://orcid.org/0000-0002-7403-9595',
+                        'urn:uuid:3c9bdb26-2451-443c-9ece-edf285639dcc'}
 
 def test_json_with_unknown_fields(client, token_headers, testproject):
     header = token_headers[1]

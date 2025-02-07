@@ -421,27 +421,26 @@ paths:
           name: userId
           schema:
             type: string
-          description: userId of user
+          description: "userId of user"
+          required: false
         - in: query
           name: familyName
           schema:
             type: string
-          description: Family name of user
+          description: "Family name of user"
+          required: false
         - in: query
           name: givenName
           schema:
             type: string
-          description: Given name of user
+          description: "Given name of user"
+          required: false
         - in: query
           name: inProject
           schema:
             type: string
-          description: Users belonging to given project
-      oneOf:
-        - required: [userId]
-        - required: [familyName]
-        - required: [givenName]
-        - required: [inProject]
+          description: "Users belonging to given project"
+          required: false
       responses:
         "200":
           description: "OK"
@@ -1261,18 +1260,25 @@ paths:
       description: "The user that has the rights (given by his token) searches for given parameters in permissionsets"
       security:
         - AccessToken: [ ]
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                label:
-                  type: string
-                definedByProject:
-                  type: string
-                givesPermission:
-                  type: string
-        required: true
+      parameters:
+        - name: label
+          in: query
+          schema:
+            type: string
+          description: "Filter by label"
+          required: false  # ✅ Allows omitting this parameter
+        - name: definedByProject
+          in: query
+          schema:
+            type: string
+          description: "Filter by project definition"
+          required: false
+        - name: givesPermission
+          in: query
+          schema:
+            type: string
+          description: "Filter by permission"
+          required: false
 
       responses:
         "200":
@@ -1280,10 +1286,10 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  message:
-                    type: string
-                    example: '[Iri("oldap:testpermissionset")]'
+                type: array
+                items:
+                  type: string
+                  example: ['https://orcid.org/0000-0003-1681-4036', 'https://orcid.org/0000-0003-1485-4923', 'https://orcid.org/0000-0001-9277-3921']
         400:
           description: "Several Errors that involve bad requests"
           content:
