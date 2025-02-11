@@ -406,11 +406,12 @@ def modify_user(userid):
 def user_search():
     out = request.headers['Authorization']
     b, token = out.split()
-    if not request.args:
-        return jsonify({"message": f"Query parameters 'userId', 'familyName', 'givenName', or 'inProject' expected – got none"}), 400
 
     known_query_fields = {"userId", "familyName", "givenName", "inProject"}
-    unknown_query_field = set(request.args.keys() - known_query_fields)
+    if request.args:
+        unknown_query_field = set(request.args.keys() - known_query_fields)
+    else:
+        unknown_query_field = set()
     if unknown_query_field:
         return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a user. Usable are {known_query_fields}. Aborted operation"}), 400
     userId = request.args.get('userId', None)

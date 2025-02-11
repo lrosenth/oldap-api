@@ -7,12 +7,12 @@ def test_search_permissionset(client, token_headers, testpermissionset):
 
     assert response.status_code == 200
     res = response.json
-    print(res)
+    assert res == ['oldap:testpermissionset']
 
 
 def test_no_json(client, token_headers):
     header = token_headers[1]
-    response = client.get('/admin/permissionset/search', "NoQueryString", headers=header)
+    response = client.get('/admin/permissionset/search', query_string="NoQueryString", headers=header)
     assert response.status_code == 400
     res = response.json
     assert 'message' in res
@@ -21,9 +21,13 @@ def test_no_json(client, token_headers):
 def test_empty_json(client, token_headers):
     header = token_headers[1]
     response = client.get('/admin/permissionset/search', query_string={}, headers=header)
-    assert response.status_code == 400
+    #assert response.status_code == 400
     res = response.json
-    print(res)
+    assert set(res) == {'oldap:GenericRestricted',
+                        'oldap:GenericView',
+                        'hyha:HyperHamletMember',
+                        'oldap:GenericExtend',
+                        'oldap:GenericUpdate'}
 
 
 def test_search_not_found(client, token_headers, testpermissionset):
@@ -35,7 +39,7 @@ def test_search_not_found(client, token_headers, testpermissionset):
 
     assert response.status_code == 200
     res = response.json
-    assert res == '[]'
+    assert res == []
     print(res)
 
 
@@ -63,8 +67,15 @@ def test_search_permissionset_other_things(client, token_headers, testpermission
     res = response.json
     print(res)
 
+def test_search_permissionset_empty_query(client, token_headers, testpermissionset):
+    header = token_headers[1]
     response = client.get('/admin/permissionset/search', query_string={}, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
-    print(res)
+    assert set(res) == {'oldap:GenericRestricted',
+                        'oldap:GenericView',
+                        'hyha:HyperHamletMember',
+                        'oldap:GenericExtend',
+                        'oldap:GenericUpdate',
+                        'oldap:testpermissionset'}
 

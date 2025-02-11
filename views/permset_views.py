@@ -164,14 +164,16 @@ def search_permissionset():
     out = request.headers['Authorization']
     b, token = out.split()
 
-    unknown_json_field = set(request.args.keys()) - known_json_fields
+    if request.args:
+        unknown_json_field = set(request.args.keys()) - known_json_fields
+    else:
+        unknown_json_field = set()
     if unknown_json_field:
         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
-    if not set(request.args.keys()):
-        return jsonify({"message": f"At least one field must be given to search for a permissionset. Usable for the search-viewfunction are {known_json_fields}"}), 400
-    label = request.args.get("label", None)
-    givespermission = request.args.get('givesPermission', None)
-    definedbyproject = request.args.get("definedByProject", None)
+
+    label = getattr(request, "args", {}).get("label", None)
+    givespermission = getattr(request, "args", {}).get("givesPermission", None)
+    definedbyproject = getattr(request, "args", {}).get("definedByProject", None)
 
     try:
         con = Connection(server='http://localhost:7200',
@@ -182,7 +184,7 @@ def search_permissionset():
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
-    return jsonify(str(permissionset)), 200
+    return jsonify([str(x) for x in permissionset]), 200
 
 
 @permset_bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['DELETE'])
