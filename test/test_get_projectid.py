@@ -39,7 +39,7 @@ def test_get_projectid_no_iri(client, token_headers, testproject):
 
     assert response.status_code == 400
     res = response.json
-    assert res['message'] == 'iri query parameter expected'
+    assert res['message'] == 'Please provide a project iri in the arguments'
 
 def test_get_projectid_unkown_iri(client, token_headers, testproject):
     header = token_headers[1]

@@ -93,7 +93,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     lessThanOrEquals = data.get("lessThanOrEquals", None)  # Der (numerische) Wert muss kleiner oder gleich sein als der durch die gegenebe IRI referenzierten Property z.B. Iri("myproj:deathDate")
 
     if datatype is None and toClass is None:
-        raise ApiError("At least one of the two datatype or toClass needs to be given")
+        raise ApiError("At least one of the two datatype or class needs to be given")
     if datatype is not None and toClass is not None:
         raise ApiError("It is not allowed to give both the datatype and the class at the same time")
 
@@ -102,8 +102,8 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         project=project,
         property_class_iri=Iri(iri),
         subPropertyOf=subPropertyOf,
-        toClass=toClass,
-        datatype=XsdDatatypes(datatype),
+        toClass= None if toClass is None else Iri(toClass),
+        datatype = None if datatype is None else XsdDatatypes(datatype),
         name=LangString(name),
         description=LangString(description),
         languageIn=languageIn,
@@ -119,7 +119,6 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         lessThan=lessThan,
         lessThanOrEquals=lessThanOrEquals,
     )
-
     return prop
 
 
@@ -143,6 +142,16 @@ def add_standalone_property_to_datamodel(project, property):
             prop = process_property(con=con, project=project, property_iri=property, data=data)
         except ApiError as error:
             return jsonify({"message": str(error)}), 400
+        except AttributeError as error:
+            return jsonify({"message": str(error)}), 400  # Should not be reachable
+        except TypeError as error:
+            return jsonify({"message": str(error)}), 400  # Should not be reachable
+        except ValueError as error:
+            return jsonify({"message": str(error)}), 400  # Should not be reachable
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
+        except OldapError as error:
+            return jsonify({'message': str(error)}), 500  # Should not be reachable
 
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
@@ -151,9 +160,10 @@ def add_standalone_property_to_datamodel(project, property):
             dm.update()
 
         except OldapError as error:  # Should not be reachable
-            return jsonify({"message": str(error)}), 400
+            return jsonify({"message": str(error)}), 500
         return jsonify({"message": f"Standalone property in datamodel {project} successfully created"}), 200
-
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['PUT'])
 def add_resource_to_datamodel(project, resource):
@@ -220,6 +230,8 @@ def add_resource_to_datamodel(project, resource):
         except OldapError as error:  # Should not be reachable
             return jsonify({"message": str(error)}), 500
         return jsonify({"message": f"Resource in datamodel {project} successfully created"}), 200
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['PUT'])
@@ -271,6 +283,8 @@ def add_property_to_resource(project, resource, property):
         except OldapError as error:  # Should not be reachable
             return jsonify({"message": str(error)}), 500
         return jsonify({"message": f"Property in resource {resource} in datamodel {project} successfully created"}), 200
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
 @datamodel_bp.route('/datamodel/<project>', methods=['GET'])
@@ -663,7 +677,9 @@ def modify_standalone_property(project, property):
             return jsonify({'message': str(error)}), 404
         except OldapError as error:
             return jsonify({'message': str(error)}), 500  # Should not be reachable
-    return jsonify({'message': 'Data model successfully modified'}), 200
+        return jsonify({'message': 'Data model successfully modified'}), 200
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['POST'])
@@ -775,7 +791,9 @@ def modify_resource(project, resource):
             return jsonify({'message': str(error)}), 404
         except OldapError as error:
             return jsonify({'message': str(error)}), 500  # Should not be reachable
-    return jsonify({'message': 'Data model successfully modified'}), 200
+        return jsonify({'message': 'Data model successfully modified'}), 200
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
 @datamodel_bp.route('/datamodel/<project>/<resiri>/<propiri>', methods=['POST'])
@@ -799,6 +817,8 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
 
     if request.is_json:
         data = request.get_json()
+    else:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify an attribute of a property in a resource. Usable are {known_json_fields}. Aborded operation"}), 400

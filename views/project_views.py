@@ -433,7 +433,10 @@ def get_projectid():
     out = request.headers['Authorization']
     b, token = out.split()
 
-    iri = request.args.get('iri')
+    if request.args:
+        iri = request.args.get('iri')
+    else:
+        return jsonify({"message": "Please provide a project iri in the arguments"}), 400
 
     if iri:
         try:

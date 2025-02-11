@@ -157,6 +157,7 @@ def search_permissionset():
     "definedByProject": exampledefinedByProject,
     "givesPermission": examplegivesPermission
     }
+    if no query parameters are provided, a list of all projects is being returned.
     :return: A JSON containing the Iri's about the found projects. It has the following form:
     json={'message': '[Iri("http://unittest.org/project/testproject")]'}
     '''
