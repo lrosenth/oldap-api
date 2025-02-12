@@ -218,7 +218,7 @@ def search_project():
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     projects = Project.search(con=con, label=label, comment=comment)
-    return jsonify([[str(x[0]), str(x[1])] for x in projects]), 200
+    return jsonify([{'projectIri': str(x.projectIri), 'projectShortName': str(x.projectShortName)} for x in projects]), 200
 
 
 @project_bp.route('/project/<projectid>', methods=['POST'])

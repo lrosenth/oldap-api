@@ -27,8 +27,8 @@ permset_bp = Blueprint('permissionset', __name__, url_prefix='/admin')
 
 
 
-@permset_bp.route('/permissionset/<definedByProject>/<permissionsetid>', methods=['PUT'])
-def create_permissionset(definedByProject, permissionsetid):
+@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>', methods=['PUT'])
+def create_permissionset(definedByProject, permissionSetId):
     '''
     Viewfunction to create a new permissionset. A JSON is expectet that contains the necessary information to create a new
     permissionset that has the following form:
@@ -38,7 +38,7 @@ def create_permissionset(definedByProject, permissionsetid):
         "givesPermission": "DATA_UPDATE",
     }
     :param definedByProject: The project that defines this permission set (either the IRI or the shortname)
-    :param permissionsetid: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+    :param permissionSetId: A unique identifier for the permission set (unique within the project as given by :definedByProject)
     :return: A JSON informing about the success of the operation that has the following form:
     json={"message": "Project updated successfully"}
     '''
@@ -79,7 +79,7 @@ def create_permissionset(definedByProject, permissionsetid):
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             permissionset = PermissionSet(con=con,
-                                          permissionSetId=permissionsetid,
+                                          permissionSetId=permissionSetId,
                                           label=LangString(label),
                                           comment=LangString(comment),
                                           givesPermission=givesPermission,
@@ -99,12 +99,12 @@ def create_permissionset(definedByProject, permissionsetid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@permset_bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['GET'])
-def read_permissionset(definedbyproject, permissionsetid):
+@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>', methods=['GET'])
+def read_permissionset(definedByProject, permissionSetId):
     '''
     Viewfunction to retrieve information about the project given by the projectid.
-    :param definedbyproject: The project that defines this permission set (either the IRI or the shortname)
-    :param permissionsetid: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+    :param definedByProject: The project that defines this permission set (either the IRI or the shortname)
+    :param permissionSetId: A unique identifier for the permission set (unique within the project as given by :definedByProject)
     :return: A JSON containing the information about the given project. It has the following form:
     json={
         'permisionsetid': 'testpermissionset',
@@ -129,17 +129,19 @@ def read_permissionset(definedbyproject, permissionsetid):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        ps = PermissionSet.read(con=con, permissionSetId=permissionsetid, definedByProject=definedbyproject)
+        ps = PermissionSet.read(con=con, permissionSetId=permissionSetId, definedByProject=definedByProject)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
     res = {
-        'permisionsetid': str(ps.permissionSetId),
+        'permissionSetId': str(ps.permissionSetId),
         'creation': str(ps.created),
         'contributor': str(ps.contributor),
         'modified': str(ps.modified),
-        'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()] if ps.label else None,
-        'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()] if ps.comment else None,
+        **({'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()]} if ps.label else {}),
+        **({'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()]} if ps.comment else {}),
+        #'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()] if ps.label else None,
+        #'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()] if ps.comment else None,
         'givesPermission': str(ps.givesPermission),
         'definedByProject': str(ps.definedByProject),
     }
@@ -188,12 +190,12 @@ def search_permissionset():
     return jsonify([str(x) for x in permissionset]), 200
 
 
-@permset_bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['DELETE'])
-def delete_permissionset(definedbyproject, permissionsetid):
+@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>', methods=['DELETE'])
+def delete_permissionset(definedByProject, permissionSetId):
     '''
     Viewfunction to delete a project.
-    :param definedbyproject: The project that defines this permission set (either the IRI or the shortname)
-    :param permissionsetid: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+    :param definedByProject: The project that defines this permission set (either the IRI or the shortname)
+    :param permissionSetId: A unique identifier for the permission set (unique within the project as given by :definedByProject)
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "Project successfully deleted"}
     '''
@@ -209,7 +211,7 @@ def delete_permissionset(definedbyproject, permissionsetid):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        ps = PermissionSet.read(con=con, permissionSetId=permissionsetid, definedByProject=definedbyproject)
+        ps = PermissionSet.read(con=con, permissionSetId=permissionSetId, definedByProject=definedByProject)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -223,8 +225,8 @@ def delete_permissionset(definedbyproject, permissionsetid):
     return jsonify({"message": "Permissionset successfully deleted"}), 200
 
 
-@permset_bp.route('/permissionset/<definedbyproject>/<permissionsetid>', methods=['POST'])
-def modify_permissionset(definedbyproject, permissionsetid):
+@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>', methods=['POST'])
+def modify_permissionset(definedByProject, permissionSetId):
     '''
     Veiwfunction to modify a permissionset given its permissionsetid and its definedbyproject. The label, comment and
     givesPermission can be modified this way. A JSON is expectet that has the following form - all the fields are
@@ -234,8 +236,8 @@ def modify_permissionset(definedbyproject, permissionsetid):
     "comment": ["For testing@en", "..."] or "{"add": ["tobeadded@it", ...], "del": ["tobedeleted@en"]},
     "givesPermission": ["DATA_VIEW", "..."] or "{"add": ["DATA_VIEW", ...], "del": ["DATA_EXTEND"]}
     }
-    :param definedbyproject: The project that defines this permission set (either the IRI or the shortname)
-    :param permissionsetid: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+    :param definedByProject: The project that defines this permission set (either the IRI or the shortname)
+    :param permissionSetId: A unique identifier for the permission set (unique within the project as given by :definedByProject)
     :return: A JSON informing about the success of the operation that has the following form:
     json={"message": "Project updated successfully"}
     '''
@@ -263,7 +265,7 @@ def modify_permissionset(definedbyproject, permissionsetid):
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
-            ps = PermissionSet.read(con=con, permissionSetId=permissionsetid, definedByProject=definedbyproject)
+            ps = PermissionSet.read(con=con, permissionSetId=permissionSetId, definedByProject=definedByProject)
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
 

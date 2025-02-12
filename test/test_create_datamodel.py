@@ -121,7 +121,7 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
                     "inSet": ["Kappa", "Gaga", "gugus"],
                     "minLength": 1,
                     "maxLength": 50,
-                    "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+                    "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
                     "minExclusive": 5.5,
                     "minInclusive": 5.5,
                     "maxExclusive": 5.5,
@@ -158,7 +158,7 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
     assert sorted(res["resources"][0]["hasProperty"][0]["property"]["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
     assert res["resources"][0]["hasProperty"][0]["property"]["minLength"] == '1'
     assert res["resources"][0]["hasProperty"][0]["property"]["maxLength"] == '50'
-    assert res["resources"][0]["hasProperty"][0]["property"]["pattern"] == "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$"
+    assert res["resources"][0]["hasProperty"][0]["property"]["pattern"] == r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
     assert res["resources"][0]["hasProperty"][0]["property"]["minExclusive"] == '5.5'
     assert res["resources"][0]["hasProperty"][0]["property"]["minInclusive"] == '5.5'
     assert res["resources"][0]["hasProperty"][0]["property"]["maxExclusive"] == '5.5'
@@ -183,7 +183,7 @@ def test_create_prop_in_resource(client, token_headers, testfulldatamodelresourc
         "inSet": ["Kappa", "Gaga", "gugus"],
         "minLength": 1,
         "maxLength": 50,
-        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
         "minExclusive": 5.5,
         "minInclusive": 5.5,
         "maxExclusive": 5.5,
@@ -238,7 +238,7 @@ def test_bad_fill_empty_datamodel_with_resource(client, token_headers, testempty
                     "in": ["Kappa", "Gaga", "gugus"],
                     "minLength": 1,
                     "maxLength": 50,
-                    "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+                    "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
                     "minExclusive": 5.5,
                     "minInclusive": 5.5,
                     "maxExclusive": 5.5,
@@ -281,7 +281,7 @@ def test_bad_fill_empty_datamodel_with_resource(client, token_headers, testempty
                     "in": ["Kappa", "Gaga", "gugus"],
                     "minLength": 1,
                     "maxLength": 50,
-                    "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+                    "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
                     "minExclusive": 5.5,
                     "minInclusive": 5.5,
                     "maxExclusive": 5.5,
@@ -340,7 +340,7 @@ def test_bad_fill_empty_datamodel_with_resource(client, token_headers, testempty
                     "uniqueLang": True,
                     "minLength": 1,
                     "maxLength": 50,
-                    "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+                    "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
                     "minExclusive": 5.5,
                     "minInclusive": 5.5,
                     "maxExclusive": 5.5,
@@ -494,7 +494,7 @@ def test_bad_json_fields_in_create_property(client, token_headers, testemptydata
         "inSet": ["Kappa", "Gaga", "gugus"],
         "minLength": 1,
         "maxLength": 50,
-        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
         "minExclusive": 5.5,
         "minInclusive": 5.5,
         "maxExclusive": 5.5,
@@ -520,7 +520,7 @@ def test_bad_json_fields_in_create_property(client, token_headers, testemptydata
         "inSet": ["Kappa", "Gaga", "gugus"],
         "minLength": 1,
         "maxLength": 50,
-        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
         "minExclusive": 5.5,
         "minInclusive": 5.5,
         "maxExclusive": 5.5,
@@ -570,7 +570,7 @@ def test_dm_to_add_property_to_not_found(client, token_headers):
         "inSet": ["Kappa", "Gaga", "gugus"],
         "minLength": 1,
         "maxLength": 50,
-        "pattern": "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
         "minExclusive": 5.5,
         "minInclusive": 5.5,
         "maxExclusive": 5.5,

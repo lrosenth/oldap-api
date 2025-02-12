@@ -938,7 +938,7 @@ paths:
                     type: string
                 required: [ message ]
 
-  /admin/permissionset/{definedByProject}/{permissionsetid}:
+  /admin/permissionset/{definedByProject}/{permissionSetId}:
     put:
       summary: Permissionset creation
       description: Creates a new permissionset in the database
@@ -949,7 +949,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: permissionsetid
+        - name: permissionSetId
           description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
           in: path
           required: true
@@ -1033,7 +1033,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: permissionsetid
+        - name: permissionSetId
           description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
           in: path
           required: true
@@ -1088,7 +1088,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: permissionsetid
+        - name: permissionSetId
           description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
           in: path
           required: true
@@ -1101,7 +1101,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  permisionsetid:
+                  permissionSetId:
                     type: string
                   creation:
                     type: string
@@ -1147,7 +1147,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: permissionsetid
+        - name: permissionSetId
           description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
           in: path
           required: true
