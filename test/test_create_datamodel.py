@@ -66,32 +66,81 @@ def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testem
     #     assert ele["maxInclusive"] == '5.5'
     #     assert ele["lessThan"] == "hyha:testProp"
     #     assert ele["lessThanOrEquals"] == "hyha:testProp"
-    #
-    # response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "subPropertyOf": "hyha:testProp",
-    #     "class": "rdf:langString",
-    #     "name": ["Test Property@en", "Test Feld@de"],
-    #     "description": ["Test Feld Beschreibung@de"],
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 200
-    #
-    # response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
-    #     "subPropertyOf": "hyha:testProp",
-    #     # "class": "rdf:langString",
-    #     "class": 1234,
-    #     "name": ["Test Property@en", "Test Feld@de"],
-    #     "description": ["Test Feld Beschreibung@de"],
-    # }, headers=header)
-    # res = response.json
-    # print(res)
-    # assert response.status_code == 400
 
-    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', headers=header)
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "subPropertyOf": "hyha:testProp",
+        #"datatype": "rdf:langString",
+        # "class": "rdf:langString",
+        "class": 1234,
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+    }, headers=header)
+
     res = response.json
     print(res)
-    # assert response.status_code == 400
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+    pprint(res)
+
+    assert response.status_code == 200
+
+    for ele in res["standaloneProperties"]:
+        if Iri(ele["iri"]).prefix != "hyha":
+            continue
+
+        assert ele["iri"] == "hyha:testProp2"
+        assert ele["subPropertyOf"] == "hyha:testProp"
+        assert ele["datatype"] == "rdf:langString"
+        assert set(ele["name"]) == set(["Test Property@en", "Test Feld@de"])
+        assert ele["description"] == ["Test Feld Beschreibung@de"]
+        assert sorted(ele["languageIn"]) == sorted(["en", "fr", "it", "de"])
+        assert ele["uniqueLang"] == True
+        assert sorted(ele["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
+        assert ele["minLength"] == '1'
+        assert ele["maxLength"] == '50'
+        assert ele["pattern"] == "^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$"
+        assert ele["minExclusive"] == '5.5'
+        assert ele["minInclusive"] == '5.5'
+        assert ele["maxExclusive"] == '5.5'
+        assert ele["maxInclusive"] == '5.5'
+        assert ele["lessThan"] == "hyha:testProp"
+        assert ele["lessThanOrEquals"] == "hyha:testProp"
+
+def test_fill_empty_datamodel_with_standalone_prop_class(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "subPropertyOf": "hyha:testProp",
+        "class": "hyha:kappa",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
+
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp3', json={
+        "subPropertyOf": "hyha:testProp",
+        # "class": "rdf:langString",
+        "class": 1234,
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp4', json={
+        "subPropertyOf": "hyha:testProp",
+        "class": "hyha:kappa",
+        # "class": 1234,
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["kappa@de"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
 
 
 def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydatamodel):

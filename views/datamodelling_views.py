@@ -40,8 +40,13 @@ datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
 
 @datamodel_bp.route('/datamodel/<project>', methods=['PUT'])
 def create_empty_datamodel(project):
-    # known_json_fields = {"label", "comment", "givesPermission"}
-    # mandatory_json_fields = {"givesPermission"}
+    """
+    Viewfunction to create a new and empty datamodel. If a new datamodel is to be created, first it needs
+    to be created in this empty state. In a second step the newly created datamodel is then filled with its content.
+    :param project: The Name of the project where the new datamodel should be located
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Empty datamodel successfully created"}
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -66,6 +71,17 @@ def create_empty_datamodel(project):
 
 
 def process_property(con: IConnection, project: Project, property_iri: str, data: dict) -> PropertyClass:
+    """
+    A local helper function that processes a given property. Used in:
+    1. add_standalone_property_to_datamodel,
+    2. add_resource_to_datamodel
+    3. add_property_to_resource
+    :param con: The connection that was established by the calling function
+    :param project: The project where the property that is to be processed is located
+    :param property_iri: The Iri of the property that is to be processed
+    :param data: The data of the property
+    :return: The processed PropertyClass
+    """
     known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
                          "maxInclusive", "lessThan", "lessThanOrEquals", "toClass"}
@@ -93,7 +109,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     lessThanOrEquals = data.get("lessThanOrEquals", None)  # Der (numerische) Wert muss kleiner oder gleich sein als der durch die gegenebe IRI referenzierten Property z.B. Iri("myproj:deathDate")
 
     if datatype is None and toClass is None:
-        raise ApiError("At least one of the two datatype or class needs to be given")
+        raise ApiError("At least one of the two -- datatype or class -- needs to be given")
     if datatype is not None and toClass is not None:
         raise ApiError("It is not allowed to give both the datatype and the class at the same time")
 
