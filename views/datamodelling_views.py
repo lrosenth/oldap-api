@@ -23,7 +23,8 @@ from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
-from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorValue, OldapErrorNoPermission
+from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorValue, OldapErrorNoPermission, \
+    OldapErrorInconsistency
 from oldaplib.src.iconnection import IConnection
 from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
@@ -156,15 +157,7 @@ def add_standalone_property_to_datamodel(project, property):
         data = request.get_json()
         try:
             prop = process_property(con=con, project=project, property_iri=property, data=data)
-        except ApiError as error:
-            return jsonify({"message": str(error)}), 400
-        except AttributeError as error:
-            return jsonify({"message": str(error)}), 400  # Should not be reachable
-        except TypeError as error:
-            return jsonify({"message": str(error)}), 400  # Should not be reachable
-        except ValueError as error:
-            return jsonify({"message": str(error)}), 400  # Should not be reachable
-        except OldapErrorValue as error:
+        except (ApiError, AttributeError, TypeError, ValueError,OldapErrorValue, OldapErrorInconsistency) as error:
             return jsonify({"message": str(error)}), 400
         except OldapError as error:
             return jsonify({'message': str(error)}), 500  # Should not be reachable

@@ -861,13 +861,16 @@ paths:
               schema:
                 type: array
                 items:
-                  type: array
-                  items:
-                    type: string
+                  type: object
+                  properties:
+                    projectIri:
+                      type: string
+                    projectShortName:
+                      type: string
               example:
                 example1:
                   summary: Example response
-                  value: [["http://www.gaga/hallo", "hallo"], ["mypr:project", "project"]]
+                  value: [{projectIri: "http://www.gaga/hallo", projectShortName: "hallo"}, {projectIri: "mypr:project", projectShortName: "project"}]
         400:
           description: "Several Errors that involve bad requests"
           content:
@@ -1101,13 +1104,19 @@ paths:
             application/json:
               schema:
                 properties:
-                  permissionSetId:
+                  permissionSetIri:
                     type: string
-                  creation:
+                  creator:
                     type: string
+                  created:
+                    type: string
+                    format: date-time
                   contributor:
                     type: string
                   modified:
+                    type: string
+                    format: date-time
+                  permissionSetId:
                     type: string
                   label:
                     $ref: '#/components/schemas/LangString'

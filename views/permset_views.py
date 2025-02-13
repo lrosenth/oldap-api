@@ -107,10 +107,11 @@ def read_permissionset(definedByProject, permissionSetId):
     :param permissionSetId: A unique identifier for the permission set (unique within the project as given by :definedByProject)
     :return: A JSON containing the information about the given project. It has the following form:
     json={
-        'permisionsetid': 'testpermissionset',
-        'creation': '2024-07-31T16:27:22.918232',
+        'creator': 'https://orcid.org/0000-0003-1681-4036',
+        'created': '2024-07-31T16:27:22.918232',
         'contributor': 'https://orcid.org/0000-0003-1681-4036',
         'modified': '2024-07-31T16:27:22.918232',
+        'permisionsetid': 'testpermissionset',
         'label': ['testPerm@en', 'test@de'],
         'comment': ['For testing@en', 'Für Tests@de'],
         'givesPermission': 'DataPermission.DATA_UPDATE',
@@ -134,14 +135,14 @@ def read_permissionset(definedByProject, permissionSetId):
         return jsonify({'message': str(error)}), 404
 
     res = {
-        'permissionSetId': str(ps.permissionSetId),
-        'creation': str(ps.created),
+        'permissionSetIri': str(ps.iri),
+        'creator': str(ps.creator),
+        'created': str(ps.created),
         'contributor': str(ps.contributor),
         'modified': str(ps.modified),
+        'permissionSetId': str(ps.permissionSetId),
         **({'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()]} if ps.label else {}),
         **({'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()]} if ps.comment else {}),
-        #'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()] if ps.label else None,
-        #'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()] if ps.comment else None,
         'givesPermission': str(ps.givesPermission),
         'definedByProject': str(ps.definedByProject),
     }
