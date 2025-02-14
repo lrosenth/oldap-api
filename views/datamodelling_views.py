@@ -141,6 +141,12 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
 
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['PUT'])
 def add_standalone_property_to_datamodel(project, property):
+    """
+    Viewfunction to add a standalone property to an existing datamodel. A JSON is expectet that has the following form
+    :param project:
+    :param property:
+    :return:
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 

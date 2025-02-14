@@ -229,7 +229,7 @@ def delete_permissionset(definedByProject, permissionSetId):
 @permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>', methods=['POST'])
 def modify_permissionset(definedByProject, permissionSetId):
     '''
-    Veiwfunction to modify a permissionset given its permissionsetid and its definedbyproject. The label, comment and
+    Viewfunction to modify a permissionset given its permissionsetid and its definedbyproject. The label, comment and
     givesPermission can be modified this way. A JSON is expectet that has the following form - all the fields are
     optionals, a list exchanges the whole field, a dict adds/removes entries:
     json={
