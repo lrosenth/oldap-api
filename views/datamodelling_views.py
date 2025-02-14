@@ -137,15 +137,40 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         lessThanOrEquals=lessThanOrEquals,
     )
     return prop
+{"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
+"inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
+"maxInclusive", "lessThan", "lessThanOrEquals", "toClass"}
 
 
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['PUT'])
 def add_standalone_property_to_datamodel(project, property):
     """
-    Viewfunction to add a standalone property to an existing datamodel. A JSON is expectet that has the following form
-    :param project:
-    :param property:
-    :return:
+    Viewfunction to add a standalone property to an existing datamodel. A JSON is expectet that has the following form.
+    Either the class or the datatype must be given but not both at the same time.
+    If the datatype is given, then all fields are optional. If the class is given, only subPropertyOf, name and desctiption are allowed.
+    json={
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "inSet": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": r"^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp"
+    }
+    For a detailed overview what the fields mean look at def process_property
+    :param project: The project where the datamodel is located
+    :param property: The name of the property one wish to add
+    :return: A JSON informing about the success of the operation that has the following form:
+    json={"message": f"Standalone property in datamodel {project} successfully created"}
     """
     out = request.headers['Authorization']
     b, token = out.split()
@@ -182,6 +207,40 @@ def add_standalone_property_to_datamodel(project, property):
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['PUT'])
 def add_resource_to_datamodel(project, resource):
+    """
+    Viewfunction to add a standalone property to an existing datamodel. A JSON is expectet that has the following form.
+    If a non-empty hasProperty is given then property a mandatory field. The others are all optional.
+    json={
+        "label": [
+        "Eine Buchseite@de",
+        "A page of a book@en"
+        ],
+        "comment": [
+            "Eine Buchseite@de",
+            "A page of a book@en"
+        ],
+        "closed": True,
+        "hasProperty": [
+            {
+                "property": {...},
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            },
+            {
+                "property": {...},
+                "maxCount": 4,
+                "minCount": 2,
+                "order": 2
+            }
+        ]
+    }
+    Note: in property_1 and property_2 are the same fields as in add_standalone_property_to_datamodel
+    :param project: The project where the datamodel is located
+    :param resource: The name of the resource one wish to add
+    :return: A JSON informing about the success of the operation that has the following form:
+    json={"message": f"Resource in datamodel {project} successfully created"}
+    """
     known_json_fields = {"superclass", "label", "comment", "closed", "hasProperty"}
     known_hasproperty_fields = {"property", "maxCount", "minCount", "order"}
     mandatory_hasproperty_fields = {"property"}
