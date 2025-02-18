@@ -168,7 +168,7 @@ def add_standalone_property_to_datamodel(project, property):
     }
     For a detailed overview what the fields mean look at def process_property
     :param project: The project where the datamodel is located
-    :param property: The name of the property one wish to add
+    :param property: The name (Iri) of the property one wish to add
     :return: A JSON informing about the success of the operation that has the following form:
     json={"message": f"Standalone property in datamodel {project} successfully created"}
     """
@@ -237,7 +237,7 @@ def add_resource_to_datamodel(project, resource):
     }
     Note: in property_1 and property_2 are the same fields as in add_standalone_property_to_datamodel
     :param project: The project where the datamodel is located
-    :param resource: The name of the resource one wish to add
+    :param resource: The name (Iri) of the resource one wish to add
     :return: A JSON informing about the success of the operation that has the following form:
     json={"message": f"Resource in datamodel {project} successfully created"}
     """
@@ -310,6 +310,36 @@ def add_resource_to_datamodel(project, resource):
 
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['PUT'])
 def add_property_to_resource(project, resource, property):
+    """
+    Viewfunction to add a property to a resource. A JSON is expected that has the following form. Note that the same fields
+    are used when a standalone property is created. However, three additional fields are used -- minCount, maxCount and order.
+    json={
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["New Test Property@en", "New Test Feld@de"],
+        "description": ["New Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "inSet": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp",
+        "minCount": 1,
+        "maxCount": 2,
+        "order": 2
+    }
+    :param project: The project where the datamodel is located
+    :param resource: The name (Iri) of the resource where the property should be added
+    :param property: The name (Iri) of the new property
+    :return: A JSON informing about the success of the operation that has the following form:
+    json={"message": f"JSON expected. Instead received {request.content_type}"}
+    """
     known_json_fields = {"subPropertyOf", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "minCount", "maxCount", "order"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -363,6 +393,17 @@ def add_property_to_resource(project, resource, property):
 
 @datamodel_bp.route('/datamodel/<project>', methods=['GET'])
 def read_datamodel(project):
+    """
+    Viewfunction to read a specific datamodel.
+    :param project: The project from whom the datamodel should be shown
+    :return: A JSON containing all the information about the datamodel of the given project. It has the following form
+    json={
+        "project": project-name,
+        "standaloneProperties": [{...}, {...}, ...],
+        "resources": [{...}, {...}, ...]
+    }
+    For a more detailed fiew look into the .yaml file.
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -455,6 +496,12 @@ def read_datamodel(project):
 
 @datamodel_bp.route('/datamodel/<project>', methods=['DELETE'])
 def delete_whole_datamodel(project):
+    """
+    Viewfunction that deletes an entire datamodel
+    :param project: The project, where its datamodel should be deleted
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={'message': 'Data model successfully deleted'}
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -480,6 +527,13 @@ def delete_whole_datamodel(project):
 
 @datamodel_bp.route('/datamodel/<project>/property/<standaloneprop>', methods=['DELETE'])
 def delete_whole_standalone_property(project, standaloneprop):
+    """
+    Viewfunction that deletes an entire standalone property inside the projects datamodel
+    :param project: The project, where the standalone property should be deleted
+    :param standaloneprop: the Iri of the standalone property to be deleted
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={'message': 'Data model successfully deleted'}
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -508,6 +562,13 @@ def delete_whole_standalone_property(project, standaloneprop):
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['DELETE'])
 def delete_whole_resource(project, resource):
+    """
+    Viewfunction that deletes an entire resource inside the projects datamodel
+    :param project: The project, where the resource should be deleted
+    :param resource: The Iri of the resource to be deleted
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={'message': 'Data model successfully deleted'}
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -536,6 +597,14 @@ def delete_whole_resource(project, resource):
 
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['DELETE'])
 def delete_hasprop_in_resource(project, resource, property):
+    """
+    Viewfunction that deletes an entire property inside a resource that is located in the projects datamodel
+    :param project: The project, where the property is located
+    :param resource: The Iri of the resource where the property should be deleted
+    :param property: The Iri of the property to be deleted
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={'message': 'Property successfully deleted'}
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -559,10 +628,19 @@ def delete_hasprop_in_resource(project, resource, property):
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500  # Should not be reachable
-    return jsonify({'message': 'Data model successfully deleted'}), 200
+    return jsonify({'message': 'Property successfully deleted'}), 200
 
 
 def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, int]:
+    """
+    A local helper function that modifies a given property. Used in:
+    1. modify_standalone_property
+    2. modify_attribute_in_has_prop
+    :param data: The data of the property
+    :param property: The property to be modified
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Property in resource successfully updated"}
+    """
     known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
@@ -716,7 +794,27 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
 
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['POST'])
 def modify_standalone_property(project, property):
-
+    """
+    Viewfunction to modify a standalone property. A JSON is expected that has the following form. At least one field
+    must be given. All fields are optional
+    json={
+        "name": ["kappa@de"],
+        "description": ["gigakappa@de"] or {'add': ['gigakappa@fr', ...], 'del': ['gaga@it', ...]},
+        "languageIn": ['de', 'en', ...] or {'add': ['zu'], 'del': ['fr', 'it']},
+        "uniqueLang": True,
+        "minLength": 2,
+        "maxLength": 51,
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.6,
+        "minInclusive": 5.6,
+        "maxExclusive": 5.6,
+        "maxInclusive": 5.6,
+    }
+    :param project: The project where the standalone property is located
+    :param property: The property Iri to be modified
+    :return: A JSON informing about the success of the operation that has the following form:
+    json={'message': 'Data model successfully modified'}
+    """
     known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -758,8 +856,16 @@ def modify_standalone_property(project, property):
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['POST'])
 def modify_resource(project, resource):
+    """
+    Viewfunction to modify a resource. A JSON is expected that has the following form:
+    json={
 
-    known_json_fields = {"label", "comment", "closed", "hasProperty"}
+    }
+    :param project:
+    :param resource:
+    :return:
+    """
+    known_json_fields = {"label", "comment", "closed"}
     out = request.headers['Authorization']
     b, token = out.split()
 

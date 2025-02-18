@@ -63,7 +63,7 @@ def test_delete_property_in_resource(client, token_headers, testfulldatamodelres
 
     res = response.json
     print(res)
-    assert res['message'] == 'Data model successfully deleted'
+    assert res['message'] == 'Property successfully deleted'
 
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json

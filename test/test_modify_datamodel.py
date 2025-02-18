@@ -13,7 +13,7 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
         "uniqueLang": True,
         "minLength": 2,
         "maxLength": 51,
-        "pattern": "kappa",
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
         "minExclusive": 5.6,
         "minInclusive": 5.6,
         "maxExclusive": 5.6,
@@ -37,7 +37,7 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
         assert ele["uniqueLang"] == True
         assert ele["minLength"] == '2'
         assert ele["maxLength"] == '51'
-        assert ele["pattern"] == "kappa"
+        assert ele["pattern"] == r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
         assert ele["minExclusive"] == '5.6'
         assert ele["minInclusive"] == '5.6'
         assert ele["maxExclusive"] == '5.6'
@@ -486,17 +486,6 @@ def test_modify_resource(client, token_headers, testfulldatamodelresource):
         #"comment": ["A test comment@en"],
         "label": {"add": ["Ein Test@zu"], "del": ["Eine Buchseite@de"]},
         "comment": {"add": ["Ein Test@zu"], "del": ["A page of a book@en"]},
-        "hasProperty": [
-            {
-                "property": {
-                    "iri": "hyha:testProp2",
-                    "uniqueLang": False,
-                },
-                "maxCount": 3,
-                "minCount": 1,
-                "order": 1
-            }
-        ]
     }, headers=header)
     res = response.json
     print(res)
@@ -938,17 +927,6 @@ def test_no_permission_modify_resource(client, token_headers, testfulldatamodelr
         #"comment": ["A test comment@en"],
         "label": {"add": ["Ein Test@zu"], "del": ["Eine Buchseite@de"]},
         "comment": {"add": ["Ein Test@zu"], "del": ["A page of a book@en"]},
-        "hasProperty": [
-            {
-                "property": {
-                    "iri": "hyha:testProp2",
-                    "uniqueLang": False,
-                },
-                "maxCount": 3,
-                "minCount": 1,
-                "order": 1
-            }
-        ]
     }, headers=headers)
     res2 = response2.json
     print(res2)
