@@ -641,7 +641,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "Property in resource successfully updated"}
     """
-    known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    known_json_fields = {"subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
@@ -788,7 +788,10 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
         if attrval is None:
             delattr(property, attrname)
         else:
-            setattr(property, attrname, attrval)
+            try:
+                property.oldapSetAttr(attrname, attrval)
+            except ValueError as error:
+                return jsonify({'message': str(error)}), 400
         continue
     return jsonify({"message": "Property in resource successfully updated"}), 200
 
@@ -796,7 +799,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
 def modify_standalone_property(project, property):
     """
     Viewfunction to modify a standalone property. A JSON is expected that has the following form. At least one field
-    must be given. All fields are optional
+    must be given. All fields are optional. At least one field must be given.
     json={
         "name": ["kappa@de"],
         "description": ["gigakappa@de"] or {'add': ['gigakappa@fr', ...], 'del': ['gaga@it', ...]},
@@ -857,13 +860,17 @@ def modify_standalone_property(project, property):
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['POST'])
 def modify_resource(project, resource):
     """
-    Viewfunction to modify a resource. A JSON is expected that has the following form:
+    Viewfunction to modify a resource. A JSON is expected that has the following form. All fields are optional -- at least one needs to be given
+    Note: To modify the fields of a property of the resource -- use modify_attribute_in_has_prop instead.
     json={
-
+        "closed": False,
+        "label": {"add": ["Ein Test@zu"], "del": ["Eine Buchseite@de"]},
+        "comment": {"add": ["Ein Test@zu"], "del": ["A page of a book@en"]},
     }
-    :param project:
-    :param resource:
-    :return:
+    :param project: The project where the resource is located
+    :param resource: The resource (Iri) to be modified
+    :return: A JSON informing about the success of the operation that has the following form:
+    json={'message': 'Data model successfully modified'}
     """
     known_json_fields = {"label", "comment", "closed"}
     out = request.headers['Authorization']
@@ -978,6 +985,38 @@ def modify_resource(project, resource):
 
 @datamodel_bp.route('/datamodel/<project>/<resiri>/<propiri>', methods=['POST'])
 def modify_attribute_in_has_prop(project, resiri, propiri):
+    """
+    Viewfunction to modify the fields of a single property inside a resource.A JSON is expected that has the following form.
+    json={
+        "property": {
+            "subPropertyOf": "hyha:kappa",
+            "toClass": "hyha:kappa",
+            "datatype": "xsd:string",
+            "name": ["pappakappa@de"],
+            "description": ["descriptiv stuff@en"],
+            "languageIn": {"add": ["zu"], "del": ["fr"]},
+            "uniqueLang": True,
+            "inSet": ["Renault", "Opel", "BMW", "Mercedes"],
+            "minLength": 2,
+            "maxLength": 5,
+            "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+            "minExclusive": 5.5,
+            "minInclusive": 5.5,
+            "maxExclusive": 5.5,
+            "maxInclusive": 5.5,
+            "lessThan": 2,
+            "lessThanOrEquals": 2
+        },
+        "maxCount": 4,
+        "minCount": 2,
+        "order": 42
+    }
+    :param project: The project where the resource is located
+    :param resiri: The Iri of the resource where the attributes are located that should be changed
+    :param propiri: The Iri of the property where the attributes are located that should be changed
+    :return: A JSON informing about the success of the operation that has the following form:
+    json={'message': 'Data model successfully modified'}
+    """
     known_json_fields = {"maxCount", "minCount", "order", "property"}
     out = request.headers['Authorization']
     b, token = out.split()

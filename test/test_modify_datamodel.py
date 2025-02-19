@@ -66,6 +66,13 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
         assert ele["name"] == ["NewKappa@en"]
 
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "iri": ["kappa:kappashit"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 400
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "name": ["kappa@z"],
     }, headers=header)
     res = response.json
