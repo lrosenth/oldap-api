@@ -13,4 +13,4 @@ test:
 	poetry run pytest -v
 
 run:
-	poetry run python oladp-api-app.py
+	poetry run python oldap-api-app.py
