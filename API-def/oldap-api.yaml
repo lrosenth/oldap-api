@@ -472,8 +472,8 @@ paths:
 
   /admin/user/get:
     get:
-      summary: "Get user by Iri"
-      description: "Get all user data from an userIri"
+      summary: "Get user by iri"
+      description: "Get all user data from the user Iri"
       security:
         - AccessToken: [ ]
       parameters:
@@ -889,6 +889,80 @@ paths:
                   message:
                     type: string
                     example: "Connection failed: {OldapError}"
+
+
+  /admin/project/get:
+    get:
+      summary: "Get project by iri"
+      description: "Get all project data from the project iri"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: query
+          name: iri
+          schema:
+            type: string
+          description: Iri of project
+          required:
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  projectIri:
+                    type: string
+                    description: An Iri or a QName identifying the project
+                  creator:
+                    type: string
+                    description: An Iri or QName describing the user
+                  created:
+                    type: string
+                    format: date
+                    description: Creation date of this project
+                  contributor:
+                    type: string
+                    description: An Iri or QName describing the user
+                  modified:
+                    type: string
+                    format: date
+                    description: Last modification date of project
+                  label:
+                    $ref: '#/components/schemas/LangString'
+                  comment:
+                    $ref: '#/components/schemas/LangString'
+                  message:
+                    type: string
+                  shortName:
+                    type: string
+                    pattern: ^[a-zA-Z_][a-zA-Z0-9._-]*$
+                  namespace IRI:
+                    type: string
+                  project start:
+                    type: string
+                    format: date
+                  project end:
+                    type: string
+                    format: date
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "projectdoesnotexist" not found.'
 
   /admin/project/getid:
     get:

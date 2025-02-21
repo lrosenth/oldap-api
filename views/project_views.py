@@ -181,6 +181,46 @@ def read_project(projectid):
     }
     return res, 200
 
+@project_bp.route('/project/get', methods=['GET'])
+def get_project_by_iri():
+    out = request.headers['Authorization']
+    b, token = out.split()
+    if not request.args:
+        return jsonify({"message": f"Query parameter 'iri' expected – got none"}), 400
+
+    known_query_fields = {"iri"}
+    unknown_query_field = set(request.args.keys() - known_query_fields)
+    if unknown_query_field:
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to get a user by iri. Use {known_query_fields}. Aborted operation"}), 400
+    projectIri = request.args.get('iri', None)
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        project = Project.read(con=con, projectIri_SName=Iri(projectIri))
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    res = {
+        'projectIri': str(project.projectIri),
+        'creator': str(project.creator),
+        'created': str(project.created),
+        'contributor': str(project.contributor),
+        'modified': str(project.modified),
+        'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()] if project.label else None,
+        'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()] if project.comment else None,
+        'projectShortName': str(project.projectShortName),
+        'namespaceIri': str(project.namespaceIri),
+        'projectStart': str(project.projectStart) if project.projectStart else None,
+        'projectEnd': str(project.projectEnd) if project.projectEnd else None
+    }
+    return res, 200
+
 
 @project_bp.route('/project/search', methods=['GET'])
 def search_project():
