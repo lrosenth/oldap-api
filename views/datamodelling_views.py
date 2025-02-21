@@ -137,10 +137,6 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         lessThanOrEquals=lessThanOrEquals,
     )
     return prop
-{"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
-"inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
-"maxInclusive", "lessThan", "lessThanOrEquals", "toClass"}
-
 
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['PUT'])
 def add_standalone_property_to_datamodel(project, property):
