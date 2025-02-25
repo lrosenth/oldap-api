@@ -132,7 +132,7 @@ paths:
                             - ADMIN_CREATE
 
                 hasPermissions:
-                  description: "Lust be a list of QNames of the permission sets."
+                  description: "Must be a list of QNames of the permission sets."
                   type: array
                   items:
                     type: string
@@ -1392,7 +1392,132 @@ paths:
                     type: string
                     example: "Connection failed: {OldapError}"
 
-  /admin/datamodel/{project}/ressource:
+  /admin/datamodel/{project}:
+    put:
+      summary: Creates an empty datamodel
+      description: Creates an empty datamodel to be filled later by other viewfunctions
+      parameters:
+        - name: project
+          description: The Name of the project where the new datamodel should be located
+          in: path
+          required: true
+          schema:
+            type: string
+
+  /admin/datamodel/{project}/property/{property}:
+    put:
+      summary: Adds a standalone property to an existing datamodel
+      description:
+        Viewfunction to add a standalone property to an existing datamodel. A JSON is expectet that has the following form. 
+        Either the class or the datatype must be given but not both at the same time. If the datatype is given, then all fields are optional. 
+        If the class is given, only subPropertyOf, name and desctiption are allowed.
+      parameters:
+        - name: project
+          description: The Name of the project where the new datamodel should be located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: property
+          description: The name (Iri) of the property one wish to add
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Iri'
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                subPropertyOf:
+                  $ref: '#/components/schemas/Iri'
+                  description: Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf would be generic case of pageOf
+                  example: "hyha:testProp"
+                class:
+                  $ref: '#/components/schemas/Iri'
+                  description: An Iri() that describes the class of the instance on which this property must point e.g. "myproj:Book" means that the property points on book.
+                  example: "xml:Date"
+                datatype:
+                  type: xsd_datatype
+                  description: xsd_datatype if the property is represented via a literal
+                  example: "rdf:langString"
+                name:
+                  $ref: '#/components/schemas/LangString'
+                  description: Human readable Name.
+                description:
+                  $ref: '#/components/schemas/LangString'
+                  description: A description of the property.
+                languageIn:
+                  type: array
+                  description: The languages that are allowed in the property
+                  example: ["en", "fr", "it", "de"]
+                  items:
+                    type: string
+                uniqueLand:
+                  type: boolean
+                  description: Describes if each language must be present only once. This field is only applicable if the property is of datatype langstring.
+                  example: True
+                inSet:
+                  type: array
+                  example: ["Renault", "Opel", "BMW", "Mercedes"]
+                  items:
+                    type: string
+                minLength:
+                  description: Only applicable in xsd:string and rdf:langString. Denotes the minimal length of the string.
+                  oneOf:
+                    - type: int
+                      example: 1
+                    - type: float
+                      example: 1.1
+                maxLength:
+                  description: Only applicable in xsd:string and rdf:langString. Denotes the maximal length of the string.
+                  oneOf:
+                    - type: int
+                      example: 1
+                    - type: float
+                      example: 1.1
+                pattern:
+                  description: Tells if the string must follow a certain regex pattern. Only applicable in xsd:string and rdf:langString.
+                  type: string
+                  example: r"^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$"
+                minExclusive:
+                  description: Minimal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: float
+                      example: 5.5
+                    - type: int
+                      example: 5
+                minInclusive:
+                  description: Minimal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: float
+                      example: 5.5
+                    - type: int
+                      example: 5
+                maxExclusive:
+                  description: Maximal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: float
+                      example: 5.5
+                    - type: int
+                      example: 5
+                maxInclusive:
+                  description: Maximal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: float
+                      example: 5.5
+                    - type: int
+                      example: 5
+                lessThan:
+                  description: The given numerical value must be smaller than the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
+                  $ref: '#/components/schemas/Iri'
+                lessThanOrEquals:
+                  description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
+                  $ref: '#/components/schemas/Iri'
+
+
+  /admin/datamodel/{project}/resource:
     put:
       summary: Creates a complete ressource
       description: Creates a new ressource in the database
@@ -1753,6 +1878,11 @@ components:
           description: Single string with optional language tag (e.g., "Lastname@en").
           example: "A page of a book@en"
 
+    Iri:
+      type: string
+      pattern: "^[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+$"
+      description: "IRI in the format 'project:object', where 'project' is the project name and 'object' is the object name."
+      example: "myproj:pageOf"
 
 
   securitySchemes:
