@@ -147,6 +147,7 @@ def add_standalone_property_to_datamodel(project, property):
     json={
         "subPropertyOf": "hyha:testProp",
         "datatype": "rdf:langString",
+        "class": "hyha:kappa",
         "name": ["Test Property@en", "Test Feld@de"],
         "description": ["Test Feld Beschreibung@de"],
         "languageIn": ["en", "fr", "it", "de"],
