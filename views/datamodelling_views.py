@@ -187,6 +187,8 @@ def add_standalone_property_to_datamodel(project, property):
             prop = process_property(con=con, project=project, property_iri=property, data=data)
         except (ApiError, AttributeError, TypeError, ValueError,OldapErrorValue, OldapErrorInconsistency) as error:
             return jsonify({"message": str(error)}), 400
+        except OldapErrorNotFound as error:
+            return jsonify({'message': str(error)}), 404
         except OldapError as error:
             return jsonify({'message': str(error)}), 500  # Should not be reachable
 
@@ -269,7 +271,7 @@ def add_resource_to_datamodel(project, resource):
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
         except OldapError as error:
-            return jsonify({"message": str(error)}), 400
+            return jsonify({"message": str(error)}), 404
 
         resource = ResourceClass(con=con, project=project, owlclass_iri=Iri(iri), comment=comment, closed=closed, label=label)
         if resource.superclass is not None:
