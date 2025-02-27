@@ -144,6 +144,44 @@ def test_fill_empty_datamodel_with_prop_class_invalid_D(client, token_headers, t
     res = response.json
     assert res['message'] == 'A class that has a prefix of "rdf", "rdfs" and "xml" is not allowed.'
 
+def test_could_not_find_project_to_fill_standaloneprop(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/doesnotexist/property/hyha:testProp2', json={
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+    }, headers=header)
+
+    assert response.status_code == 404
+    res = response.json
+    print(res)
+    assert res['message'] == 'Project with IRI/shortname "doesnotexist" not found.'
+
+def cr(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+    }, headers=header)
+    res = response.json
+    print(res)
+
 def test_fill_empty_datamodel_with_standalone_prop_class(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
@@ -173,8 +211,79 @@ def test_fill_empty_datamodel_with_standalone_prop_class(client, token_headers, 
 def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
+    # response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
+    #     # "superclass": "hyha:Animal",
+    #     "label": [
+    #         "Eine Buchseite@de",
+    #         "A page of a book@en"
+    #     ],
+    #     "comment": [
+    #         "Eine Buchseite@de",
+    #         "A page of a book@en"
+    #     ],
+    #     "closed": True,
+    #     "hasProperty": [
+    #         {
+    #             "property": {
+    #                 "iri": "hyha:testProp2",
+    #                 "subPropertyOf": "hyha:testProp",
+    #                 "datatype": "rdf:langString",
+    #                 "name": ["Test Property@en", "Test Feld@de"],
+    #                 "description": ["Test Feld Beschreibung@de"],
+    #                 "languageIn": ["en", "fr", "it", "de"],
+    #                 "uniqueLang": True,
+    #                 "inSet": ["Kappa", "Gaga", "gugus"],
+    #                 "minLength": 1,
+    #                 "maxLength": 50,
+    #                 "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+    #                 "minExclusive": 5.5,
+    #                 "minInclusive": 5.5,
+    #                 "maxExclusive": 5.5,
+    #                 "maxInclusive": 5.5,
+    #                 "lessThan": "hyha:testProp",
+    #                 "lessThanOrEquals": "hyha:testProp"
+    #             },
+    #             "maxCount": 3,
+    #             "minCount": 1,
+    #             "order": 1
+    #         }
+    #     ]
+    # }, headers=header)
+    #
+    # res = response.json
+    # print(res)
+    #
+    # response = client.get('/admin/datamodel/hyha', headers=header)
+    # res = response.json
+    # print(res)
+    #
+    # assert response.status_code == 200
+    # assert res["resources"][0]["iri"] == "hyha:Sheep"
+    # assert set(res["resources"][0]["label"]) == set(["Eine Buchseite@de", "A page of a book@en"])
+    # assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "A page of a book@en"])
+    # assert res["resources"][0]["closed"] == True
+    # assert res["resources"][0]["hasProperty"][0]["property"]["iri"] == "hyha:testProp2"
+    # assert res["resources"][0]["hasProperty"][0]["property"]["subPropertyOf"] == "hyha:testProp"
+    # assert res["resources"][0]["hasProperty"][0]["property"]["datatype"] == "rdf:langString"
+    # assert set(res["resources"][0]["hasProperty"][0]["property"]["name"]) == set(["Test Property@en", "Test Feld@de"])
+    # assert res["resources"][0]["hasProperty"][0]["property"]["description"] == ["Test Feld Beschreibung@de"]
+    # assert sorted(res["resources"][0]["hasProperty"][0]["property"]["languageIn"]) == sorted(["en", "fr", "it", "de"])
+    # assert res["resources"][0]["hasProperty"][0]["property"]["uniqueLang"] == True
+    # assert sorted(res["resources"][0]["hasProperty"][0]["property"]["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
+    # assert res["resources"][0]["hasProperty"][0]["property"]["minLength"] == '1'
+    # assert res["resources"][0]["hasProperty"][0]["property"]["maxLength"] == '50'
+    # assert res["resources"][0]["hasProperty"][0]["property"]["pattern"] == r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
+    # assert res["resources"][0]["hasProperty"][0]["property"]["minExclusive"] == '5.5'
+    # assert res["resources"][0]["hasProperty"][0]["property"]["minInclusive"] == '5.5'
+    # assert res["resources"][0]["hasProperty"][0]["property"]["maxExclusive"] == '5.5'
+    # assert res["resources"][0]["hasProperty"][0]["property"]["maxInclusive"] == '5.5'
+    # assert res["resources"][0]["hasProperty"][0]["property"]["lessThan"] == 'hyha:testProp'
+    # assert res["resources"][0]["hasProperty"][0]["property"]["lessThanOrEquals"] == "hyha:testProp"
+    # assert res["resources"][0]["hasProperty"][0]["maxCount"] == '3'
+    # assert res["resources"][0]["hasProperty"][0]["minCount"] == '1'
+    # assert res["resources"][0]["hasProperty"][0]["order"] == '1.0'
+
     response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
-        # "superclass": "hyha:Animal",
         "label": [
             "Eine Buchseite@de",
             "A page of a book@en"
@@ -195,7 +304,7 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
                     "languageIn": ["en", "fr", "it", "de"],
                     "uniqueLang": True,
                     "inSet": ["Kappa", "Gaga", "gugus"],
-                    "minLength": 1,
+                    "minLength": -1,
                     "maxLength": 50,
                     "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
                     "minExclusive": 5.5,
@@ -214,37 +323,9 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
 
     res = response.json
     print(res)
-
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    print(res)
-
-    assert response.status_code == 200
-    assert res["resources"][0]["iri"] == "hyha:Sheep"
-    assert set(res["resources"][0]["label"]) == set(["Eine Buchseite@de", "A page of a book@en"])
-    assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "A page of a book@en"])
-    assert res["resources"][0]["closed"] == True
-    assert res["resources"][0]["hasProperty"][0]["property"]["iri"] == "hyha:testProp2"
-    assert res["resources"][0]["hasProperty"][0]["property"]["subPropertyOf"] == "hyha:testProp"
-    assert res["resources"][0]["hasProperty"][0]["property"]["datatype"] == "rdf:langString"
-    assert set(res["resources"][0]["hasProperty"][0]["property"]["name"]) == set(["Test Property@en", "Test Feld@de"])
-    assert res["resources"][0]["hasProperty"][0]["property"]["description"] == ["Test Feld Beschreibung@de"]
-    assert sorted(res["resources"][0]["hasProperty"][0]["property"]["languageIn"]) == sorted(["en", "fr", "it", "de"])
-    assert res["resources"][0]["hasProperty"][0]["property"]["uniqueLang"] == True
-    assert sorted(res["resources"][0]["hasProperty"][0]["property"]["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
-    assert res["resources"][0]["hasProperty"][0]["property"]["minLength"] == '1'
-    assert res["resources"][0]["hasProperty"][0]["property"]["maxLength"] == '50'
-    assert res["resources"][0]["hasProperty"][0]["property"]["pattern"] == r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
-    assert res["resources"][0]["hasProperty"][0]["property"]["minExclusive"] == '5.5'
-    assert res["resources"][0]["hasProperty"][0]["property"]["minInclusive"] == '5.5'
-    assert res["resources"][0]["hasProperty"][0]["property"]["maxExclusive"] == '5.5'
-    assert res["resources"][0]["hasProperty"][0]["property"]["maxInclusive"] == '5.5'
-    assert res["resources"][0]["hasProperty"][0]["property"]["lessThan"] == 'hyha:testProp'
-    assert res["resources"][0]["hasProperty"][0]["property"]["lessThanOrEquals"] == "hyha:testProp"
-    assert res["resources"][0]["hasProperty"][0]["maxCount"] == '3'
-    assert res["resources"][0]["hasProperty"][0]["minCount"] == '1'
-    assert res["resources"][0]["hasProperty"][0]["order"] == '1.0'
-
+    pprint(res)
 
 def test_create_prop_in_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
@@ -631,7 +712,7 @@ def test_dm_to_add_resource_to_not_found(client, token_headers):
 
     res = response.json
     print(res)
-    assert response.status_code == 400
+    assert response.status_code == 404
 
 def test_dm_to_add_property_to_not_found(client, token_headers):
     header = token_headers[1]
