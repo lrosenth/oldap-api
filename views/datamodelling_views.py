@@ -185,6 +185,7 @@ def add_standalone_property_to_datamodel(project, property):
         data = request.get_json()
         try:
             prop = process_property(con=con, project=project, property_iri=property, data=data)
+            prop.force_external()
         except (ApiError, AttributeError, TypeError, ValueError,OldapErrorValue, OldapErrorInconsistency) as error:
             return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
@@ -194,7 +195,6 @@ def add_standalone_property_to_datamodel(project, property):
 
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
-            prop.force_external()
             dm[prop.property_class_iri] = prop
             dm.update()
 

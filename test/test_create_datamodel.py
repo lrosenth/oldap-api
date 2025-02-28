@@ -159,7 +159,7 @@ def test_could_not_find_project_to_fill_standaloneprop(client, token_headers, te
     print(res)
     assert res['message'] == 'Project with IRI/shortname "doesnotexist" not found.'
 
-def cr(client, token_headers, testemptydatamodel):
+def test_standaloneprop_already_exists(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
