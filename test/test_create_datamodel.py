@@ -171,7 +171,6 @@ def test_standaloneprop_already_exists(client, token_headers, testemptydatamodel
 
     assert response.status_code == 200
     res = response.json
-    print(res)
 
     response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "subPropertyOf": "hyha:testProp",
@@ -179,8 +178,9 @@ def test_standaloneprop_already_exists(client, token_headers, testemptydatamodel
         "name": ["Test Property@en", "Test Feld@de"],
         "description": ["Test Feld Beschreibung@de"],
     }, headers=header)
+    assert response.status_code == 500
     res = response.json
-    print(res)
+    assert res['message'] == 'The property class "hyha:testProp2" already exists. It cannot be replaced. Update/delete it.'
 
 def test_fill_empty_datamodel_with_standalone_prop_class(client, token_headers, testemptydatamodel):
     header = token_headers[1]
