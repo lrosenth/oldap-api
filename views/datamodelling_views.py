@@ -24,7 +24,7 @@ from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorValue, OldapErrorNoPermission, \
-    OldapErrorInconsistency
+    OldapErrorInconsistency, OldapErrorAlreadyExists
 from oldaplib.src.iconnection import IConnection
 from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
@@ -198,6 +198,8 @@ def add_standalone_property_to_datamodel(project, property):
             dm[prop.property_class_iri] = prop
             dm.update()
 
+        except OldapErrorAlreadyExists as error:
+            return jsonify({"message": str(error)}), 409
         except OldapError as error:  # Should not be reachable
             return jsonify({"message": str(error)}), 500
         return jsonify({"message": f"Standalone property in datamodel {project} successfully created"}), 200
@@ -279,7 +281,10 @@ def add_resource_to_datamodel(project, resource):
                 resource.superclass = superclass
             except OldapError as error:
                 return jsonify({"message": str(error)}), 403
-        dm[Iri(iri)] = resource
+            try:
+                dm[Iri(iri)] = resource
+            except OldapErrorAlreadyExists as error:
+                return jsonify({"message": str(error)}), 409
 
         if hasProperty and isinstance(hasProperty, list):
             for prop in hasProperty:
@@ -300,6 +305,8 @@ def add_resource_to_datamodel(project, resource):
 
         try:
             dm.update()
+        except OldapErrorAlreadyExists as error:
+            return jsonify({"message": str(error)}), 409
         except OldapError as error:  # Should not be reachable
             return jsonify({"message": str(error)}), 500
         return jsonify({"message": f"Resource in datamodel {project} successfully created"}), 200
