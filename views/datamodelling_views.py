@@ -344,7 +344,7 @@ def add_property_to_resource(project, resource, property):
     :param resource: The name (Iri) of the resource where the property should be added
     :param property: The name (Iri) of the new property
     :return: A JSON informing about the success of the operation that has the following form:
-    json={"message": f"JSON expected. Instead received {request.content_type}"}
+    json={"message": f"Property in resource {resource} in datamodel {project} successfully created"}
     """
     known_json_fields = {"subPropertyOf", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "minCount", "maxCount", "order"}
     out = request.headers['Authorization']
@@ -384,12 +384,18 @@ def add_property_to_resource(project, resource, property):
         hasprop = HasProperty(con=con, prop=prop, minCount=mincount, maxCount=maxcount, order=order)
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
+            dm[Iri(resource)][Iri(property)] = hasprop
         except OldapErrorNotFound as error:
             return jsonify({'message': str(error)}), 404
-        dm[Iri(resource)][Iri(property)] = hasprop
+        except OldapErrorAlreadyExists as error:
+            return jsonify({'message': str(error)}), 409
+        except OldapError as error:
+            return jsonify({'message': str(error)}), 500
 
         try:
             dm.update()
+        except OldapErrorAlreadyExists as error:
+            return jsonify({'message': str(error)}), 409
         except OldapError as error:  # Should not be reachable
             return jsonify({"message": str(error)}), 500
         return jsonify({"message": f"Property in resource {resource} in datamodel {project} successfully created"}), 200
