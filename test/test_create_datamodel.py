@@ -335,6 +335,59 @@ def test_create_prop_in_resource(client, token_headers, testfulldatamodelresourc
     res = response.json
     pprint(res)
 
+def test_prop_in_resource_already_exists(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:newprop', json={
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["New Test Property@en", "New Test Feld@de"],
+        "description": ["New Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "inSet": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp",
+        "minCount": 1,
+        "maxCount": 2,
+        "order": 2
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 200
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:newprop', json={
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["New Test Property@en", "New Test Feld@de"],
+        "description": ["New Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "inSet": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp",
+        "minCount": 1,
+        "maxCount": 2,
+        "order": 2
+    }, headers=header)
+    res = response.json
+    print(res)
+    assert response.status_code == 409
+
 def test_create_empty_prop_in_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
