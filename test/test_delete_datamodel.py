@@ -28,7 +28,7 @@ def test_delete_standalone_property(client, token_headers, testfulldatamodelstan
 
     res = response.json
     print(res)
-    assert res['message'] == 'Data model successfully deleted'
+    assert res['message'] == 'Standalone property in datamodel hyha successfully deleted'
 
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
@@ -47,7 +47,7 @@ def test_delete_resource(client, token_headers, testfulldatamodelresource):
 
     res = response.json
     print(res)
-    assert res['message'] == 'Data model successfully deleted'
+    assert res['message'] == 'Resource in datamodel hyha successfully deleted'
 
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
@@ -63,7 +63,7 @@ def test_delete_property_in_resource(client, token_headers, testfulldatamodelres
 
     res = response.json
     print(res)
-    assert res['message'] == 'Property successfully deleted'
+    assert res['message'] == 'Property in resource hyha:Sheep in datamodel hyha successfully deleted'
 
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json

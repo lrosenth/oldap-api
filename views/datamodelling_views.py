@@ -569,7 +569,7 @@ def delete_whole_standalone_property(project, standaloneprop):
         return jsonify({'message': str(error)}), 404
     except OldapError as error:  # Should not be reachable
         return jsonify({'message': str(error)}), 500
-    return jsonify({'message': 'Data model successfully deleted'}), 200
+    return jsonify({'message': f'Standalone property in datamodel {project} successfully deleted'}), 200
 
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['DELETE'])
@@ -604,7 +604,7 @@ def delete_whole_resource(project, resource):
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500  # Should not be reachable
-    return jsonify({'message': 'Data model successfully deleted'}), 200
+    return jsonify({'message': f'Resource in datamodel {project} successfully deleted'}), 200
 
 
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['DELETE'])
@@ -640,7 +640,7 @@ def delete_hasprop_in_resource(project, resource, property):
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500  # Should not be reachable
-    return jsonify({'message': 'Property successfully deleted'}), 200
+    return jsonify({'message': f'Property in resource {resource} in datamodel {project} successfully deleted'}), 200
 
 
 def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, int]:
