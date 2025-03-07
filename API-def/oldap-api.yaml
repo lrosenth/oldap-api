@@ -78,6 +78,8 @@ paths:
           description: "Several Errors that involve bad requests"
         500:
           description: "Internal Server error. Should not be reachable"
+
+
   /admin/user/{userId}:
     put:
       summary: "Create a new user"
@@ -410,6 +412,7 @@ paths:
         500:
           description: "Internal Server error. Should not be reachable"
 
+
   /admin/user/search:
     get:
       summary: "Searches for given user"
@@ -469,6 +472,7 @@ paths:
                   message:
                     type: string
                     example: "Connection failed: {OldapError}"
+
 
   /admin/user/get:
     get:
@@ -631,7 +635,6 @@ paths:
                 properties:
                   message:
                     type: string
-
     delete:
       summary: "Delete a project"
       description: "The user that has the rights (given by his token) deletes a project"
@@ -679,7 +682,6 @@ paths:
                 properties:
                   message:
                     type: string
-
     get:
       summary: "Gets/reads Information about a project"
       description: "The user that has the rights (given by his token) gets Information about a project"
@@ -750,7 +752,6 @@ paths:
                   message:
                     type: string
                     example: 'Project with IRI/shortname "projectdoesnotexist" not found.'
-
     post:
       summary: "Modify/updates a project"
       description: "The user that has the rights (given by his token) modifies a project"
@@ -835,6 +836,7 @@ paths:
                 properties:
                   message:
                     type: string
+
 
   /admin/project/search:
     get:
@@ -964,6 +966,7 @@ paths:
                     type: string
                     example: 'Project with IRI/shortname "projectdoesnotexist" not found.'
 
+
   /admin/project/getid:
     get:
       summary: Get project shortname (project id) from Iri
@@ -1015,6 +1018,7 @@ paths:
                     type: string
                 required: [ message ]
 
+
   /admin/permissionset/{definedByProject}/{permissionSetId}:
     put:
       summary: Permissionset creation
@@ -1032,7 +1036,6 @@ paths:
           required: true
           schema:
             type: string
-
       requestBody:
         content:
           application/json:
@@ -1097,7 +1100,6 @@ paths:
                 properties:
                   message:
                     type: string
-
     delete:
       summary: "Delete a permissionset"
       description: "The user that has the rights (given by his token) deletes a permissionset"
@@ -1152,7 +1154,6 @@ paths:
                 properties:
                   message:
                     type: string
-
     get:
       summary: "Gets/reads Information about a permissionset"
       description: "The user that has the rights (given by his token) gets Information about a permissionset"
@@ -1337,6 +1338,7 @@ paths:
                   message:
                     type: string
 
+
   /admin/permissionset/search:
     get:
       summary: "Searches for given parameters"
@@ -1362,7 +1364,6 @@ paths:
             type: string
           description: "Filter by permission"
           required: false
-
       responses:
         "200":
           description: "OK"
@@ -1391,6 +1392,7 @@ paths:
                   message:
                     type: string
                     example: "Connection failed: {OldapError}"
+
 
   /admin/datamodel/{project}:
     put:
@@ -1432,6 +1434,72 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Resource'
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "doesnotexist" not found.'
+    delete:
+      summary: Delete the whole datamodel (!Not Reversible!)
+      description:
+        Viewfunction to delete the entire datamodel of a given project. Use carefully!
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Data model successfully deleted
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "doesnotexist" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
 
   /admin/datamodel/{project}/property/{property}:
     put:
@@ -1494,6 +1562,51 @@ paths:
                 properties:
                   message:
                     type: string
+    delete:
+      summary: Delete an entire standalone property inside the datamodel of a project
+      description:
+        Viewfunction that deletes an entire standalone property inside the projects datamodel
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: property
+          description: The name (Iri) of the property one wish to delete
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Iri'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Standalone property in datamodel {project} successfully deleted"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
 
 
   /admin/datamodel/{project}/{resource}:
@@ -1575,6 +1688,52 @@ paths:
                 properties:
                   message:
                     type: string
+    delete:
+      summary: Deletes an entire resource inside a datamodel of a given project
+      description:
+        Viewfunction that deletes an entire resource inside the projects datamodel
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resource
+          description: The name (Iri) of the resource one wish to delete
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Iri'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Resource in datamodel {project} successfully deleted"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+
 
   /admin/datamodel/{project}/{resource}/{property}:
     put:
@@ -1676,6 +1835,41 @@ paths:
                 properties:
                   message:
                     type: string
+    delete:
+      summary: Deletes a property inside a resource in a datamodel
+      description:
+        Viewfunction that deletes an entire property inside a resource that is located in the projects datamodel
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resource
+          description: The name (Iri) of the resource where the property should be deleted
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Iri'
+        - name: property
+          description: The name (Iri) of the property one wish to delete
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Iri'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Property in resource {resource} in datamodel {project} successfully deleted"
+
+
 
 
 components:
