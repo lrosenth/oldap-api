@@ -1,10 +1,13 @@
+from pprint import pprint
+
+
 def test_read_standaloneporp_datamodel(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
     response = client.get('/admin/datamodel/hyha', headers=header)
 
     res = response.json
-    print(res)
+    pprint(res)
 
 
 def test_bad_token(client, token_headers):

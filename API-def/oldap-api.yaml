@@ -1403,6 +1403,35 @@ paths:
           required: true
           schema:
             type: string
+    get:
+      summary: Read a datamodel
+      description:
+        Viewfunction to get the information about a datamodel of a project.
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The information about the datamodel of the given project is shown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    $ref: '#/components/schemas/Iri'
+                  standaloneProperties:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Property'
+                  resources:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Resource'
 
   /admin/datamodel/{project}/property/{property}:
     put:
@@ -1428,93 +1457,7 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                subPropertyOf:
-                  $ref: '#/components/schemas/Iri'
-                  description: Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf would be generic case of pageOf
-                  example: "hyha:testProp"
-                class:
-                  $ref: '#/components/schemas/Iri'
-                  description: An Iri() that describes the class of the instance on which this property must point e.g. "myproj:Book" means that the property points on book.
-                  example: "xml:Date"
-                datatype:
-                  type: string
-                  description: xsd_datatype if the property is represented via a literal
-                  example: "rdf:langString"
-                name:
-                  $ref: '#/components/schemas/LangString'
-                  description: Human readable Name.
-                description:
-                  $ref: '#/components/schemas/LangString'
-                  description: A description of the property.
-                languageIn:
-                  type: array
-                  description: The languages that are allowed in the property
-                  example: ["en", "fr", "it", "de"]
-                  items:
-                    type: string
-                uniqueLang:
-                  type: boolean
-                  description: Describes if each language must be present only once. This field is only applicable if the property is of datatype langstring.
-                  example: True
-                inSet:
-                  type: array
-                  example: ["Renault", "Opel", "BMW", "Mercedes"]
-                  items:
-                    type: string
-                minLength:
-                  description: Only applicable in xsd:string and rdf:langString. Denotes the minimal length of the string.
-                  oneOf:
-                    - type: integer
-                      example: 1
-                    - type: number
-                      format: float
-                      example: 1.1
-                maxLength:
-                  description: Only applicable in xsd:string and rdf:langString. Denotes the maximal length of the string.
-                  oneOf:
-                    - type: int
-                      example: 1
-                    - type: float
-                      example: 1.1
-                pattern:
-                  description: Tells if the string must follow a certain regex pattern. Only applicable in xsd:string and rdf:langString.
-                  type: string
-                  example: r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
-                minExclusive:
-                  description: Minimal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
-                  oneOf:
-                    - type: float
-                      example: 5.5
-                    - type: int
-                      example: 5
-                minInclusive:
-                  description: Minimal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
-                  oneOf:
-                    - type: float
-                      example: 5.5
-                    - type: int
-                      example: 5
-                maxExclusive:
-                  description: Maximal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
-                  oneOf:
-                    - type: float
-                      example: 5.5
-                    - type: int
-                      example: 5
-                maxInclusive:
-                  description: Maximal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
-                  oneOf:
-                    - type: float
-                      example: 5.5
-                    - type: int
-                      example: 5
-                lessThan:
-                  description: The given numerical value must be smaller than the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
-                  $ref: '#/components/schemas/Iri'
-                lessThanOrEquals:
-                  description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
-                  $ref: '#/components/schemas/Iri'
+              $ref: '#/components/schemas/Property'
       responses:
         "200":
           description: "OK"
@@ -1577,47 +1520,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                label:
-                  $ref: '#/components/schemas/LangString'
-                  description: A label for the resource.
-                comment:
-                  $ref: '#/components/schemas/LangString'
-                  description: A comment for the resource.
-                closed:
-                  description: The standard closed constraint of RDF. See https://www.w3.org/TR/shacl/#ClosedConstraintComponent
-                  type: boolean
-                  example: True
-                hasProperty:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      property:
-                        oneOf:
-                          - allOf:
-                              - type: object
-                                properties:
-                                  iri:
-                                    $ref: '#/components/schemas/Iri'
-                                    description: The Iri of the property inside the resource.
-                                    example: "hyha:testProp"
-                              - $ref: '#/components/schemas/Property'
-                          - $ref: '#/components/schemas/Iri'
-                            description: The Iri that references an already existing standalone property
-                      maxCount:
-                        description: Denotes how often (maximum) this property can be used in one resource
-                        type: number
-                        example: 3
-                      minCount:
-                        description: Denotes how often (minimal) this property must be used in one resource
-                        type: number
-                        example: 1
-                      order:
-                        description: Hint for GUI. Tells order of properties for a GUI
-                        type: number
-                        example: 2
+              $ref: '#/components/schemas/Resource'
       responses:
         "200":
           description: "OK"
@@ -1628,6 +1531,15 @@ paths:
                   message:
                     type: string
                     example: "Resource in datamodel {project} successfully created"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Property IRI is missing in HasProperty//JSON expected. Instead received {request.content_type}
         403:
           description: "Unauthorized"
           content:
@@ -1710,6 +1622,61 @@ paths:
                       description: Hint for GUI. Tells order of properties for a GUI
                       type: number
                       example: 2
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Property in resource {resource} in datamodel {project} successfully created"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+        409:
+          description: Resource already exists
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'The resource class "hyha:Sheep" already exists. It cannot be replaced. Update/delete it.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
 
 components:
   schemas:
@@ -1977,7 +1944,48 @@ components:
           description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
           $ref: '#/components/schemas/Iri'
 
-
+    Resource:
+      type: object
+      properties:
+        label:
+          $ref: '#/components/schemas/LangString'
+          description: A label for the resource.
+        comment:
+          $ref: '#/components/schemas/LangString'
+          description: A comment for the resource.
+        closed:
+          description: The standard closed constraint of RDF. See https://www.w3.org/TR/shacl/#ClosedConstraintComponent
+          type: boolean
+          example: True
+        hasProperty:
+          type: array
+          items:
+            type: object
+            properties:
+              property:
+                oneOf:
+                  - allOf:
+                      - type: object
+                        properties:
+                          iri:
+                            $ref: '#/components/schemas/Iri'
+                            description: The Iri of the property inside the resource.
+                            example: "hyha:testProp"
+                      - $ref: '#/components/schemas/Property'
+                  - $ref: '#/components/schemas/Iri'
+                    description: The Iri that references an already existing standalone property
+              maxCount:
+                description: Denotes how often (maximum) this property can be used in one resource
+                type: number
+                example: 3
+              minCount:
+                description: Denotes how often (minimal) this property must be used in one resource
+                type: number
+                example: 1
+              order:
+                description: Hint for GUI. Tells order of properties for a GUI
+                type: number
+                example: 2
 
   securitySchemes:
     AccessToken:
