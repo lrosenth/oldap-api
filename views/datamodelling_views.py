@@ -66,7 +66,7 @@ def create_empty_datamodel(project):
     try:
         dm.create()
     except OldapError as error:  # Should not be reachable
-        return jsonify({"message": str(error)}), 400
+        return jsonify({"message": str(error)}), 500
 
     return jsonify({"message": "Empty datamodel successfully created"}), 200
 
@@ -431,6 +431,8 @@ def read_datamodel(project):
         dm = DataModel.read(con, project, ignore_cache=True)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
 
     propclasses = set(dm.get_propclasses())
     resclasses = set(dm.get_resclasses())
@@ -1002,7 +1004,7 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
     json={
         "property": {
             "subPropertyOf": "hyha:kappa",
-            "toClass": "hyha:kappa",
+            "class": "hyha:kappa",
             "datatype": "xsd:string",
             "name": ["pappakappa@de"],
             "description": ["descriptiv stuff@en"],

@@ -1405,6 +1405,33 @@ paths:
           required: true
           schema:
             type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Empty datamodel successfully created"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
     get:
       summary: Read a datamodel
       description:
@@ -1452,6 +1479,14 @@ paths:
                   message:
                     type: string
                     example: 'Project with IRI/shortname "doesnotexist" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
     delete:
       summary: Delete the whole datamodel (!Not Reversible!)
       description:
@@ -1607,6 +1642,147 @@ paths:
                   message:
                     type: string
                     example: 'Project with IRI/shortname "hyha123" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+    post:
+      summary: Modify a standalone property
+      description:
+        Viewfunction to modify a standalone property. A JSON is expected that has the following form. At least one field
+        must be given. All fields are optional. At least one field must be given.
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: property
+          description: The name (Iri) of the property one wish to modify
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Iri'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                name:
+                  description: Human readable Name.
+                  $ref: '#/components/schemas/LangString'
+                description:
+                  $ref: '#/components/schemas/LangString'
+                  description: A description of the property.
+                languageIn:
+                  type: array
+                  description: The languages that are allowed in the property
+                  example: [ "en", "fr", "it", "de" ]
+                  items:
+                    type: string
+                uniqueLand:
+                  type: boolean
+                  description: Describes if each language must be present only once. This field is only applicable if the property is of datatype langstring.
+                  example: True
+                minLength:
+                  description: Only applicable in xsd:string and rdf:langString. Denotes the minimal length of the string.
+                  oneOf:
+                    - type: integer
+                      example: 1
+                    - type: number
+                      format: float
+                      example: 1.1
+                maxLength:
+                  description: Only applicable in xsd:string and rdf:langString. Denotes the maximal length of the string.
+                  oneOf:
+                    - type: int
+                      example: 1
+                    - type: float
+                      example: 1.1
+                pattern:
+                  description: Tells if the string must follow a certain regex pattern. Only applicable in xsd:string and rdf:langString.
+                  type: string
+                  example: r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
+                minExclusive:
+                  description: Minimal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: float
+                      example: 5.5
+                    - type: int
+                      example: 5
+                minInclusive:
+                  description: Minimal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: float
+                      example: 5.5
+                    - type: int
+                      example: 5
+                maxExclusive:
+                  description: Maximal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: float
+                      example: 5.5
+                    - type: int
+                      example: 5
+                maxInclusive:
+                  description: Maximal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: float
+                      example: 5.5
+                    - type: int
+                      example: 5
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Data model successfully modified"
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}//The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. Aborded operation
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
 
 
   /admin/datamodel/{project}/{resource}:
@@ -1733,6 +1909,94 @@ paths:
                   message:
                     type: string
                     example: 'Project with IRI/shortname "hyha123" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+    post:
+      summary: Modifies a resource in a datamodel
+      description: >
+        Viewfunction to modify a resource. A JSON is expected that has the following form. All fields are optional -- at least one needs to be given
+        Note: To modify the fields of a property of the resource -- use modify_attribute_in_has_prop instead.
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resource
+          description: The name (Iri) of the resource one wish to add
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Iri'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                closed:
+                  description: The standard closed constraint of RDF. See https://www.w3.org/TR/shacl/#ClosedConstraintComponent
+                  type: boolean
+                  example: True
+                label:
+                  $ref: '#/components/schemas/LangString'
+                  description: A label for the resource.
+                comment:
+                  $ref: '#/components/schemas/LangString'
+                  description: A comment for the resource.
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Data model successfully modified"
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}//The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. Aborded operation
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
 
 
   /admin/datamodel/{project}/{resource}/{property}:
@@ -1868,6 +2132,112 @@ paths:
                   message:
                     type: string
                     example: "Property in resource {resource} in datamodel {project} successfully deleted"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+    post:
+      summary: Modifies a property inside a resource in a datamodel
+      description:
+        Viewfunction to modify the fields of a single property inside a resource.A JSON is expected that has the following form.
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resource
+          description: The name (Iri) of the resource where the property should be added
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Iri'
+        - name: property
+          description: The name (Iri) of the property one wish to add
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Iri'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                property:
+                  $ref: '#/components/schemas/Property'
+                maxCount:
+                  description: Denotes how often (maximum) this property can be used in one resource
+                  type: number
+                  example: 3
+                minCount:
+                  description: Denotes how often (minimal) this property must be used in one resource
+                  type: number
+                  example: 1
+                order:
+                  description: Hint for GUI. Tells order of properties for a GUI
+                  type: number
+                  example: 2
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Data model successfully modified"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
 
 
 
