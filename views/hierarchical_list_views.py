@@ -1,4 +1,5 @@
 import json
+from xmlrpc.client import Boolean
 
 from flask import Blueprint, request, jsonify, Response
 from oldaplib.src.connection import Connection
@@ -169,8 +170,20 @@ def add_node(project, hlistid, nodeid):
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['DELETE'])
 def del_node(project, hlistid, nodeid):
+    needed_querry_fields = {"recursive"}
     out = request.headers['Authorization']
     b, token = out.split()
+
+    if request.args:
+        unknown_json_field = set(request.args.keys()) - needed_querry_fields
+    else:
+        unknown_json_field = set()
+    if unknown_json_field:
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to delete a node in a hlist. Usable are {needed_querry_fields}. Aborded operation"}), 400
+
+    # recursive = getattr(request, "args", {}).get("recursive", None)
+    truthvalues = {"true", "1", "yes", "on"}
+    recursive = getattr(request, "args", {}).get("recursive", "false").lower() in truthvalues
 
     try:
         con = Connection(server='http://localhost:7200',
@@ -180,16 +193,56 @@ def del_node(project, hlistid, nodeid):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    try:
-        hlist = OldapList.read(con=con, project=project,  oldapListId=hlistid)
-        node = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
-        node.delete_node()
-    except OldapErrorNoPermission as error:
-        return jsonify({"message": str(error)}), 403
-    except OldapErrorNotFound as error:
-        return jsonify({"message": str(error)}), 404
-    except OldapError as error:  # should not be reachable
-        return jsonify({"message": str(error)}), 500
+    if recursive is False:
+        try:
+            hlist = OldapList.read(con=con, project=project,  oldapListId=hlistid)
+            node = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
+            node.delete_node()
+        except OldapErrorNoPermission as error:
+            return jsonify({"message": str(error)}), 403
+        except OldapErrorNotFound as error:
+            return jsonify({"message": str(error)}), 404
+        except OldapError as error:  # should not be reachable
+            return jsonify({"message": str(error)}), 500
+    elif recursive is True:
+        try:
+            hlist = OldapList.read(con=con, project=project,  oldapListId=hlistid)
+            nodetodel = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
+            nodetodel.delete_node_recursively()
+        except OldapErrorNoPermission as error:
+            return jsonify({"message": str(error)}), 403
 
     return jsonify({"message": "Node successfully deleted"}), 200
-
+#
+#
+# @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/rec/<nodeid>', methods=['DELETE'])
+# def del_node_recursive(project, hlistid, nodeid):
+#     out = request.headers['Authorization']
+#     b, token = out.split()
+#
+#     try:
+#         con = Connection(server='http://localhost:7200',
+#                          repo="oldap",
+#                          token=token,
+#                          context_name="DEFAULT")
+#     except OldapError as error:
+#         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+#
+#     try:
+#         hlist = OldapList.read(con=con, project=project,  oldapListId=hlistid)
+#         nodetodelrec = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
+#         nodetodelrec.delete_node_recursively()
+#     except OldapErrorNoPermission as error:
+#         return jsonify({"message": str(error)}), 403
+#     except OldapErrorNotFound as error:
+#         return jsonify({"message": str(error)}), 404
+#     except OldapError as error:  # should not be reachable
+#         return jsonify({"message": str(error)}), 500
+#
+#     return jsonify({"message": "Node successfully deleted"}), 200
+#
+#
+#
+#
+#
+#

@@ -347,4 +347,40 @@ def testfullhlist(client, token_headers):
         "refnode": "nodeBA"
     }, headers=header)
 
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeBC', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "right",
+        "refnode": "nodeBB"
+    }, headers=header)
+
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBA', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "below",
+        "refnode": "nodeBB"
+    }, headers=header)
+
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBB', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "right",
+        "refnode": "nodeBBA"
+    }, headers=header)
+
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBC', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "right",
+        "refnode": "nodeBBB"
+    }, headers=header)
+
+    response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBBA', json={
+        "label": ["testrootnodelabel@en"],
+        "definition": ["testrootnodedefinition@en"],
+        "position": "below",
+        "refnode": "nodeBBB"
+    }, headers=header)
+
+
     yield
