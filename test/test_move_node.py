@@ -5,7 +5,7 @@ def test_move_node(client, token_headers, testfullhlist):
     header = token_headers[1]
 
     response = client.post('/admin/hlist/hyha/testfullhlist/nodeBB/move', json={
-        "root": 1234
+        "leftOf": "nodeA"
     }, headers=header)
 
     assert response.status_code == 200

@@ -1,16 +1,19 @@
 import json
+from pprint import pprint
 from xmlrpc.client import Boolean
 
 from flask import Blueprint, request, jsonify, Response
 from oldaplib.src.connection import Connection
 from oldaplib.src.helpers.json_encoder import SpecialEncoder
 from oldaplib.src.helpers.langstring import LangString
-from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorValue
+from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency
 from oldaplib.src.oldaplist import OldapList
 from oldaplib.src.oldaplist_helpers import get_nodes_from_list
 from oldaplib.src.oldaplistnode import OldapListNode
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from requests import delete
+
+from views import known_languages
 
 hierarchical_list_bp = Blueprint('hlist', __name__, url_prefix='/admin')
 
@@ -170,16 +173,16 @@ def add_node(project, hlistid, nodeid):
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['DELETE'])
 def del_node(project, hlistid, nodeid):
-    needed_querry_fields = {"recursive"}
+    known_querry_fields = {"recursive"}
     out = request.headers['Authorization']
     b, token = out.split()
 
     if request.args:
-        unknown_json_field = set(request.args.keys()) - needed_querry_fields
+        unknown_json_field = set(request.args.keys()) - known_querry_fields
     else:
         unknown_json_field = set()
     if unknown_json_field:
-        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to delete a node in a hlist. Usable are {needed_querry_fields}. Aborded operation"}), 400
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to delete a node in a hlist. Usable are {known_querry_fields}. Aborded operation"}), 400
 
     # recursive = getattr(request, "args", {}).get("recursive", None)
     truthvalues = {"true", "1", "yes", "on"}
@@ -202,6 +205,8 @@ def del_node(project, hlistid, nodeid):
             return jsonify({"message": str(error)}), 403
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
+        except OldapErrorInconsistency as error:
+            return jsonify({"message": str(error)}), 409
         except OldapError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 500
     elif recursive is True:
@@ -213,36 +218,63 @@ def del_node(project, hlistid, nodeid):
             return jsonify({"message": str(error)}), 403
 
     return jsonify({"message": "Node successfully deleted"}), 200
-#
-#
-# @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/rec/<nodeid>', methods=['DELETE'])
-# def del_node_recursive(project, hlistid, nodeid):
-#     out = request.headers['Authorization']
-#     b, token = out.split()
-#
-#     try:
-#         con = Connection(server='http://localhost:7200',
-#                          repo="oldap",
-#                          token=token,
-#                          context_name="DEFAULT")
-#     except OldapError as error:
-#         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-#
-#     try:
-#         hlist = OldapList.read(con=con, project=project,  oldapListId=hlistid)
-#         nodetodelrec = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
-#         nodetodelrec.delete_node_recursively()
-#     except OldapErrorNoPermission as error:
-#         return jsonify({"message": str(error)}), 403
-#     except OldapErrorNotFound as error:
-#         return jsonify({"message": str(error)}), 404
-#     except OldapError as error:  # should not be reachable
-#         return jsonify({"message": str(error)}), 500
-#
-#     return jsonify({"message": "Node successfully deleted"}), 200
-#
-#
-#
-#
-#
-#
+
+# post(/admin/hlist/myproj/mylist/mynode?leftof=targetnodeid)
+# {
+#     "L": "targetnodeid",
+# }
+@hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>/move', methods=['POST'])
+def move_node(project, hlistid, nodeid):
+    known_json_fields = {"leftOf", "belowOf", "rightOf"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a root node. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to move a node. Usable for the move-viewfunction are {known_json_fields}"}), 400
+        if len(data.keys()) > 1:
+            return jsonify({"message": f"Only one field can be given to move a node. Used where {set(data.keys())}. Usablable for the move-viewfunction is only one of {known_json_fields}"}), 400
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    leftOf = data.get("leftOf", None)
+    belowOf = data.get("belowOf", None)
+    rightOf = data.get("rightOf", None)
+    targetnodeid = data[next(iter(data))]
+
+    try:
+        hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+        nodetomove = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
+        targetnode = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=targetnodeid)
+    except OldapErrorNotFound as error:
+        return jsonify({"message": str(error)}), 404
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500
+
+    if leftOf:
+        nodetomove.move_node_left_of(con=con, rightnode=targetnode)
+    elif belowOf:
+        nodetomove.move_node_below_of(con=con, parentnode=targetnode)
+    elif rightOf:
+        nodetomove.move_node_right_of(con=con, leftnode=targetnode)
+    else:
+        return jsonify({"message": f"Something that should not have went wrong!No valid field given to move a node. Should not be reachable!!"}), 400
+
+
+
+
+
+
+    return jsonify({"message": "Node successfully moved"}), 200
+
+
