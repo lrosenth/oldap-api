@@ -1702,9 +1702,10 @@ paths:
                 maxLength:
                   description: Only applicable in xsd:string and rdf:langString. Denotes the maximal length of the string.
                   oneOf:
-                    - type: int
+                    - type: integer
                       example: 1
-                    - type: float
+                    - type: number
+                      format: float
                       example: 1.1
                 pattern:
                   description: Tells if the string must follow a certain regex pattern. Only applicable in xsd:string and rdf:langString.
@@ -1713,30 +1714,34 @@ paths:
                 minExclusive:
                   description: Minimal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
                   oneOf:
-                    - type: float
+                    - type: number
+                      format: float
                       example: 5.5
-                    - type: int
+                    - type: integer
                       example: 5
                 minInclusive:
                   description: Minimal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
                   oneOf:
-                    - type: float
+                    - type: number
+                      format: float
                       example: 5.5
-                    - type: int
+                    - type: integer
                       example: 5
                 maxExclusive:
                   description: Maximal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
                   oneOf:
-                    - type: float
+                    - type: number
+                      format: float
                       example: 5.5
-                    - type: int
+                    - type: integer
                       example: 5
                 maxInclusive:
                   description: Maximal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
                   oneOf:
-                    - type: float
+                    - type: number
+                      format: float
                       example: 5.5
-                    - type: int
+                    - type: integer
                       example: 5
       responses:
         "200":
@@ -2465,9 +2470,10 @@ components:
         maxLength:
           description: Only applicable in xsd:string and rdf:langString. Denotes the maximal length of the string.
           oneOf:
-            - type: int
+            - type: integer
               example: 1
-            - type: float
+            - type: number
+              format: float
               example: 1.1
         pattern:
           description: Tells if the string must follow a certain regex pattern. Only applicable in xsd:string and rdf:langString.
@@ -2476,30 +2482,34 @@ components:
         minExclusive:
           description: Minimal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
           oneOf:
-            - type: float
+            - type: number
+              format: float
               example: 5.5
-            - type: int
+            - type: integer
               example: 5
         minInclusive:
           description: Minimal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
           oneOf:
-            - type: float
+            - type: number
+              format: float
               example: 5.5
-            - type: int
+            - type: integer
               example: 5
         maxExclusive:
           description: Maximal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
           oneOf:
-            - type: float
+            - type: number
+              format: float
               example: 5.5
-            - type: int
+            - type: integer
               example: 5
         maxInclusive:
           description: Maximal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
           oneOf:
-            - type: float
+            - type: number
+              format: float
               example: 5.5
-            - type: int
+            - type: integer
               example: 5
         lessThan:
           description: The given numerical value must be smaller than the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
