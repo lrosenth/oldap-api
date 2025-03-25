@@ -870,7 +870,7 @@ def test_no_permission_to_modify_attribute_in_has_propresource(client, token_hea
     }, headers=headers)
     res2 = response2.json
     print(res2)
-    assert response2.status_code == 404
+    assert response2.status_code == 403
 
 
 def test_no_permission_modify_standalone_prop(client, token_headers, testfulldatamodelstandaloneproplangstring):
@@ -902,7 +902,7 @@ def test_no_permission_modify_standalone_prop(client, token_headers, testfulldat
     }, headers=headers)
     res2 = response2.json
     print(res2)
-    assert response2.status_code == 404
+    assert response2.status_code == 403
 
 def test_no_permission_modify_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
@@ -937,4 +937,4 @@ def test_no_permission_modify_resource(client, token_headers, testfulldatamodelr
     }, headers=headers)
     res2 = response2.json
     print(res2)
-    assert response2.status_code == 404
+    assert response2.status_code == 403

@@ -863,7 +863,7 @@ def modify_standalone_property(project, property):
         try:
             dm.update()
         except OldapErrorNoPermission as error:
-            return jsonify({'message': str(error)}), 404
+            return jsonify({'message': str(error)}), 403
         except OldapError as error:
             return jsonify({'message': str(error)}), 500  # Should not be reachable
         return jsonify({'message': 'Data model successfully modified'}), 200
@@ -989,7 +989,7 @@ def modify_resource(project, resource):
         try:
             dm.update()
         except OldapErrorNoPermission as error:
-            return jsonify({'message': str(error)}), 404
+            return jsonify({'message': str(error)}), 403
         except OldapError as error:
             return jsonify({'message': str(error)}), 500  # Should not be reachable
         return jsonify({'message': 'Data model successfully modified'}), 200
@@ -1074,7 +1074,7 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
     try:
         dm.update()
     except OldapErrorNoPermission as error:
-        return jsonify({'message': str(error)}), 404
+        return jsonify({'message': str(error)}), 403
     except OldapError as error:
         return jsonify({'message': str(error)}), 500  # Should not be reachable
     return jsonify({'message': 'Data model successfully modified'}), 200
