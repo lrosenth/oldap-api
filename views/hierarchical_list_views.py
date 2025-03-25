@@ -219,10 +219,7 @@ def del_node(project, hlistid, nodeid):
 
     return jsonify({"message": "Node successfully deleted"}), 200
 
-# post(/admin/hlist/myproj/mylist/mynode?leftof=targetnodeid)
-# {
-#     "L": "targetnodeid",
-# }
+
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>/move', methods=['POST'])
 def move_node(project, hlistid, nodeid):
     known_json_fields = {"leftOf", "belowOf", "rightOf"}
@@ -270,11 +267,61 @@ def move_node(project, hlistid, nodeid):
     else:
         return jsonify({"message": f"Something that should not have went wrong!No valid field given to move a node. Should not be reachable!!"}), 400
 
-
-
-
-
-
     return jsonify({"message": "Node successfully moved"}), 200
+
+
+@hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['POST'])
+def modify_node(project, hlistid, nodeid):
+    known_json_fields = {"prefLabel", "definition"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a root node. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to move a node. Usable for the move-viewfunction are {known_json_fields}"}), 400
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    prefLabel = data.get("prefLabel", None)
+    definition = data.get("definition", None)
+
+    hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+    nodetochange = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
+
+    if prefLabel:
+        try:
+            nodetochange.prefLabel = LangString(prefLabel)
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 404
+        except OldapError as error:
+            return jsonify({"message": str(error)}), 500 # Should not be reachable
+
+    if definition:
+        try:
+            nodetochange.definition = LangString(definition)
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 404
+        except OldapError as error:
+            return jsonify({"message": str(error)}), 500  # Should not be reachable
+
+    try:
+        nodetochange.update()
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500  # Should not be reachable
+
+    return jsonify({"message": "Node successfully modified"}), 200
+
 
 
