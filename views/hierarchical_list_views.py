@@ -54,15 +54,14 @@ def create_empty_hlist(project, hlistid):
                               prefLabel=LangString(label),
                               definition=LangString(definition))
             hlist.create()
-
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
+        except OldapErrorNotFound as error:
+            return jsonify({'message': str(error)}), 404
         except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
-        except OldapErrorValue as error:
-            return jsonify({'message': str(error)}), 404
         except OldapError as error:
-            return jsonify({'message': str(error)}), 500
+            return jsonify({'message': str(error)}), 500 # should not be reachable
         return jsonify({"message": "Hierarchical list successfully created"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
@@ -105,7 +104,7 @@ def add_node(project, hlistid, nodeid):
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a root node. Usable are {known_json_fields}. Aborded operation"}), 400
         if not mandatory_json_fields.issubset(set(data.keys())):
             return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a root node. Used where {set(data.keys())}. Usablable are {known_json_fields}"}), 400
-        if data["position"] not in {"root", "left", "below", "right"}:
+        if data["position"] not in {"root", "leftOf", "belowOf", "rightOf"}:
             return jsonify({"message": f"Position {data["position"]} is not allowed. Must be either root, left, below or right"}), 400
         if data["position"] != "root":
             if data.get("refnode", None) is None:
@@ -126,7 +125,6 @@ def add_node(project, hlistid, nodeid):
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-
 
         try:
             oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
@@ -149,23 +147,23 @@ def add_node(project, hlistid, nodeid):
             match position:
                 case "root":
                     node.create_root_node()
-                case "right":
+                case "rightOf":
                     node.insert_node_right_of(leftnode=refnode)
-                case "below":
+                case "belowOf":
                     node.insert_node_below_of(parentnode=refnode)
-                case "left":
+                case "leftOf":
                     node.insert_node_left_of(rightnode=refnode)
                 case _:
-                    return jsonify({"message": f"Position {position} is not allowed"}), 400
+                    return jsonify({"message": f"Position {position} is not allowed"}), 400 # Should not be reachable
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
-        except OldapErrorAlreadyExists as error:
-            return jsonify({'message': str(error)}), 409
         except OldapErrorValue as error:
             return jsonify({'message': str(error)}), 404
+        except OldapErrorAlreadyExists as error:
+            return jsonify({'message': str(error)}), 409
         except OldapError as error:
             return jsonify({'message': str(error)}), 500
-        return jsonify({"message": "Root node successfully created"}), 200
+        return jsonify({"message": "Node successfully created"}), 200
 
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
