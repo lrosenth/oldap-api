@@ -1393,6 +1393,84 @@ paths:
                     type: string
                     example: "Connection failed: {OldapError}"
 
+  /admin/permissionset/get:
+    get:
+      summary: "Get permission set by iri"
+      description: "Get complete permission set data by iri"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: query
+          name: iri
+          schema:
+            type: string
+          description: Iri of permission set
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  creator:
+                    type: string
+                  created:
+                    type: string
+                    format: date-time
+                  contributor:
+                    type: string
+                  modified:
+                    type: string
+                    format: date-time
+                  permissionSetIri:
+                    type: string
+                  permissionSetId:
+                    type: string
+                  label:
+                    $ref: '#/components/schemas/LangString'
+                  comment:
+                    $ref: '#/components/schemas/LangString'
+                  givesPermission:
+                    type: string
+                  definedByProject:
+                    type: string
+        400:
+          description: "Several Errors that involve bad requests"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "JSON expected. Instead received {request.content_type}//The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation// (...)"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "No permission to create a new permission set.//Connection failed: {str(error)}"
+        409:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'A permission set "oldap:testpermissionset" already exists'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
 
   /admin/datamodel/{project}:
     put:
