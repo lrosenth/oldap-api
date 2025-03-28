@@ -81,10 +81,10 @@ def read_hlist(project, hlistid):
     try:
         oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
         hlist = get_nodes_from_list(con=con, oldapList=oldaplist)
-    except OldapErrorValue as error:
-        return jsonify({'message': str(error)}), 404
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500 # Should not be reachable
 
     #return json.dumps(hlist, cls=SpecialEncoder), 200
     return Response(json.dumps(hlist, cls=SpecialEncoder), mimetype="application/json"), 200
@@ -157,8 +157,6 @@ def add_node(project, hlistid, nodeid):
                     return jsonify({"message": f"Position {position} is not allowed"}), 400 # Should not be reachable
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
-        except OldapErrorValue as error:
-            return jsonify({'message': str(error)}), 404
         except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
         except OldapError as error:
