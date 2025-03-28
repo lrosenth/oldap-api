@@ -107,7 +107,7 @@ def create_user(userid):
         # If "haspermissions" is given by the creation json, fill it...
         if haspermissions is not None:
             try:
-                permission_set = {Xsd_QName(f'oldap:{x}') for x in haspermissions}
+                permission_set = {Xsd_QName(x if ":" in x else f'oldap:{x}') for x in haspermissions}
             except OldapErrorValue as error:
                 return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
@@ -140,7 +140,7 @@ def create_user(userid):
 
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
-    return jsonify({"message": f"User {userid} created", "userIri": f"{userid}"}), 200
+    return jsonify({"message": f"User {userid} created", "userId": f"{userid}"}), 200
 
 
 @user_bp.route('/user/<userid>', methods=['GET'])
