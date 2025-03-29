@@ -262,7 +262,7 @@ def modify_user(userid):
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "User updated successfully"}
     """
-    known_json_fields = {"givenName", "familyName", "email", "password", "inProjects", "hasPermissions", "isActive"}
+    known_json_fields = {"userId", "givenName", "familyName", "email", "password", "inProjects", "hasPermissions", "isActive"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -273,6 +273,7 @@ def modify_user(userid):
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a user. Usable are {known_json_fields}. Aborded operation"}), 400
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+        useridMOD = data.get("userId", None)
         firstname = data.get("givenName", None)
         lastname = data.get("familyName", None)
         email = data.get("email", None)
@@ -280,6 +281,7 @@ def modify_user(userid):
         inprojects = data.get('inProjects', "NotSent")
         haspermissions = data.get('hasPermissions', "NotSent")
         isactive = data.get('isActive', None)
+
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -369,6 +371,8 @@ def modify_user(userid):
         except OldapErrorValue as error:
             return jsonify({'message': f'The given permission is not a QName'}), 400
 
+        if useridMOD:
+            user.userid = Xsd_NCName(useridMOD)
         if firstname:
             user.givenName = Xsd_string(firstname)
         if lastname:
