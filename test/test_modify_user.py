@@ -4,6 +4,7 @@ import jwt
 from flask import jsonify
 from oldaplib.src.connection import Connection
 from oldaplib.src.helpers.oldaperror import OldapErrorNotFound, OldapError
+from oldaplib.src.xsd.iri import Iri
 
 
 def test_modify_givenname(client, token_headers, testuser):
@@ -88,7 +89,7 @@ def test_modify_inproject(client, token_headers, testuser):
     res = response.json
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    print(readed)
+    pprint(readed)
     assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_RESOURCES'])
 
     response = client.post('/admin/user/rosman', json={
@@ -327,8 +328,11 @@ def test_inprojects_permission_none(client, token_headers, testuser):
     res = response.json
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    print(readed)
-    assert sorted(readed["in_projects"][1]["permissions"]) == sorted([])
+    pprint(readed)
+    for obj in readed["in_projects"]:
+        assert obj["project"] != "http://www.salsah.org/version/2.0/SwissBritNet"
+    #assert readed["in_projects"].get(Iri("http://www.salsah.org/version/2.0/SwissBritNet")) == None
+    #assert sorted(readed["in_projects"][1]["permissions"]) == sorted([])
 
 
 def test_modify_empty_permissions_inprojects(client, token_headers, testuser):

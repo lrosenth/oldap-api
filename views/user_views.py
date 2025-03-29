@@ -311,7 +311,8 @@ def modify_user(userid):
                         if "permissions" not in newproject:
                             return jsonify({"message": "The Permissions are missing for the project"}), 400
                         if newproject["permissions"] is None:
-                            user.inProject[Iri(newproject["project"])] = None
+                            #user.inProject[Iri(newproject["project"])] = None
+                            del user.inProject[Iri(newproject["project"])]
                         elif isinstance(newproject["permissions"], list):
                             user.inProject[Iri(newproject["project"])] = {AdminPermission(f'oldap:{x}') for x in newproject["permissions"]}
                         elif isinstance(newproject["permissions"], dict):
