@@ -11,7 +11,6 @@ Available endpoints:
 
 The implementation includes error handling and validation for most operations.
 """
-
 from typing import Dict, Set
 
 from flask import jsonify, request, Blueprint
@@ -282,7 +281,6 @@ def modify_user(userid):
         haspermissions = data.get('hasPermissions', "NotSent")
         isactive = data.get('isActive', None)
 
-
         try:
             con = Connection(server='http://localhost:7200',
                              repo="oldap",
@@ -372,7 +370,7 @@ def modify_user(userid):
             return jsonify({'message': f'The given permission is not a QName'}), 400
 
         if useridMOD:
-            user.userid = Xsd_NCName(useridMOD)
+            user.userId = Xsd_NCName(useridMOD)
         if firstname:
             user.givenName = Xsd_string(firstname)
         if lastname:
@@ -390,7 +388,6 @@ def modify_user(userid):
             user.hasPermissions = permission_set
         if permission_set == set():
             user.hasPermissions = set()
-
         try:
             user.update()
         except OldapErrorUpdateFailed as error:  # hard to test
