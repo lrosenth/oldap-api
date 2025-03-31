@@ -160,7 +160,7 @@ def add_node(project, hlistid, nodeid):
         except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
         except OldapError as error:
-            return jsonify({'message': str(error)}), 500
+            return jsonify({'message': str(error)}), 500 # should not be reachable
         return jsonify({"message": "Node successfully created"}), 200
 
     else:
@@ -212,6 +212,12 @@ def del_node(project, hlistid, nodeid):
             nodetodel.delete_node_recursively()
         except OldapErrorNoPermission as error:
             return jsonify({"message": str(error)}), 403
+        except OldapErrorNotFound as error:
+            return jsonify({"message": str(error)}), 404
+        except OldapErrorInconsistency as error:
+            return jsonify({"message": str(error)}), 409 # should not be reachable
+        except OldapError as error:  # should not be reachable
+            return jsonify({"message": str(error)}), 500
 
     return jsonify({"message": "Node successfully deleted"}), 200
 
