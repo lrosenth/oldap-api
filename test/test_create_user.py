@@ -1,3 +1,6 @@
+from pprint import pprint
+
+
 def test_create_user(client, token_headers):
     header = token_headers[1]
 
@@ -23,8 +26,37 @@ def test_create_user(client, token_headers):
     res = response.json
     assert 'message' in res
     assert res["message"] == "User rosman created"
-    assert 'userIri' in res
-    assert res["userIri"] == "rosman"
+    assert 'userId' in res
+    assert res["userId"] == "rosman"
+
+def test_create_user_2(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/ngloor', json={
+        "givenName": "Nora",
+        "familyName": "Gloor",
+        "email": "nora.gloor@unibas.ch",
+        "password": "kappa1234",
+        "isActive": False,
+        "inProjects": [
+            {
+                "project": "oldap:HyperHamlet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasPermissions": [
+            "hyha:HyperHamletMember", "oldap:GenericView"
+        ]
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
+    assert 'message' in res
+    assert res["message"] == "User ngloor created"
+    assert 'userId' in res
+    assert res["userId"] == "ngloor"
 
 
 def test_user_already_exists(client, token_headers, testuser):

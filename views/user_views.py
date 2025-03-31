@@ -11,7 +11,6 @@ Available endpoints:
 
 The implementation includes error handling and validation for most operations.
 """
-
 from typing import Dict, Set
 
 from flask import jsonify, request, Blueprint
@@ -107,7 +106,7 @@ def create_user(userid):
         # If "haspermissions" is given by the creation json, fill it...
         if haspermissions is not None:
             try:
-                permission_set = {Xsd_QName(f'oldap:{x}') for x in haspermissions}
+                permission_set = {Xsd_QName(x if ":" in x else f'oldap:{x}') for x in haspermissions}
             except OldapErrorValue as error:
                 return jsonify({'message': f'The given permission is not a QName'}), 400
         else:
@@ -140,7 +139,7 @@ def create_user(userid):
 
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
-    return jsonify({"message": f"User {userid} created", "userIri": f"{userid}"}), 200
+    return jsonify({"message": f"User {userid} created", "userId": f"{userid}"}), 200
 
 
 @user_bp.route('/user/<userid>', methods=['GET'])
@@ -262,7 +261,7 @@ def modify_user(userid):
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "User updated successfully"}
     """
-    known_json_fields = {"givenName", "familyName", "email", "password", "inProjects", "hasPermissions", "isActive"}
+    known_json_fields = {"userId", "givenName", "familyName", "email", "password", "inProjects", "hasPermissions", "isActive"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -273,6 +272,7 @@ def modify_user(userid):
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a user. Usable are {known_json_fields}. Aborded operation"}), 400
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+        useridMOD = data.get("userId", None)
         firstname = data.get("givenName", None)
         lastname = data.get("familyName", None)
         email = data.get("email", None)
@@ -311,7 +311,8 @@ def modify_user(userid):
                         if "permissions" not in newproject:
                             return jsonify({"message": "The Permissions are missing for the project"}), 400
                         if newproject["permissions"] is None:
-                            user.inProject[Iri(newproject["project"])] = None
+                            #user.inProject[Iri(newproject["project"])] = None
+                            del user.inProject[Iri(newproject["project"])]
                         elif isinstance(newproject["permissions"], list):
                             user.inProject[Iri(newproject["project"])] = {AdminPermission(f'oldap:{x}') for x in newproject["permissions"]}
                         elif isinstance(newproject["permissions"], dict):
@@ -368,6 +369,8 @@ def modify_user(userid):
         except OldapErrorValue as error:
             return jsonify({'message': f'The given permission is not a QName'}), 400
 
+        if useridMOD:
+            user.userId = Xsd_NCName(useridMOD)
         if firstname:
             user.givenName = Xsd_string(firstname)
         if lastname:
@@ -385,7 +388,6 @@ def modify_user(userid):
             user.hasPermissions = permission_set
         if permission_set == set():
             user.hasPermissions = set()
-
         try:
             user.update()
         except OldapErrorUpdateFailed as error:  # hard to test
