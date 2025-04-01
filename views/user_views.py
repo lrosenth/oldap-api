@@ -329,7 +329,8 @@ def modify_user(userid):
                         else:
                             return jsonify({"message": f"Either a list or a dict is expected for the content of the permissions field"}), 400
                     else:
-                        return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
+                        user.inProject[newproject["project"]] = {AdminPermission(f'oldap:{x}') for x in newproject["permissions"]}
+                        # return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
                 except ValueError as error:
                     return jsonify({"message": str(error)}), 400
                 except KeyError as error:
@@ -367,7 +368,7 @@ def modify_user(userid):
                 else:
                     return jsonify({"message": f"Either a List or a dict is required."}), 400
         except OldapErrorValue as error:
-            return jsonify({'message': f'The given permission is not a QName'}), 400
+            return jsonify({'message': f'The given permission is not a QName {error}'}), 400
 
         if useridMOD:
             user.userId = Xsd_NCName(useridMOD)
