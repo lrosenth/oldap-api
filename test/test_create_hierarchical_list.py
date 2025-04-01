@@ -232,6 +232,16 @@ def test_create_below_node(client, token_headers, testemptyhlist):
     assert res[0]["oldapListNodeId"] == "nodeA"
     assert res[0]["nodes"][0]["oldapListNodeId"] == "nodeB"
 
+def test_no_json_to_add_node(client, token_headers, testemptyhlist):
+    header = token_headers[1]
+    response = client.put('/admin/hlist/hyha/testhlist/nodeB', 'KEIN JSON', headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert 'message' in res
+    assert res['message'] == "JSON expected. Instead received None"
+
+
 def test_dm_to_add_node_not_found(client, token_headers):
     header = token_headers[1]
 
