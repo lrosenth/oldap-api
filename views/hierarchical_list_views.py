@@ -268,13 +268,13 @@ def move_node(project, hlistid, nodeid):
         elif rightOf:
             nodetomove.move_node_right_of(con=con, leftnode=targetnode)
         else:
-            return jsonify({"message": f"Something that should not have went wrong!No valid field given to move a node. Should not be reachable!!"}), 400
+            return jsonify({"message": f"Something that should not have went wrong!No valid field given to move a node. Should not be reachable!!"}), 400 # Should not be reachable
     except OldapErrorNoPermission as error:
         return jsonify({"message": str(error)}), 403
     except OldapErrorInconsistency as error:
         return jsonify({"message": str(error)}), 409
     except OldapError as error:
-        return jsonify({"message": str(error)}), 500
+        return jsonify({"message": str(error)}), 500 # should not be reachable
     return jsonify({"message": "Node successfully moved"}), 200
 
 
