@@ -329,6 +329,7 @@ def modify_user(userid):
                         else:
                             return jsonify({"message": f"Either a list or a dict is expected for the content of the permissions field"}), 400
                     else:
+                        # TODO: Is the new project existing? Where is this tested???
                         user.inProject[newproject["project"]] = {AdminPermission(f'oldap:{x}') for x in newproject["permissions"]}
                         # return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
                 except ValueError as error:
@@ -338,6 +339,7 @@ def modify_user(userid):
                 except OldapErrorValue as error:
                     return jsonify({"message": str(error)}), 400
 
+        # {Xsd_QName(x if ":" in x else f'oldap:{x}') for x in haspermissions}
         permission_set = None  # only needed if a list is sent
         try:
             if haspermissions != "NotSent":
@@ -346,19 +348,19 @@ def modify_user(userid):
                 if isinstance(haspermissions, list):
                     permission_set = set()
                     for item in haspermissions:
-                        permission_set.add(Iri(f'oldap:{item}'))
+                        permission_set.add(Xsd_QName(item if ":" in item else f'oldap:{item}'))
                 elif isinstance(haspermissions, dict):
                     if "add" in haspermissions:
                         if not isinstance(haspermissions["add"], list):
                             return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
                         for item in haspermissions["add"]:
-                            user.hasPermissions.add(Iri(f'oldap:{item}'))
+                            user.hasPermissions.add(Xsd_QName(item if ":" in item else f'oldap:{item}'))
                     if "del" in haspermissions:
                         if not isinstance(haspermissions["del"], list):
                             return jsonify({"message": f"The delete entry needs to be a list, not a string."}), 400
                         for item in haspermissions["del"]:
                             try:
-                                user.hasPermissions.remove(Iri(f'oldap:{item}'))
+                                user.hasPermissions.remove(Xsd_QName(item if ":" in item else f'oldap:{item}'))
                             except AttributeError as error:
                                 return jsonify({"message": f"The Element {item} does not exist and thus cant be deleted"}), 404
                     if "add" not in haspermissions and "del" not in haspermissions:
@@ -368,7 +370,7 @@ def modify_user(userid):
                 else:
                     return jsonify({"message": f"Either a List or a dict is required."}), 400
         except OldapErrorValue as error:
-            return jsonify({'message': f'The given permission is not a QName {error}'}), 400
+            return jsonify({'message': f'The given permission is not a QName'}), 400
 
         if useridMOD:
             user.userId = Xsd_NCName(useridMOD)

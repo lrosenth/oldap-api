@@ -154,7 +154,7 @@ def test_modify_inproject(client, token_headers, testuser):
     assert res["message"] == "Either a list or a dict is expected for the content of the permissions field"
 
 
-def test_modify_bad_inproject(client, token_headers, testuser):
+def test_modify_bad_inproject_a(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
@@ -171,6 +171,9 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     print(res)
     assert res["message"] == "The add entry needs to be a list, not a string."
 
+def test_modify_bad_inproject_b(client, token_headers, testuser):
+    header = token_headers[1]
+
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
             {
@@ -183,6 +186,9 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     res = response.json
     print(res)
     assert res["message"] == "The Permissions are missing for the project"
+
+def test_modify_bad_inproject_c(client, token_headers, testuser):
+    header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
@@ -198,6 +204,9 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     print(res)
     assert res["message"] == 'Invalid string for IRI: "kappa1234"'
 
+def test_modify_bad_inproject_d(client, token_headers, testuser):
+    header = token_headers[1]
+
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
             {
@@ -212,6 +221,9 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     print(res)
     assert res["message"] == "'oldap:KAPPA_RESOURCES' is not a valid AdminPermission"
 
+def test_modify_bad_inproject_e(client, token_headers, testuser):
+    header = token_headers[1]
+
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
             {
@@ -224,6 +236,9 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     res = response.json
     print(res)
     assert res["message"] == "The add entry needs to be a list, not a string."
+
+def test_modify_bad_inproject_f(client, token_headers, testuser):
+    header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
@@ -238,6 +253,9 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     print(res)
     assert res["message"] == "The del entry needs to be a list, not a string."
 
+def test_modify_bad_inproject_g(client, token_headers, testuser):
+    header = token_headers[1]
+
     response = client.post('/admin/user/rosman', json={
         "inProjects": 1234
     }, headers=header)
@@ -245,6 +263,9 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     res = response.json
     print(res)
     assert res["message"] == "Either a List or a dict is expected for a modify request."
+
+def test_modify_bad_inproject_h(client, token_headers, testuser):
+    header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
             "inProjects": [
@@ -259,18 +280,40 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     print(res)
     assert res["message"] == 'Invalid value for IRI: "1234"'
 
+def test_modify_bad_inproject_i(client, token_headers, testuser):
+    header = token_headers[1]
+
     response = client.post('/admin/user/rosman', json={
             "inProjects": [
                 {
-                    "project": "oldap:doesnotexist",
+                    "project": "oldap:HyperHamlet",
                     "permissions": {"del": "KAPPA_RESOURCES"}
                 }
             ]
     }, headers=header)
-    assert response.status_code == 404
+    assert response.status_code == 400
     res = response.json
     print(res)
-    assert res["message"] == "Project 'oldap:doesnotexist' to modify does not exist"
+    assert res["message"] == "The del entry needs to be a list, not a string."
+
+def test_modify_bad_inproject_j(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+            "inProjects": [
+                {
+                    "project": "oldap:HyperHamlet",
+                    "permissions": {"del": ["KAPPA_RESOURCES"]}
+                }
+            ]
+    }, headers=header)
+    assert response.status_code == 400
+    res = response.json
+    print(res)
+    assert res["message"] == "'oldap:KAPPA_RESOURCES' is not a valid AdminPermission"
+
+def test_modify_bad_inproject_k(client, token_headers, testuser):
+    header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
             "inProjects": [
@@ -284,6 +327,9 @@ def test_modify_bad_inproject(client, token_headers, testuser):
     res = response.json
     print(res)
     assert res["message"] == "The permission ADMIN_LISTS is not present in the database"
+
+def test_modify_bad_inproject_l(client, token_headers, testuser):
+    header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
