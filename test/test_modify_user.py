@@ -73,7 +73,7 @@ def test_modify_credentials(client, token_headers, testuser):
                      context_name="DEFAULT")
 
 
-def test_modify_inproject(client, token_headers, testuser):
+def test_modify_inproject_a(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
@@ -92,6 +92,9 @@ def test_modify_inproject(client, token_headers, testuser):
     pprint(readed)
     assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_RESOURCES'])
 
+def test_modify_inproject_b(client, token_headers, testuser):
+    header = token_headers[1]
+
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
             {
@@ -107,6 +110,29 @@ def test_modify_inproject(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_USERS', 'oldap:ADMIN_RESOURCES'])
+
+def test_modify_inproject_c(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": [
+            {
+                "project": "oldap:HyperHamlet",
+                "permissions": []
+            }
+        ]
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    tmp = [x for x in readed["in_projects"] if x['project'] == "oldap:HyperHamlet"]
+    assert len(tmp) == 1
+
+def test_modify_inproject_d(client, token_headers, testuser):
+    header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
@@ -124,6 +150,9 @@ def test_modify_inproject(client, token_headers, testuser):
     print(readed)
     assert readed["in_projects"][1]["permissions"] == ['oldap:ADMIN_USERS']
 
+def test_modify_inproject_e(client, token_headers, testuser):
+    header = token_headers[1]
+
     response = client.post('/admin/user/rosman', json={
         "inProjects": [
             {
@@ -139,6 +168,9 @@ def test_modify_inproject(client, token_headers, testuser):
     readed = read.json
     print(readed)
     assert readed["in_projects"][1]["permissions"] == []
+
+def test_modify_inproject_f(client, token_headers, testuser):
+    header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
         "inProjects": [

@@ -281,6 +281,8 @@ def modify_user(userid):
         haspermissions = data.get('hasPermissions', "NotSent")
         isactive = data.get('isActive', None)
 
+        print("==========>", inprojects)
+
         try:
             con = Connection(server='http://localhost:7200',
                              repo="oldap",
@@ -305,7 +307,7 @@ def modify_user(userid):
                 if "project" not in newproject:
                     return jsonify({"message": "The project-field is missing in the request"}), 400
                 if newproject["project"] == "":
-                    return jsonify({"message": "The Name of the permissionset is missing"}), 400
+                    return jsonify({"message": "The Name of the permissions is missing"}), 400
                 try:
                     if Iri(newproject["project"]) in user.inProject:
                         if "permissions" not in newproject:
