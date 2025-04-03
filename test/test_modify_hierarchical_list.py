@@ -14,7 +14,6 @@ def test_modify_node(client, token_headers, testfullhlist):
 
     response = client.get('/admin/hlist/hyha/testfullhlist', headers=header)
     res = response.json
-    pprint(res)
-    # assert res[0]["oldapListNodeId"] == 'nodeA'
-    # assert res[0]["definition"] == ["gaga@en"]
-    # assert res[0]["prefLabel"] == ['nodeA@en', 'kappa@de']
+    assert res[0]["oldapListNodeId"] == 'nodeA'
+    assert res[0]["definition"] == ["gaga@en"]
+    assert res[0]["prefLabel"] == ['kappa@de']
