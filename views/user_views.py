@@ -281,8 +281,6 @@ def modify_user(userid):
         haspermissions = data.get('hasPermissions', "NotSent")
         isactive = data.get('isActive', None)
 
-        print("==========>", inprojects)
-
         try:
             con = Connection(server='http://localhost:7200',
                              repo="oldap",
