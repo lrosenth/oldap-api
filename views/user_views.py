@@ -93,7 +93,7 @@ def create_user(userid):
                 project_name = item["project"]
                 try:
                     if item.get("permissions") is not None:
-                        permissions = {AdminPermission(f'oldap:{x}') for x in item["permissions"]}
+                        permissions = {AdminPermission.from_string(x) for x in item["permissions"]}
                     else:
                         permissions = set()
                 except ValueError as error:
@@ -251,7 +251,10 @@ def modify_user(userid):
                 "del": ["oldap:GenericView", (...)]
                 }
             }, {...}
-        ],
+        ] or {
+            "add": [{"project": 'http://www.salsah.org/version/2.0/SwissBritNet', "permissions" ["oldap:GenericView", (...)]}],
+            "del": ['http://www.salsah.org/version/2.0/SwissBritNet', (...)],
+        },
         "has_permissions": ['oldap:GenericView', (...)] or {
         "add": ["oldap:GenericView", (...)],
         "del": ["oldap:GenericView", (...)]
@@ -299,47 +302,60 @@ def modify_user(userid):
         if inprojects is None:
             user.inProject = None
         elif inprojects != "NotSent":
-            if not (isinstance(inprojects, list) or isinstance(inprojects, dict)):
-                return jsonify({"message": f"Either a List or a dict is expected for a modify request."}), 400
-            for newproject in inprojects:
-                if "project" not in newproject:
-                    return jsonify({"message": "The project-field is missing in the request"}), 400
-                if newproject["project"] == "":
-                    return jsonify({"message": "The Name of the permissions is missing"}), 400
-                try:
-                    if Iri(newproject["project"]) in user.inProject:
-                        if "permissions" not in newproject:
-                            return jsonify({"message": "The Permissions are missing for the project"}), 400
-                        if newproject["permissions"] is None:
-                            #user.inProject[Iri(newproject["project"])] = None
-                            del user.inProject[Iri(newproject["project"])]
-                        elif isinstance(newproject["permissions"], list):
-                            user.inProject[Iri(newproject["project"])] = {AdminPermission(f'oldap:{x}') for x in newproject["permissions"]}
-                        elif isinstance(newproject["permissions"], dict):
-                            if "add" in newproject["permissions"]:
-                                if not isinstance(newproject["permissions"]["add"], list):
-                                    return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
-                                for item in newproject["permissions"]["add"]:
-                                    user.inProject[newproject["project"]].add(AdminPermission(f'oldap:{item}'))
-                            if "del" in newproject["permissions"]:
-                                if not isinstance(newproject["permissions"]["del"], list):
-                                    return jsonify({"message": f"The del entry needs to be a list, not a string."}), 400
-                                for item in newproject["permissions"]["del"]:
-                                    user.inProject[newproject["project"]].remove(AdminPermission(f'oldap:{item}'))
+            if isinstance(inprojects, dict):
+                if "add" in inprojects:
+                    for tmp in inprojects["add"]:
+                        if tmp["permissions"]:
+                            user.inProject[Iri(tmp['project'])] = {AdminPermission.from_string(x) for x in tmp["permissions"]}
                         else:
-                            return jsonify({"message": f"Either a list or a dict is expected for the content of the permissions field"}), 400
-                    else:
-                        # TODO: Is the new project existing? Where is this tested???
-                        user.inProject[newproject["project"]] = {AdminPermission(f'oldap:{x}') for x in newproject["permissions"]}
-                        # return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
-                except ValueError as error:
-                    return jsonify({"message": str(error)}), 400
-                except KeyError as error:
-                    return jsonify({"message": f'The permission {item} is not present in the database'}), 404
-                except OldapErrorValue as error:
-                    return jsonify({"message": str(error)}), 400
+                            user.inProject[Iri(tmp['project'])] = set()
+                elif "del" in inprojects:
+                    for iri in inprojects["del"]:
+                        if iri in user.inProject:
+                            del user.inProject[iri]
+                        else:
+                            return jsonify({"message": f'The user is not part of project "{iri}".'}), 400
+            elif isinstance(inprojects, list):
+                for newproject in inprojects:
+                    if "project" not in newproject:
+                        return jsonify({"message": "The project-field is missing in the request"}), 400
+                    if newproject["project"] == "":
+                        return jsonify({"message": "The Name of the permissions is missing"}), 400
+                    try:
+                        if Iri(newproject["project"]) in user.inProject:
+                            if "permissions" not in newproject:
+                                return jsonify({"message": "The Permissions are missing for the project"}), 400
+                            if newproject["permissions"] is None:
+                                #user.inProject[Iri(newproject["project"])] = None
+                                del user.inProject[Iri(newproject["project"])]
+                            elif isinstance(newproject["permissions"], list):
+                                user.inProject[Iri(newproject["project"])] = {AdminPermission.from_string(x) for x in newproject["permissions"]}
+                            elif isinstance(newproject["permissions"], dict):
+                                if "add" in newproject["permissions"]:
+                                    if not isinstance(newproject["permissions"]["add"], list):
+                                        return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
+                                    for item in newproject["permissions"]["add"]:
+                                        user.inProject[newproject["project"]].add(AdminPermission.from_string(item))
+                                if "del" in newproject["permissions"]:
+                                    if not isinstance(newproject["permissions"]["del"], list):
+                                        return jsonify({"message": f"The del entry needs to be a list, not a string."}), 400
+                                    for item in newproject["permissions"]["del"]:
+                                        user.inProject[newproject["project"]].remove(AdminPermission.from_string(item))
+                            else:
+                                return jsonify({"message": f"Either a list or a dict is expected for the content of the permissions field"}), 400
+                        else:
+                            # TODO: Is the new project existing? Where is this tested???
+                            user.inProject[newproject["project"]] = {AdminPermission.from_string(x) for x in newproject["permissions"]}
+                            # return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
+                    except ValueError as error:
+                        return jsonify({"message": str(error)}), 400
+                    except KeyError as error:
+                        return jsonify({"message": f'The permission {item} is not present in the database'}), 404
+                    except OldapErrorValue as error:
+                        return jsonify({"message": str(error)}), 400
+            else:
+                return jsonify({"message": f"Either a List or a dict is expected for a modify request."}), 400
 
-        # {Xsd_QName(x if ":" in x else f'oldap:{x}') for x in haspermissions}
         permission_set = None  # only needed if a list is sent
         try:
             if haspermissions != "NotSent":

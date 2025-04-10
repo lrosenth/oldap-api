@@ -99,14 +99,13 @@ def test_modify_inproject_b(client, token_headers, testuser):
         "inProjects": [
             {
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-                "permissions": {"add": ["ADMIN_USERS"]}
+                "permissions": {"add": ["ADMIN_RESOURCES"]}
             }
         ]
     }, headers=header)
 
     assert response.status_code == 200
     res = response.json
-    print(res)
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_USERS', 'oldap:ADMIN_RESOURCES'])
@@ -138,7 +137,7 @@ def test_modify_inproject_d(client, token_headers, testuser):
         "inProjects": [
             {
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
-                "permissions": {"del": ["ADMIN_RESOURCES"]}
+                "permissions": {"del": ["ADMIN_USERS"]}
             }
         ]
     }, headers=header)
@@ -148,7 +147,7 @@ def test_modify_inproject_d(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
-    assert readed["in_projects"][1]["permissions"] == ['oldap:ADMIN_USERS']
+    assert readed["in_projects"][1]["permissions"] == []
 
 def test_modify_inproject_e(client, token_headers, testuser):
     header = token_headers[1]
@@ -185,6 +184,64 @@ def test_modify_inproject_f(client, token_headers, testuser):
     print(res)
     assert res["message"] == "Either a list or a dict is expected for the content of the permissions field"
 
+def test_modify_inproject_g(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": {"del": ["oldap:HyperHamlet"]},
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    for p in readed["in_projects"]:
+        assert p['project'] != "oldap:HyperHamlet"
+
+def test_modify_inproject_g(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": {"del": ["oldap:HyperHamlet"]},
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    for p in readed["in_projects"]:
+        assert p['project'] != "oldap:HyperHamlet"
+
+def test_modify_inproject_h(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": {"add": [{"project": 'oldap:SystemProject', "permissions": None}]},
+    }, headers=header)
+    assert response.status_code == 200
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    ishere = False
+    for p in readed["in_projects"]:
+        if p['project'] == "oldap:SystemProject":
+            ishere = True
+    assert ishere
+
+def test_modify_inproject_i(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "inProjects": {"add": [{"project": 'oldap:SystemProject', "permissions": ["ADMIN_USERS", "ADMIN_MODEL"]}]},
+    }, headers=header)
+    assert response.status_code == 200
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    ishere = False
+    for p in readed["in_projects"]:
+        if p['project'] == "oldap:SystemProject":
+            assert sorted(p["permissions"]) == sorted(["oldap:ADMIN_USERS", "oldap:ADMIN_MODEL"])
+            ishere = True
+    assert ishere
 
 def test_modify_bad_inproject_a(client, token_headers, testuser):
     header = token_headers[1]

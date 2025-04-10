@@ -337,28 +337,46 @@ paths:
                 isActive:
                   type: boolean
                 inProjects:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      project:
-                        type: string
-                      permissions:
-                        oneOf:
-                          - type: array
-                            items:
+                  oneOf:
+                    - type: object
+                      properties:
+                        add:
+                          type: object
+                          properties:
+                            project:
                               type: string
-                          - type: object
-                            properties:
-                              add:
-                                type: array
+                            permissions:
+                              oneOf:
+                                - type: array
+                                  items:
+                                    type: string
+                                - type: "null"
+                        del:
+                          type: array
+                          items:
+                            type: string
+                    - type: array
+                      items:
+                        type: object
+                        properties:
+                          project:
+                            type: string
+                          permissions:
+                            oneOf:
+                              - type: array
                                 items:
                                   type: string
-                              del:
-                                type: array
-                                items:
-                                  type: string
-                          - type: "null"
+                              - type: object
+                                properties:
+                                  add:
+                                    type: array
+                                    items:
+                                      type: string
+                                  del:
+                                    type: array
+                                    items:
+                                      type: string
+                              - type: "null"
                 hasPermissions:
                   oneOf:
                     - type: array
