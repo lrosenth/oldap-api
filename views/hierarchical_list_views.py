@@ -4,6 +4,7 @@ from xmlrpc.client import Boolean
 
 from flask import Blueprint, request, jsonify, Response
 from oldaplib.src.connection import Connection
+from oldaplib.src.enums.language import Language
 from oldaplib.src.helpers.json_encoder import SpecialEncoder
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency
@@ -300,27 +301,111 @@ def modify_node(project, hlistid, nodeid):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    prefLabel = data.get("prefLabel", None)
-    definition = data.get("definition", None)
+    try:
+        hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+        nodetochange = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
+    except OldapErrorNotFound as error:
+        return jsonify({"message": str(error)}), 404
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500 # Should not be reachable
 
-    hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
-    nodetochange = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
 
-    if prefLabel:
-        try:
-            nodetochange.prefLabel = LangString(prefLabel)
-        except OldapErrorValue as error:
-            return jsonify({"message": str(error)}), 404
-        except OldapError as error:
-            return jsonify({"message": str(error)}), 500 # Should not be reachable
+    for attrname, attrval in data.items():
+        if attrname == "prefLabel" or attrname == "definition":
+            if isinstance(attrval, list):
+                if not attrval:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                for item in attrval:
+                    if item is None:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                    try:
+                        if item[-3] != '@':
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    except IndexError as error:
+                        return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                    lang = item[-2:].upper()
+                    try:
+                        Language[lang]
+                    except KeyError as error:
+                        return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                try:
+                    setattr(nodetochange, attrname, LangString(attrval))
+                except OldapErrorValue as error:
+                    return jsonify({"message": str(error)}), 404
+            elif isinstance(attrval, dict):
+                if not attrval:
+                    return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
+                if not set(attrval.keys()).issubset({"add", "del"}):
+                    return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
+                if "add" in attrval:
+                    adding = attrval.get("add", [])
+                    if not isinstance(adding, list):
+                        return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                    if not adding:
+                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                    languagecounter = []
+                    for item in adding:
+                        if item is None:
+                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        lang = item[-2:].upper()
+                        if lang in languagecounter:
+                            return jsonify({"message": "It is only allowed to have one entry per language"}), 404
+                        else:
+                            languagecounter.append(lang)
+                        try:
+                            getattr(nodetochange, attrname)[Language[lang]] = item[:-3]
+                        except KeyError as error:
+                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                if "del" in attrval:
+                    deleting = attrval.get("del", [])
+                    if not isinstance(deleting, list):
+                        return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                    if not deleting:
+                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                    for item in deleting:
+                        if item is None:
+                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                        try:
+                            if item[-3] != '@':
+                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        except IndexError as error:
+                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+                        lang = item[-2:].upper()
+                        try:
+                            del property[PropClassAttr.from_name(str(attrname))][Language[lang]]
+                        except KeyError as error:
+                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                        except TypeError as error:
+                            return jsonify({"message": f"The entry {attrval} is not in the datamodel and thus could not be deleted"}), 404
+            elif attrval is None:
+                delattr(property, attrname)
+            else:
+                return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
+            continue
+        if attrval is None:
+            delattr(property, attrname)
+        continue
 
-    if definition:
-        try:
-            nodetochange.definition = LangString(definition)
-        except OldapErrorValue as error:
-            return jsonify({"message": str(error)}), 404
-        except OldapError as error:
-            return jsonify({"message": str(error)}), 500  # Should not be reachable
+    # if prefLabel:
+    #     try:
+    #         nodetochange.prefLabel = LangString(prefLabel)
+    #     except OldapErrorValue as error:
+    #         return jsonify({"message": str(error)}), 404
+    #     except OldapError as error:
+    #         return jsonify({"message": str(error)}), 500 # Should not be reachable
+    #
+    # if definition:
+    #     try:
+    #         nodetochange.definition = LangString(definition)
+    #     except OldapErrorValue as error:
+    #         return jsonify({"message": str(error)}), 404
+    #     except OldapError as error:
+    #         return jsonify({"message": str(error)}), 500  # Should not be reachable
 
     try:
         nodetochange.update()
