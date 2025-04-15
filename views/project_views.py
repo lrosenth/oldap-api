@@ -366,7 +366,7 @@ def modify_project(projectid):
                     if None in comment:
                         return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     try:
-                        project.comment = LangString(comment)
+                        project.comment = LangString(comment, notifier=project.notifier, notify_data=Xsd_QName(ProjectAttr.COMMENT.value))
                     except OldapErrorValue as error:
                         return jsonify({"message": str(error)}), 400
                 elif isinstance(comment, dict):
