@@ -174,13 +174,15 @@ def read_project(projectid):
         'created': str(project.created),
         'contributor': str(project.contributor),
         'modified': str(project.modified),
-        'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()] if project.label else None,
-        'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()] if project.comment else None,
         'projectShortName': str(project.projectShortName),
         'namespaceIri': str(project.namespaceIri),
         'projectStart': str(project.projectStart) if project.projectStart else None,
         'projectEnd': str(project.projectEnd) if project.projectEnd else None
     }
+    if project.label:
+        res['label'] = [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()]
+    if project.comment:
+        res['comment'] = [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()]
     return res, 200
 
 @project_bp.route('/project/get', methods=['GET'])
@@ -214,13 +216,17 @@ def get_project_by_iri():
         'created': str(project.created),
         'contributor': str(project.contributor),
         'modified': str(project.modified),
-        'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()] if project.label else None,
-        'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()] if project.comment else None,
+        #'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()] if project.label else None,
+        #'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()] if project.comment else None,
         'projectShortName': str(project.projectShortName),
         'namespaceIri': str(project.namespaceIri),
         'projectStart': str(project.projectStart) if project.projectStart else None,
         'projectEnd': str(project.projectEnd) if project.projectEnd else None
     }
+    if project.label:
+        res['label'] = [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()]
+    if project.comment:
+        res['comment'] = [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()]
     return res, 200
 
 
@@ -323,18 +329,6 @@ def modify_project(projectid):
                         return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
                     if not set(label.keys()).issubset({"add", "del"}):
                         return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
-                    if "add" in label:
-                        adding = label["add"]
-                        if not isinstance(adding, list):
-                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                        if not adding:
-                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                        if None in adding:
-                            return jsonify({"message": f"Using a None in a modify LangString is not allowed"}), 400
-                        if not project.label:
-                            project.label = LangString(adding, notifier=project.notifier, notify_data=Xsd_QName(ProjectAttr.LABEL.value))
-                        else:
-                            project.label.add(adding)
                     if "del" in label:
                         deleting = label["del"]
                         if not isinstance(deleting, list):
@@ -354,6 +348,18 @@ def modify_project(projectid):
                                 del project.label[Language[lang]]
                             except KeyError as error:
                                 return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                    if "add" in label:
+                        adding = label["add"]
+                        if not isinstance(adding, list):
+                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                        if not adding:
+                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                        if None in adding:
+                            return jsonify({"message": f"Using a None in a modify LangString is not allowed"}), 400
+                        if not project.label:
+                            project.label = LangString(adding, notifier=project.notifier, notify_data=Xsd_QName(ProjectAttr.LABEL.value))
+                        else:
+                            project.label.add(adding)
                 elif label is None:
                     del project.label
                 else:
