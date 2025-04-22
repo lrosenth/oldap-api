@@ -298,8 +298,8 @@ def modify_project(projectid):
             return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
         label = data.get("label", "NotSent")
         comment = data.get("comment", "NotSent")
-        projectStart = data.get("projectStart", None)
-        projectEnd = data.get("projectEnd", None)
+        projectStart = data.get("projectStart", "NotSent")
+        projectEnd = data.get("projectEnd", "NotSent")
 
         try:
             con = Connection(server='http://localhost:7200',
@@ -415,10 +415,16 @@ def modify_project(projectid):
                     del project.comment
                 else:
                     return jsonify({"message": f"Either a List or a dict is required."}), 400
-            if projectStart:
-                project.projectStart = Xsd_date(projectStart)
-            if projectEnd:
-                project.projectEnd = Xsd_date(projectEnd)
+            if projectStart != "NotSent":
+                if projectStart is None:
+                    del project.projectStart
+                else:
+                    project.projectStart = Xsd_date(projectStart)
+            if projectEnd != "NotSent":
+                if projectEnd is None:
+                    del project.projectEnd
+                else:
+                    project.projectEnd = Xsd_date(projectEnd)
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
         except OldapErrorInconsistency as error:  # inconsistent start and enddate
