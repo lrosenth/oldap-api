@@ -1,0 +1,22 @@
+#
+# GraphDB docker example...
+#
+version: "3.9"
+
+services:
+  graphdb:
+    image: ontotext/graphdb:10.7.1-free
+    container_name: graphdb
+    restart: unless-stopped
+    ports:
+      - "7200:7200"
+    volumes:
+      - graphdb-data:/opt/graphdb/home
+    environment:
+      # Optional: you can define JAVA_OPTS for memory tuning if needed
+      # JAVA_OPTS: "-Xms2g -Xmx4g"
+      GRAPHDB_HOME: /opt/graphdb/home
+
+volumes:
+  graphdb-data:
+    driver: local

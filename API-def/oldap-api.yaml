@@ -798,6 +798,7 @@ paths:
                           $ref: '#/components/schemas/LangString'
                         del:
                           $ref: '#/components/schemas/LangString'
+                    - type: "null"
                 comment:
                   oneOf:
                     - $ref: '#/components/schemas/LangString'
@@ -807,10 +808,13 @@ paths:
                           $ref: '#/components/schemas/LangString'
                         del:
                           $ref: '#/components/schemas/LangString'
+                    - type: "null"
                 projectStart:
                   type: string
+                  nullable: true
                 projectEnd:
                   type: string
+                  nullable: true
         required: true
       responses:
         "200":
