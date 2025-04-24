@@ -10,7 +10,7 @@ help:
 
 
 test:
-	poetry run pytest -v
+	poetry run pytest -v $(TESTS)
 
 run:
 	poetry run python oldap-api-app.py
