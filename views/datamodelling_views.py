@@ -24,13 +24,14 @@ from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorValue, OldapErrorNoPermission, \
-    OldapErrorInconsistency, OldapErrorAlreadyExists
+    OldapErrorInconsistency, OldapErrorAlreadyExists, OldapErrorKey, OldapErrorType
 from oldaplib.src.iconnection import IConnection
 from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
 from oldaplib.src.resourceclass import ResourceClass
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
+from oldaplib.src.xsd.xsd_qname import Xsd_QName
 from oldaplib.src.xsd.xsd_string import Xsd_string
 
 from apierror import ApiError
@@ -669,8 +670,11 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                 for item in attrval:
                     if item is None:
                         return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                tmpval = [Language[x.upper()] for x in attrval]
-                setattr(property, attrname, LanguageIn(tmpval))
+                try:
+                    tmpval = [Language[x.upper()] for x in attrval]
+                    setattr(property, attrname, LanguageIn(tmpval))
+                except (OldapErrorKey, OldapErrorType, KeyError) as error:
+                    return jsonify({"message": str(error)}), 400
             elif isinstance(attrval, dict):
                 if not set(attrval.keys()).issubset({"add", "del"}):
                     return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
@@ -683,7 +687,17 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                     for item in adding:
                         if item is None:
                             return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                        property.languageIn.add(Language[item.upper()])
+                        try:
+                            Language[item.upper()]
+                        except KeyError:
+                            return jsonify({"message": f"The given languagetag '{item}' is not known. Available are {known_languages}"}), 400
+                        try:
+                            if property.languageIn is None:
+                                property.languageIn = LanguageIn(Language[item.upper()])
+                            else:
+                                property.languageIn.add(Language[item.upper()])
+                        except (OldapErrorKey, OldapErrorType, KeyError) as error:
+                            return jsonify({"message": str(error)}), 400
                 if "del" in attrval:
                     deleting = attrval.get("del", [])
                     if not isinstance(deleting, list):
@@ -693,9 +707,14 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                     for item in deleting:
                         if item is None:
                             return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                        property.languageIn.discard(Language[item.upper()])
-            if attrval is None:
+                        try:
+                            property.languageIn.discard(Language[item.upper()])
+                        except AttributeError:
+                            return jsonify({"message": f"The entry '{item}' is not in the property and thus could not be deleted"}), 404
+            elif attrval is None:
                 delattr(property, attrname)
+            else:
+                return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
             continue
         if attrname == "inSet":
             datatype = property.datatype
@@ -705,8 +724,11 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                 for item in attrval:
                     if item is None:
                         return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                tmpval = [convert2datatype(x, datatype) for x in attrval]
-                setattr(property, attrname, XsdSet(tmpval))
+                try:
+                    tmpval = [convert2datatype(x, datatype) for x in attrval]
+                    setattr(property, attrname, XsdSet(tmpval))
+                except (OldapErrorValue, OldapErrorType) as error:
+                    return jsonify({"message": str(error)}), 400
             elif isinstance(attrval, dict):
                 if not set(attrval.keys()).issubset({"add", "del"}):
                     return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
@@ -719,7 +741,13 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                     for item in adding:
                         if item is None:
                             return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                        property.inSet.add(convert2datatype(item, datatype))
+                        try:
+                            if property.inSet is None:
+                                property.inSet = XsdSet(convert2datatype(item, datatype))
+                            else:
+                                property.inSet.add(convert2datatype(item, datatype))
+                        except (OldapErrorValue, OldapErrorType) as error:
+                            return jsonify({"message": str(error)}), 400
                 if "del" in attrval:
                     deleting = attrval.get("del", [])
                     if not isinstance(deleting, list):
@@ -729,28 +757,25 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                     for item in deleting:
                         if item is None:
                             return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                        property.inSet.discard(convert2datatype(item, datatype))
-            if attrval is None:
+                        try:
+                            property.inSet.discard(convert2datatype(item, datatype))
+                        except AttributeError:
+                            return jsonify({"message": f"The entry '{item}' is not in the property and thus could not be deleted"}), 404
+            elif attrval is None:
                 delattr(property, attrname)
+            else:
+                return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
             continue
         if attrname == "name" or attrname == "description":
             if isinstance(attrval, list):
                 if not attrval:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                for item in attrval:
-                    if item is None:
-                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                    try:
-                        if item[-3] != '@':
-                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                    except IndexError as error:
-                        return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                    lang = item[-2:].upper()
-                    try:
-                        Language[lang]
-                    except KeyError as error:
-                        return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                setattr(property, attrname, LangString(attrval))
+                if None in attrval:
+                    return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                try:
+                    setattr(property, attrname, LangString(attrval, notifier=property.notifier, notify_data=Xsd_QName(PropClassAttr.from_name(attrname).value)))
+                except OldapErrorValue as error:
+                    return jsonify({"message": str(error)}), 400
             elif isinstance(attrval, dict):
                 if not attrval:
                     return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
@@ -762,19 +787,15 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                         return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
                     if not adding:
                         return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                    for item in adding:
-                        if item is None:
-                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                    if None in adding:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                    if property[PropClassAttr.from_name(str(attrname))] is None:
                         try:
-                            if item[-3] != '@':
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        except IndexError as error:
-                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        lang = item[-2:].upper()
-                        try:
-                            property[PropClassAttr.from_name(str(attrname))][Language[lang]] = item[:-3]
-                        except KeyError as error:
-                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                            property[PropClassAttr.from_name(str(attrname))] = LangString(adding)
+                        except OldapErrorValue as error:
+                            return jsonify({"message": str(error)}), 400
+                    else:
+                        property[PropClassAttr.from_name(str(attrname))].add(adding)
                 if "del" in attrval:
                     deleting = attrval.get("del", [])
                     if not isinstance(deleting, list):
@@ -794,8 +815,13 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                             del property[PropClassAttr.from_name(str(attrname))][Language[lang]]
                         except KeyError as error:
                             return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+                        except OldapError as error:
+                            return jsonify({"message": f"The entry {item} is not in the datamodel and thus could not be deleted"}), 400
             elif attrval is None:
-                delattr(property, attrname)
+                try:
+                    delattr(property, attrname)
+                except TypeError as error:
+                    return jsonify({"message": f"There is no {attrname} to be deleted"}), 400
             else:
                 return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
             continue
