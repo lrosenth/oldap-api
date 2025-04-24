@@ -33,6 +33,17 @@ def test_modify_label(client, token_headers, testproject):
     print(res)
     assert res.get('label') == ['Kappa@fr', "Kappa@it"]
 
+def test_modify_label_replaced(client, token_headers, testproject):
+    header = token_headers[1]
+    response = client.post('/admin/project/testproject', json={
+        "label": {'add': ["Kappa@de"], 'del': ["unittest@de"]}
+    }, headers=header)
+    res = response.json
+    print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    print(res)
+
 
 def test_modify_comment(client, token_headers, testproject):
     header = token_headers[1]
@@ -67,7 +78,7 @@ def test_modify_comment(client, token_headers, testproject):
     assert res.get('comment') == ['random changed comment@en', 'newcomment@it']
 
 
-def test_modify_bad_label(client, token_headers, testproject):
+def test_modify_bad_label_number(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
@@ -77,6 +88,9 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_bad_label_string(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": "kappa"
     }, headers=header)
@@ -84,12 +98,18 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_bad_label_array(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": ["gugugugu", "gagagagagag@en"]
     }, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
     print(res)
+
+def test_modify_bad_label_wrong_command(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": {"crap": "gugugugu", "alsocrap": "gagagagagag@en"}
@@ -98,12 +118,19 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_lang_default(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": {"add": ["u"], "del": ["gagagagagag@en"]}
     }, headers=header)
-    assert response.status_code == 400
-    res = response.json
-    print(res)
+    assert response.status_code == 200
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert 'u@en' in res['label']
+
+def test_modify_label_lang_default_addsign(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": {"add": ["u@asdfgasdg"], "del": ["gagagagagag@en"]}
@@ -112,12 +139,18 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_lang_add(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": {"add": ["u@at"]}
     }, headers=header)
     assert response.status_code == 400
     res = response.json
-    print(res)
+
+def test_modify_label_del_nonexistent(client, token_headers, testproject):
+    # TODO: Is error code 500 correct? Shouldn't it be 400?
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": {"del": ["doesnotexist@zu"]}
@@ -126,12 +159,18 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_set_val_deflang(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": ["u"]
     }, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
     print(res)
+
+def test_modify_label_add_without_lang(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": {"add": "u"}
@@ -140,12 +179,18 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_del_without_lang(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": {"del": "u"}
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_label_add_without_lang_b(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": {"del": ["uasdf"]}
@@ -154,12 +199,18 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_without_lang_c(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": {"del": ["u"]}
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_label_del_invalid_lang(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": {"del": ["u@at"]}
@@ -168,12 +219,18 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_delete(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": None
     }, headers=header)
     assert response.status_code == 200
     res = response.json
     print(res)
+
+def test_modify_label_empty_list(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": []
@@ -182,12 +239,18 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_list_none(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": [None]
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_label_replace_invalid_lang(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": ["kappa@zz"]
@@ -196,12 +259,18 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_empty_dict(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": {}
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_label_add_list_none(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": {"add": [None]}
@@ -210,6 +279,9 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_add_empty_list(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": {"add": []}
     }, headers=header)
@@ -217,12 +289,18 @@ def test_modify_bad_label(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_label_del_empty_list(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "label": {"del": []}
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_label_del_list_none(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": {"del": [None]}
@@ -241,6 +319,9 @@ def test_modify_bad_comment(client, token_headers, testproject):
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_comment_xxx(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": "kappa"

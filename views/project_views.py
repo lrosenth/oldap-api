@@ -16,7 +16,6 @@ The implementation includes error handling and validation for most operations.
 from flask import request, jsonify, Blueprint
 from oldaplib.src.connection import Connection
 from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
-from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.projectattr import ProjectAttr
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
@@ -25,9 +24,8 @@ from oldaplib.src.project import Project
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_date import Xsd_date
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
-from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
-from views import known_languages
+from helpers.process_langstring import process_langstring
 
 project_bp = Blueprint('project', __name__, url_prefix='/admin')
 
@@ -314,107 +312,9 @@ def modify_project(projectid):
             return jsonify({"message": str(error)}), 404
 
         try:
-            if label != "NotSent":
-                if isinstance(label, list):
-                    if not label:
-                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                    if None in label:
-                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                    try:
-                        project.label = LangString(label, notifier=project.notifier, notify_data=Xsd_QName(ProjectAttr.LABEL.value))
-                    except OldapErrorValue as error:
-                        return jsonify({"message": str(error)}), 400
-                elif isinstance(label, dict):
-                    if not label:
-                        return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
-                    if not set(label.keys()).issubset({"add", "del"}):
-                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
-                    if "del" in label:
-                        deleting = label["del"]
-                        if not isinstance(deleting, list):
-                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                        if not deleting:
-                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                        for item in deleting:
-                            if item is None:
-                                return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                            try:
-                                if item[-3] != '@':
-                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                            except IndexError as error:
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                            lang = item[-2:].upper()
-                            try:
-                                del project.label[Language[lang]]
-                            except KeyError as error:
-                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                    if "add" in label:
-                        adding = label["add"]
-                        if not isinstance(adding, list):
-                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                        if not adding:
-                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                        if None in adding:
-                            return jsonify({"message": f"Using a None in a modify LangString is not allowed"}), 400
-                        if not project.label:
-                            project.label = LangString(adding, notifier=project.notifier, notify_data=Xsd_QName(ProjectAttr.LABEL.value))
-                        else:
-                            project.label.add(adding)
-                elif label is None:
-                    del project.label
-                else:
-                    return jsonify({"message": f"Either a List or a dict is required."}), 400
+            process_langstring(project, ProjectAttr.LABEL, label, project.notifier)
+            process_langstring(project, ProjectAttr.COMMENT, comment, project.notifier)
 
-            if comment != "NotSent":
-                if isinstance(comment, list):
-                    if not comment:
-                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                    if None in comment:
-                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                    try:
-                        project.comment = LangString(comment, notifier=project.notifier, notify_data=Xsd_QName(ProjectAttr.COMMENT.value))
-                    except OldapErrorValue as error:
-                        return jsonify({"message": str(error)}), 400
-                elif isinstance(comment, dict):
-                    if not comment:
-                        return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
-                    if not set(comment.keys()).issubset({"add", "del"}):
-                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
-                    if "add" in comment:
-                        adding = comment["add"]
-                        if not isinstance(adding, list):
-                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                        if not adding:
-                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                        if None in adding:
-                            return jsonify({"message": f"Using a None in a modify LangString is not allowed"}), 400
-                        if not project.comment:
-                            project.comment = LangString(adding, notifier=project.notifier, notify_data=Xsd_QName(ProjectAttr.COMMENT.value))
-                        else:
-                            project.comment.add(adding)
-                    if "del" in comment:
-                        deleting = comment["del"]
-                        if not isinstance(deleting, list):
-                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                        if not deleting:
-                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                        for item in deleting:
-                            if item is None:
-                                return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                            try:
-                                if item[-3] != '@':
-                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                            except IndexError as error:
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                            lang = item[-2:].upper()
-                            try:
-                                del project.comment[Language[lang]]
-                            except KeyError as error:
-                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                elif comment is None:
-                    del project.comment
-                else:
-                    return jsonify({"message": f"Either a List or a dict is required."}), 400
             if projectStart != "NotSent":
                 if projectStart is None:
                     del project.projectStart
