@@ -135,9 +135,12 @@ def test_modify_label_lang_default_addsign(client, token_headers, testproject):
     response = client.post('/admin/project/testproject', json={
         "label": {"add": ["u@asdfgasdg"], "del": ["gagagagagag@en"]}
     }, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
     print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert 'u@asdfgasdg@en' in res['label']
 
 def test_modify_label_lang_add(client, token_headers, testproject):
     header = token_headers[1]
@@ -149,13 +152,12 @@ def test_modify_label_lang_add(client, token_headers, testproject):
     res = response.json
 
 def test_modify_label_del_nonexistent(client, token_headers, testproject):
-    # TODO: Is error code 500 correct? Shouldn't it be 400?
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "label": {"del": ["doesnotexist@zu"]}
     }, headers=header)
-    assert response.status_code == 500
+    assert response.status_code == 400
     res = response.json
     print(res)
 
@@ -320,7 +322,7 @@ def test_modify_bad_comment(client, token_headers, testproject):
     res = response.json
     print(res)
 
-def test_modify_comment_xxx(client, token_headers, testproject):
+def test_modify_comment_no_list(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
@@ -330,12 +332,19 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_liest_same_lang(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": ["gugugugu", "gagagagagag@en"]
     }, headers=header)
-    assert response.status_code == 400
+    (response.text)
+    assert response.status_code == 200
     res = response.json
     print(res)
+
+def test_modify_comment_dict_invalid_keyword(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": {"crap": "gugugugu", "alsocrap": "gagagagagag@en"}
@@ -344,19 +353,28 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_add_del(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": {"add": ["u"], "del": ["gagagagagag@en"]}
     }, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
     print(res)
+
+def test_modify_comment_add_with_addsign(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": {"add": ["u@asdfgasdg"], "del": ["gagagagagag@en"]}
     }, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
     print(res)
+
+def test_modify_comment_add_invalid_lang(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": {"add": ["u@at"]}
@@ -365,12 +383,19 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_del_inexisting_a(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": {"del": ["doesnotexist@zu"]}
     }, headers=header)
-    assert response.status_code == 500
+    print(response.text)
+    assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_comment_inexist_b(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": {"del": ["doesnotexist@at"]}
@@ -379,12 +404,18 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_replace_without_lang(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": ["d"]
     }, headers=header)
-    assert response.status_code == 400
+    assert response.status_code == 200
     res = response.json
     print(res)
+
+def test_modify_comment_add_nolist(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": {"add": "abc@de"}
@@ -393,12 +424,18 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_replace_nolist(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": "abc@de"
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_comment_replace_list_nolang(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": {"del": ["abc"]}
@@ -407,12 +444,18 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_del_no_lang(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": {"del": ["a"]}
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_comment_del_nolist(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": {"del": "a@de"}
@@ -421,12 +464,18 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_delete_with_none(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": None
     }, headers=header)
     assert response.status_code == 200
     res = response.json
     print(res)
+
+def test_modify_comment_empty_list(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": []
@@ -435,12 +484,18 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_list_with_none(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": [None]
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_comment_list_invalid_lang(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": ["kappa@zz"]
@@ -449,12 +504,18 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_empty_dict(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": {}
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_comment_add_list_none(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": {"add": [None]}
@@ -463,6 +524,9 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_add_empty_list(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": {"add": []}
     }, headers=header)
@@ -470,12 +534,18 @@ def test_modify_comment_xxx(client, token_headers, testproject):
     res = response.json
     print(res)
 
+def test_modify_comment_del_empty_list(client, token_headers, testproject):
+    header = token_headers[1]
+
     response = client.post('/admin/project/testproject', json={
         "comment": {"del": []}
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
+
+def test_modify_comment_del_list_none(client, token_headers, testproject):
+    header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
         "comment": {"del": [None]}

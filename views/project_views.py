@@ -19,7 +19,7 @@ from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
 from oldaplib.src.enums.projectattr import ProjectAttr
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
-    OldapErrorInconsistency, OldapErrorValue, OldapErrorNotFound, OldapErrorUpdateFailed
+    OldapErrorInconsistency, OldapErrorValue, OldapErrorNotFound, OldapErrorUpdateFailed, OldapErrorKey
 from oldaplib.src.project import Project
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_date import Xsd_date
@@ -325,6 +325,8 @@ def modify_project(projectid):
                     del project.projectEnd
                 else:
                     project.projectEnd = Xsd_date(projectEnd)
+        except OldapErrorKey as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
         except OldapErrorInconsistency as error:  # inconsistent start and enddate
