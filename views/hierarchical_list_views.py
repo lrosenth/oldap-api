@@ -157,6 +157,8 @@ def add_node(project, hlistid, nodeid):
                     node.insert_node_left_of(rightnode=refnode)
                 case _:
                     return jsonify({"message": f"Position {position} is not allowed"}), 400 # Should not be reachable
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
         except OldapErrorAlreadyExists as error:

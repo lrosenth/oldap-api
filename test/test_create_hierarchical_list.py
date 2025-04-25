@@ -232,6 +232,16 @@ def test_create_below_node(client, token_headers, testemptyhlist):
     assert res[0]["oldapListNodeId"] == "nodeA"
     assert res[0]["nodes"][0]["oldapListNodeId"] == "nodeB"
 
+    response = client.put('/admin/hlist/hyha/testhlist/nodeC', json={
+        "label": 1234,
+        "definition": ["testrootnodedefinition@en"],
+        "position": "belowOf",
+        "refnode": "nodeB"
+    }, headers=header)
+    res = response.get_json()
+    print(res)
+    assert response.status_code == 400
+
 def test_no_json_to_add_node(client, token_headers, testemptyhlist):
     header = token_headers[1]
     response = client.put('/admin/hlist/hyha/testhlist/nodeB', 'KEIN JSON', headers=header)
