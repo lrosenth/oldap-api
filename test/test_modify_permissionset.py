@@ -1,4 +1,4 @@
-def test_modify_label(client, token_headers, testpermissionset):
+def test_modify_label_A(client, token_headers, testpermissionset):
     header = token_headers[1]
 
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
@@ -7,6 +7,9 @@ def test_modify_label(client, token_headers, testpermissionset):
     res = response.json
     print(res)
     assert response.status_code == 400
+
+def test_modify_label_B(client, token_headers, testpermissionset):
+    header = token_headers[1]
 
     responselist = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": ["Kappa@fr", "test@de"]
@@ -17,7 +20,10 @@ def test_modify_label(client, token_headers, testpermissionset):
     responselist2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
     res = responselist2.json
     print(res)
-    assert res.get('label') == ['Kappa@fr', 'test@de']
+    assert set(res.get('label')) == {'Kappa@fr', 'test@de'}
+
+def test_modify_label_C(client, token_headers, testpermissionset):
+    header = token_headers[1]
 
     responsedict = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "label": {"add": ["Kappa@it"], "del": ["test@de"]}
@@ -28,10 +34,10 @@ def test_modify_label(client, token_headers, testpermissionset):
     responsedict2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
     res = responsedict2.json
     print(res)
-    assert res.get('label') == ['Kappa@fr', "Kappa@it"]
+    assert set(res.get('label')) == {'testPerm@en', "Kappa@it"}
 
 
-def test_modify_comment(client, token_headers, testpermissionset):
+def test_modify_comment_A(client, token_headers, testpermissionset):
     header = token_headers[1]
 
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
@@ -40,6 +46,9 @@ def test_modify_comment(client, token_headers, testpermissionset):
     res = response.json
     print(res)
     assert response.status_code == 400
+
+def test_modify_comment_B(client, token_headers, testpermissionset):
+    header = token_headers[1]
 
     responselist = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "comment": ["random changed comment@en", "another comment@de"]
@@ -50,7 +59,10 @@ def test_modify_comment(client, token_headers, testpermissionset):
     responselist2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
     res = responselist2.json
     print(res)
-    assert res.get('comment') == ["random changed comment@en", "another comment@de"]
+    assert set(res.get('comment')) == {"random changed comment@en", "another comment@de"}
+
+def test_modify_comment_C(client, token_headers, testpermissionset):
+    header = token_headers[1]
 
     responsedict = client.post('/admin/permissionset/oldap/testpermissionset', json={
         "comment": {"add": ["newcomment@it"], "del": ["another comment@de"]}
@@ -61,7 +73,7 @@ def test_modify_comment(client, token_headers, testpermissionset):
     responsedict2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
     res = responsedict2.json
     print(res)
-    assert res.get('comment') == ['random changed comment@en', 'newcomment@it']
+    assert set(res.get('comment')) == {'For testing@en', 'newcomment@it'}
 
 
 def test_modify_gives_permission(client, token_headers, testpermissionset):
@@ -76,7 +88,7 @@ def test_modify_gives_permission(client, token_headers, testpermissionset):
     response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
     res = response2.json
     print(res)
-    assert res.get('givesPermission') == 'oldap:DATA_VIEW'
+    assert res.get('givesPermission') == 'DATA_VIEW'
 
 
 def test_modify_bad_label(client, token_headers, testpermissionset):
@@ -99,7 +111,7 @@ def test_modify_label_string(client, token_headers, testpermissionset):
     res = response.json
     print(res)
 
-def test_modify_label_replace_doublöe_lang(client, token_headers, testpermissionset):
+def test_modify_label_replace_double_lang(client, token_headers, testpermissionset):
     header = token_headers[1]
 
     response = client.post('/admin/permissionset/oldap/testpermissionset', json={
@@ -108,6 +120,11 @@ def test_modify_label_replace_doublöe_lang(client, token_headers, testpermissio
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert res.get('label') == ["gagagagagag@en"]
+
 
 def test_modify_label_invalid_key(client, token_headers, testpermissionset):
     header = token_headers[1]
@@ -128,6 +145,11 @@ def test_modify_label_add_del(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('label')) == {"u@en", "test@de"}
+
 
 def test_modify_label_add_del_b(client, token_headers, testpermissionset):
     header = token_headers[1]
@@ -138,6 +160,11 @@ def test_modify_label_add_del_b(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('label')) == {"u@asdfgasdg@en", "test@de"}
+
 
 def test_modify_label_add_invalid_lang(client, token_headers, testpermissionset):
     header = token_headers[1]
@@ -312,6 +339,11 @@ def test_modify_comment_double_lang(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('comment')) == {"gagagagagag@en"}
+
 
 def test_modify_comment_invalid_key(client, token_headers, testpermissionset):
     header = token_headers[1]
@@ -334,6 +366,11 @@ def test_modify_comment_add_del(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('comment')) == {"u@en", "Für Tests@de"}
+
 
 def test_modify_comment_add_double(client, token_headers, testpermissionset):
     header = token_headers[1]
@@ -345,6 +382,11 @@ def test_modify_comment_add_double(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('comment')) == {"u@asdfgasdg@en", "Für Tests@de"}
+
 
 def test_modify_comment_add_invalid_lang(client, token_headers, testpermissionset):
     header = token_headers[1]
@@ -413,6 +455,12 @@ def test_modify_empty_label(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('comment')) == {"random comment@de"}
+    assert res.get('givesPermission') == "DATA_VIEW"
+
 
 
 def test_modify_empty_comment(client, token_headers, testpermissionset):
@@ -426,6 +474,12 @@ def test_modify_empty_comment(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('label')) == {"testPerm@en", "test@Perm@de"}
+    assert res.get('givesPermission') == "DATA_VIEW"
+
 
 
 def test_modify_empty_givespermission(client, token_headers, testpermissionset):
@@ -439,6 +493,12 @@ def test_modify_empty_givespermission(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('label')) == {"testPerm@en", "test@Perm@de"}
+    assert set(res.get('comment')) == {"random comment@it"}
+
 
 
 def test_bad_token(client, token_headers):
@@ -559,7 +619,7 @@ def test_modify_label_weird(client, token_headers, testpermissionset):
     response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
     res = response2.json
     print(res)
-    assert res.get('label') == ['test@de', 'spaghetti@it', 'zuzu@zu']
+    assert set(res.get('label')) == {'test@de', 'spaghetti@it', 'zuzu@zu'}
 
 
 def test_modify_label_short_language_tag(client, token_headers, testpermissionset):
@@ -573,6 +633,10 @@ def test_modify_label_short_language_tag(client, token_headers, testpermissionse
     res = response.json
     print(res)
 
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('label')) == {'u@en'}
 
 def test_modify_label_del_nolist(client, token_headers, testpermissionset):
     header = token_headers[1]
@@ -621,6 +685,10 @@ def test_modify_label_no_language_tag(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert set(res.get('label')) == {'uasdf@en'}
 
 
 def test_modify_label_del_no_language_tag(client, token_headers, testpermissionset):
@@ -670,6 +738,12 @@ def test_modify_del_whole_label(client, token_headers, testpermissionset):
     res = response.json
     print(res)
 
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert res.get('label') == None
+
+
 
 def test_modify_comment_short_language_tag(client, token_headers, testpermissionset):
     header = token_headers[1]
@@ -681,6 +755,12 @@ def test_modify_comment_short_language_tag(client, token_headers, testpermission
     assert response.status_code == 200
     res = response.json
     print(res)
+
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert res.get('comment') == ['u@en']
+
 
 
 def test_modify_comment_no_list(client, token_headers, testpermissionset):
@@ -741,3 +821,9 @@ def test_modify_del_whole_comment(client, token_headers, testpermissionset):
     assert response.status_code == 200
     res = response.json
     print(res)
+
+    response2 = client.get('/admin/permissionset/oldap/testpermissionset', headers=header)
+    res = response2.json
+    print(res)
+    assert res.get('comment') == None
+

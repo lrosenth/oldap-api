@@ -38,15 +38,16 @@ def process_langstring(obj: Model,
                 dellangs = set([Xsd_string(x).lang for x in newval["del"]])
                 addlangs = set([Xsd_string(x).lang for x in newval["add"]])
                 mods = dellangs & addlangs
-                modified = [Xsd_string(x) for x in newval["add"] if Xsd_string(x).lang in mods]
-                for item in modified:
-                    obj[attr][item.lang] = item.value
-                newval["del"] = [x for x in newval["del"] if Xsd_string(x).lang not in mods]
-                if not newval["del"]:
-                    del newval["del"]
-                newval["add"] = [x for x in newval["add"] if Xsd_string(x).lang not in mods]
-                if not newval["add"]:
-                    del newval["add"]
+                if mods:
+                    modified = [Xsd_string(x) for x in newval["add"] if Xsd_string(x).lang in mods]
+                    for item in modified:
+                        obj[attr][item.lang] = item.value
+                    newval["del"] = [x for x in newval["del"] if Xsd_string(x).lang not in mods]
+                    if not newval["del"]:
+                        del newval["del"]
+                    newval["add"] = [x for x in newval["add"] if Xsd_string(x).lang not in mods]
+                    if not newval["add"]:
+                        del newval["add"]
             if "del" in newval:
                 deleting = newval["del"]
                 if not isinstance(deleting, list):
@@ -76,5 +77,7 @@ def process_langstring(obj: Model,
                     obj[attr].add(adding)
         elif newval is None:
             del obj[attr]
+            if hasattr(obj, 'notify'):
+                obj.notify()
         else:
             raise OldapErrorValue(f"Either a List or a dict is required.")

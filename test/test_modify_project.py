@@ -1,7 +1,7 @@
 import re
 from pprint import pprint
 
-def test_modify_label(client, token_headers, testproject):
+def test_modify_label_A(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
@@ -10,6 +10,9 @@ def test_modify_label(client, token_headers, testproject):
     res = response.json
     print(res)
     assert response.status_code == 400
+
+def test_modify_label_B(client, token_headers, testproject):
+    header = token_headers[1]
 
     responselist = client.post('/admin/project/testproject', json={
         "label": ["Kappa@fr", "test@de"]
@@ -22,6 +25,9 @@ def test_modify_label(client, token_headers, testproject):
     print(res)
     assert res.get('label') == ['Kappa@fr', 'test@de']
 
+def test_modify_label_C(client, token_headers, testproject):
+    header = token_headers[1]
+
     responsedict = client.post('/admin/project/testproject', json={
         "label": {"add": ["Kappa@it"], "del": ["test@de"]}
     }, headers=header)
@@ -31,9 +37,9 @@ def test_modify_label(client, token_headers, testproject):
     responsedict2 = client.get('/admin/project/testproject', headers=header)
     res = responsedict2.json
     print(res)
-    assert res.get('label') == ['Kappa@fr', "Kappa@it"]
+    assert res.get('label') == ['unittest@en', "Kappa@it"]
 
-def test_modify_label_replaced(client, token_headers, testproject):
+def test_modify_label_D(client, token_headers, testproject):
     header = token_headers[1]
     response = client.post('/admin/project/testproject', json={
         "label": {'add': ["Kappa@de"], 'del': ["unittest@de"]}
@@ -43,9 +49,10 @@ def test_modify_label_replaced(client, token_headers, testproject):
     responsedict2 = client.get('/admin/project/testproject', headers=header)
     res = responsedict2.json
     print(res)
+    assert res.get('label') == ['unittest@en', "Kappa@de"]
 
 
-def test_modify_comment(client, token_headers, testproject):
+def test_modify_comment_A(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
@@ -54,6 +61,9 @@ def test_modify_comment(client, token_headers, testproject):
     res = response.json
     print(res)
     assert response.status_code == 400
+
+def test_modify_comment_B(client, token_headers, testproject):
+    header = token_headers[1]
 
     responselist = client.post('/admin/project/testproject', json={
         "comment": ["random changed comment@en", "another comment@de"]
@@ -66,6 +76,9 @@ def test_modify_comment(client, token_headers, testproject):
     print(res)
     assert res.get('comment') == ["random changed comment@en", "another comment@de"]
 
+def test_modify_comment_C(client, token_headers, testproject):
+    header = token_headers[1]
+
     responsedict = client.post('/admin/project/testproject', json={
         "comment": {"add": ["newcomment@it"], "del": ["another comment@de"]}
     }, headers=header)
@@ -74,8 +87,7 @@ def test_modify_comment(client, token_headers, testproject):
     assert responsedict.status_code == 200
     responsedict2 = client.get('/admin/project/testproject', headers=header)
     res = responsedict2.json
-    print(res)
-    assert res.get('comment') == ['random changed comment@en', 'newcomment@it']
+    assert res.get('comment') == ['For testing@en', 'newcomment@it']
 
 
 def test_modify_bad_label_number(client, token_headers, testproject):
@@ -107,6 +119,10 @@ def test_modify_bad_label_array(client, token_headers, testproject):
     assert response.status_code == 200
     res = response.json
     print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert res.get('label') == ['gagagagagag@en']
+
 
 def test_modify_bad_label_wrong_command(client, token_headers, testproject):
     header = token_headers[1]
@@ -169,7 +185,10 @@ def test_modify_label_set_val_deflang(client, token_headers, testproject):
     }, headers=header)
     assert response.status_code == 200
     res = response.json
-    print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert res['label'] == ['u@en']
+
 
 def test_modify_label_add_without_lang(client, token_headers, testproject):
     header = token_headers[1]
@@ -230,6 +249,9 @@ def test_modify_label_delete(client, token_headers, testproject):
     assert response.status_code == 200
     res = response.json
     print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert res.get('label') == None
 
 def test_modify_label_empty_list(client, token_headers, testproject):
     header = token_headers[1]
@@ -342,6 +364,9 @@ def test_modify_comment_liest_same_lang(client, token_headers, testproject):
     assert response.status_code == 200
     res = response.json
     print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert res['comment'] == ["gagagagagag@en"]
 
 def test_modify_comment_dict_invalid_keyword(client, token_headers, testproject):
     header = token_headers[1]
@@ -362,6 +387,10 @@ def test_modify_comment_add_del(client, token_headers, testproject):
     assert response.status_code == 200
     res = response.json
     print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert set(res['comment']) == {'Für Tests@de', 'u@en'}
+
 
 def test_modify_comment_add_with_addsign(client, token_headers, testproject):
     header = token_headers[1]
@@ -371,7 +400,10 @@ def test_modify_comment_add_with_addsign(client, token_headers, testproject):
     }, headers=header)
     assert response.status_code == 200
     res = response.json
-    print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert set(res['comment']) == {'Für Tests@de', 'u@asdfgasdg@en'}
+
 
 def test_modify_comment_add_invalid_lang(client, token_headers, testproject):
     header = token_headers[1]
@@ -389,7 +421,6 @@ def test_modify_comment_del_inexisting_a(client, token_headers, testproject):
     response = client.post('/admin/project/testproject', json={
         "comment": {"del": ["doesnotexist@zu"]}
     }, headers=header)
-    print(response.text)
     assert response.status_code == 400
     res = response.json
     print(res)
@@ -413,6 +444,10 @@ def test_modify_comment_replace_without_lang(client, token_headers, testproject)
     assert response.status_code == 200
     res = response.json
     print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert res['comment'] == ['d@en']
+
 
 def test_modify_comment_add_nolist(client, token_headers, testproject):
     header = token_headers[1]
@@ -473,6 +508,10 @@ def test_modify_comment_delete_with_none(client, token_headers, testproject):
     assert response.status_code == 200
     res = response.json
     print(res)
+    responsedict2 = client.get('/admin/project/testproject', headers=header)
+    res = responsedict2.json
+    assert res.get('comment') == None
+
 
 def test_modify_comment_empty_list(client, token_headers, testproject):
     header = token_headers[1]

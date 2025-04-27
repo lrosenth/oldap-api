@@ -19,6 +19,7 @@ from oldaplib.src.dtypes.languagein import LanguageIn
 from oldaplib.src.dtypes.xsdset import XsdSet
 from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.propertyclassattr import PropClassAttr
+from oldaplib.src.enums.resourceclassattr import ResClassAttribute
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.convert2datatype import convert2datatype
@@ -35,6 +36,7 @@ from oldaplib.src.xsd.xsd_qname import Xsd_QName
 from oldaplib.src.xsd.xsd_string import Xsd_string
 
 from apierror import ApiError
+from helpers.process_langstring import process_langstring
 from views import known_languages
 
 datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
@@ -663,7 +665,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     if not set(data.keys()):
         return jsonify({"message": f"At least one field must be given to modify the project. Usable for the modify-viewfunction are {known_json_fields}"}), 400
     for attrname, attrval in data.items():
-        if attrname == "languageIn":
+        if attrname == "languageIn":  # is a set of Language items
             if isinstance(attrval, list):
                 if not attrval:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
@@ -716,7 +718,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             else:
                 return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
             continue
-        if attrname == "inSet":
+        if attrname == "inSet":  # a set of items of the required datatype
             datatype = property.datatype
             if isinstance(attrval, list):
                 if not attrval:
@@ -766,65 +768,24 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             else:
                 return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
             continue
-        if attrname == "name" or attrname == "description":
-            if isinstance(attrval, list):
-                if not attrval:
-                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                if None in attrval:
-                    return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                try:
-                    setattr(property, attrname, LangString(attrval, notifier=property.notifier, notify_data=Xsd_QName(PropClassAttr.from_name(attrname).value)))
-                except OldapErrorValue as error:
-                    return jsonify({"message": str(error)}), 400
-            elif isinstance(attrval, dict):
-                if not attrval:
-                    return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
-                if not set(attrval.keys()).issubset({"add", "del"}):
-                    return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
-                if "add" in attrval:
-                    adding = attrval.get("add", [])
-                    if not isinstance(adding, list):
-                        return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                    if not adding:
-                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                    if None in adding:
-                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                    if property[PropClassAttr.from_name(str(attrname))] is None:
-                        try:
-                            property[PropClassAttr.from_name(str(attrname))] = LangString(adding)
-                        except OldapErrorValue as error:
-                            return jsonify({"message": str(error)}), 400
-                    else:
-                        property[PropClassAttr.from_name(str(attrname))].add(adding)
-                if "del" in attrval:
-                    deleting = attrval.get("del", [])
-                    if not isinstance(deleting, list):
-                        return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                    if not deleting:
-                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                    for item in deleting:
-                        if item is None:
-                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                        try:
-                            if item[-3] != '@':
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        except IndexError as error:
-                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        lang = item[-2:].upper()
-                        try:
-                            del property[PropClassAttr.from_name(str(attrname))][Language[lang]]
-                        except KeyError as error:
-                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                        except OldapError as error:
-                            return jsonify({"message": f"The entry {item} is not in the datamodel and thus could not be deleted"}), 400
-            elif attrval is None:
-                try:
-                    delattr(property, attrname)
-                except TypeError as error:
-                    return jsonify({"message": f"There is no {attrname} to be deleted"}), 400
-            else:
-                return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
+
+        if attrname == "name":
+            try:
+                process_langstring(property, PropClassAttr.NAME, attrval, property.notifier)
+            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                return jsonify({"message": str(error)}), 400
+            except OldapError as error:
+                return jsonify({"message": str(error)}), 500
             continue
+        if attrname == "description":
+            try:
+                process_langstring(property, PropClassAttr.DESCRIPTION, attrval, property.notifier)
+            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                return jsonify({"message": str(error)}), 400
+            except OldapError as error:
+                return jsonify({"message": str(error)}), 500
+            continue
+
         if attrval is None:
             delattr(property, attrname)
         else:
@@ -938,77 +899,94 @@ def modify_resource(project, resource):
             return jsonify({"message": f"At least one field must be given to modify the standalone property. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
         for attrname, attrval in data.items():
-            if attrname == "label" or attrname == "comment":
-                if isinstance(attrval, list):
-                    if not attrval:
-                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                    for item in attrval:
-                        if item is None:
-                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                        try:
-                            if item[-3] != '@':
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        except IndexError as error:
-                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        lang = item[-2:].upper()
-                        try:
-                            Language[lang]
-                        except KeyError as error:
-                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-
-                        setattr(dm[Iri(resource)], attrname, LangString(attrval))
-                elif isinstance(attrval, dict):
-                    if not attrval:
-                        return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
-                    if not set(attrval.keys()).issubset({"add", "del"}):
-                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
-                    if "add" in attrval:
-                        adding = attrval.get("add", [])
-                        if not isinstance(adding, list):
-                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                        if not adding:
-                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                        for item in adding:
-                            if item is None:
-                                return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                            try:
-                                if item[-3] != '@':
-                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                            except IndexError as error:
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                            lang = item[-2:].upper()
-                            try:
-                                tmp = getattr(dm[Iri(resource)], attrname)
-                                tmp[Language[lang]] = item[:-3]
-                                #dm[Iri(resource)]['rdfs:'+ attrname][Language[lang]] = item[:-3]
-                            except KeyError as error:
-                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                    if "del" in attrval:
-                        deleting = attrval.get("del", [])
-                        if not isinstance(deleting, list):
-                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                        if not deleting:
-                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                        for item in deleting:
-                            if item is None:
-                                return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                            try:
-                                if item[-3] != '@':
-                                    return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                            except IndexError as error:
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                            lang = item[-2:].upper()
-                            try:
-                                tmp = getattr(dm[Iri(resource)], attrname)
-                                del tmp[Language[lang]]
-                            except KeyError as error:
-                                return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                elif attrval is None:
-                    delattr(dm[Iri(resource)], attrname)
-                    # del dm[Iri(resource)][attrname]
-                else:
-                    return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
+            if attrname == "label":
+                try:
+                    process_langstring(dm[Iri(resource)], ResClassAttribute.LABEL, attrval, dm[Iri(resource)].notifier)
+                except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                    return jsonify({"message": str(error)}), 400
+                except OldapError as error:
+                    return jsonify({"message": str(error)}), 500
                 continue
+            if attrname == "comment":
+                try:
+                    process_langstring(dm[Iri(resource)], ResClassAttribute.COMMENT, attrval, dm[Iri(resource)].notifier)
+                except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                    return jsonify({"message": str(error)}), 400
+                except OldapError as error:
+                    return jsonify({"message": str(error)}), 500
+                continue
+
+            # if attrname == "label" or attrname == "comment":
+            #     if isinstance(attrval, list):
+            #         if not attrval:
+            #             return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+            #         for item in attrval:
+            #             if item is None:
+            #                 return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+            #             try:
+            #                 if item[-3] != '@':
+            #                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+            #             except IndexError as error:
+            #                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+            #             lang = item[-2:].upper()
+            #             try:
+            #                 Language[lang]
+            #             except KeyError as error:
+            #                 return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+            #
+            #             setattr(dm[Iri(resource)], attrname, LangString(attrval))
+            #     elif isinstance(attrval, dict):
+            #         if not attrval:
+            #             return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
+            #         if not set(attrval.keys()).issubset({"add", "del"}):
+            #             return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
+            #         if "add" in attrval:
+            #             adding = attrval.get("add", [])
+            #             if not isinstance(adding, list):
+            #                 return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+            #             if not adding:
+            #                 return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+            #             for item in adding:
+            #                 if item is None:
+            #                     return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+            #                 try:
+            #                     if item[-3] != '@':
+            #                         return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+            #                 except IndexError as error:
+            #                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+            #                 lang = item[-2:].upper()
+            #                 try:
+            #                     tmp = getattr(dm[Iri(resource)], attrname)
+            #                     tmp[Language[lang]] = item[:-3]
+            #                     #dm[Iri(resource)]['rdfs:'+ attrname][Language[lang]] = item[:-3]
+            #                 except KeyError as error:
+            #                     return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+            #         if "del" in attrval:
+            #             deleting = attrval.get("del", [])
+            #             if not isinstance(deleting, list):
+            #                 return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+            #             if not deleting:
+            #                 return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+            #             for item in deleting:
+            #                 if item is None:
+            #                     return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+            #                 try:
+            #                     if item[-3] != '@':
+            #                         return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+            #                 except IndexError as error:
+            #                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
+            #                 lang = item[-2:].upper()
+            #                 try:
+            #                     tmp = getattr(dm[Iri(resource)], attrname)
+            #                     del tmp[Language[lang]]
+            #                 except KeyError as error:
+            #                     return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
+            #     elif attrval is None:
+            #         delattr(dm[Iri(resource)], attrname)
+            #         # del dm[Iri(resource)][attrname]
+            #     else:
+            #         return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
+            #     continue
 
             if attrval is not None:
                 setattr(dm[Iri(resource)], attrname, attrval)

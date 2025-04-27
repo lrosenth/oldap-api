@@ -145,7 +145,7 @@ def read_permissionset(definedByProject, permissionSetId):
         'permissionSetId': str(ps.permissionSetId),
         **({'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()]} if ps.label else {}),
         **({'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()]} if ps.comment else {}),
-        'givesPermission': str(ps.givesPermission),
+        'givesPermission': str(ps.givesPermission.to_string()),
         'definedByProject': str(ps.definedByProject),
     }
 
@@ -339,7 +339,7 @@ def permissionsetr_get_by_iri():
         'permissionSetId': str(ps.permissionSetId),
         **({'label': [f'{value}@{lang.name.lower()}' for lang, value in ps.label.items()]} if ps.label else {}),
         **({'comment': [f'{value}@{lang.name.lower()}' for lang, value in ps.comment.items()]} if ps.comment else {}),
-        'givesPermission': str(ps.givesPermission),
+        'givesPermission': str(ps.givesPermission.to_string()),
         'definedByProject': str(ps.definedByProject),
     }
 
