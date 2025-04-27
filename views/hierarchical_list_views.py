@@ -5,16 +5,19 @@ from xmlrpc.client import Boolean
 from flask import Blueprint, request, jsonify, Response
 from oldaplib.src.connection import Connection
 from oldaplib.src.enums.language import Language
+from oldaplib.src.enums.oldaplistnodeattr import OldapListNodeAttr
 from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.helpers.json_encoder import SpecialEncoder
 from oldaplib.src.helpers.langstring import LangString
-from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency
+from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
+    OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency, OldapErrorKey
 from oldaplib.src.oldaplist import OldapList
 from oldaplib.src.oldaplist_helpers import get_nodes_from_list
 from oldaplib.src.oldaplistnode import OldapListNode
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from requests import delete
 
+from helpers.process_langstring import process_langstring
 from views import known_languages
 
 hierarchical_list_bp = Blueprint('hlist', __name__, url_prefix='/admin')
@@ -281,6 +284,58 @@ def move_node(project, hlistid, nodeid):
         return jsonify({"message": str(error)}), 500 # should not be reachable
     return jsonify({"message": "Node successfully moved"}), 200
 
+@hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['POST'])
+def modify_hlist(project, hlistid):
+    known_json_fields = {"prefLabel", "definition"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a root node. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to move a node. Usable for the move-viewfunction are {known_json_fields}"}), 400
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+    except OldapErrorNotFound as error:
+        return jsonify({"message": str(error)}), 404
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500 # Should not be reachable
+
+    for attrname, attrval in data.items():
+        if attrname == "prefLabel":
+            try:
+                process_langstring(hlist, OldapListNodeAttr.PREF_LABEL, attrval, hlist.notifier)
+            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                return jsonify({"message": str(error)}), 400
+            except OldapError as error:
+                return jsonify({"message": str(error)}), 500
+            continue
+
+        if attrname == "definition":
+            try:
+                process_langstring(hlist, OldapListNodeAttr.DEFINITION, attrval, hlist.notifier)
+            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                return jsonify({"message": str(error)}), 400
+            except OldapError as error:
+                return jsonify({"message": str(error)}), 500
+            continue
+
+        if attrval is None:
+            delattr(property, attrname)
+        continue
+
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['POST'])
 def modify_node(project, hlistid, nodeid):
@@ -312,103 +367,38 @@ def modify_node(project, hlistid, nodeid):
     except OldapError as error:
         return jsonify({"message": str(error)}), 500 # Should not be reachable
 
+    try:
+        hlist.update()
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500  # Should not be reachable
+
+    return jsonify({"message": "Hlist successfully modified"}), 200
+
 
     for attrname, attrval in data.items():
-        if attrname == "prefLabel" or attrname == "definition":
-            if isinstance(attrval, list):
-                if not attrval:
-                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                for item in attrval:
-                    if item is None:
-                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                    try:
-                        if item[-3] != '@':
-                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                    except IndexError as error:
-                        return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                    lang = item[-2:].upper()
-                    try:
-                        Language[lang]
-                    except KeyError as error:
-                        return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                try:
-                    setattr(nodetochange, attrname, LangString(attrval))
-                except OldapErrorValue as error:
-                    return jsonify({"message": str(error)}), 404
-            elif isinstance(attrval, dict):
-                if not attrval:
-                    return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
-                if not set(attrval.keys()).issubset({"add", "del"}):
-                    return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
-                if "add" in attrval:
-                    adding = attrval.get("add", [])
-                    if not isinstance(adding, list):
-                        return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                    if not adding:
-                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                    languagecounter = []
-                    for item in adding:
-                        if item is None:
-                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                        try:
-                            if item[-3] != '@':
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        except IndexError as error:
-                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        lang = item[-2:].upper()
-                        if lang in languagecounter:
-                            return jsonify({"message": "It is only allowed to have one entry per language"}), 404
-                        else:
-                            languagecounter.append(lang)
-                        try:
-                            getattr(nodetochange, attrname)[Language[lang]] = item[:-3]
-                        except KeyError as error:
-                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                if "del" in attrval:
-                    deleting = attrval.get("del", [])
-                    if not isinstance(deleting, list):
-                        return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-                    if not deleting:
-                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                    for item in deleting:
-                        if item is None:
-                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-                        try:
-                            if item[-3] != '@':
-                                return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        except IndexError as error:
-                            return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-                        lang = item[-2:].upper()
-                        try:
-                            del property[PropClassAttr.from_name(str(attrname))][Language[lang]]
-                        except KeyError as error:
-                            return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-                        except TypeError as error:
-                            return jsonify({"message": f"The entry {attrval} is not in the datamodel and thus could not be deleted"}), 404
-            elif attrval is None:
-                delattr(property, attrname)
-            else:
-                return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
+        if attrname == "prefLabel":
+            try:
+                process_langstring(nodetochange, OldapListNodeAttr.PREF_LABEL, attrval, nodetochange.notifier)
+            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                return jsonify({"message": str(error)}), 400
+            except OldapError as error:
+                return jsonify({"message": str(error)}), 500
             continue
+
+        if attrname == "definition":
+            try:
+                process_langstring(nodetochange, OldapListNodeAttr.DEFINITION, attrval, nodetochange.notifier)
+            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                return jsonify({"message": str(error)}), 400
+            except OldapError as error:
+                return jsonify({"message": str(error)}), 500
+            continue
+
         if attrval is None:
             delattr(property, attrname)
         continue
-
-    # if prefLabel:
-    #     try:
-    #         nodetochange.prefLabel = LangString(prefLabel)
-    #     except OldapErrorValue as error:
-    #         return jsonify({"message": str(error)}), 404
-    #     except OldapError as error:
-    #         return jsonify({"message": str(error)}), 500 # Should not be reachable
-    #
-    # if definition:
-    #     try:
-    #         nodetochange.definition = LangString(definition)
-    #     except OldapErrorValue as error:
-    #         return jsonify({"message": str(error)}), 404
-    #     except OldapError as error:
-    #         return jsonify({"message": str(error)}), 500  # Should not be reachable
 
     try:
         nodetochange.update()
