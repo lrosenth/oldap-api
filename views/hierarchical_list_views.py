@@ -336,6 +336,16 @@ def modify_hlist(project, hlistid):
             delattr(property, attrname)
         continue
 
+    try:
+        hlist.update()
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500  # Should not be reachable
+
+    return jsonify({"message": "Node successfully modified"}), 200
+
+
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['POST'])
 def modify_node(project, hlistid, nodeid):
@@ -359,6 +369,7 @@ def modify_node(project, hlistid, nodeid):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
+    nodetochange = None
     try:
         hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
         nodetochange = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
@@ -366,15 +377,6 @@ def modify_node(project, hlistid, nodeid):
         return jsonify({"message": str(error)}), 404
     except OldapError as error:
         return jsonify({"message": str(error)}), 500 # Should not be reachable
-
-    try:
-        hlist.update()
-    except OldapErrorNoPermission as error:
-        return jsonify({"message": str(error)}), 403
-    except OldapError as error:
-        return jsonify({"message": str(error)}), 500  # Should not be reachable
-
-    return jsonify({"message": "Hlist successfully modified"}), 200
 
 
     for attrname, attrval in data.items():

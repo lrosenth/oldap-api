@@ -19,7 +19,7 @@ def test_read_permissionset(client, token_headers, testpermissionset):
     assert re.match(iso_datetime_regex, res['modified'])
     assert res['definedByProject'] == 'oldap:SystemProject'
     assert res['permissionSetId'] == 'testpermissionset'
-    assert res ['givesPermission'] == 'oldap:DATA_UPDATE'
+    assert res ['givesPermission'] == 'DATA_UPDATE'
     assert set(res['label']) == {'testPerm@en', 'test@de'}
     assert set(res['comment']) == {'For testing@en', 'Für Tests@de'}
 
@@ -42,7 +42,7 @@ def test_read_permissionset_by_iri(client, token_headers, testpermissionset):
     assert re.match(iso_datetime_regex, res['modified'])
     assert res['definedByProject'] == 'oldap:SystemProject'
     assert res['permissionSetId'] == 'testpermissionset'
-    assert res ['givesPermission'] == 'oldap:DATA_UPDATE'
+    assert res ['givesPermission'] == 'DATA_UPDATE'
     assert set(res['label']) == {'testPerm@en', 'test@de'}
     assert set(res['comment']) == {'For testing@en', 'Für Tests@de'}
 

@@ -1,7 +1,7 @@
 from pprint import pprint
 
 
-def test_modify_node(client, token_headers, testfullhlist):
+def test_modify_node_01(client, token_headers, testfullhlist):
     header = token_headers[1]
 
     response = client.post('/admin/hlist/hyha/testfullhlist/nodeA', json={
@@ -17,6 +17,9 @@ def test_modify_node(client, token_headers, testfullhlist):
     assert res[0]["oldapListNodeId"] == 'nodeA'
     assert res[0]["definition"] == ["gaga@en"]
     assert res[0]["prefLabel"] == ['kappa@de']
+
+def test_modify_node_02(client, token_headers, testfullhlist):
+    header = token_headers[1]
 
     response = client.post('/admin/hlist/hyha/testfullhlist/nodeBB', json={
         "prefLabel": {"add": ["KAPPA1234@zu"]}
