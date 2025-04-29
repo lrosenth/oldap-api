@@ -2348,6 +2348,485 @@ paths:
                     type: string
 
 
+  /admin/hlist/{project}/{hlistid}:
+    put:
+      summary:
+        Viewfunction to create an empty hierarchical list. A JSON is expected that has the following form.
+      description:
+        Creates an empty hierarchical list. Later to be filled with nodes.
+      parameters:
+        - name: project
+          description: The Name of the project where the h-list sould be located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  $ref: '#/components/schemas/LangString'
+                  description: A label for the h-list.
+                definition:
+                  $ref: '#/components/schemas/LangString'
+                  description: The skos:definition of the h-list that describes the concept of the elements of the h-list.
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Hierarchical list successfully created"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha" not found.'
+        409:
+          description: "Userid or useriri already exists"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "A list with a oldapListIri 'hyha:testhlist' already exists"
+        500:
+          description: "Internal Server error. Should not be reachable"
+    get:
+      summary: Read a hierarchical list.
+      description:
+        Viewfunction to get the information about a hierarchical of a project. A (hierarchical) ordered List of all the nodes will be delivered.
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with the hierarchical list.
+          content:
+            application/json:
+              example:
+                - contributor: https://orcid.org/0000-0003-1681-4036
+                  created: '2025-04-25T17:39:56.637331+02:00'
+                  creator: https://orcid.org/0000-0003-1681-4036
+                  definition:
+                    - testrootnodedefinition@en
+                  modified: '2025-04-25T17:39:56.637331+02:00'
+                  oldapListNodeId: nodeA
+                  prefLabel:
+                    - testrootnodelabel@en
+                - contributor: https://orcid.org/0000-0003-1681-4036
+                  created: '2025-04-25T17:39:57.974365+02:00'
+                  creator: https://orcid.org/0000-0003-1681-4036
+                  definition:
+                    - testrootnodedefinition@en
+                  modified: '2025-04-25T17:39:57.974365+02:00'
+                  nodes:
+                    - contributor: https://orcid.org/0000-0003-1681-4036
+                      created: '2025-04-25T17:39:58.331659+02:00'
+                      creator: https://orcid.org/0000-0003-1681-4036
+                      definition:
+                        - testrootnodedefinition@en
+                      modified: '2025-04-25T17:39:58.331659+02:00'
+                      oldapListNodeId: nodeBA
+                      prefLabel:
+                        - testrootnodelabel@en
+                  oldapListNodeId: nodeB
+                  prefLabel:
+                    - testrootnodelabel@en
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+
+
+  /admin/hlist/{project}/{hlistid}/{nodeid}:
+    put:
+      summary: Adds a new node to an existing hlist
+      description: |
+        Viewfunction to add a new node to an existing hierarchical list. A JSON is expected that has the following form.
+        Note: if the position is "root", then "refnode" must be omitted.
+        
+        Example JSON:
+        {
+          "label": ["testrootnodelabel@en"],
+          "definition": ["testrootnodedefinition@en"],
+          "position": "leftOf",
+          "refnode": "nodeA"
+        }
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: nodeid
+          description: The id of the node that will be added
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - label
+                    - definition
+                    - position
+                    - refnode
+                  properties:
+                    label:
+                      $ref: '#/components/schemas/LangString'
+                      description: A label for the h-list.
+                    definition:
+                      $ref: '#/components/schemas/LangString'
+                      description: The skos:definition of the node that describes the concept of the node-element.
+                    position:
+                      description: The position relative to another node.
+                      type: string
+                      enum:
+                        - belowOf
+                        - leftOf
+                        - rightOf
+                      example: leftOf
+                    refnode:
+                      description: The nodeid of the target node
+                      type: string
+                      example: "nodeA"
+                - type: object
+                  required:
+                    - label
+                    - definition
+                    - position
+                  properties:
+                    label:
+                      $ref: '#/components/schemas/LangString'
+                      description: A label for the h-list.
+                    definition:
+                      $ref: '#/components/schemas/LangString'
+                      description: The skos:definition of the node that describes the concept of the node-element.
+                    position:
+                      description: The node is inserted as a new root node.
+                      type: string
+                      enum:
+                        - root
+                      example: root
+            example:
+              label:
+                - "testrootnodelabel@en"
+              definition:
+                - "testrootnodedefinition@en"
+              position: "leftOf"
+              refnode: "nodeA"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Node successfully created"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+        409:
+          description: Resource already exists
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'A root node for "hyha:testhlist" already exists'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+    delete:
+      summary: Deletes a node inside a hierarchical list
+      description: |
+        Viewfunction that deletes a node from the hierarchical list
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: nodeid
+          description: The id of the node that should be deleted
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Node successfully deleted"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+        409:
+          description: Resource already exists
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Cannot delete node with skos:broaderTransitive pointing to it!'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+    post:
+      summary: Moves a node inside a hierarchical list
+      description: |
+        Viewfunction that moves a node inside the hierarchical list from one place to another.
+        When there are any number of nodes below the node one wish to move, they get moved automatically alongside the other node.
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: nodeid
+          description: The id of the node that should be deleted
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - leftOf
+                  properties:
+                    leftOf:
+                      type: string
+                      description: The id of the target node to the left of which the node will be moved
+                - type: object
+                  required:
+                    - rightOf
+                  properties:
+                    rightOf:
+                      type: string
+                      description: The id of the target node to the right of which the node will be moved
+                - type: object
+                  required:
+                    - belowOf
+                  properties:
+                    belowOf:
+                      type: string
+                      description: The id of the target node below which the node will be moved
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Node successfully moved"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+        409:
+          description: Resource already exists
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Cannot move node to target node that is part of the tree to be moved!'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+
 
 
 components:

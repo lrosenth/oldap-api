@@ -25,6 +25,17 @@ hierarchical_list_bp = Blueprint('hlist', __name__, url_prefix='/admin')
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['PUT'])
 def create_empty_hlist(project, hlistid):
+    """
+    Viewfunction to create an empty hierarchical list. A JSON is expected that has the following form.
+    json={
+        "label": ["testlabel@en"],
+        "definition": ["testdefinition@en"]
+    }
+    :param project: The project where the hierarchical list should be created
+    :param hlistid: The id of the hierarchical list
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Hierarchical list successfully created"}
+    """
     known_json_fields = {"label", "definition"}
     mandatory_json_fields = {"label"}
 
@@ -73,6 +84,34 @@ def create_empty_hlist(project, hlistid):
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['GET'])
 def read_hlist(project, hlistid):
+    """
+    Viewfunction to read an existing hierarchical list.
+    :param project: The project where the hierarchical list should be created
+    :param hlistid: The id of the hierarchical list
+    :return: A list containing the ordered node structure of the hierarchical list e.g.
+    [{'contributor': 'https://orcid.org/0000-0003-1681-4036',
+      'created': '2025-04-25T17:39:56.637331+02:00',
+      'creator': 'https://orcid.org/0000-0003-1681-4036',
+      'definition': ['testrootnodedefinition@en'],
+      'modified': '2025-04-25T17:39:56.637331+02:00',
+      'oldapListNodeId': 'nodeA',
+      'prefLabel': ['testrootnodelabel@en']},
+      {'contributor': 'https://orcid.org/0000-0003-1681-4036',
+                        'created': '2025-04-25T17:39:57.974365+02:00',
+                        'creator': 'https://orcid.org/0000-0003-1681-4036',
+                        'definition': ['testrootnodedefinition@en'],
+                        'modified': '2025-04-25T17:39:57.974365+02:00',
+                        'nodes': [{'contributor': 'https://orcid.org/0000-0003-1681-4036',
+                                   'created': '2025-04-25T17:39:58.331659+02:00',
+                                   'creator': 'https://orcid.org/0000-0003-1681-4036',
+                                   'definition': ['testrootnodedefinition@en'],
+                                   'modified': '2025-04-25T17:39:58.331659+02:00',
+                                   'oldapListNodeId': 'nodeBA',
+                                   'prefLabel': ['testrootnodelabel@en']}],
+                        'oldapListNodeId': 'nodeB',
+                        'prefLabel': ['testrootnodelabel@en']},
+    ]
+    """
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -96,6 +135,21 @@ def read_hlist(project, hlistid):
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['PUT'])
 def add_node(project, hlistid, nodeid):
+    """
+    Viewfunction to add a new node to an existing hierarchical list. A JSON is expected that has the following form.
+    Note: if the position is "root", then "refnode" must be omitted. Allowed positions are root, leftOf, rightOf, belowOf.
+    json= {
+      "label": ["testrootnodelabel@en"],
+      "definition": ["testrootnodedefinition@en"],
+      "position": "leftOf",
+      "refnode": "nodeA"
+    }
+    :param project: The project where the hierarchical list is located to add the node to.
+    :param hlistid: The id of the hierarchical list
+    :param nodeid: the id of the node to add
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Node successfully created"}
+    """
     known_json_fields = {"label", "definition", "position", "refnode"}
     mandatory_json_fields = {"label", "position"}
 
@@ -176,6 +230,14 @@ def add_node(project, hlistid, nodeid):
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['DELETE'])
 def del_node(project, hlistid, nodeid):
+    """
+    Viewfunction that deletes a node from the hierarchical list
+    :param project: The project where the node should be deleted
+    :param hlistid: The id of the hierarchical list
+    :param nodeid: the id of the node to delete
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Node successfully deleted"}
+    """
     known_querry_fields = {"recursive"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -231,6 +293,19 @@ def del_node(project, hlistid, nodeid):
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>/move', methods=['POST'])
 def move_node(project, hlistid, nodeid):
+    """
+    Viewfunction that moves a node inside the hierarchical list from one place to another.
+    When there are any number of nodes below the node one wish to move, they get moved automatically alongside the other node. Allowed directions are belowOf, leftOf and rightOf.
+    A JSON is expected that has the following form:
+    json={
+    "direction": "targetnode"
+    }
+    :param project: The project where the node should be moved
+    :param hlistid: The id of the hierarchical list
+    :param nodeid: the id of the node to move
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Node successfully moved"}
+    """
     known_json_fields = {"leftOf", "belowOf", "rightOf"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -286,6 +361,12 @@ def move_node(project, hlistid, nodeid):
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['POST'])
 def modify_hlist(project, hlistid):
+    """
+
+    :param project:
+    :param hlistid:
+    :return:
+    """
     known_json_fields = {"prefLabel", "definition"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -349,6 +430,13 @@ def modify_hlist(project, hlistid):
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['POST'])
 def modify_node(project, hlistid, nodeid):
+    """
+
+    :param project:
+    :param hlistid:
+    :param nodeid:
+    :return:
+    """
     known_json_fields = {"prefLabel", "definition"}
     out = request.headers['Authorization']
     b, token = out.split()

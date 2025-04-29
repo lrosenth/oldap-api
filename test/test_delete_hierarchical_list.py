@@ -77,7 +77,8 @@ def test_del_hlist_node_non_recursively_but_still_nodes_attached(client, token_h
     response = client.delete('/admin/hlist/hyha/testfullhlist/nodeBB', query_string={
         "recursive": False
     }, headers=header)
-
+    res = response.get_json()
+    print(res)
     assert response.status_code == 409
 
 def test_node_to_delete_not_found(client, token_headers, testfullhlist):
