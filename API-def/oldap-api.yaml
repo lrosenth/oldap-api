@@ -1171,6 +1171,15 @@ paths:
                   message:
                     type: string
                     example: 'No permission set "oldap:nonexistingproject"'
+        409:
+          description: "Conflict"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Permission set is still assigned to data objects'
         500:
           description: "Internal Server error. Should not be reachable"
           content:

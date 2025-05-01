@@ -19,7 +19,7 @@ from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.permissionsetattr import PermissionSetAttr
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
-    OldapErrorValue, OldapErrorNotFound, OldapErrorUpdateFailed, OldapErrorKey, OldapErrorInconsistency
+    OldapErrorValue, OldapErrorNotFound, OldapErrorUpdateFailed, OldapErrorKey, OldapErrorInconsistency, OldapErrorInUse
 from oldaplib.src.permissionset import PermissionSet
 
 from helpers.process_langstring import process_langstring
@@ -222,6 +222,8 @@ def delete_permissionset(definedByProject, permissionSetId):
         ps.delete()
     except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
+    except OldapErrorInUse as error:  # PermissionSet is still in use (assigned to user or resource)
+        return jsonify({'message': str(error)}), 409
     except OldapError as error:  # Should not be reachable!
         return jsonify({'message': str(error)}), 500
 
