@@ -427,7 +427,6 @@ def modify_hlist(project, hlistid):
     return jsonify({"message": "Node successfully modified"}), 200
 
 
-
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['POST'])
 def modify_node(project, hlistid, nodeid):
     """
@@ -498,6 +497,95 @@ def modify_node(project, hlistid, nodeid):
         return jsonify({"message": str(error)}), 500  # Should not be reachable
 
     return jsonify({"message": "Node successfully modified"}), 200
+
+
+@hierarchical_list_bp.route('/hlist/search', methods=['GET'])
+def hlist_search():
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    known_query_fields = {"project", "hlist", "prefLabel", "definition", "exactMatch"}
+
+    if request.args:
+        unknown_query_field = set(request.args.keys() - known_query_fields)
+    else:
+        unknown_query_field = set()
+    if unknown_query_field:
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for hlists. Usable are {known_query_fields}. Aborted operation"}), 400
+    project = request.args.get('project', None)
+    hlist = request.args.get('hlist', None)
+    prefLabel = request.args.get('givenName', None)
+    definition = request.args.get('inProject', None)
+    exactMatch = request.args.get('exactMatch', False)
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        hlists = OldapList.search(con=con,
+                                  project=project,
+                                  id=hlist,
+                                  prefLabel=prefLabel,
+                                  definition=definition,
+                                  exactMatch=exactMatch)
+    except OldapError as error:
+        return jsonify({"message": f"Search failed: {str(error)}"}), 400
+    return jsonify([str(x) for x in hlists]), 200
+
+
+@hierarchical_list_bp.route('/hlist/get', methods=['GET'])
+def hlist_get_by_iri():
+    out = request.headers['Authorization']
+    b, token = out.split()
+    if not request.args:
+        return jsonify({"message": f"Query parameter 'iri' expected – got none"}), 400
+
+    known_query_fields = {"iri"}
+    unknown_query_field = set(request.args.keys() - known_query_fields)
+    if unknown_query_field:
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to get a user by iri. Use {known_query_fields}. Aborted operation"}), 400
+    hlistIri = request.args.get('iri', None)
+    [projectId, hlistId] = hlistIri.split(":")
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        hlist = OldapList.read(con=con, project=projectId, oldapListId=hlistId)
+    except OldapErrorNotFound as error:
+        return jsonify({"message": f'Hlist {hlistIri} not found'}), 404
+    except OldapError as error:
+        return jsonify({"message": f'Error reading {hlistIri}'}), 400
+
+    # Building the response json
+    answer = {
+        "hlistId": str(hlist.oldapListId),
+        "hlistIri": str(hlist.oldapList_iri),
+        "creator": str(hlist.creator),
+        "created": str(hlist.created),
+        "contributor": str(hlist.contributor),
+        "modified": str(hlist.modified),
+        "nodeNamespaceIri": str(hlist.node_namespaceIri),
+        "nodeClassIri": str(hlist.node_class_iri)
+    }
+    if hlist.prefLabel:
+        answer['prefLabel'] = [f'{value}@{lang.name.lower()}' for lang, value in hlist.prefLabel.items()]
+    if hlist.definition:
+        answer['definition'] = [f'{value}@{lang.name.lower()}' for lang, value in hlist.definition.items()]
+
+
+    return jsonify(answer), 200
+
 
 
 

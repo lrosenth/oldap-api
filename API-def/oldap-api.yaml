@@ -2455,9 +2455,17 @@ paths:
             type: string
       responses:
         '200':
-          description: Successful response with the hierarchical list.
+          description: Successful response with the hierarchical list. This call loads the complete list!
           content:
             application/json:
+              schema:
+                oneOf:
+                  - type: object
+                  - type: array
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  - type: null
               example:
                 - contributor: https://orcid.org/0000-0003-1681-4036
                   created: '2025-04-25T17:39:56.637331+02:00'
@@ -2487,6 +2495,7 @@ paths:
                   oldapListNodeId: nodeB
                   prefLabel:
                     - testrootnodelabel@en
+
         403:
           description: "Unauthorized"
           content:
@@ -2835,7 +2844,147 @@ paths:
                   message:
                     type: string
 
+  /admin/hlist/search:
+    get:
+      summary: "Searches for given user"
+      description: "Search for a given user"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: query
+          name: project
+          schema:
+            type: string
+          description: "Project shortname or IRI"
+          required: false
+        - in: query
+          name: hlist
+          schema:
+            type: string
+          description: "ID of hlist"
+          required: false
+        - in: query
+          name: prefLabel
+          schema:
+            type: string
+          description: "SKOS preferred label (may be LangString, e.g. mylabel@en)"
+          required: false
+        - in: query
+          name: definition
+          schema:
+            type: string
+          description: "SKOS definition (may be Langstring, e.g. mydesc@en"
+          required: false
+        - in: query
+          name: exactMatch
+          schema:
+            type: boolean
+          description: "If true, an exact match is required"
+          required: false
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: ['https://orcid.org/0000-0003-1681-4036', 'https://orcid.org/0000-0003-1485-4923', 'https://orcid.org/0000-0001-9277-3921']
+        400:
+          description: "Several Errors that involve bad requests"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Expected JSON, received something else//Either label or comment needs to be provided"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
 
+  /admin/hlist/get:
+    get:
+      summary: "Get hlist by iri"
+      description: "Get all hlist data from the hlist iri"
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: query
+          name: iri
+          schema:
+            type: string
+          description: Iri of hlist
+          required:
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  hlistIri:
+                    type: string
+                    description: An Iri or a QName identifying the hlist
+                  creator:
+                    type: string
+                    description: An Iri or QName describing the user
+                  created:
+                    type: string
+                    format: date
+                    description: Creation date of this project
+                  contributor:
+                    type: string
+                    description: An Iri or QName describing the user
+                  modified:
+                    type: string
+                    format: date
+                    description: Last modification date of project
+                  hlistId:
+                    type: string
+                    description: The hlist ID as sting
+                  prefLabel:
+                    $ref: '#/components/schemas/LangString'
+                  definition:
+                    $ref: '#/components/schemas/LangString'
+                  nodeNamespaceIri:
+                    type: string
+                  nodeClassIri:
+                    type: string
+        400:
+          description: "Unspecified error"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Connection failed: {OldapError}"
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Hlist with IRI "hlistdoesnotexist" not found.'
 
 
 components:
