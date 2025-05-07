@@ -1,11 +1,11 @@
 from pprint import pprint
 
-def build_tree(nodes):
+def build_tree(hlist):
     tree = {}
-    for node in nodes:
+    for node in hlist['nodes']:
         node_id = node.get('oldapListNodeId')
         if 'nodes' in node:
-            tree[node_id] = build_tree(node['nodes'])
+            tree[node_id] = build_tree(node)
         else:
             tree[node_id] = []
     return tree

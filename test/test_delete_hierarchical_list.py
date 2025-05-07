@@ -1,12 +1,12 @@
 from pprint import pprint
 
 # Funktion zum Durchsuchen der Liste (rekursiv)
-def extract_oldapListNodeIds(nodes, found_nodes):
-    for node in nodes:
+def extract_oldapListNodeIds(hlist, found_nodes):
+    for node in hlist['nodes']:
         if "oldapListNodeId" in node:
             found_nodes.add(node["oldapListNodeId"])
         if "nodes" in node:
-            extract_oldapListNodeIds(node["nodes"], found_nodes)
+            extract_oldapListNodeIds(node, found_nodes)
 
 
 def test_del_hlist_node_recursively(client, token_headers, testfullhlist):

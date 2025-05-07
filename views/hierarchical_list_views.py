@@ -125,13 +125,14 @@ def read_hlist(project, hlistid):
     try:
         oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
         hlist = get_nodes_from_list(con=con, oldapList=oldaplist)
+        oldaplist.nodes = hlist
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500 # Should not be reachable
 
     #return json.dumps(hlist, cls=SpecialEncoder), 200
-    return Response(json.dumps(hlist, cls=SpecialEncoder), mimetype="application/json"), 200
+    return Response(json.dumps(oldaplist, cls=SpecialEncoder), mimetype="application/json"), 200
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['PUT'])
 def add_node(project, hlistid, nodeid):

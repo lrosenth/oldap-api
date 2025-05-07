@@ -116,12 +116,12 @@ def test_create_root_node(client, token_headers, testemptyhlist):
 
     response = client.get('/admin/hlist/hyha/testhlist', headers=header)
     res = response.json
-    assert len(res) == 3
-    assert res[0]["prefLabel"] == ["testrootnodelabel@en"]
-    assert res[0]["definition"] == ["testrootnodedefinition@en"]
-    assert res[0]["oldapListNodeId"] == "nodeB"
-    assert res[1]["oldapListNodeId"] == "nodeC"
-    assert res[2]["oldapListNodeId"] == "nodeA"
+    assert len(res['nodes']) == 3
+    assert res['nodes'][0]["prefLabel"] == ["testrootnodelabel@en"]
+    assert res['nodes'][0]["definition"] == ["testrootnodedefinition@en"]
+    assert res['nodes'][0]["oldapListNodeId"] == "nodeB"
+    assert res['nodes'][1]["oldapListNodeId"] == "nodeC"
+    assert res['nodes'][2]["oldapListNodeId"] == "nodeA"
 
 def test_bad_create_root_node(client, token_headers, testemptyhlist):
     header = token_headers[1]
@@ -229,8 +229,8 @@ def test_create_below_node(client, token_headers, testemptyhlist):
     response = client.get('/admin/hlist/hyha/testhlist', headers=header)
     res = response.json
     pprint(res)
-    assert res[0]["oldapListNodeId"] == "nodeA"
-    assert res[0]["nodes"][0]["oldapListNodeId"] == "nodeB"
+    assert res['nodes'][0]["oldapListNodeId"] == "nodeA"
+    assert res['nodes'][0]["nodes"][0]["oldapListNodeId"] == "nodeB"
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeC', json={
         "label": 1234,
