@@ -134,6 +134,40 @@ def read_hlist(project, hlistid):
     #return json.dumps(hlist, cls=SpecialEncoder), 200
     return Response(json.dumps(oldaplist, cls=SpecialEncoder), mimetype="application/json"), 200
 
+@hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['GET'])
+def get_node(project, hlistid, nodeid):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+        node = OldapListNode.read(con=con,
+                                  oldapList=hlist,
+                                  oldapListNodeId=nodeid)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 403
+    res = {
+        'nodeid': str(node.oldapListNodeId),
+        'creator': str(node.creator),
+        'created': str(node.created),
+        'contributor': str(node.contributor),
+        'modified': str(node.modified),
+        **({'prefLabel': [f'{value}@{lang.name.lower()}' for lang, value in node.prefLabel.items()]} if node.prefLabel else {}),
+        **({'definition': [f'{value}@{lang.name.lower()}' for lang, value in node.definition.items()]} if node.definition else {}),
+    }
+    return res, 200
+
+
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['PUT'])
 def add_node(project, hlistid, nodeid):
     """
@@ -570,14 +604,14 @@ def hlist_get_by_iri():
 
     # Building the response json
     answer = {
-        "hlistId": str(hlist.oldapListId),
-        "hlistIri": str(hlist.oldapList_iri),
+        "oldapListId": str(hlist.oldapListId),
+        "iri": str(hlist.iri),
         "creator": str(hlist.creator),
         "created": str(hlist.created),
         "contributor": str(hlist.contributor),
         "modified": str(hlist.modified),
         "nodeNamespaceIri": str(hlist.node_namespaceIri),
-        "nodeClassIri": str(hlist.node_class_iri)
+        "nodeClassIri": str(hlist.node_classIri)
     }
     if hlist.prefLabel:
         answer['prefLabel'] = [f'{value}@{lang.name.lower()}' for lang, value in hlist.prefLabel.items()]

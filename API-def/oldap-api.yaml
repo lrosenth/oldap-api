@@ -2433,7 +2433,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "A list with a oldapListIri 'hyha:testhlist' already exists"
+                    example: "A list with a iri 'hyha:testhlist' already exists"
         500:
           description: "Internal Server error. Should not be reachable"
     get:
@@ -2519,6 +2519,71 @@ paths:
 
 
   /admin/hlist/{project}/{hlistid}/{nodeid}:
+    get:
+      summary: Get the information of the given hlist node
+      description: |
+        Viewfunction to retrieve all informnation of the given node
+      parameter:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: nodeid
+          description: The id of the node that will be added
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  nodeid:
+                    type: string
+                  creator:
+                    type: string
+                  created:
+                    type: string
+                    format: date-time
+                  contributor:
+                    type: string
+                  modified:
+                    type: string
+                    format: date-time
+                  prefLabel:
+                    $ref: '#/components/schemas/LangString'
+                  description:
+                    $ref: '#/components/schemas/LangString'
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Node with id "nodeXX" not found.'
+        403:
+          description: "Invalid data"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Some invalid data transmitted'
+
     put:
       summary: Adds a new node to an existing hlist
       description: |
