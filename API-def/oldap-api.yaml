@@ -2834,11 +2834,25 @@ paths:
             schema:
               properties:
                 prefLabel:
-                  $ref: '#/components/schemas/LangString'
-                  description: A skos:prefLabel for the h-list.
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
                 definition:
-                  $ref: '#/components/schemas/LangString'
-                  description: The skos:definition of the node that describes the concept of the node-element.
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
       responses:
         "200":
           description: "OK"
