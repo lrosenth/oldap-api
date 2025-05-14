@@ -2382,9 +2382,9 @@ paths:
             schema:
               type: object
               properties:
-                label:
+                prefLabel:
                   $ref: '#/components/schemas/LangString'
-                  description: A label for the h-list.
+                  description: A prefLabel for the h-list.
                 definition:
                   $ref: '#/components/schemas/LangString'
                   description: The skos:definition of the h-list that describes the concept of the elements of the h-list.
@@ -2522,7 +2522,7 @@ paths:
     get:
       summary: Get the information of the given hlist node
       description: |
-        Viewfunction to retrieve all informnation of the given node
+        Viewfunction to retrieve all information of the given node
       parameter:
         - name: project
           description: The name of the project where the datamodel is located
@@ -2592,7 +2592,7 @@ paths:
         
         Example JSON:
         {
-          "label": ["testrootnodelabel@en"],
+          "prefLabel": ["testrootnodelabel@en"],
           "definition": ["testrootnodedefinition@en"],
           "position": "leftOf",
           "refnode": "nodeA"
@@ -2624,12 +2624,12 @@ paths:
               oneOf:
                 - type: object
                   required:
-                    - label
+                    - prefLabel
                     - definition
                     - position
                     - refnode
                   properties:
-                    label:
+                    prefLabel:
                       $ref: '#/components/schemas/LangString'
                       description: A label for the h-list.
                     definition:
@@ -2649,11 +2649,11 @@ paths:
                       example: "nodeA"
                 - type: object
                   required:
-                    - label
+                    - prefLabel
                     - definition
                     - position
                   properties:
-                    label:
+                    prefLabel:
                       $ref: '#/components/schemas/LangString'
                       description: A label for the h-list.
                     definition:
@@ -2666,7 +2666,7 @@ paths:
                         - root
                       example: root
             example:
-              label:
+              prefLabel:
                 - "testrootnodelabel@en"
               definition:
                 - "testrootnodedefinition@en"
@@ -2803,6 +2803,89 @@ paths:
                 properties:
                   message:
                     type: string
+
+    post:
+      summary: Modify a node inside a hierarchical list
+      description: |
+        Viewfunction to modify the parameters of a node
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: nodeid
+          description: The id of the node that should be deleted
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                prefLabel:
+                  $ref: '#/components/schemas/LangString'
+                  description: A skos:prefLabel for the h-list.
+                definition:
+                  $ref: '#/components/schemas/LangString'
+                  description: The skos:definition of the node that describes the concept of the node-element.
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Node successfully modified"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha123" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+  /admin/hlist/{project}/{hlistid}/{nodeid}/move:
     post:
       summary: Moves a node inside a hierarchical list
       description: |

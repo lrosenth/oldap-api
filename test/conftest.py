@@ -298,7 +298,7 @@ def testemptyhlist(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/hyha/testhlist', json={
-        "label": ["testlabel@en"],
+        "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=header)
 
@@ -309,74 +309,74 @@ def testfullhlist(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/hyha/testfullhlist', json={
-        "label": ["testlabel@en"],
+        "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeA', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeB', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "rightOf",
         "refnode": "nodeA"
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeC', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "rightOf",
         "refnode": "nodeB"
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBA', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "belowOf",
         "refnode": "nodeB"
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBB', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "rightOf",
         "refnode": "nodeBA"
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBC', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "rightOf",
         "refnode": "nodeBB"
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBA', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "belowOf",
         "refnode": "nodeBB"
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBB', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "rightOf",
         "refnode": "nodeBBA"
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBC', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "rightOf",
         "refnode": "nodeBBB"
     }, headers=header)
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBBA', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "belowOf",
         "refnode": "nodeBBB"

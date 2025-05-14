@@ -5,7 +5,7 @@ def test_create_empty_hlist(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/hyha/testhlist', json={
-        "label": ["testlabel@en"],
+        "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=header)
 
@@ -36,7 +36,7 @@ def test_bad_create_empty_hlist(client, token_headers):
     print(res)
 
     response = client.put('/admin/hlist/hyha/testhlist', json={
-        "label": [],
+        "prefLabel": [],
         "definition": ["testdefinition@en"]
     }, headers=header)
     assert response.status_code == 400
@@ -47,7 +47,7 @@ def test_dm_to_add_empty_hlist_not_found(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/doesnotexist/testhlist', json={
-        "label": ["testlabel@en"],
+        "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=header)
     assert response.status_code == 404
@@ -58,7 +58,7 @@ def test_empty_node_already_exists(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/hyha/testhlist', json={
-        "label": ["testlabel@en"],
+        "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=header)
     assert response.status_code == 200
@@ -66,7 +66,7 @@ def test_empty_node_already_exists(client, token_headers):
     print(res)
 
     response = client.put('/admin/hlist/hyha/testhlist', json={
-        "label": ["testlabel@en"],
+        "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=header)
     assert response.status_code == 409
@@ -86,7 +86,7 @@ def test_create_root_node(client, token_headers, testemptyhlist):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeA', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
@@ -95,7 +95,7 @@ def test_create_root_node(client, token_headers, testemptyhlist):
     assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeB', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "leftOf",
         "refnode": "nodeA"
@@ -105,7 +105,7 @@ def test_create_root_node(client, token_headers, testemptyhlist):
     assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeC', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "rightOf",
         "refnode": "nodeB"
@@ -143,7 +143,7 @@ def test_bad_create_root_node(client, token_headers, testemptyhlist):
     print(res)
 
     response = client.put('/admin/hlist/hyha/testhlist/testrootnode', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "kappa"
     }, headers=header)
@@ -152,7 +152,7 @@ def test_bad_create_root_node(client, token_headers, testemptyhlist):
     print(res)
 
     response = client.put('/admin/hlist/hyha/testhlist/testrootnode', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "leftOf"
     }, headers=header)
@@ -161,7 +161,7 @@ def test_bad_create_root_node(client, token_headers, testemptyhlist):
     print(res)
 
     response = client.put('/admin/hlist/hyha/testhlist/testrootnode', json={
-        "label": [],
+        "prefLabel": [],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
@@ -173,7 +173,7 @@ def test_node_already_exists(client, token_headers, testemptyhlist):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeA', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
@@ -182,7 +182,7 @@ def test_node_already_exists(client, token_headers, testemptyhlist):
     assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeA', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
@@ -197,7 +197,7 @@ def test_dm_to_add_empty_hlist_not_found(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/doesnotexist/testhlist', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
     }, headers=header)
     assert response.status_code == 404
@@ -208,7 +208,7 @@ def test_create_below_node(client, token_headers, testemptyhlist):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeA', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
@@ -217,7 +217,7 @@ def test_create_below_node(client, token_headers, testemptyhlist):
     assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeB', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "belowOf",
         "refnode": "nodeA"
@@ -233,7 +233,7 @@ def test_create_below_node(client, token_headers, testemptyhlist):
     assert res['nodes'][0]["nodes"][0]["oldapListNodeId"] == "nodeB"
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeC', json={
-        "label": 1234,
+        "prefLabel": 1234,
         "definition": ["testrootnodedefinition@en"],
         "position": "belowOf",
         "refnode": "nodeB"
@@ -256,7 +256,7 @@ def test_dm_to_add_node_not_found(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/hlist/hyha/testhlist/nodeB', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
@@ -271,7 +271,7 @@ def test_bad_token(client, token_headers):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.put('/admin/hlist/hyha/testhlist', json={
-        "label": ["testlabel@en"],
+        "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=header)
     assert response.status_code == 403
@@ -279,7 +279,7 @@ def test_bad_token(client, token_headers):
     assert res["message"] == "Connection failed: Wrong credentials"
 
     response = client.put('/admin/hlist/hyha/testhlist/testrootnode', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
@@ -288,7 +288,7 @@ def test_bad_token(client, token_headers):
     assert res["message"] == "Connection failed: Wrong credentials"
 
     response = client.put('/admin/hlist/hyha/testhlist/testrootnode', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
@@ -322,7 +322,7 @@ def test_no_permission(client, token_headers, testemptyhlist):
     }
 
     response2 = client.put('/admin/hlist/hyha/testhlist', json={
-        "label": ["testlabel@en"],
+        "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=headers)
     res2 = response2.json
@@ -330,7 +330,7 @@ def test_no_permission(client, token_headers, testemptyhlist):
     assert response2.status_code == 403
 
     response2 = client.put('/admin/hlist/hyha/testhlist/nodeB', json={
-        "label": ["testrootnodelabel@en"],
+        "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root",
     }, headers=headers)
