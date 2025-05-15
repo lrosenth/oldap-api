@@ -2625,7 +2625,6 @@ paths:
                 - type: object
                   required:
                     - prefLabel
-                    - definition
                     - position
                     - refnode
                   properties:
@@ -2650,7 +2649,6 @@ paths:
                 - type: object
                   required:
                     - prefLabel
-                    - definition
                     - position
                   properties:
                     prefLabel:

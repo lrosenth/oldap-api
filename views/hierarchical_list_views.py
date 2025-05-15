@@ -494,9 +494,9 @@ def modify_node(project, hlistid, nodeid):
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a root node. Usable are {known_json_fields}. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are allowed for modifying a node. Usable are {known_json_fields}. Aborded operation"}), 400
         if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to move a node. Usable for the move-viewfunction are {known_json_fields}"}), 400
+            return jsonify({"message": f"At least one field must be given to modify a node. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
         prefLabel = data.get("prefLabel", "NotSent")
         definition = data.get("definition", "NotSent")
