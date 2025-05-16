@@ -2747,6 +2747,15 @@ paths:
           required: true
           schema:
             type: string
+        - name: recursive
+          in: query
+          required: false
+          description: >
+            If set, delete the node and its children. Interprets any of
+            ["1", "true", "yes", "on"] as true (case-insensitive).
+          schema:
+            type: string
+            enum: ["1", "true", "yes", "on", "0", "false", "no", "off"]
       responses:
         "200":
           description: "OK"
