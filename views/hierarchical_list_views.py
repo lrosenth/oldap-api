@@ -10,7 +10,7 @@ from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.helpers.json_encoder import SpecialEncoder
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
-    OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency, OldapErrorKey, OldapErrorUpdateFailed
+    OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency, OldapErrorKey, OldapErrorUpdateFailed, OldapErrorInUse
 from oldaplib.src.oldaplist import OldapList
 from oldaplib.src.oldaplist_helpers import get_nodes_from_list
 from oldaplib.src.oldaplistnode import OldapListNode
@@ -81,6 +81,30 @@ def create_empty_hlist(project, hlistid):
         return jsonify({"message": "Hierarchical list successfully created"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+@hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['DELETE'])
+def delete_hlist(project, hlistid):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    try:
+        oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
+        oldaplist.delete()
+    except OldapErrorNoPermission as error:
+        return jsonify({'message': str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapErrorInUse as error:
+        return jsonify({'message': str(error)}), 409
+    except OldapError as error:  # Should not be reachable!
+        return jsonify({'message': str(error)}), 500
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['GET'])
 def read_hlist(project, hlistid):
