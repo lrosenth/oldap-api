@@ -1,6 +1,38 @@
 from pprint import pprint
 
 
+def test_modify_hlist_01(client, token_headers, testfullhlist):
+    header = token_headers[1]
+
+    response = client.post('/admin/hlist/hyha/testfullhlist', json={
+        "prefLabel": ["testlabel new@en"],
+        "definition": ["testdefinition new@en"]
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+    response = client.get('/admin/hlist/hyha/testfullhlist', headers=header)
+    res = response.json
+    assert res["definition"] == ["testdefinition new@en"]
+    assert res["prefLabel"] == ["testlabel new@en"]
+
+def test_modify_hlist_02(client, token_headers, testfullhlist):
+    header = token_headers[1]
+
+    response = client.post('/admin/hlist/hyha/testfullhlist', json={
+        "prefLabel": {"add": ["testlabel new@en", "testlabel neu@de"]},
+        "definition": None
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+    response = client.get('/admin/hlist/hyha/testfullhlist', headers=header)
+    res = response.json
+    assert set(res["prefLabel"]) == {"testlabel new@en", "testlabel neu@de"}
+    assert res.get("definition") == None
+
 def test_modify_node_01(client, token_headers, testfullhlist):
     header = token_headers[1]
 

@@ -2436,6 +2436,163 @@ paths:
                     example: "A list with a iri 'hyha:testhlist' already exists"
         500:
           description: "Internal Server error. Should not be reachable"
+
+    post:
+      summary: Change the metadata of a hierarchical list
+      description:
+        Viewfunction to modify the metadata of a hierarchical list
+      parameters:
+        - name: project
+          description: The Name of the project where the h-list sould be located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prefLabel:
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
+                definition:
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Hierarchical list successfully created"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+
+    delete:
+      summary: Delete a hierarchical list
+      description: |
+        Viewfunction to delete an entire hierarchical list including all its nodes. Be careful when using this operation.
+      parameters:
+        - name: project
+          description: The Name of the project where the h-list is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Hierarchical list successfully deleted"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid request format"
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no required permissions'
+        404:
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Hierarchical list not found'
+        409:
+          description: "Conflict"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Cannot delete list that is still in use'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+
     get:
       summary: Read a hierarchical list.
       description:

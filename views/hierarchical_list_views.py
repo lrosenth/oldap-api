@@ -5,12 +5,13 @@ from xmlrpc.client import Boolean
 from flask import Blueprint, request, jsonify, Response
 from oldaplib.src.connection import Connection
 from oldaplib.src.enums.language import Language
+from oldaplib.src.enums.oldaplistattr import OldapListAttr
 from oldaplib.src.enums.oldaplistnodeattr import OldapListNodeAttr
 from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.helpers.json_encoder import SpecialEncoder
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
-    OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency, OldapErrorKey, OldapErrorUpdateFailed
+    OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency, OldapErrorKey, OldapErrorUpdateFailed, OldapErrorInUse
 from oldaplib.src.oldaplist import OldapList
 from oldaplib.src.oldaplist_helpers import get_nodes_from_list
 from oldaplib.src.oldaplistnode import OldapListNode
@@ -133,6 +134,199 @@ def read_hlist(project, hlistid):
 
     #return json.dumps(hlist, cls=SpecialEncoder), 200
     return Response(json.dumps(oldaplist, cls=SpecialEncoder), mimetype="application/json"), 200
+
+@hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['POST'])
+def modify_hlist(project, hlistid):
+    """
+
+    :param project:
+    :param hlistid:
+    :return:
+    """
+    known_json_fields = {"prefLabel", "definition"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.is_json:
+        data = request.get_json()
+        unknown_json_field = set(data.keys()) - known_json_fields
+        if unknown_json_field:
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a root node. Usable are {known_json_fields}. Aborded operation"}), 400
+        if not set(data.keys()):
+            return jsonify({"message": f"At least one field must be given to move a node. Usable for the move-viewfunction are {known_json_fields}"}), 400
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+    except OldapErrorNotFound as error:
+        return jsonify({"message": str(error)}), 404
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500 # Should not be reachable
+
+    for attrname, attrval in data.items():
+        if attrname == "prefLabel":
+            try:
+                process_langstring(hlist, OldapListAttr.PREF_LABEL, attrval, hlist.notifier)
+            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                return jsonify({"message": str(error)}), 400
+            except OldapError as error:
+                return jsonify({"message": str(error)}), 500
+            continue
+
+        if attrname == "definition":
+            try:
+                process_langstring(hlist, OldapListAttr.DEFINITION, attrval, hlist.notifier)
+            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
+                return jsonify({"message": str(error)}), 400
+            except OldapError as error:
+                return jsonify({"message": str(error)}), 500
+            continue
+
+        if attrval is None:
+            delattr(property, attrname)
+        continue
+
+    try:
+        hlist.update()
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500  # Should not be reachable
+
+    return jsonify({"message": "Node successfully modified"}), 200
+
+
+@hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['DELETE'])
+def delete_hlist(project, hlistid):
+    """
+    Delete a hierarchical list with the given id.
+    :param project: The project where the hierarchical list is located to add the node to.
+    :param hlistid: The id of the hierarchical list
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "Node successfully created"}
+    """
+    out = request.headers['Authorization']
+    b, token = out.split()
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+    except OldapErrorNotFound as error:
+        return jsonify({"message": str(error)}), 404
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500 # Should not be reachable
+
+    try:
+        hlist.delete()
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapErrorInUse as error:
+        return jsonify({"message": str(error)}), 409
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500 # Should not be reachable
+
+    return jsonify({"message": "Hierarchical list successfully deleted"}), 200
+
+
+@hierarchical_list_bp.route('/hlist/search', methods=['GET'])
+def hlist_search():
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    known_query_fields = {"project", "hlist", "prefLabel", "definition", "exactMatch"}
+
+    if request.args:
+        unknown_query_field = set(request.args.keys() - known_query_fields)
+    else:
+        unknown_query_field = set()
+    if unknown_query_field:
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for hlists. Usable are {known_query_fields}. Aborted operation"}), 400
+    project = request.args.get('project', None)
+    hlist = request.args.get('hlist', None)
+    prefLabel = request.args.get('prefLabel', None)
+    definition = request.args.get('definition', None)
+    exactMatch = request.args.get('exactMatch', False)
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        hlists = OldapList.search(con=con,
+                                  project=project,
+                                  id=hlist,
+                                  prefLabel=prefLabel,
+                                  definition=definition,
+                                  exactMatch=exactMatch)
+    except OldapError as error:
+        return jsonify({"message": f"Search failed: {str(error)}"}), 400
+    return jsonify([str(x) for x in hlists]), 200
+
+
+@hierarchical_list_bp.route('/hlist/get', methods=['GET'])
+def hlist_get_by_iri():
+    out = request.headers['Authorization']
+    b, token = out.split()
+    if not request.args:
+        return jsonify({"message": f"Query parameter 'iri' expected – got none"}), 400
+
+    known_query_fields = {"iri"}
+    unknown_query_field = set(request.args.keys() - known_query_fields)
+    if unknown_query_field:
+        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to get a user by iri. Use {known_query_fields}. Aborted operation"}), 400
+    hlistIri = request.args.get('iri', None)
+    [projectId, hlistId] = hlistIri.split(":")
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        hlist = OldapList.read(con=con, project=projectId, oldapListId=hlistId)
+    except OldapErrorNotFound as error:
+        return jsonify({"message": f'Hlist {hlistIri} not found'}), 404
+    except OldapError as error:
+        return jsonify({"message": f'Error reading {hlistIri}'}), 400
+
+    # Building the response json
+    answer = {
+        "oldapListId": str(hlist.oldapListId),
+        "iri": str(hlist.iri),
+        "creator": str(hlist.creator),
+        "created": str(hlist.created),
+        "contributor": str(hlist.contributor),
+        "modified": str(hlist.modified),
+        "nodeNamespaceIri": str(hlist.node_namespaceIri),
+        "nodeClassIri": str(hlist.node_classIri)
+    }
+    if hlist.prefLabel:
+        answer['prefLabel'] = [f'{value}@{lang.name.lower()}' for lang, value in hlist.prefLabel.items()]
+    if hlist.definition:
+        answer['definition'] = [f'{value}@{lang.name.lower()}' for lang, value in hlist.definition.items()]
+
+    return jsonify(answer), 200
+
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['GET'])
 def get_node(project, hlistid, nodeid):
@@ -320,6 +514,8 @@ def del_node(project, hlistid, nodeid):
             return jsonify({"message": str(error)}), 403
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
+        except OldapErrorInUse as error:
+            return jsonify({"message": str(error)}), 409
         except OldapErrorInconsistency as error:
             return jsonify({"message": str(error)}), 409
         except OldapError as error:  # should not be reachable
@@ -333,8 +529,10 @@ def del_node(project, hlistid, nodeid):
             return jsonify({"message": str(error)}), 403
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
+        except OldapErrorInUse as error:
+            return jsonify({"message": str(error)}), 409
         except OldapErrorInconsistency as error:
-            return jsonify({"message": str(error)}), 409 # should not be reachable
+            return jsonify({"message": str(error)}), 409
         except OldapError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 500
 
@@ -409,73 +607,6 @@ def move_node(project, hlistid, nodeid):
         return jsonify({"message": str(error)}), 500 # should not be reachable
     return jsonify({"message": "Node successfully moved"}), 200
 
-@hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['POST'])
-def modify_hlist(project, hlistid):
-    """
-
-    :param project:
-    :param hlistid:
-    :return:
-    """
-    known_json_fields = {"prefLabel", "definition"}
-    out = request.headers['Authorization']
-    b, token = out.split()
-
-    if request.is_json:
-        data = request.get_json()
-        unknown_json_field = set(data.keys()) - known_json_fields
-        if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a root node. Usable are {known_json_fields}. Aborded operation"}), 400
-        if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to move a node. Usable for the move-viewfunction are {known_json_fields}"}), 400
-
-    try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-
-    try:
-        hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
-    except OldapErrorNotFound as error:
-        return jsonify({"message": str(error)}), 404
-    except OldapError as error:
-        return jsonify({"message": str(error)}), 500 # Should not be reachable
-
-    for attrname, attrval in data.items():
-        if attrname == "prefLabel":
-            try:
-                process_langstring(hlist, OldapListNodeAttr.PREF_LABEL, attrval, hlist.notifier)
-            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
-                return jsonify({"message": str(error)}), 400
-            except OldapError as error:
-                return jsonify({"message": str(error)}), 500
-            continue
-
-        if attrname == "definition":
-            try:
-                process_langstring(hlist, OldapListNodeAttr.DEFINITION, attrval, hlist.notifier)
-            except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
-                return jsonify({"message": str(error)}), 400
-            except OldapError as error:
-                return jsonify({"message": str(error)}), 500
-            continue
-
-        if attrval is None:
-            delattr(property, attrname)
-        continue
-
-    try:
-        hlist.update()
-    except OldapErrorNoPermission as error:
-        return jsonify({"message": str(error)}), 403
-    except OldapError as error:
-        return jsonify({"message": str(error)}), 500  # Should not be reachable
-
-    return jsonify({"message": "Node successfully modified"}), 200
-
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['POST'])
 def modify_node(project, hlistid, nodeid):
@@ -542,93 +673,6 @@ def modify_node(project, hlistid, nodeid):
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
-
-@hierarchical_list_bp.route('/hlist/search', methods=['GET'])
-def hlist_search():
-    out = request.headers['Authorization']
-    b, token = out.split()
-
-    known_query_fields = {"project", "hlist", "prefLabel", "definition", "exactMatch"}
-
-    if request.args:
-        unknown_query_field = set(request.args.keys() - known_query_fields)
-    else:
-        unknown_query_field = set()
-    if unknown_query_field:
-        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for hlists. Usable are {known_query_fields}. Aborted operation"}), 400
-    project = request.args.get('project', None)
-    hlist = request.args.get('hlist', None)
-    prefLabel = request.args.get('prefLabel', None)
-    definition = request.args.get('definition', None)
-    exactMatch = request.args.get('exactMatch', False)
-
-    try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-
-    try:
-        hlists = OldapList.search(con=con,
-                                  project=project,
-                                  id=hlist,
-                                  prefLabel=prefLabel,
-                                  definition=definition,
-                                  exactMatch=exactMatch)
-    except OldapError as error:
-        return jsonify({"message": f"Search failed: {str(error)}"}), 400
-    return jsonify([str(x) for x in hlists]), 200
-
-
-@hierarchical_list_bp.route('/hlist/get', methods=['GET'])
-def hlist_get_by_iri():
-    out = request.headers['Authorization']
-    b, token = out.split()
-    if not request.args:
-        return jsonify({"message": f"Query parameter 'iri' expected – got none"}), 400
-
-    known_query_fields = {"iri"}
-    unknown_query_field = set(request.args.keys() - known_query_fields)
-    if unknown_query_field:
-        return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to get a user by iri. Use {known_query_fields}. Aborted operation"}), 400
-    hlistIri = request.args.get('iri', None)
-    [projectId, hlistId] = hlistIri.split(":")
-
-    try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-
-    try:
-        hlist = OldapList.read(con=con, project=projectId, oldapListId=hlistId)
-    except OldapErrorNotFound as error:
-        return jsonify({"message": f'Hlist {hlistIri} not found'}), 404
-    except OldapError as error:
-        return jsonify({"message": f'Error reading {hlistIri}'}), 400
-
-    # Building the response json
-    answer = {
-        "oldapListId": str(hlist.oldapListId),
-        "iri": str(hlist.iri),
-        "creator": str(hlist.creator),
-        "created": str(hlist.created),
-        "contributor": str(hlist.contributor),
-        "modified": str(hlist.modified),
-        "nodeNamespaceIri": str(hlist.node_namespaceIri),
-        "nodeClassIri": str(hlist.node_classIri)
-    }
-    if hlist.prefLabel:
-        answer['prefLabel'] = [f'{value}@{lang.name.lower()}' for lang, value in hlist.prefLabel.items()]
-    if hlist.definition:
-        answer['definition'] = [f'{value}@{lang.name.lower()}' for lang, value in hlist.definition.items()]
-
-
-    return jsonify(answer), 200
 
 
 
