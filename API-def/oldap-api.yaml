@@ -2592,7 +2592,6 @@ paths:
                   message:
                     type: string
 
-
     get:
       summary: Read a hierarchical list.
       description:
@@ -2673,57 +2672,6 @@ paths:
                     example: 'Project with IRI/shortname "hyha" not found.'
         500:
           description: "Internal Server error. Should not be reachable"
-
-    delete:
-      summary: Delete an existing hierarchical list
-      description: |
-        Delete an existing hierarchical list. None of the nodes must be used in order to allow deletion
-      parameters:
-        - name: project
-          description: The Name of the project where the datamodel is located
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: hlistid
-          description: The id of the hierarchical list
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        403:
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_LISTS permission for project oldap:SystemProject'
-        404:
-          description: "Not Found"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'Hierarchical list with ID "mylist" not found.'
-        409:
-          description: "Conflict"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'Nodes of the hierarchical list are in use.'
-        500:
-          description: "Internal Server error. Should not be reachable"
-
-
-
   /admin/hlist/{project}/{hlistid}/{nodeid}:
     get:
       summary: Get the information of the given hlist node
@@ -2990,7 +2938,7 @@ paths:
                   message:
                     type: string
                     example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
-        "404":
+        404:
           description: "Not Found"
           content:
             application/json:
@@ -3360,6 +3308,62 @@ paths:
                   message:
                     type: string
                     example: 'Hlist with IRI "hlistdoesnotexist" not found.'
+
+  /hlist/{project}/upload:
+    post:
+      summary: Upload a hierarchical list in YAML format
+      description: Uploads a hierarchical list to a specific project via a YAML file.
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The project identifier
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                yamlfile:
+                  type: string
+                  format: binary
+                  description: The YAML file to upload
+      responses:
+        '200':
+          description: Upload successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: File successfully uploaded
+        '400':
+          description: Upload failed (invalid input or format)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Only YAML files (ending with ".yaml") are allowed
+        '403':
+          description: Authorization or connection failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Connection failed <reason>
+      security:
+        - AccessToken: []
 
 
 components:

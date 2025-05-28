@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from time import sleep
 
 import pytest
@@ -30,8 +31,19 @@ def connection_manager():
 @pytest.fixture
 def app():
     app = factory()
+
+    uploaddir = Path(os.getcwd()) / 'uploads'
+    if not uploaddir.exists():
+        uploaddir.mkdir()
+
+    tmpdir = Path(os.getcwd()) / 'tmp'
+    if not tmpdir.exists():
+        tmpdir.mkdir()
+
     app.config.update({
         'TESTING': True,
+        'UPLOAD_FOLDER': str(uploaddir),
+        'TMP_FOLDER': str(tmpdir)
     })
     con = Connection(server='http://localhost:7200',
                      repo="oldap",
