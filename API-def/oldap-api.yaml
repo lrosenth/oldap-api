@@ -78,6 +78,12 @@ paths:
           description: "Several Errors that involve bad requests"
         500:
           description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
 
 
   /admin/user/{userId}:
@@ -185,6 +191,13 @@ paths:
                     example: "A user with a user ID {userId} already exists"
         500:
           description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
     delete:
       summary: "Delete a user"
       description: "The user that has the rights (given by his token) deletes another user"
@@ -432,6 +445,12 @@ paths:
                     example: "A user with a user ID '{userId}' already exists"
         500:
           description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
 
 
   /admin/user/search:
@@ -587,6 +606,8 @@ paths:
     put:
       summary: Project creation
       description: Creates a new project in the database
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: projectId
           in: path
@@ -1048,6 +1069,8 @@ paths:
     put:
       summary: Permissionset creation
       description: Creates a new permissionset in the database
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: definedByProject
           description: The project that defines this permission set (either the IRI or the shortname)
@@ -1510,6 +1533,8 @@ paths:
     put:
       summary: Creates an empty datamodel
       description: Creates an empty datamodel to be filled later by other viewfunctions
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the new datamodel should be located
@@ -1548,6 +1573,8 @@ paths:
       summary: Read a datamodel
       description:
         Viewfunction to get the information about a datamodel of a project.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -1603,6 +1630,8 @@ paths:
       summary: Delete the whole datamodel (!Not Reversible!)
       description:
         Viewfunction to delete the entire datamodel of a given project. Use carefully!
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -1655,6 +1684,8 @@ paths:
         Viewfunction to add a standalone property to an existing datamodel. A JSON is expectet that has the following form. 
         Either the class or the datatype must be given but not both at the same time. If the datatype is given, then all fields are optional. 
         If the class is given, only subPropertyOf, name and desctiption are allowed.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -1713,6 +1744,8 @@ paths:
       summary: Delete an entire standalone property inside the datamodel of a project
       description:
         Viewfunction that deletes an entire standalone property inside the projects datamodel
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -1767,6 +1800,8 @@ paths:
       description:
         Viewfunction to modify a standalone property. A JSON is expected that has the following form. At least one field
         must be given. All fields are optional. At least one field must be given.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -1909,6 +1944,8 @@ paths:
         Viewfunction to add a resource to an existing datamodel. A JSON is expectet that has the following form. 
         In the hasProperty, either the class or the datatype must be given but not both at the same time. If the datatype is given, then all fields are optional. 
         If the class is given, only subPropertyOf, name and desctiption are allowed.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -1985,6 +2022,8 @@ paths:
       summary: Deletes an entire resource inside a datamodel of a given project
       description:
         Viewfunction that deletes an entire resource inside the projects datamodel
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -2039,6 +2078,8 @@ paths:
       description: >
         Viewfunction to modify a resource. A JSON is expected that has the following form. All fields are optional -- at least one needs to be given
         Note: To modify the fields of a property of the resource -- use modify_attribute_in_has_prop instead.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -2123,6 +2164,8 @@ paths:
         Viewfunction to add a property to an existing resource inside a datamodel. A JSON is expectet that has the following form. 
         In the hasProperty, either the class or the datatype must be given but not both at the same time. If the datatype is given, then all fields are optional. 
         If the class is given, only subPropertyOf, name and desctiption are allowed.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -2220,6 +2263,8 @@ paths:
       summary: Deletes a property inside a resource in a datamodel
       description:
         Viewfunction that deletes an entire property inside a resource that is located in the projects datamodel
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -2279,6 +2324,8 @@ paths:
       summary: Modifies a property inside a resource in a datamodel
       description:
         Viewfunction to modify the fields of a single property inside a resource.A JSON is expected that has the following form.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -2363,6 +2410,8 @@ paths:
         Viewfunction to create an empty hierarchical list. A JSON is expected that has the following form.
       description:
         Creates an empty hierarchical list. Later to be filled with nodes.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the h-list sould be located
@@ -2436,11 +2485,19 @@ paths:
                     example: "A list with a iri 'hyha:testhlist' already exists"
         500:
           description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
 
     post:
       summary: Change the metadata of a hierarchical list
       description:
         Viewfunction to modify the metadata of a hierarchical list
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the h-list sould be located
@@ -2508,7 +2565,7 @@ paths:
                   message:
                     type: string
                     example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
-        "404":
+        404:
           description: "Not Found"
           content:
             application/json:
@@ -2519,14 +2576,22 @@ paths:
                     example: 'Project with IRI/shortname "hyha" not found.'
         500:
           description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
 
     delete:
       summary: Delete a hierarchical list
-      description: |
-        Viewfunction to delete an entire hierarchical list including all its nodes. Be careful when using this operation.
+      description:
+        Viewfunction to delete a hierarchical list
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
-          description: The Name of the project where the h-list is located
+          description: The Name of the hierarchical list which should be deleted
           in: path
           required: true
           schema:
@@ -2538,8 +2603,8 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: "OK"
+        200:
+          description: Hierarchical list has been deleted successfully
           content:
             application/json:
               schema:
@@ -2547,15 +2612,6 @@ paths:
                   message:
                     type: string
                     example: "Hierarchical list successfully deleted"
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "Invalid request format"
         403:
           description: "Unauthorized"
           content:
@@ -2564,25 +2620,25 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: 'Connection failed: {str(error)}//Actor has no required permissions'
+                    example: 'No permission to delete hierarchical list'
         404:
-          description: "Not Found"
+          description: "Not found"
           content:
             application/json:
               schema:
                 properties:
                   message:
                     type: string
-                    example: 'Hierarchical list not found'
+                    example: 'Hierarchical list to be deleted does not exist'
         409:
-          description: "Conflict"
+          description: "in use"
           content:
             application/json:
               schema:
                 properties:
                   message:
                     type: string
-                    example: 'Cannot delete list that is still in use'
+                    example: 'Hierarchical cannot be deleted because it is in use'
         500:
           description: "Internal Server error. Should not be reachable"
           content:
@@ -2596,6 +2652,8 @@ paths:
       summary: Read a hierarchical list.
       description:
         Viewfunction to get the information about a hierarchical of a project. A (hierarchical) ordered List of all the nodes will be delivered.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The Name of the project where the datamodel is located
@@ -2672,11 +2730,84 @@ paths:
                     example: 'Project with IRI/shortname "hyha" not found.'
         500:
           description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
+  /admin/hlist/{project}/{hlistid}/in_use:
+    get:
+      summary: Check if a hierarchical list is in use.
+      description:
+        Viewfunction to check if a hierarchical list is in use. It is in use, if any property in the datamodel references the list.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: hlistid
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: The request was successfull
+          content:
+            application/json:
+              schema:
+                properties:
+                  in_use: bool
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Something fundamental went wrong
+        403:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+
   /admin/hlist/{project}/{hlistid}/{nodeid}:
     get:
       summary: Get the information of the given hlist node
       description: |
         Viewfunction to retrieve all information of the given node
+      security:
+        - AccessToken: [ ]
       parameter:
         - name: project
           description: The name of the project where the datamodel is located
@@ -2751,6 +2882,8 @@ paths:
           "position": "leftOf",
           "refnode": "nodeA"
         }
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The name of the project where the datamodel is located
@@ -2882,6 +3015,8 @@ paths:
       summary: Deletes a node inside a hierarchical list
       description: |
         Viewfunction that deletes a node from the hierarchical list
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The name of the project where the datamodel is located
@@ -2938,7 +3073,7 @@ paths:
                   message:
                     type: string
                     example: 'Connection failed: {str(error)}//Actor has no ADMIN_PERMISSION_SETS permission for project oldap:SystemProject'
-        404:
+        "404":
           description: "Not Found"
           content:
             application/json:
@@ -2969,6 +3104,8 @@ paths:
       summary: Modify a node inside a hierarchical list
       description: |
         Viewfunction to modify the parameters of a node
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The name of the project where the datamodel is located
@@ -3066,6 +3203,8 @@ paths:
       description: |
         Viewfunction that moves a node inside the hierarchical list from one place to another.
         When there are any number of nodes below the node one wish to move, they get moved automatically alongside the other node.
+      security:
+        - AccessToken: [ ]
       parameters:
         - name: project
           description: The name of the project where the datamodel is located
@@ -3308,62 +3447,6 @@ paths:
                   message:
                     type: string
                     example: 'Hlist with IRI "hlistdoesnotexist" not found.'
-
-  /hlist/{project}/upload:
-    post:
-      summary: Upload a hierarchical list in YAML format
-      description: Uploads a hierarchical list to a specific project via a YAML file.
-      parameters:
-        - name: project
-          in: path
-          required: true
-          schema:
-            type: string
-          description: The project identifier
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                yamlfile:
-                  type: string
-                  format: binary
-                  description: The YAML file to upload
-      responses:
-        '200':
-          description: Upload successful
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: File successfully uploaded
-        '400':
-          description: Upload failed (invalid input or format)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Only YAML files (ending with ".yaml") are allowed
-        '403':
-          description: Authorization or connection failure
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Connection failed <reason>
-      security:
-        - AccessToken: []
 
 
 components:

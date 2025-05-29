@@ -121,4 +121,22 @@ def test_hlist_read_node_invalid_project(client, token_headers, testfullhlist):
     res = response.json
     print(res)
 
+def test_hlist_in_use(client, token_headers, testemptydatamodel, testfullhlist):
+    header = token_headers[1]
+
+    response = client.get('/admin/hlist/hyha/testfullhlist', headers=header)
+    hlist = response.json
+
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "class": hlist['nodeClassIri'],
+        "name": ["SELECTION@en", "SELECTION@de"],
+    }, headers=header)
+
+    response = client.get('/admin/hlist/hyha/testfullhlist/in_use', headers=header)
+    assert response.status_code == 200
+    res =  response.json
+    assert res['in_use']
+    print(response.text)
+
+
 
