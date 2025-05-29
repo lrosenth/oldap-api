@@ -103,7 +103,7 @@ Gender:
         content_type='multipart/form-data',
         data=data
     )
-    assert response.status_code == 400
+    assert response.status_code == 403
     print(response.json)
 
 

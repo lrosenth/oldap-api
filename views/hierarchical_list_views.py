@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 from pathlib import Path
 from pprint import pprint
@@ -693,10 +694,15 @@ def upload_yaml_hlist(project):
     file.save(tmpfile)
     try:
         load_list_from_yaml(con=con, project=project, filepath=Path(tmpfile))
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
     except OldapError as error:
         #file.delete()
+        if os.path.exists(tmpfile):
+            os.remove(tmpfile)
         return jsonify({"message": f"File could not be uploaded: {error}"}), 400
-    #file.delete()
+    if os.path.exists(tmpfile):
+        os.remove(tmpfile)
     return jsonify({"message": "File successfully uploaded"}), 200
 
 
