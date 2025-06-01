@@ -28,6 +28,46 @@ from views import known_languages
 hierarchical_list_bp = Blueprint('hlist', __name__, url_prefix='/admin')
 
 
+@hierarchical_list_bp.route('/hlist/<project>/upload', methods=['POST'])
+def upload_yaml_hlist(project):
+    """
+    Viewfunction to upload a hierarchical list from a YAML file.
+    :param project: The project where the hierarchical list should be uploaded to.
+    :return: A JSON to denote the success of the operation that has the following form:
+    json={"message": "File successfully uploaded"}
+    """
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    file = request.files.get("yamlfile")
+    if file is None or file.filename == "":
+        return jsonify({"message": "No file was sent"}), 400
+    if not file.filename.endswith(".yaml"):
+        return jsonify({"message": "Only YAML files (ending with \".yaml\" are allowed"}), 400
+
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    tmpfile = tempfile.mktemp(prefix="OLDAP_", dir=current_app.config['TMP_FOLDER'])
+    file.save(tmpfile)
+    try:
+        load_list_from_yaml(con=con, project=project, filepath=Path(tmpfile))
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapError as error:
+        #file.delete()
+        if os.path.exists(tmpfile):
+            os.remove(tmpfile)
+        return jsonify({"message": f"File could not be uploaded: {error}"}), 400
+    if os.path.exists(tmpfile):
+        os.remove(tmpfile)
+    return jsonify({"message": "File successfully uploaded"}), 200
+
+
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['PUT'])
 def create_empty_hlist(project, hlistid):
     """
@@ -691,45 +731,6 @@ def modify_node(project, hlistid, nodeid):
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
-
-@hierarchical_list_bp.route('/hlist/<project>/upload', methods=['POST'])
-def upload_yaml_hlist(project):
-    """
-    Viewfunction to upload a hierarchical list from a YAML file.
-    :param project: The project where the hierarchical list should be uploaded to.
-    :return: A JSON to denote the success of the operation that has the following form:
-    json={"message": "File successfully uploaded"}
-    """
-    out = request.headers['Authorization']
-    b, token = out.split()
-
-    file = request.files.get("yamlfile")
-    if file is None or file.filename == "":
-        return jsonify({"message": "No file was sent"}), 400
-    if not file.filename.endswith(".yaml"):
-        return jsonify({"message": "Only YAML files (ending with \".yaml\" are allowed"}), 400
-
-    try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-    tmpfile = tempfile.mktemp(prefix="OLDAP_", dir=current_app.config['TMP_FOLDER'])
-    file.save(tmpfile)
-    try:
-        load_list_from_yaml(con=con, project=project, filepath=Path(tmpfile))
-    except OldapErrorNoPermission as error:
-        return jsonify({"message": str(error)}), 403
-    except OldapError as error:
-        #file.delete()
-        if os.path.exists(tmpfile):
-            os.remove(tmpfile)
-        return jsonify({"message": f"File could not be uploaded: {error}"}), 400
-    if os.path.exists(tmpfile):
-        os.remove(tmpfile)
-    return jsonify({"message": "File successfully uploaded"}), 200
 
 
 

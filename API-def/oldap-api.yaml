@@ -2403,6 +2403,63 @@ paths:
                   message:
                     type: string
 
+  /admin/hlist/{project}/upload:
+    post:
+      summary: Upload a hierarchical list in YAML format
+      description: Uploads a hierarchical list to a specific project via a YAML file.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The project identifier
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                yamlfile:
+                  type: string
+                  format: binary
+                  description: The YAML file to upload
+      responses:
+        '200':
+          description: Upload successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: File successfully uploaded
+        '400':
+          description: Upload failed (invalid input or format)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Only YAML files (ending with ".yaml") are allowed
+        '403':
+          description: Authorization or connection failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      Connection failed: <reason>
+
 
   /admin/hlist/{project}/{hlistid}:
     put:
@@ -2764,7 +2821,8 @@ paths:
             application/json:
               schema:
                 properties:
-                  in_use: bool
+                  in_use:
+                    type: boolean
         400:
           description: Bad request
           content:
