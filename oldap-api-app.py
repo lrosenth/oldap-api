@@ -19,7 +19,7 @@ tmpdir = Path(os.getcwd()) / 'tmp'
 if not tmpdir.exists():
     tmpdir.mkdir()
 app.config['TMP_FOLDER'] = tmpdir
-CORS(app)
+CORS(app, expose_headers=["Content-Disposition"])
 
 
 if __name__ == '__main__':

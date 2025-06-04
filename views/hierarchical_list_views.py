@@ -14,9 +14,10 @@ from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.helpers.json_encoder import SpecialEncoder
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
-    OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency, OldapErrorKey, OldapErrorUpdateFailed, OldapErrorInUse
+    OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency, OldapErrorKey, OldapErrorUpdateFailed, \
+    OldapErrorInUse, OldapErrorNotImplemented
 from oldaplib.src.oldaplist import OldapList
-from oldaplib.src.oldaplist_helpers import get_nodes_from_list, load_list_from_yaml
+from oldaplib.src.oldaplist_helpers import get_nodes_from_list, load_list_from_yaml, dump_list_to, ListFormat
 from oldaplib.src.oldaplistnode import OldapListNode
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from requests import delete
@@ -359,6 +360,48 @@ def hlist_get_by_iri():
         answer['definition'] = [f'{value}@{lang.name.lower()}' for lang, value in hlist.definition.items()]
 
     return jsonify(answer), 200
+
+@hierarchical_list_bp.route('/hlist/<project>/<hlistid>/download', methods=['GET'])
+def hlist_download(project, hlistid):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    format = ListFormat.YAML
+    mimetype = "application/x-yaml"
+    extension = "yaml"
+    if request.args:
+        formatstr = request.args.get('format', None)
+        if formatstr.upper() == "YAML":
+            pass
+        elif formatstr.upper() == "JSON":
+            format = ListFormat.JSON
+            mimetype = "application/json"
+            extension = "json"
+        else:
+            raise OldapErrorNotImplemented(f"Format {formatstr} not implemented! Must be YAML or JSON.")
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    try:
+        hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+        hlist_str = dump_list_to(con=con, project=project,oldapListId=hlistid,listformat=ListFormat.YAML)
+    except OldapErrorNoPermission as error:
+        return jsonify({'message': str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:  # Should not be reachable!
+        return jsonify({'message': str(error)}), 500
+    except Exception as error:
+        return jsonify({'message': str(error)}), 500
+    return Response(
+        hlist_str,
+        mimetype='application/x-yaml',
+        headers={ 'Content-Disposition': f'attachment; filename="{hlist.oldapListId}.{extension}"' })
+
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/in_use', methods=['GET'])
 def hlist_is_in_use(project, hlistid):
