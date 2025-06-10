@@ -1214,6 +1214,7 @@ paths:
                 properties:
                   message:
                     type: string
+
     get:
       summary: "Gets/reads Information about a permissionset"
       description: "The user that has the rights (given by his token) gets Information about a permissionset"
