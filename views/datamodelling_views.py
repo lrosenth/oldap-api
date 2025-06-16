@@ -447,8 +447,14 @@ def read_datamodel(project):
     }
 
     for prop in propclasses:
+        if prop in {'dcterms:created', 'dcterms:creator', 'dcterms:modified', 'dcterms:contributor'}:
+            continue;
         kappa = {
             "iri": str(prop) if prop is not None else None,
+            **({"created": str(dm[prop].created)} if dm[prop].created is not None else {}),
+            **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
+            **({"modified": str(dm[prop].modified)} if dm[prop].modified is not None else {}),
+            **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
             **({"subPropertyOf": str(dm[prop].subPropertyOf)} if dm[prop].subPropertyOf is not None else {}),
             **({"toClass": str(dm[prop].toClass)} if dm[prop].toClass is not None else {}),
             **({"datatype": str(dm[prop].datatype)} if dm[prop].datatype is not None else {}),
@@ -457,13 +463,13 @@ def read_datamodel(project):
             **({"languageIn": [f'{tag}'[-2:].lower() for tag in dm[prop].languageIn]} if dm[prop].languageIn else {}),
             **({"uniqueLang": bool(dm[prop].uniqueLang)} if dm[prop].uniqueLang is not None else {}),
             **({"inSet": list({str(x) for x in dm[prop].inSet})} if dm[prop].inSet is not None else {}),
-            **({"minLength": str(dm[prop].minLength)} if dm[prop].minLength is not None else {}),
-            **({"maxLength": str(dm[prop].maxLength)} if dm[prop].maxLength is not None else {}),
+            **({"minLength": dm[prop].minLength.value} if dm[prop].minLength is not None else {}),
+            **({"maxLength": dm[prop].maxLength.value} if dm[prop].maxLength is not None else {}),
             **({"pattern": str(dm[prop].pattern)} if dm[prop].pattern is not None else {}),
-            **({"minExclusive": str(dm[prop].minExclusive)} if dm[prop].minExclusive is not None else {}),
-            **({"minInclusive": str(dm[prop].minInclusive)} if dm[prop].minInclusive is not None else {}),
-            **({"maxExclusive": str(dm[prop].maxExclusive)} if dm[prop].maxExclusive is not None else {}),
-            **({"maxInclusive": str(dm[prop].maxInclusive)} if dm[prop].maxInclusive is not None else {}),
+            **({"minExclusive": dm[prop].minExclusive.value} if dm[prop].minExclusive is not None else {}),
+            **({"minInclusive": dm[prop].minInclusive.value} if dm[prop].minInclusive is not None else {}),
+            **({"maxExclusive": dm[prop].maxExclusive.value} if dm[prop].maxExclusive is not None else {}),
+            **({"maxInclusive": dm[prop].maxInclusive.value} if dm[prop].maxInclusive is not None else {}),
             **({"lessThan": str(dm[prop].lessThan)} if dm[prop].lessThan is not None else {}),
             **({"lessThanOrEquals": str(dm[prop].lessThanOrEquals)} if dm[prop].lessThanOrEquals is not None else {}),
         }
@@ -472,12 +478,14 @@ def read_datamodel(project):
     for resource in resclasses:
         gaga = {
             "iri": str(resource),
-            # **({"superclass": str(dm[resource].superclass)} if dm[resource].superclass is not None else {})
-            # does not add a "superclass": None if dm[resource].superclass is None. That's better...
-            "superclass": str(dm[resource].superclass) if dm[resource].superclass is not None else None,
-            "label": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].label.items()] if dm[resource].label else None,
-            "comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].comment.items()] if dm[resource].comment else None,
-            "closed": bool(dm[resource].closed) if dm[resource].closed is not None else None,
+            **({"created": str(dm[prop].created)} if dm[prop].created is not None else {}),
+            **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
+            **({"modified": str(dm[prop].modified)} if dm[prop].modified is not None else {}),
+            **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
+            **({"superclass": str(dm[resource].superclass)} if dm[resource].superclass is not None else {}),
+            **({"label": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].label.items()]} if dm[resource].label else {}),
+            **({"comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].comment.items()]} if dm[resource].comment else {}),
+            **({"closed": bool(dm[resource].closed)} if dm[resource].closed is not None else {}),
             "hasProperty": []
         }
         for iri, hp in dm[resource].properties.items():
@@ -485,26 +493,30 @@ def read_datamodel(project):
             papa = {
                 "property": {
                     "iri": str(iri),
-                    "subPropertyOf": str(hp.prop.subPropertyOf) if hp.prop.subPropertyOf is not None else None,
-                    "datatype": str(hp.prop.datatype) if hp.prop.datatype is not None else None,
-                    "name": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.name.items()] if hp.prop.name else None,
-                    "description": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.description.items()] if hp.prop.description else None,
-                    "languageIn": [f'{tag}'[-2:].lower() for tag in hp.prop.languageIn] if hp.prop.languageIn else None,
-                    "uniqueLang": bool(hp.prop.uniqueLang) if hp.prop.uniqueLang is not None else None,
-                    "inSet": list({str(x) for x in hp.prop.inSet}) if hp.prop.inSet is not None else None,
-                    "minLength": str(hp.prop.minLength) if hp.prop.minLength is not None else None,
-                    "maxLength": str(hp.prop.maxLength) if hp.prop.maxLength is not None else None,
-                    "pattern": str(hp.prop.pattern) if hp.prop.pattern is not None else None,
-                    "minExclusive": str(hp.prop.minExclusive) if hp.prop.minExclusive is not None else None,
-                    "minInclusive": str(hp.prop.minInclusive) if hp.prop.minInclusive is not None else None,
-                    "maxExclusive": str(hp.prop.maxExclusive) if hp.prop.maxExclusive is not None else None,
-                    "maxInclusive": str(hp.prop.maxInclusive) if hp.prop.maxInclusive is not None else None,
-                    "lessThan": str(hp.prop.lessThan) if hp.prop.lessThan is not None else None,
-                    "lessThanOrEquals": str(hp.prop.lessThanOrEquals) if hp.prop.lessThanOrEquals is not None else None,
+                    **({"created": str(dm[prop].created)} if dm[prop].created is not None else {}),
+                    **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
+                    **({"modified": str(dm[prop].modified)} if dm[prop].modified is not None else {}),
+                    **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
+                    **({"subPropertyOf": str(hp.prop.subPropertyOf)} if hp.prop.subPropertyOf is not None else {}),
+                    **({"datatype": str(hp.prop.datatype)} if hp.prop.datatype is not None else {}),
+                    **({"name": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.name.items()]} if hp.prop.name else {}),
+                    **({"description": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.description.items()]} if hp.prop.description else {}),
+                    **({"languageIn": [f'{tag}'[-2:].lower() for tag in hp.prop.languageIn]} if hp.prop.languageIn else {}),
+                    **({"uniqueLang": bool(hp.prop.uniqueLang)} if hp.prop.uniqueLang is not None else {}),
+                    **({"inSet": list({str(x) for x in hp.prop.inSet})} if hp.prop.inSet is not None else {}),
+                    **({"minLength": hp.prop.minLength.value} if hp.prop.minLength is not None else {}),
+                    **({"maxLength": hp.prop.maxLength.value} if hp.prop.maxLength is not None else {}),
+                    **({"pattern": str(hp.prop.pattern)} if hp.prop.pattern is not None else {}),
+                    **({"minExclusive": hp.prop.minExclusive.value} if hp.prop.minExclusive is not None else {}),
+                    **({"minInclusive": hp.prop.minInclusive.value} if hp.prop.minInclusive is not None else {}),
+                    **({"maxExclusive": hp.prop.maxExclusive.value} if hp.prop.maxExclusive is not None else {}),
+                    **({"maxInclusive": hp.prop.maxInclusive.value} if hp.prop.maxInclusive is not None else {}),
+                    **({"lessThan": str(hp.prop.lessThan)} if hp.prop.lessThan is not None else {}),
+                    **({"lessThanOrEquals": str(hp.prop.lessThanOrEquals)} if hp.prop.lessThanOrEquals is not None else {}),
                 },
-                "maxCount": str(hp.maxCount) if hp.maxCount is not None else None,
-                "minCount": str(hp.minCount) if hp.minCount is not None else None,
-                "order": str(hp.order) if hp.order is not None else None,
+                **({"maxCount": hp.maxCount.value} if hp.maxCount is not None else {}),
+                **({"minCount": hp.minCount.value} if hp.minCount is not None else {}),
+                **({"order": hp.order.value} if hp.order is not None else {}),
             }
             gaga["hasProperty"].append(papa)
         res["resources"].append(gaga)

@@ -1214,6 +1214,7 @@ paths:
                 properties:
                   message:
                     type: string
+
     get:
       summary: "Gets/reads Information about a permissionset"
       description: "The user that has the rights (given by his token) gets Information about a permissionset"
@@ -1279,6 +1280,7 @@ paths:
                   message:
                     type: string
                     example: 'No permission set "oldap:doesnotexist"'
+
     post:
       summary: "Modify/updates a permissionset"
       description: "The user that has the rights (given by his token) modifies a permissionset"
@@ -1311,6 +1313,7 @@ paths:
                           $ref: '#/components/schemas/LangString'
                         del:
                           $ref: '#/components/schemas/LangString'
+                    - type:"null"
                 comment:
                   oneOf:
                     - $ref: '#/components/schemas/LangString'
@@ -1320,37 +1323,16 @@ paths:
                           $ref: '#/components/schemas/LangString'
                         del:
                           $ref: '#/components/schemas/LangString'
+                    - type: "null"
                 givesPermission:
-                  oneOf:
-                    - type: array
-                      items:
-                        type: string
-                    - type: object
-                      properties:
-                        add:
-                          type: array
-                          items:
-                            type: string
-                            enum:
-                              - DATA_RESTRICTED
-                              - DATA_VIEW
-                              - DATA_EXTEND
-                              - DATA_UPDATE
-                              - DATA_DELETE
-                              - DATA_PERMISSIONS
-                        del:
-                          type: array
-                          items:
-                            type: array
-                            items:
-                              type: string
-                              enum:
-                                - DATA_RESTRICTED
-                                - DATA_VIEW
-                                - DATA_EXTEND
-                                - DATA_UPDATE
-                                - DATA_DELETE
-                                - DATA_PERMISSIONS
+                  type: string
+                  enum:
+                    - DATA_RESTRICTED
+                    - DATA_VIEW
+                    - DATA_EXTEND
+                    - DATA_UPDATE
+                    - DATA_DELETE
+                    - DATA_PERMISSIONS
         required: true
       responses:
         "200":
@@ -1531,6 +1513,61 @@ paths:
                   message:
                     type: string
 
+  /admin/permissionset/{definedByProject}/{permissionSetId}/in_use:
+    get:
+      summary: Check if a permission set list is in use.
+      description:
+        Viewfunction to check if a hierarchical list is in use. It is in use, if any property in the datamodel references the list.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: definedByProject
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: permissionSetId
+          description: The id of the hierarchical list
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: The request was successfull
+          content:
+            application/json:
+              schema:
+                properties:
+                  in_use:
+                    type: boolean
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Something fundamental went wrong
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: 'Project with IRI/shortname "hyha" not found.'
+        500:
+          description: "Internal Server error. Should not be reachable"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
 
   /admin/datamodel/{project}:
     put:
@@ -1594,7 +1631,8 @@ paths:
                 type: object
                 properties:
                   project:
-                    $ref: '#/components/schemas/Iri'
+#                    $ref: '#/components/schemas/Iri'
+                    type: string
                   standaloneProperties:
                     type: array
                     items:
@@ -3771,6 +3809,16 @@ components:
 
     Property:
       properties:
+        creator:
+          type: string
+        created:
+          type: string
+          format: date-time
+        contributor:
+          type: string
+        modified:
+          type: string
+          format: date-time
         subPropertyOf:
           $ref: '#/components/schemas/Iri'
           description: Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf would be generic case of pageOf
@@ -3795,7 +3843,7 @@ components:
           example: [ "en", "fr", "it", "de" ]
           items:
             type: string
-        uniqueLand:
+        uniqueLang:
           type: boolean
           description: Describes if each language must be present only once. This field is only applicable if the property is of datatype langstring.
           example: True
@@ -3866,6 +3914,16 @@ components:
     Resource:
       type: object
       properties:
+        creator:
+          type: string
+        created:
+          type: string
+          format: date-time
+        contributor:
+          type: string
+        modified:
+          type: string
+          format: date-time
         label:
           $ref: '#/components/schemas/LangString'
           description: A label for the resource.
