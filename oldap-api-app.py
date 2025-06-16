@@ -7,7 +7,9 @@ from flask_cors import CORS
 
 from factory import factory
 
+
 app = factory()
+set_logger(app.logger)
 
 uploaddir = Path(os.getcwd()) /  'uploads'
 
@@ -18,6 +20,7 @@ app.config['UPLOAD_FOLDER'] = str(uploaddir)
 tmpdir = Path(os.getcwd()) / 'tmp'
 if not tmpdir.exists():
     tmpdir.mkdir()
+
 app.config['TMP_FOLDER'] = tmpdir
 CORS(app, expose_headers=["Content-Disposition"])
 

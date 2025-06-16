@@ -279,7 +279,7 @@ def modify_permissionset(definedByProject, permissionSetId):
     json={
     "label": "["unittest@en", "..."]" or "{"add": ["tobeadded@it", ...], "del": ["tobedeleted@en"]},
     "comment": ["For testing@en", "..."] or "{"add": ["tobeadded@it", ...], "del": ["tobedeleted@en"]},
-    "givesPermission": ["DATA_VIEW", "..."] or "{"add": ["DATA_VIEW", ...], "del": ["DATA_EXTEND"]}
+    "givesPermission": "DATA_VIEW"
     }
     :param definedByProject: The project that defines this permission set (either the IRI or the shortname)
     :param permissionSetId: A unique identifier for the permission set (unique within the project as given by :definedByProject)
@@ -345,4 +345,29 @@ def modify_permissionset(definedByProject, permissionSetId):
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
+@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>/in_use', methods=['GET'])
+def permissionset_in_use(definedByProject, permissionSetId):
+    out = request.headers['Authorization']
+    b, token = out.split()
 
+    try:
+        con = Connection(server='http://localhost:7200',
+                         repo="oldap",
+                         token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        ps = PermissionSet.read(con=con, permissionSetId=permissionSetId, definedByProject=definedByProject)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapErrorInconsistency as error:
+        return jsonify({'message': str(error)}), 400
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+    try:
+        in_use = ps.in_use()
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+    return jsonify({"in_use": in_use}), 200
