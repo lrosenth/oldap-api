@@ -32,12 +32,10 @@ from oldaplib.src.propertyclass import PropertyClass
 from oldaplib.src.resourceclass import ResourceClass
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
-from oldaplib.src.xsd.xsd_qname import Xsd_QName
-from oldaplib.src.xsd.xsd_string import Xsd_string
 
-from apierror import ApiError
-from helpers.process_langstring import process_langstring
-from views import known_languages
+from oldap_api.apierror import ApiError
+from oldap_api.helpers.process_langstring import process_langstring
+from oldap_api.views import known_languages
 
 datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
 
@@ -62,9 +60,7 @@ def create_empty_datamodel(project):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    dm = DataModel(con=con,
-                   project=project,
-                   )
+    dm = DataModel(con=con, project=project)
 
     try:
         dm.create()
@@ -122,12 +118,12 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         project=project,
         property_class_iri=Iri(iri),
         subPropertyOf=subPropertyOf,
-        toClass= None if toClass is None else Iri(toClass),
+        toClass= None if toClass is None else Iri(toClass, validate=True),
         datatype = None if datatype is None else XsdDatatypes(datatype),
-        name=LangString(name),
-        description=LangString(description),
+        name=LangString(name, validate=True),
+        description=LangString(description, validate=True),
         languageIn=languageIn,
-        uniqueLang=Xsd_boolean(uniqueLang),
+        uniqueLang=Xsd_boolean(uniqueLang, validate=True),
         inSet=inSet,
         minLength=minLength,
         maxLength=maxLength,
@@ -189,7 +185,7 @@ def add_standalone_property_to_datamodel(project, property):
         try:
             prop = process_property(con=con, project=project, property_iri=property, data=data)
             prop.force_external()
-        except (ApiError, AttributeError, TypeError, ValueError,OldapErrorValue, OldapErrorInconsistency) as error:
+        except (ApiError, AttributeError, TypeError, ValueError, OldapErrorValue, OldapErrorInconsistency) as error:
             return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
             return jsonify({'message': str(error)}), 404
@@ -201,6 +197,8 @@ def add_standalone_property_to_datamodel(project, property):
             dm[prop.property_class_iri] = prop
             dm.update()
 
+        except OldapErrorValue as error:
+            return jsonify({'message': str(error)}), 400
         except OldapErrorAlreadyExists as error:
             return jsonify({"message": str(error)}), 409
         except OldapError as error:  # Should not be reachable
@@ -274,11 +272,26 @@ def add_resource_to_datamodel(project, resource):
         hasProperty = data.get("hasProperty", None)
 
         try:
+            project = Project.read(con, project)
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
+        except OldapErrorNotFound as error:
+            return jsonify({"message": str(error)}), 404
+        except OldapError as error:
+            return jsonify({"message": str(error)}), 500
+
+
+        try:
             dm = DataModel.read(con, project, ignore_cache=True)
         except OldapError as error:
             return jsonify({"message": str(error)}), 404
 
-        resource = ResourceClass(con=con, project=project, owlclass_iri=Iri(iri), comment=comment, closed=closed, label=label)
+        try:
+            resource = ResourceClass(con=con, project=project, owlclass_iri=iri, comment=comment, closed=closed, label=label, validate=True)
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
+        except OldapError as error:
+            return jsonify({"message": f"Oldap Error: {str(error)}"}), 500
         if resource.superclass is not None:
             try:
                 resource.superclass = superclass
@@ -301,13 +314,15 @@ def add_resource_to_datamodel(project, resource):
                 try:
                     property_iri = prop["property"]["iri"]
                     endprop = process_property(con=con, project=project, property_iri=property_iri, data=prop["property"])
-                    hp1 = HasProperty(con=con, prop=endprop, minCount=prop["minCount"], maxCount=prop["maxCount"], order=prop["order"])
+                    hp1 = HasProperty(con=con, project=project, prop=endprop, minCount=prop["minCount"], maxCount=prop["maxCount"], order=prop["order"])
                 except ApiError as error:
                     return jsonify({"message": str(error)}), 400
                 dm[Iri(iri)][endprop.property_class_iri] = hp1
 
         try:
             dm.update()
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorAlreadyExists as error:
             return jsonify({"message": str(error)}), 409
         except OldapError as error:  # Should not be reachable
@@ -362,6 +377,15 @@ def add_property_to_resource(project, resource, property):
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
+        try:
+            project = Project.read(con, project)
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
+        except OldapErrorNotFound as error:
+            return jsonify({"message": str(error)}), 404
+        except OldapError as error:
+            return jsonify({"message": str(error)}), 500
+
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
@@ -384,10 +408,12 @@ def add_property_to_resource(project, resource, property):
             prop = process_property(con=con, project=project, property_iri=property, data=data)
         except ApiError as error:  # should not be reachable
             return jsonify({"message": str(error)}), 400
-        hasprop = HasProperty(con=con, prop=prop, minCount=mincount, maxCount=maxcount, order=order)
+        hasprop = HasProperty(con=con, project=project, prop=prop, minCount=mincount, maxCount=maxcount, order=order)
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
             dm[Iri(resource)][Iri(property)] = hasprop
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
             return jsonify({'message': str(error)}), 404
         except OldapErrorAlreadyExists as error:
@@ -397,6 +423,8 @@ def add_property_to_resource(project, resource, property):
 
         try:
             dm.update()
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
         except OldapError as error:  # Should not be reachable
@@ -448,8 +476,8 @@ def read_datamodel(project):
 
     for prop in propclasses:
         if prop in {'dcterms:created', 'dcterms:creator', 'dcterms:modified', 'dcterms:contributor'}:
-            continue;
-        kappa = {
+            continue
+        data = {
             "iri": str(prop) if prop is not None else None,
             **({"created": str(dm[prop].created)} if dm[prop].created is not None else {}),
             **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
@@ -473,10 +501,10 @@ def read_datamodel(project):
             **({"lessThan": str(dm[prop].lessThan)} if dm[prop].lessThan is not None else {}),
             **({"lessThanOrEquals": str(dm[prop].lessThanOrEquals)} if dm[prop].lessThanOrEquals is not None else {}),
         }
-        res["standaloneProperties"].append(kappa)
+        res["standaloneProperties"].append(data)
 
     for resource in resclasses:
-        gaga = {
+        rdata = {
             "iri": str(resource),
             **({"created": str(dm[prop].created)} if dm[prop].created is not None else {}),
             **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
@@ -489,8 +517,8 @@ def read_datamodel(project):
             "hasProperty": []
         }
         for iri, hp in dm[resource].properties.items():
-            hp.prop.subPropertyOf
-            papa = {
+            # hp.prop.subPropertyOf
+            pdata = {
                 "property": {
                     "iri": str(iri),
                     **({"created": str(dm[prop].created)} if dm[prop].created is not None else {}),
@@ -518,8 +546,8 @@ def read_datamodel(project):
                 **({"minCount": hp.minCount.value} if hp.minCount is not None else {}),
                 **({"order": hp.order.value} if hp.order is not None else {}),
             }
-            gaga["hasProperty"].append(papa)
-        res["resources"].append(gaga)
+            rdata["hasProperty"].append(pdata)
+        res["resources"].append(rdata)
     return res, 200
 
 
@@ -544,6 +572,8 @@ def delete_whole_datamodel(project):
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -576,14 +606,16 @@ def delete_whole_standalone_property(project, standaloneprop):
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
     try:
-        del dm[Iri(standaloneprop)]
+        del dm[standaloneprop]
         dm.update()
     except OldapErrorValue as error:
-        return jsonify({'message': str(error)}), 404
+        return jsonify({'message': str(error)}), 400
     except OldapError as error:  # Should not be reachable
         return jsonify({'message': str(error)}), 500
     return jsonify({'message': f'Standalone property in datamodel {project} successfully deleted'}), 200
@@ -615,7 +647,7 @@ def delete_whole_resource(project, resource):
         return jsonify({'message': str(error)}), 404
 
     try:
-        del dm[Iri(resource)]
+        del dm[resource]
         dm.update()
     except OldapErrorValue as error:
         return jsonify({'message': str(error)}), 404
@@ -647,6 +679,8 @@ def delete_hasprop_in_resource(project, resource, property):
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 404
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -739,7 +773,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                     if item is None:
                         return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                 try:
-                    tmpval = [convert2datatype(x, datatype) for x in attrval]
+                    tmpval = [convert2datatype(x, datatype, validate=True) for x in attrval]
                     setattr(property, attrname, XsdSet(tmpval))
                 except (OldapErrorValue, OldapErrorType) as error:
                     return jsonify({"message": str(error)}), 400
@@ -757,9 +791,9 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                             return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
                             if property.inSet is None:
-                                property.inSet = XsdSet(convert2datatype(item, datatype))
+                                property.inSet = XsdSet(convert2datatype(item, datatype, validate=True))
                             else:
-                                property.inSet.add(convert2datatype(item, datatype))
+                                property.inSet.add(convert2datatype(item, datatype, validate=True))
                         except (OldapErrorValue, OldapErrorType) as error:
                             return jsonify({"message": str(error)}), 400
                 if "del" in attrval:
@@ -772,7 +806,9 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                         if item is None:
                             return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
-                            property.inSet.discard(convert2datatype(item, datatype))
+                            property.inSet.discard(convert2datatype(item, datatype, validate=True))
+                        except OldapErrorValue as error:
+                            return jsonify({"message": str(error)}), 400
                         except AttributeError:
                             return jsonify({"message": f"The entry '{item}' is not in the property and thus could not be deleted"}), 404
             elif attrval is None:
@@ -845,6 +881,8 @@ def modify_standalone_property(project, property):
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -899,6 +937,8 @@ def modify_resource(project, resource):
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 403
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -928,82 +968,12 @@ def modify_resource(project, resource):
                     return jsonify({"message": str(error)}), 500
                 continue
 
-            # if attrname == "label" or attrname == "comment":
-            #     if isinstance(attrval, list):
-            #         if not attrval:
-            #             return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-            #         for item in attrval:
-            #             if item is None:
-            #                 return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-            #             try:
-            #                 if item[-3] != '@':
-            #                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-            #             except IndexError as error:
-            #                 return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-            #             lang = item[-2:].upper()
-            #             try:
-            #                 Language[lang]
-            #             except KeyError as error:
-            #                 return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-            #
-            #             setattr(dm[Iri(resource)], attrname, LangString(attrval))
-            #     elif isinstance(attrval, dict):
-            #         if not attrval:
-            #             return jsonify({"message": f"Using an empty dict is not allowed in the modify"}), 400
-            #         if not set(attrval.keys()).issubset({"add", "del"}):
-            #             return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
-            #         if "add" in attrval:
-            #             adding = attrval.get("add", [])
-            #             if not isinstance(adding, list):
-            #                 return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-            #             if not adding:
-            #                 return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-            #             for item in adding:
-            #                 if item is None:
-            #                     return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-            #                 try:
-            #                     if item[-3] != '@':
-            #                         return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-            #                 except IndexError as error:
-            #                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-            #                 lang = item[-2:].upper()
-            #                 try:
-            #                     tmp = getattr(dm[Iri(resource)], attrname)
-            #                     tmp[Language[lang]] = item[:-3]
-            #                     #dm[Iri(resource)]['rdfs:'+ attrname][Language[lang]] = item[:-3]
-            #                 except KeyError as error:
-            #                     return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-            #         if "del" in attrval:
-            #             deleting = attrval.get("del", [])
-            #             if not isinstance(deleting, list):
-            #                 return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
-            #             if not deleting:
-            #                 return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-            #             for item in deleting:
-            #                 if item is None:
-            #                     return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
-            #                 try:
-            #                     if item[-3] != '@':
-            #                         return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-            #                 except IndexError as error:
-            #                     return jsonify({"message": f"Please add a correct language tags e.g. @de"}), 400
-            #                 lang = item[-2:].upper()
-            #                 try:
-            #                     tmp = getattr(dm[Iri(resource)], attrname)
-            #                     del tmp[Language[lang]]
-            #                 except KeyError as error:
-            #                     return jsonify({"message": f"{lang} is not a valid language. Supportet are {known_languages}"}), 400
-            #     elif attrval is None:
-            #         delattr(dm[Iri(resource)], attrname)
-            #         # del dm[Iri(resource)][attrname]
-            #     else:
-            #         return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
-            #     continue
-
             if attrval is not None:
                 setattr(dm[Iri(resource)], attrname, attrval)
         try:
             dm.update()
+        except OldapErrorValue as error:
+            return jsonify({'message': str(error)}), 403
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
         except OldapError as error:
@@ -1061,6 +1031,8 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 403
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 

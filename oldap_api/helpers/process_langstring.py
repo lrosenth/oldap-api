@@ -2,7 +2,6 @@ from enum import Enum
 from typing import Callable
 
 from oldaplib.src.enums.attributeclass import AttributeClass
-from oldaplib.src.enums.language import Language
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapErrorValue
 from oldaplib.src.model import Model
@@ -10,7 +9,7 @@ from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
 from oldaplib.src.xsd.xsd_string import Xsd_string
 
-from views import known_languages
+from oldap_api.views import known_languages
 
 
 def process_langstring(obj: Model,

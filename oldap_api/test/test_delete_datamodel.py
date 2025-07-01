@@ -112,7 +112,7 @@ def test_cantfind_standaloneprop(client, token_headers, testfulldatamodelstandal
 
     response = client.delete('/admin/datamodel/hyha/property/hyha:doesnotexist', headers=header)
 
-    assert response.status_code == 404
+    assert response.status_code == 400
 
     res = response.json
     print(res)

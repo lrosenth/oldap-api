@@ -222,6 +222,15 @@ paths:
                   message:
                     type: string
                     example: "User {userid} deleted"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid user id, not NCName"
         "403":
           description: "Unauthorized"
           content:
@@ -306,6 +315,15 @@ paths:
                     type: array
                     items:
                       type: string
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid user id, not NCName"
         "403":
           description: "Unauthorized"
           content:
@@ -585,6 +603,15 @@ paths:
                     type: array
                     items:
                       type: string
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid user Iri format, must be valid URN/IRI"
         "403":
           description: "Unauthorized"
           content:
@@ -701,6 +728,15 @@ paths:
                   message:
                     type: string
                     example: "Project successfully deleted"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid user Iri format, must be valid URN/IRI"
         403:
           description: "Unauthorized"
           content:
@@ -779,6 +815,15 @@ paths:
                   project end:
                     type: string
                     format: date
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid user Iri format, must be valid URN/IRI"
         403:
           description: "Unauthorized"
           content:
@@ -996,6 +1041,15 @@ paths:
                   project end:
                     type: string
                     format: date
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid user Iri format, must be valid URN/IRI"
         403:
           description: "Unauthorized"
           content:
@@ -1179,6 +1233,15 @@ paths:
                   message:
                     type: string
                     example: "Permissionset successfully deleted"
+        400:
+          description: "Several Errors that involve bad requests"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "JSON expected. Instead received {request.content_type}//The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation// (...)"
         403:
           description: "Unauthorized"
           content:
@@ -1262,6 +1325,15 @@ paths:
                     type: string
                   definedByProject:
                     type: string
+        400:
+          description: "Several Errors that involve bad requests"
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "JSON expected. Instead received {request.content_type}//The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation// (...)"
         403:
           description: "Unauthorized"
           content:
@@ -1592,6 +1664,15 @@ paths:
                   message:
                     type: string
                     example: "Empty datamodel successfully created"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Something fundamental went wrong
         403:
           description: "Unauthorized"
           content:
@@ -1690,6 +1771,15 @@ paths:
                   message:
                     type: string
                     example: Data model successfully deleted
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Something fundamental went wrong
         403:
           description: "Unauthorized"
           content:
@@ -1755,6 +1845,15 @@ paths:
                   message:
                     type: string
                     example: "Standalone property in datamodel {project} successfully created"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Something fundamental went wrong
         403:
           description: "Unauthorized"
           content:
@@ -1810,6 +1909,15 @@ paths:
                   message:
                     type: string
                     example: "Standalone property in datamodel {project} successfully deleted"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Something fundamental went wrong
         403:
           description: "Unauthorized"
           content:
@@ -2088,6 +2196,15 @@ paths:
                   message:
                     type: string
                     example: "Resource in datamodel {project} successfully deleted"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Something fundamental went wrong
         403:
           description: "Unauthorized"
           content:
@@ -2417,6 +2534,15 @@ paths:
                   message:
                     type: string
                     example: "Data model successfully modified"
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}//The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. Aborded operation
         403:
           description: "Unauthorized"
           content:
@@ -2710,6 +2836,15 @@ paths:
                   message:
                     type: string
                     example: "Hierarchical list successfully deleted"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Invalid value
         403:
           description: "Unauthorized"
           content:
@@ -2808,6 +2943,15 @@ paths:
                   prefLabel:
                     - testrootnodelabel@en
 
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: JSON expected. Instead received {request.content_type}
         403:
           description: "Unauthorized"
           content:
@@ -2954,6 +3098,15 @@ paths:
               description: File download name
               schema:
                 type: string
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Something fundamental went wrong
         "403":
           description: Authentication or permission error
           content:
@@ -3031,6 +3184,15 @@ paths:
                     $ref: '#/components/schemas/LangString'
                   description:
                     $ref: '#/components/schemas/LangString'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Something fundamental went wrong
         404:
           description: "Not Found"
           content:

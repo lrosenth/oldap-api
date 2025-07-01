@@ -15,15 +15,14 @@ The implementation includes error handling and validation for most operations.
 from flask import request, jsonify, Blueprint
 from oldaplib.src.connection import Connection
 from oldaplib.src.enums.datapermissions import DataPermission
-from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.permissionsetattr import PermissionSetAttr
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
     OldapErrorValue, OldapErrorNotFound, OldapErrorUpdateFailed, OldapErrorKey, OldapErrorInconsistency, OldapErrorInUse
 from oldaplib.src.permissionset import PermissionSet
 
-from helpers.process_langstring import process_langstring
-from views import known_languages
+from oldap_api.helpers.process_langstring import process_langstring
+from oldap_api.views import known_languages
 
 permset_bp = Blueprint('permissionset', __name__, url_prefix='/admin')
 
@@ -50,6 +49,8 @@ def permissionsetr_get_by_iri():
 
     try:
         ps = PermissionSet.read(con=con, iri=permissionSetIri)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -125,14 +126,15 @@ def create_permissionset(definedByProject, permissionSetId):
                                           label=LangString(label),
                                           comment=LangString(comment),
                                           givesPermission=givesPermission,
-                                          definedByProject=definedByProject)
+                                          definedByProject=definedByProject,
+                                          validate=True)
             permissionset.create()
+        except OldapErrorValue as error:
+            return jsonify({'message': str(error)}), 400
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
         except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
-        except OldapErrorValue as error:
-            return jsonify({'message': str(error)}), 400
         except OldapError as error:  # should not be reachable
             return jsonify({'message': str(error)}), 500
 
@@ -173,6 +175,8 @@ def read_permissionset(definedByProject, permissionSetId):
 
     try:
         ps = PermissionSet.read(con=con, permissionSetId=permissionSetId, definedByProject=definedByProject)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -229,7 +233,10 @@ def search_permissionset():
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
+    try:
+        permissionset = PermissionSet.search(con=con, label=label, givesPermission=givespermission, definedByProject=definedbyproject)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
     return jsonify([str(x) for x in permissionset]), 200
 
 
@@ -255,6 +262,8 @@ def delete_permissionset(definedByProject, permissionSetId):
 
     try:
         ps = PermissionSet.read(con=con, permissionSetId=permissionSetId, definedByProject=definedByProject)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
@@ -311,6 +320,8 @@ def modify_permissionset(definedByProject, permissionSetId):
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             ps = PermissionSet.read(con=con, permissionSetId=permissionSetId, definedByProject=definedByProject)
+        except OldapErrorValue as error:
+            return jsonify({'message': str(error)}), 400
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
 
@@ -360,6 +371,8 @@ def permissionset_in_use(definedByProject, permissionSetId):
 
     try:
         ps = PermissionSet.read(con=con, permissionSetId=permissionSetId, definedByProject=definedByProject)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     except OldapErrorInconsistency as error:

@@ -2,29 +2,22 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from pprint import pprint
-from xmlrpc.client import Boolean
 
 from flask import Blueprint, request, jsonify, Response, current_app
 from oldaplib.src.connection import Connection
-from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.oldaplistattr import OldapListAttr
 from oldaplib.src.enums.oldaplistnodeattr import OldapListNodeAttr
-from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.helpers.json_encoder import SpecialEncoder
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
     OldapErrorNotFound, OldapErrorValue, OldapErrorInconsistency, OldapErrorKey, OldapErrorUpdateFailed, \
     OldapErrorInUse, OldapErrorNotImplemented
 from oldaplib.src.oldaplist import OldapList
-from oldaplib.src.oldaplist_helpers import get_nodes_from_list, load_list_from_yaml, dump_list_to, ListFormat
+from oldaplib.src.oldaplist_helpers import load_list_from_yaml, dump_list_to, ListFormat
 from oldaplib.src.oldaplistnode import OldapListNode
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
-from requests import delete
-from werkzeug.utils import secure_filename
 
-from helpers.process_langstring import process_langstring
-from views import known_languages
+from oldap_api.helpers.process_langstring import process_langstring
 
 hierarchical_list_bp = Blueprint('hlist', __name__, url_prefix='/admin')
 
@@ -57,6 +50,8 @@ def upload_yaml_hlist(project):
     file.save(tmpfile)
     try:
         load_list_from_yaml(con=con, project=project, filepath=Path(tmpfile))
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNoPermission as error:
         return jsonify({"message": str(error)}), 403
     except OldapError as error:
@@ -116,6 +111,8 @@ def create_empty_hlist(project, hlistid):
                               prefLabel=LangString(prefLabel),
                               definition=LangString(definition))
             hlist.create()
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
         except OldapErrorNotFound as error:
@@ -170,9 +167,11 @@ def read_hlist(project, hlistid):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
-        oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
-        hlist = get_nodes_from_list(con=con, oldapList=oldaplist)
+        oldaplist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+        hlist = oldaplist.get_nodes_from_list()
         oldaplist.nodes = hlist
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
@@ -211,6 +210,8 @@ def modify_hlist(project, hlistid):
 
     try:
         hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({"message": str(error)}), 404
     except OldapError as error:
@@ -262,8 +263,10 @@ def delete_hlist(project, hlistid):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
-        oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
+        oldaplist = OldapList.read(con=con, project=project, oldapListId=hlistid)
         oldaplist.delete()
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
     except OldapErrorNotFound as error:
@@ -309,8 +312,10 @@ def hlist_search():
                                   prefLabel=prefLabel,
                                   definition=definition,
                                   exactMatch=exactMatch)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapError as error:
-        return jsonify({"message": f"Search failed: {str(error)}"}), 400
+        return jsonify({"message": f"Search failed: {str(error)}"}), 500
     return jsonify([str(x) for x in hlists]), 200
 
 
@@ -389,6 +394,8 @@ def hlist_download(project, hlistid):
     try:
         hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
         hlist_str = dump_list_to(con=con, project=project,oldapListId=hlistid,listformat=ListFormat.YAML)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
     except OldapErrorNotFound as error:
@@ -417,6 +424,8 @@ def hlist_is_in_use(project, hlistid):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
         oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
     except OldapErrorNotFound as error:
@@ -460,8 +469,10 @@ def get_node(project, hlistid, nodeid):
     try:
         hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
         node = OldapListNode.read(con=con,
-                                  oldapList=hlist,
+                                  **hlist.info,
                                   oldapListNodeId=nodeid)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
@@ -531,12 +542,13 @@ def add_node(project, hlistid, nodeid):
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
         try:
-            oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
+            oldaplist = OldapList.read(con=con, project=project, oldapListId=hlistid)
 
             refnode: OldapListNode | None = None
             if refnodeId:
-                refnode = OldapListNode.read(con=con, oldapList=oldaplist, oldapListNodeId=refnodeId)
-
+                refnode = OldapListNode.read(con=con, **oldaplist.info, oldapListNodeId=refnodeId)
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
         except OldapError as error:  # should not be reachable
@@ -544,10 +556,11 @@ def add_node(project, hlistid, nodeid):
 
         try:
             node = OldapListNode(con=con,
-                              oldapList=oldaplist,
-                              oldapListNodeId=Xsd_NCName(nodeid),
-                              prefLabel=LangString(prefLabel),
-                              definition=LangString(definition))
+                                 **oldaplist.info,
+                                 oldapListNodeId=Xsd_NCName(nodeid),
+                                 prefLabel=LangString(prefLabel),
+                                 definition=LangString(definition),
+                                 validate=True)
             match position:
                 case "root":
                     node.create_root_node()
@@ -609,8 +622,10 @@ def del_node(project, hlistid, nodeid):
     if recursive is False:
         try:
             hlist = OldapList.read(con=con, project=project,  oldapListId=hlistid)
-            node = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
+            node = OldapListNode.read(con=con, **hlist.info, oldapListNodeId=nodeid)
             node.delete_node()
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNoPermission as error:
             return jsonify({"message": str(error)}), 403
         except OldapErrorNotFound as error:
@@ -624,8 +639,10 @@ def del_node(project, hlistid, nodeid):
     elif recursive is True:
         try:
             hlist = OldapList.read(con=con, project=project,  oldapListId=hlistid)
-            nodetodel = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
+            nodetodel = OldapListNode.read(con=con, **hlist.info, oldapListNodeId=nodeid)
             nodetodel.delete_node_recursively()
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNoPermission as error:
             return jsonify({"message": str(error)}), 403
         except OldapErrorNotFound as error:
@@ -684,8 +701,10 @@ def move_node(project, hlistid, nodeid):
 
     try:
         hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
-        nodetomove = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
-        targetnode = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=targetnodeid)
+        nodetomove = OldapListNode.read(con=con, **hlist.info, oldapListNodeId=nodeid)
+        targetnode = OldapListNode.read(con=con, **hlist.info, oldapListNodeId=targetnodeid)
+    except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({"message": str(error)}), 404
     except OldapError as error:
@@ -700,6 +719,8 @@ def move_node(project, hlistid, nodeid):
             nodetomove.move_node_right_of(con=con, leftnode=targetnode)
         else:
             return jsonify({"message": f"Something that should not have went wrong! No valid field given to move a node. Should not be reachable!!"}), 400 # Should not be reachable
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNoPermission as error:
         return jsonify({"message": str(error)}), 403
     except OldapErrorInconsistency as error:
@@ -734,16 +755,17 @@ def modify_node(project, hlistid, nodeid):
         definition = data.get("definition", "NotSent")
         try:
             con = Connection(server='http://localhost:7200',
-                            repo="oldap",
-                            token=token,
-                            context_name="DEFAULT")
+                             repo="oldap",
+                             token=token,
+                             context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-        nodetochange = None
         try:
             hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
-            nodetochange = OldapListNode.read(con=con, oldapList=hlist, oldapListNodeId=nodeid)
+            nodetochange = OldapListNode.read(con=con, **hlist.info, oldapListNodeId=nodeid)
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
         except OldapError as error:
@@ -756,13 +778,15 @@ def modify_node(project, hlistid, nodeid):
             return jsonify({"message": str(error)}), 400
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
-        except OldapErrorInconsistency as error:  # inconsistent start and enddate
+        except OldapErrorInconsistency as error:  # inconsistent start and end
             return jsonify({'message': str(error)}), 400
         except OldapError as error:
             return jsonify({"message": str(error)}), 500
 
         try:
             nodetochange.update()
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNoPermission as error:
             return jsonify({"message": str(error)}), 403
         except OldapErrorUpdateFailed as error:  # hard to test

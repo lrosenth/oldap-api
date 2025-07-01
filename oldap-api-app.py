@@ -1,12 +1,11 @@
 import os
-import platform
-import tempfile
 from pathlib import Path
 
 from flask_cors import CORS
 
-from factory import factory
+from oldaplib.src.oldaplogging import set_logger
 
+from oldap_api.factory import factory
 
 app = factory()
 set_logger(app.logger)

@@ -255,7 +255,7 @@ def test_no_json_to_add_node(client, token_headers, testemptyhlist):
 def test_dm_to_add_node_not_found(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/hlist/hyha/testhlist/nodeB', json={
+    response = client.put('/admin/hlist/hyha/testhlistNotExists/nodeB', json={
         "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"

@@ -1,5 +1,6 @@
 [tool.poetry]
 name = "oldap-api"
+packages = [{ include = "oldap-api" }]
 version = "0.1.0"
 description = ""
 authors = ["ManuelRosenthaler <rosenthalermanuel@gmail.com>"]

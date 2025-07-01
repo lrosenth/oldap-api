@@ -128,7 +128,8 @@ def create_user(userid):
                         credentials=credentials,
                         inProject=in_project_dict,
                         hasPermissions=permission_set,
-                        isActive=isActive)
+                        isActive=isActive,
+                        validate=True)
             user.create()
         except OldapErrorAlreadyExists as error:
             return jsonify({"message": str(error)}), 409
@@ -174,6 +175,8 @@ def read_users(userid):
 
     try:
         user = User.read(con=con, userId=userid)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({"message": f'User {userid} not found'}), 404
 
@@ -223,6 +226,8 @@ def delete_user(userid):
     try:
         user = User.read(con=con, userId=userid)
         user.delete()
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({"message": str(error)}), 404
     except OldapErrorNoPermission as error:
@@ -294,6 +299,8 @@ def modify_user(userid):
 
         try:
             user = User.read(con=con, userId=Xsd_NCName(userid))  # read the user from the triple store
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
 
@@ -448,11 +455,14 @@ def user_search():
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    users = User.search(con=con,
-                       userId=userId,
-                       familyName=familyName,
-                       givenName=givenName,
-                       inProject=inProject)
+    try:
+        users = User.search(con=con,
+                           userId=userId,
+                           familyName=familyName,
+                           givenName=givenName,
+                           inProject=inProject)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     return jsonify([str(x) for x in users]), 200
 
 @user_bp.route('/user/get', methods=['GET'])
@@ -478,6 +488,8 @@ def user_get_by_iri():
 
     try:
         user = User.read(con=con, userId=IriOrNCName(userIri))
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({"message": f'User {userIri} not found'}), 404
 

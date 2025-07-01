@@ -25,7 +25,7 @@ from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_date import Xsd_date
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 
-from helpers.process_langstring import process_langstring
+from oldap_api.helpers.process_langstring import process_langstring
 
 project_bp = Blueprint('project', __name__, url_prefix='/admin')
 
@@ -84,7 +84,8 @@ def create_project(projectid):
                               namespaceIri=NamespaceIRI(namespaceIri),
                               comment=LangString(comment),
                               projectStart=Xsd_date(projectStart) if projectEnd else None,
-                              projectEnd=Xsd_date(projectEnd) if projectEnd else None
+                              projectEnd=Xsd_date(projectEnd) if projectEnd else None,
+                              validate=True
                               )
             project.create()
         except OldapErrorNoPermission as error:
@@ -123,6 +124,8 @@ def delete_project(projectid):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
         project = Project.read(con=con, projectIri_SName=Xsd_NCName(projectid))
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     try:
@@ -164,6 +167,8 @@ def read_project(projectid):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     try:
         project = Project.read(con=con, projectIri_SName=projectid)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     res = {
@@ -205,7 +210,9 @@ def get_project_by_iri():
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        project = Project.read(con=con, projectIri_SName=Iri(projectIri))
+        project = Project.read(con=con, projectIri_SName=projectIri)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     res = {
@@ -263,7 +270,11 @@ def search_project():
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    projects = Project.search(con=con, label=label, comment=comment)
+    try:
+        projects = Project.search(con=con, label=label, comment=comment)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+
     return jsonify([{'projectIri': str(x.projectIri), 'projectShortName': str(x.projectShortName)} for x in projects]), 200
 
 
@@ -308,6 +319,8 @@ def modify_project(projectid):
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
             project = Project.read(con=con, projectIri_SName=projectid)
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
             return jsonify({"message": str(error)}), 404
 

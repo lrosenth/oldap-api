@@ -54,13 +54,13 @@ def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testem
         assert sorted(ele["languageIn"]) == sorted(["en", "fr", "it", "de"])
         assert ele["uniqueLang"] == True
         assert sorted(ele["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
-        assert ele["minLength"] == '1'
-        assert ele["maxLength"] == '50'
+        assert ele["minLength"] == 1
+        assert ele["maxLength"] == 50
         assert ele["pattern"] == r"^[\w\.-]+@[a-zA-Z\d-]+(\.[a-zA-Z\d-]+)*\.[a-zA-Z]{2,}$"
-        assert ele["minExclusive"] == '5.5'
-        assert ele["minInclusive"] == '5.5'
-        assert ele["maxExclusive"] == '5.5'
-        assert ele["maxInclusive"] == '5.5'
+        assert ele["minExclusive"] == 5.5
+        assert ele["minInclusive"] == 5.5
+        assert ele["maxExclusive"] == 5.5
+        assert ele["maxInclusive"] == 5.5
         assert ele["lessThan"] == "hyha:testProp"
         assert ele["lessThanOrEquals"] == "hyha:testProp"
 
@@ -270,18 +270,18 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
     assert sorted(res["resources"][0]["hasProperty"][0]["property"]["languageIn"]) == sorted(["en", "fr", "it", "de"])
     assert res["resources"][0]["hasProperty"][0]["property"]["uniqueLang"] == True
     assert sorted(res["resources"][0]["hasProperty"][0]["property"]["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
-    assert res["resources"][0]["hasProperty"][0]["property"]["minLength"] == '1'
-    assert res["resources"][0]["hasProperty"][0]["property"]["maxLength"] == '50'
+    assert res["resources"][0]["hasProperty"][0]["property"]["minLength"] == 1
+    assert res["resources"][0]["hasProperty"][0]["property"]["maxLength"] == 50
     assert res["resources"][0]["hasProperty"][0]["property"]["pattern"] == r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
-    assert res["resources"][0]["hasProperty"][0]["property"]["minExclusive"] == '5.5'
-    assert res["resources"][0]["hasProperty"][0]["property"]["minInclusive"] == '5.5'
-    assert res["resources"][0]["hasProperty"][0]["property"]["maxExclusive"] == '5.5'
-    assert res["resources"][0]["hasProperty"][0]["property"]["maxInclusive"] == '5.5'
+    assert res["resources"][0]["hasProperty"][0]["property"]["minExclusive"] == 5.5
+    assert res["resources"][0]["hasProperty"][0]["property"]["minInclusive"] == 5.5
+    assert res["resources"][0]["hasProperty"][0]["property"]["maxExclusive"] == 5.5
+    assert res["resources"][0]["hasProperty"][0]["property"]["maxInclusive"] == 5.5
     assert res["resources"][0]["hasProperty"][0]["property"]["lessThan"] == 'hyha:testProp'
     assert res["resources"][0]["hasProperty"][0]["property"]["lessThanOrEquals"] == "hyha:testProp"
-    assert res["resources"][0]["hasProperty"][0]["maxCount"] == '3'
-    assert res["resources"][0]["hasProperty"][0]["minCount"] == '1'
-    assert res["resources"][0]["hasProperty"][0]["order"] == '1.0'
+    assert res["resources"][0]["hasProperty"][0]["maxCount"] == 3
+    assert res["resources"][0]["hasProperty"][0]["minCount"] == 1
+    assert res["resources"][0]["hasProperty"][0]["order"] == 1.0
 
 def test_resource_already_exists(client, token_headers, testemptydatamodel):
     header = token_headers[1]

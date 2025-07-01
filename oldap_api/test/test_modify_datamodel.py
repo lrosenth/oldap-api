@@ -35,13 +35,13 @@ def test_modify_standaloneprop_langstring(client, token_headers, testfulldatamod
         assert ele["description"] == ["gigakappa@de"]
         assert set(ele["languageIn"]) == set(["en", "de", "zu"])
         assert ele["uniqueLang"] == True
-        assert ele["minLength"] == '2'
-        assert ele["maxLength"] == '51'
+        assert ele["minLength"] == 2
+        assert ele["maxLength"] == 51
         assert ele["pattern"] == r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
-        assert ele["minExclusive"] == '5.6'
-        assert ele["minInclusive"] == '5.6'
-        assert ele["maxExclusive"] == '5.6'
-        assert ele["maxInclusive"] == '5.6'
+        assert ele["minExclusive"] == 5.6
+        assert ele["minInclusive"] == 5.6
+        assert ele["maxExclusive"] == 5.6
+        assert ele["maxInclusive"] == 5.6
 
 def test_modify_standaloneprop_langstring_01(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
@@ -699,13 +699,13 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
         assert ele["name"] == ["kappa@de"]
         assert ele["description"] == ["gigakappa@de"]
         assert set(ele["inSet"]) == set(["gigi", "Kappa"])
-        assert ele["minLength"] == '2'
-        assert ele["maxLength"] == '51'
+        assert ele["minLength"] == 2
+        assert ele["maxLength"] == 51
         assert ele["pattern"] == "kappa"
-        assert ele["minExclusive"] == '5.6'
-        assert ele["minInclusive"] == '5.6'
-        assert ele["maxExclusive"] == '5.6'
-        assert ele["maxInclusive"] == '5.6'
+        assert ele["minExclusive"] == 5.6
+        assert ele["minInclusive"] == 5.6
+        assert ele["maxExclusive"] == 5.6
+        assert ele["maxInclusive"] == 5.6
 
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp3', json={
         "inSet": ["gugus"],
@@ -923,7 +923,7 @@ def test_modify_resource_15(client, token_headers, testfulldatamodelresource):
     pprint(res)
     for resource in res["resources"]:
         if resource["iri"] == "hyha:Sheep":
-            assert resource["label"] is None
+            assert resource.get("label") is None
 
 def test_modify_resource_16(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]

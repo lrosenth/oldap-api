@@ -101,7 +101,7 @@ def test_hlist_read_node_invalid_name(client, token_headers, testfullhlist):
     header = token_headers[1]
 
     response = client.get('/admin/hlist/hyha/testfullhlist/0123', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 400
     res = response.json
     print(res)
 
@@ -109,7 +109,7 @@ def test_hlist_read_node_invalid_hlist(client, token_headers, testfullhlist):
     header = token_headers[1]
 
     response = client.get('/admin/hlist/hyha/0123/nodeA', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 400
     res = response.json
     print(res)
 
@@ -117,7 +117,7 @@ def test_hlist_read_node_invalid_project(client, token_headers, testfullhlist):
     header = token_headers[1]
 
     response = client.get('/admin/hlist/0123/testfullhlist/nodeA', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 400
     res = response.json
     print(res)
 

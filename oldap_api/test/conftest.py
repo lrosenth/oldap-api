@@ -3,13 +3,10 @@ from pathlib import Path
 from time import sleep
 
 import pytest
-import jwt
 from oldaplib.src.connection import Connection
-from oldaplib.src.datamodel import DataModel
-from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
-from factory import factory
+from oldap_api.factory import factory
 
 
 class ConnectionManager:
