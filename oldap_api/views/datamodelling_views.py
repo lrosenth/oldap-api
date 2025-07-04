@@ -12,6 +12,9 @@ Available endpoints:
 
 The implementation includes error handling and validation for most operations.
 """
+import json
+from pprint import pprint
+
 from flask import Blueprint, request, jsonify, Response
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
@@ -483,6 +486,7 @@ def read_datamodel(project):
             **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
             **({"modified": str(dm[prop].modified)} if dm[prop].modified is not None else {}),
             **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
+            **({"projectid": str(dm[prop].projectShortName)} if dm[prop].projectShortName is not None else {}),
             **({"subPropertyOf": str(dm[prop].subPropertyOf)} if dm[prop].subPropertyOf is not None else {}),
             **({"toClass": str(dm[prop].toClass)} if dm[prop].toClass is not None else {}),
             **({"datatype": str(dm[prop].datatype)} if dm[prop].datatype is not None else {}),
@@ -504,13 +508,16 @@ def read_datamodel(project):
         res["standaloneProperties"].append(data)
 
     for resource in resclasses:
+        superclass_iris = None
+        if dm[resource].superclass:
+            superclass_iris = [str(x) for x, y in dm[resource].superclass.items()]
         rdata = {
             "iri": str(resource),
-            **({"created": str(dm[prop].created)} if dm[prop].created is not None else {}),
-            **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
-            **({"modified": str(dm[prop].modified)} if dm[prop].modified is not None else {}),
-            **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
-            **({"superclass": str(dm[resource].superclass)} if dm[resource].superclass is not None else {}),
+            **({"created": str(dm[resource].created)} if dm[resource].created is not None else {}),
+            **({"creator": str(dm[resource].creator)} if dm[resource].creator is not None else {}),
+            **({"modified": str(dm[resource].modified)} if dm[resource].modified is not None else {}),
+            **({"contributor": str(dm[resource].contributor)} if dm[resource].contributor is not None else {}),
+            **({"superclass": superclass_iris} if superclass_iris is not None else {}),
             **({"label": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].label.items()]} if dm[resource].label else {}),
             **({"comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].comment.items()]} if dm[resource].comment else {}),
             **({"closed": bool(dm[resource].closed)} if dm[resource].closed is not None else {}),
@@ -525,6 +532,7 @@ def read_datamodel(project):
                     **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
                     **({"modified": str(dm[prop].modified)} if dm[prop].modified is not None else {}),
                     **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
+                    **({"projectid": str(dm[prop].projectShortName)} if dm[prop].projectShortName is not None else {}),
                     **({"subPropertyOf": str(hp.prop.subPropertyOf)} if hp.prop.subPropertyOf is not None else {}),
                     **({"datatype": str(hp.prop.datatype)} if hp.prop.datatype is not None else {}),
                     **({"name": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.name.items()]} if hp.prop.name else {}),

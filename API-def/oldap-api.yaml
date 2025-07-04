@@ -3981,6 +3981,9 @@ components:
         modified:
           type: string
           format: date-time
+        projectid:
+          type: string
+          description: ID of project the property is defined in
         subPropertyOf:
           $ref: '#/components/schemas/Iri'
           description: Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf would be generic case of pageOf
