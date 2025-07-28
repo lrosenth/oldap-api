@@ -85,7 +85,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     :param data: The data of the property
     :return: The processed PropertyClass
     """
-    known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
+    known_json_fields = {"subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
                          "maxInclusive", "lessThan", "lessThanOrEquals", "toClass"}
 
