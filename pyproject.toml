@@ -17,6 +17,9 @@ requests = "^2.32.3"
 
 
 
+[tool.poetry.group.dev.dependencies]
+openapi-spec-validator = "^0.7"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

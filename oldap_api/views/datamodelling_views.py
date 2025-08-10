@@ -85,7 +85,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     :param data: The data of the property
     :return: The processed PropertyClass
     """
-    known_json_fields = {"subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
+    known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
                          "maxInclusive", "lessThan", "lessThanOrEquals", "toClass"}
 
@@ -517,6 +517,7 @@ def read_datamodel(project):
             **({"creator": str(dm[resource].creator)} if dm[resource].creator is not None else {}),
             **({"modified": str(dm[resource].modified)} if dm[resource].modified is not None else {}),
             **({"contributor": str(dm[resource].contributor)} if dm[resource].contributor is not None else {}),
+            **({"projectid": str(dm[resource].projectid)} if dm[resource].projectid is not None else {}),
             **({"superclass": superclass_iris} if superclass_iris is not None else {}),
             **({"label": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].label.items()]} if dm[resource].label else {}),
             **({"comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].comment.items()]} if dm[resource].comment else {}),

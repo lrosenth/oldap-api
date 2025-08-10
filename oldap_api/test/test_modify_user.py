@@ -20,7 +20,7 @@ def test_modify_givenname(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["given_name"] == "Kappa"
+    assert readed["givenName"] == "Kappa"
 
 
 def test_modify_familyname(client, token_headers, testuser):
@@ -36,7 +36,7 @@ def test_modify_familyname(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["family_name"] == "Kappa"
+    assert readed["familyName"] == "Kappa"
 
 def test_modify_email(client, token_headers, testuser):
     header = token_headers[1]
@@ -90,7 +90,7 @@ def test_modify_inproject_a(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     pprint(readed)
-    assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_RESOURCES'])
+    assert sorted(readed["inProjects"][1]["permissions"]) == sorted(['oldap:ADMIN_RESOURCES'])
 
 def test_modify_inproject_b(client, token_headers, testuser):
     header = token_headers[1]
@@ -108,7 +108,7 @@ def test_modify_inproject_b(client, token_headers, testuser):
     res = response.json
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert sorted(readed["in_projects"][1]["permissions"]) == sorted(['oldap:ADMIN_USERS', 'oldap:ADMIN_RESOURCES'])
+    assert sorted(readed["inProjects"][1]["permissions"]) == sorted(['oldap:ADMIN_USERS', 'oldap:ADMIN_RESOURCES'])
 
 def test_modify_inproject_c(client, token_headers, testuser):
     header = token_headers[1]
@@ -127,7 +127,7 @@ def test_modify_inproject_c(client, token_headers, testuser):
     print(res)
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    tmp = [x for x in readed["in_projects"] if x['project'] == "oldap:HyperHamlet"]
+    tmp = [x for x in readed["inProjects"] if x['project'] == "oldap:HyperHamlet"]
     assert len(tmp) == 1
 
 def test_modify_inproject_d(client, token_headers, testuser):
@@ -147,7 +147,7 @@ def test_modify_inproject_d(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
-    assert readed["in_projects"][1]["permissions"] == []
+    assert readed["inProjects"][1]["permissions"] == []
 
 def test_modify_inproject_e(client, token_headers, testuser):
     header = token_headers[1]
@@ -166,7 +166,7 @@ def test_modify_inproject_e(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
-    assert readed["in_projects"][1]["permissions"] == []
+    assert readed["inProjects"][1]["permissions"] == []
 
 def test_modify_inproject_f(client, token_headers, testuser):
     header = token_headers[1]
@@ -195,7 +195,7 @@ def test_modify_inproject_g(client, token_headers, testuser):
     print(res)
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    for p in readed["in_projects"]:
+    for p in readed["inProjects"]:
         assert p['project'] != "oldap:HyperHamlet"
 
 def test_modify_inproject_g(client, token_headers, testuser):
@@ -209,7 +209,7 @@ def test_modify_inproject_g(client, token_headers, testuser):
     print(res)
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    for p in readed["in_projects"]:
+    for p in readed["inProjects"]:
         assert p['project'] != "oldap:HyperHamlet"
 
 def test_modify_inproject_h(client, token_headers, testuser):
@@ -222,7 +222,7 @@ def test_modify_inproject_h(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     ishere = False
-    for p in readed["in_projects"]:
+    for p in readed["inProjects"]:
         if p['project'] == "oldap:SystemProject":
             ishere = True
     assert ishere
@@ -237,7 +237,7 @@ def test_modify_inproject_i(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     ishere = False
-    for p in readed["in_projects"]:
+    for p in readed["inProjects"]:
         if p['project'] == "oldap:SystemProject":
             assert sorted(p["permissions"]) == sorted(["oldap:ADMIN_USERS", "oldap:ADMIN_MODEL"])
             ishere = True
@@ -445,7 +445,7 @@ def test_inprojects_none(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
-    assert readed["in_projects"] == []
+    assert readed["inProjects"] == []
 
 
 def test_inprojects_permission_none(client, token_headers, testuser):
@@ -464,10 +464,10 @@ def test_inprojects_permission_none(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     pprint(readed)
-    for obj in readed["in_projects"]:
+    for obj in readed["inProjects"]:
         assert obj["project"] != "http://www.salsah.org/version/2.0/SwissBritNet"
-    #assert readed["in_projects"].get(Iri("http://www.salsah.org/version/2.0/SwissBritNet")) == None
-    #assert sorted(readed["in_projects"][1]["permissions"]) == sorted([])
+    #assert readed["inProjects"].get(Iri("http://www.salsah.org/version/2.0/SwissBritNet")) == None
+    #assert sorted(readed["inProjects"][1]["permissions"]) == sorted([])
 
 
 def test_modify_empty_permissions_inprojects(client, token_headers, testuser):
@@ -516,7 +516,7 @@ def test_modify_empty_inproject_permissions(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
-    assert readed["in_projects"][1]["permissions"] == []
+    assert readed["inProjects"][1]["permissions"] == []
 
 
 def test_modify_empty_inproject_name(client, token_headers, testuser):
@@ -551,7 +551,7 @@ def test_modify_haspermission(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert sorted(readed["has_permissions"]) == sorted(['oldap:GenericRestricted', 'oldap:GenericView'])
+    assert sorted(readed["hasPermissions"]) == sorted(['oldap:GenericRestricted', 'oldap:GenericView'])
 
     response = client.post('/admin/user/rosman', json={
         "hasPermissions": {"del": ["GenericRestricted", "GenericView"]}
@@ -559,7 +559,7 @@ def test_modify_haspermission(client, token_headers, testuser):
     assert response.status_code == 200
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["has_permissions"] == []
+    assert readed["hasPermissions"] == []
 
     response = client.post('/admin/user/rosman', json={
         "hasPermissions": {"del": ["GenericRestricted"]}
@@ -572,7 +572,7 @@ def test_modify_haspermission(client, token_headers, testuser):
     assert response.status_code == 200
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["has_permissions"] == []
+    assert readed["hasPermissions"] == []
 
 
 def test_modify_empty_haspermission(client, token_headers, testuser):
@@ -587,7 +587,7 @@ def test_modify_empty_haspermission(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["has_permissions"] == []
+    assert readed["hasPermissions"] == []
 
 
 def test_notwellformed_modify_haspermission(client, token_headers, testuser):
@@ -639,7 +639,7 @@ def test_bad_modify_haspermission(client, token_headers, testuser):
     print(res)
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert sorted(readed["has_permissions"]) == sorted(["oldap:GenericRestricted", "oldap:GenericView"])
+    assert sorted(readed["hasPermissions"]) == sorted(["oldap:GenericRestricted", "oldap:GenericView"])
 
     response = client.post('/admin/user/rosman', json={
         "hasPermissions": {"add": ["GenericRestricted"], "del": ["GenericView"]}
@@ -650,7 +650,7 @@ def test_bad_modify_haspermission(client, token_headers, testuser):
     print(res)
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["has_permissions"] == ["oldap:GenericRestricted"]
+    assert readed["hasPermissions"] == ["oldap:GenericRestricted"]
 
     response = client.post('/admin/user/rosman', json={
         "hasPermissions": {"del": "GenericRestricted"}
@@ -710,7 +710,7 @@ def test_blanks_in_modify(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
-    assert readed["given_name"] == "Kappa kappa"
+    assert readed["givenName"] == "Kappa kappa"
 
 
 def test_too_long_modify(client, token_headers, testuser):
@@ -728,7 +728,7 @@ def test_too_long_modify(client, token_headers, testuser):
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
-    assert readed["given_name"] == "LoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametDuisautemveleumiriuredolorinhendreritinvulputatevelitessemolestieconsequatvelillumdoloreeufeugiatnullafacilisisatveroerosetaccumsanetiustoodiodignissimquiblanditpraesentluptatumzzrildelenitaugueduisdoloretefeugaitnullafacilisiLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquameratvolutpatUtwisienimadminimveniamquisnostrudexercitationullamcorpersuscipitlobortisnislutaliquipexeacommodoconsequatDuisautemveleumiriuredolorinhendreritinvulputatevelitessemolestieconsequatvelillumdoloreeufeugiatnullafacilisisatveroerosetaccumsanetiustoodiodignissimquiblanditpraesentluptatumzzrildelenitaugueduisdoloretefeugaitnullafacilisiNamlibertemporcumsolutanobiseleifendoptionconguenihilimperdietdomingidquodmazimplaceratfacerpossimassumLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquameratvolutpatUtwisienimadminimveniamquisnostrudexercitationullamcorpersuscipitlobortisnislutaliquipexeacommodoconsequatDuisautemveleumiriuredolorinhendreritinvulputatevelitessemolestieconsequatvelillumdoloreeufeugiatnullafacilisisAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrAtaccusamaliquConsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdolore"
+    assert readed["givenName"] == "LoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametDuisautemveleumiriuredolorinhendreritinvulputatevelitessemolestieconsequatvelillumdoloreeufeugiatnullafacilisisatveroerosetaccumsanetiustoodiodignissimquiblanditpraesentluptatumzzrildelenitaugueduisdoloretefeugaitnullafacilisiLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquameratvolutpatUtwisienimadminimveniamquisnostrudexercitationullamcorpersuscipitlobortisnislutaliquipexeacommodoconsequatDuisautemveleumiriuredolorinhendreritinvulputatevelitessemolestieconsequatvelillumdoloreeufeugiatnullafacilisisatveroerosetaccumsanetiustoodiodignissimquiblanditpraesentluptatumzzrildelenitaugueduisdoloretefeugaitnullafacilisiNamlibertemporcumsolutanobiseleifendoptionconguenihilimperdietdomingidquodmazimplaceratfacerpossimassumLoremipsumdolorsitametconsectetueradipiscingelitseddiamnonummynibheuismodtinciduntutlaoreetdoloremagnaaliquameratvolutpatUtwisienimadminimveniamquisnostrudexercitationullamcorpersuscipitlobortisnislutaliquipexeacommodoconsequatDuisautemveleumiriuredolorinhendreritinvulputatevelitessemolestieconsequatvelillumdoloreeufeugiatnullafacilisisAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrAtaccusamaliquConsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdoloremagnaaliquyameratseddiamvoluptuaAtveroeosetaccusametjustoduodoloresetearebumStetclitakasdgubergrennoseatakimatasanctusestLoremipsumdolorsitametLoremipsumdolorsitametconsetetursadipscingelitrseddiamnonumyeirmodtemporinviduntutlaboreetdolore"
 
 
 def test_no_json(client, token_headers, testuser):

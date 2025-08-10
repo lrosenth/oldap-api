@@ -14,3 +14,4 @@
 /.DS_Store
 *.pyc
 /oldap_api/test/tmp
+/tmp

@@ -41,11 +41,11 @@ def create_user(userid):
         "email": "john.doe@unknown.org",
         "password": "nicepw",
         "isActive": True,
-        "in_projects": [{
+        "inProjects": [{
             "permissions": ['oldap:ADMIN_USERS', (...)],
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
             }, {...}],
-        "has_permissions": ['oldap:GenericView', (...)]
+        "hasPermissions": ['oldap:GenericView', (...)]
     }
     :param userid: The userid of the useraccount that should be created
     :return: A JSON containing the userIri that has the following form:
@@ -150,10 +150,10 @@ def read_users(userid):
     :param userid: The userid of the user for that the information should be retrieved.
     :return: A JSON containing the information about the given user. It has the following form:
     json={
-    'family_name': 'John',
-    'given_name': 'Doe',
-    'has_permissions': ['oldap:GenericView', (...)],
-    'in_projects': [{
+    'familyName': 'John',
+    'givenName': 'Doe',
+    'hasPermissions': ['oldap:GenericView', (...)],
+    'inProjects': [{
         'permissions': ['oldap:ADMIN_USERS', (...)],
         'project': 'http://www.salsah.org/version/2.0/SwissBritNet'
         }, {...}],
@@ -188,18 +188,18 @@ def read_users(userid):
         "modified": str(user.modified),
         "userIri": str(user.userIri),
         "userId": str(user.userId),
-        "family_name": str(user.familyName),
+        "familyName": str(user.familyName),
         "isActive": bool(user.isActive),
         "email": str(user.email),
-        "given_name": str(user.givenName),
-        "in_projects": [],
-        "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
+        "givenName": str(user.givenName),
+        "inProjects": [],
+        "hasPermissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
     }
 
     if user.inProject is not None:
         for projname, permissions in user.inProject.items():
             proj = {"project": str(projname), "permissions": [x.value for x in permissions] if permissions else []}
-            answer["in_projects"].append(proj)
+            answer["inProjects"].append(proj)
 
     return jsonify(answer), 200
 
@@ -247,7 +247,7 @@ def modify_user(userid):
         "email": "john.doe@unkown.org",
         "password": "nicepw",
         "isActive": True/False
-        "in_projects": [
+        "inProjects": [
             {
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
             "permissions": ['oldap:ADMIN_USERS', (...)] or
@@ -260,7 +260,7 @@ def modify_user(userid):
             "add": [{"project": 'http://www.salsah.org/version/2.0/SwissBritNet', "permissions" ["oldap:GenericView", (...)]}],
             "del": ['http://www.salsah.org/version/2.0/SwissBritNet', (...)],
         },
-        "has_permissions": ['oldap:GenericView', (...)] or {
+        "hasPermissions": ['oldap:GenericView', (...)] or {
         "add": ["oldap:GenericView", (...)],
         "del": ["oldap:GenericView", (...)]
         }
@@ -501,17 +501,17 @@ def user_get_by_iri():
         "modified": str(user.modified),
         "userIri": str(user.userIri),
         "userId": str(user.userId),
-        "family_name": str(user.familyName),
+        "familyName": str(user.familyName),
         "isActive": bool(user.isActive),
         "email": str(user.email),
-        "given_name": str(user.givenName),
-        "in_projects": [],
-        "has_permissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
+        "givenName": str(user.givenName),
+        "inProjects": [],
+        "hasPermissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
     }
 
     if user.inProject is not None:
         for projname, permissions in user.inProject.items():
             proj = {"project": str(projname), "permissions": [x.value for x in permissions] if permissions else []}
-            answer["in_projects"].append(proj)
+            answer["inProjects"].append(proj)
 
     return jsonify(answer), 200

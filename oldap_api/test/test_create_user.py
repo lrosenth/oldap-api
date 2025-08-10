@@ -342,7 +342,7 @@ def test_empty_hasPermissions(client, token_headers):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["has_permissions"] == []
+    assert readed["hasPermissions"] == []
 
 
 def test_bad_userid(client, token_headers):

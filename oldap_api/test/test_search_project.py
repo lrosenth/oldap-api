@@ -58,7 +58,12 @@ def test_no_query_params(client, token_headers):
     assert response.status_code == 200
     res = response.json
     res2 = [(x['projectIri'], x['projectShortName']) for x in res]
-    assert set(res2) == {('oldap:SystemProject', 'oldap'), ('oldap:HyperHamlet', 'hyha'), ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet')}
+    assert set(res2) == {
+        ('oldap:SystemProject', 'oldap'),
+        ('oldap:SharedProject', 'shared'),
+        ('oldap:HyperHamlet', 'hyha'),
+        ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet')
+    }
 
 
 def test_empty_query_params(client, token_headers):
@@ -67,7 +72,12 @@ def test_empty_query_params(client, token_headers):
     assert response.status_code == 200
     res = response.json
     res2 = [(x['projectIri'], x['projectShortName']) for x in res]
-    assert set(res2) == {('oldap:SystemProject', 'oldap'), ('oldap:HyperHamlet', 'hyha'), ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet')}
+    assert set(res2) == {
+        ('oldap:SystemProject', 'oldap'),
+        ('oldap:SharedProject', 'shared'),
+        ('oldap:HyperHamlet', 'hyha'),
+        ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet')
+    }
 
 
 def test_find_several_projects(client, token_headers, testproject):

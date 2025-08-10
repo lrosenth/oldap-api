@@ -7,11 +7,11 @@ def test_read_user(client, token_headers, testuser):
     response = client.get('/admin/user/rosman', headers=header)
     assert response.status_code == 200
     res = response.json
-    assert res["family_name"] == "Rosenthaler"
-    assert res["given_name"] == "Manuel"
+    assert res["familyName"] == "Rosenthaler"
+    assert res["givenName"] == "Manuel"
     assert res["email"] == "manuel.rosenthaler@unibas.ch"
-    assert res["has_permissions"] == ['oldap:GenericView']
-    assert res["in_projects"] == [{'permissions': ['oldap:ADMIN_USERS'], 'project': 'oldap:HyperHamlet'},
+    assert res["hasPermissions"] == ['oldap:GenericView']
+    assert res["inProjects"] == [{'permissions': ['oldap:ADMIN_USERS'], 'project': 'oldap:HyperHamlet'},
  {'permissions': ['oldap:ADMIN_USERS'],
   'project': 'http://www.salsah.org/version/2.0/SwissBritNet'}]
     assert res["userId"] == "rosman"
@@ -61,7 +61,7 @@ def test_empty_has_permissions(client, token_headers):
     response = client.get('/admin/user/rosman', headers=header)
 
     res = response.json
-    assert res["has_permissions"] == []
+    assert res["hasPermissions"] == []
 
     client.delete('/admin/user/rosman', headers=header)
 
@@ -87,7 +87,7 @@ def test_empty_projects(client, token_headers):
     response = client.get('/admin/user/rosman', headers=header)
 
     res = response.json
-    assert res['in_projects'][0]['permissions'] == []
+    assert res['inProjects'][0]['permissions'] == []
 
     client.delete('/admin/user/rosman', headers=header)
 
@@ -117,10 +117,10 @@ def test_get_user_by_iri(client, token_headers):
     assert response.status_code == 200
     res = response.json
     assert res["userId"] == "rosenth"
-    assert res["family_name"] == "Rosenthaler"
-    assert res["given_name"] == "Lukas"
+    assert res["familyName"] == "Rosenthaler"
+    assert res["givenName"] == "Lukas"
     assert res["email"] == "lukas.rosenthaler@unibas.ch"
-    assert set(res["has_permissions"]) == {'oldap:GenericRestricted', 'oldap:GenericView'}
+    assert set(res["hasPermissions"]) == {'oldap:GenericRestricted', 'oldap:GenericView'}
 
     response = client.get('/admin/user/get', query_string={
     }, headers=header)
