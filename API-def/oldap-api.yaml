@@ -12,7 +12,7 @@ servers:
 paths:
   /admin/auth/{userId}:
     post:
-      summary: Authentification/login
+      summary: Authentication/login
       description: Perform login/logout with userid/password. Returns a JWT token.
       parameters:
         - name: userId
@@ -24,9 +24,10 @@ paths:
         content:
           application/json:
             schema:
-                properties:
-                  password:
-                    type: string
+              type: object
+              properties:
+                password:
+                  type: string
         required: true
       responses:
         "200":
@@ -58,15 +59,8 @@ paths:
           description: "OK"
         "400":
           description: "Several Errors that involve bad requests"
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/user/{userId}:
     put:
@@ -86,6 +80,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 givenName:
                   type: string
@@ -137,6 +132,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -148,23 +144,10 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "403":
           $ref: '#/components/responses/Unauthorized'
-        409:
-          description: "Userid or useriri already exists"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "A user with a user ID {userId} already exists"
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     delete:
       summary: "Delete a user"
@@ -183,6 +166,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -218,8 +202,8 @@ paths:
                   - modified
                   - userId
                   - userIri
-                  - family_name
-                  - given_name
+                  - familyName
+                  - givenName
                   - email
                 properties:
                   creator:
@@ -236,9 +220,9 @@ paths:
                     type: string
                   userId:
                     type: string
-                  family_name:
+                  familyName:
                     type: string
-                  given_name:
+                  givenName:
                     type: string
                   email:
                     type: string
@@ -280,6 +264,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 userId:
                   type: string
@@ -349,6 +334,7 @@ paths:
                           type: array
                           items:
                             type: string
+              minProperties: 1
         required: true
       responses:
         "200":
@@ -356,6 +342,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -366,15 +353,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/user/search:
     get:
@@ -416,7 +396,12 @@ paths:
                 type: array
                 items:
                   type: string
-                  example: ['https://orcid.org/0000-0003-1681-4036', 'https://orcid.org/0000-0003-1485-4923', 'https://orcid.org/0000-0001-9277-3921']
+              examples:
+                sample:
+                  value:
+                    - 'https://orcid.org/0000-0003-1681-4036'
+                    - 'https://orcid.org/0000-0003-1485-4923'
+                    - 'https://orcid.org/0000-0001-9277-3921'
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -436,7 +421,7 @@ paths:
           description: Iri of user
           required: true
       responses:
-        200:
+        "200":
           description: "OK"
           content:
             application/json:
@@ -449,8 +434,8 @@ paths:
                   - modified
                   - userId
                   - userIri
-                  - family_name
-                  - given_name
+                  - familyName
+                  - givenName
                   - email
                 properties:
                   creator:
@@ -467,9 +452,9 @@ paths:
                     type: string
                   userId:
                     type: string
-                  family_name:
+                  familyName:
                     type: string
-                  given_name:
+                  givenName:
                     type: string
                   email:
                     type: string
@@ -513,6 +498,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 projectIri:
                   type: string
@@ -533,6 +519,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -541,23 +528,11 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "403":
           $ref: '#/components/responses/Unauthorized'
-        409:
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'A Project with a projectIri "http://unittest.org/project/testproject" already exists'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     delete:
       summary: "Delete a project"
       description: "The user that has the rights (given by his token) deletes a project"
@@ -575,6 +550,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -585,14 +561,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     get:
       summary: "Gets/reads Information about a project"
       description: "The user that has the rights (given by his token) gets Information about a project"
@@ -610,6 +581,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   projectIri:
                     type: string
@@ -637,12 +609,12 @@ paths:
                   shortName:
                     type: string
                     pattern: ^[a-zA-Z_][a-zA-Z0-9._-]*$
-                  namespace IRI:
+                  namespaceIri:
                     type: string
-                  project start:
+                  projectStart:
                     type: string
                     format: date
-                  project end:
+                  projectEnd:
                     type: string
                     format: date
         "400":
@@ -666,6 +638,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 label:
                   oneOf:
@@ -688,11 +661,13 @@ paths:
                           $ref: '#/components/schemas/LangString'
                     - type: "null"
                 projectStart:
-                  type: string
-                  nullable: true
+                  oneOf:
+                    - type: string
+                    - type: "null"
                 projectEnd:
-                  type: string
-                  nullable: true
+                  oneOf:
+                    - type: string
+                    - type: "null"
         required: true
       responses:
         "200":
@@ -700,6 +675,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -710,14 +686,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/project/search:
     get:
@@ -750,10 +720,12 @@ paths:
                       type: string
                     projectShortName:
                       type: string
-              example:
+              examples:
                 example1:
                   summary: Example response
-                  value: [{projectIri: "http://www.gaga/hallo", projectShortName: "hallo"}, {projectIri: "mypr:project", projectShortName: "project"}]
+                  value:
+                    - {projectIri: "http://www.gaga/hallo", projectShortName: "hallo"}
+                    - {projectIri: "mypr:project", projectShortName: "project"}
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -771,16 +743,18 @@ paths:
           schema:
             type: string
           description: Iri of project
-          required:
+          required: true
       responses:
-        200:
+        "200":
           description: "OK"
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   projectIri:
                     type: string
+                    required: true
                     description: An Iri or a QName identifying the project
                   creator:
                     type: string
@@ -805,12 +779,12 @@ paths:
                   shortName:
                     type: string
                     pattern: ^[a-zA-Z_][a-zA-Z0-9._-]*$
-                  namespace IRI:
+                  namespaceIri:
                     type: string
-                  project start:
+                  projectStart:
                     type: string
                     format: date
-                  project end:
+                  projectEnd:
                     type: string
                     format: date
         "400":
@@ -834,11 +808,12 @@ paths:
           description: Iri of project to get the id from
           required: true
       responses:
-        200:
+        "200":
           description: "OK"
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   id:
                     type: string
@@ -847,16 +822,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Unknown error"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                required: [ message ]
-
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/permissionset/{definedByProject}/{permissionSetId}:
     put:
@@ -881,6 +848,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 label:
                   $ref: '#/components/schemas/LangString'
@@ -902,6 +870,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -910,23 +879,11 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "403":
           $ref: '#/components/responses/Unauthorized'
-        409:
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'A permission set "oldap:testpermissionset" already exists'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     delete:
       summary: "Delete a permissionset"
       description: "The user that has the rights (given by his token) deletes a permissionset"
@@ -951,6 +908,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -961,23 +919,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        409:
-          description: "Conflict"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'Permission set is still assigned to data objects'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     get:
       summary: "Gets/reads Information about a permissionset"
@@ -1003,6 +948,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   permissionSetIri:
                     type: string
@@ -1055,6 +1001,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 label:
                   oneOf:
@@ -1092,6 +1039,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1102,15 +1050,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/permissionset/search:
     get:
@@ -1146,7 +1087,12 @@ paths:
                 type: array
                 items:
                   type: string
-                  example: ['https://orcid.org/0000-0003-1681-4036', 'https://orcid.org/0000-0003-1485-4923', 'https://orcid.org/0000-0001-9277-3921']
+              examples:
+                sample:
+                  value:
+                    - 'https://orcid.org/0000-0003-1681-4036'
+                    - 'https://orcid.org/0000-0003-1485-4923'
+                    - 'https://orcid.org/0000-0001-9277-3921'
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -1166,11 +1112,12 @@ paths:
           description: Iri of permission set
           required: true
       responses:
-        200:
+        "200":
           description: OK
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   creator:
                     type: string
@@ -1198,23 +1145,10 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "403":
           $ref: '#/components/responses/Unauthorized'
-        409:
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'A permission set "oldap:testpermissionset" already exists'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/permissionset/{definedByProject}/{permissionSetId}/in_use:
     get:
@@ -1237,11 +1171,12 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        "200":
           description: The request was successfull
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   in_use:
                     type: boolean
@@ -1249,14 +1184,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/datamodel/{project}:
     put:
@@ -1277,6 +1206,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1285,14 +1215,9 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "403":
           $ref: '#/components/responses/Unauthorized'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     get:
       summary: Read a datamodel
       description:
@@ -1329,14 +1254,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     delete:
       summary: Delete the whole datamodel (!Not Reversible!)
       description:
@@ -1351,11 +1271,12 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        "200":
           description: OK
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1366,15 +1287,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/datamodel/{project}/property/{property}:
     put:
@@ -1399,6 +1313,7 @@ paths:
           schema:
             $ref: '#/components/schemas/Iri'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1409,6 +1324,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1419,14 +1335,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     delete:
       summary: Delete an entire standalone property inside the datamodel of a project
       description:
@@ -1452,6 +1363,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1462,14 +1374,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     post:
       summary: Modify a standalone property
       description:
@@ -1491,6 +1398,7 @@ paths:
           schema:
             $ref: '#/components/schemas/Iri'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1571,6 +1479,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1581,15 +1490,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/datamodel/{project}/{resource}:
     put:
@@ -1614,6 +1516,7 @@ paths:
           schema:
             $ref: '#/components/schemas/Iri'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1624,6 +1527,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1634,23 +1538,11 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        409:
-          description: Resource already exists
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'The resource class "hyha:Sheep" already exists. It cannot be replaced. Update/delete it.'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     delete:
       summary: Deletes an entire resource inside a datamodel of a given project
       description:
@@ -1676,6 +1568,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1686,14 +1579,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     post:
       summary: Modifies a resource in a datamodel
       description: >
@@ -1715,6 +1603,7 @@ paths:
           schema:
             $ref: '#/components/schemas/Iri'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1737,6 +1626,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1747,15 +1637,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/datamodel/{project}/{resource}/{property}:
     put:
@@ -1786,6 +1669,7 @@ paths:
           schema:
             $ref: '#/components/schemas/Iri'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1811,6 +1695,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1821,23 +1706,11 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        409:
-          description: Resource already exists
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'The resource class "hyha:Sheep" already exists. It cannot be replaced. Update/delete it.'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     delete:
       summary: Deletes a property inside a resource in a datamodel
       description:
@@ -1869,6 +1742,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1877,14 +1751,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     post:
       summary: Modifies a property inside a resource in a datamodel
       description:
@@ -1911,6 +1780,7 @@ paths:
           schema:
             $ref: '#/components/schemas/Iri'
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1937,6 +1807,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -1947,14 +1818,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/hlist/{project}/upload:
     post:
@@ -2018,6 +1883,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2030,11 +1896,12 @@ paths:
                   $ref: '#/components/schemas/LangString'
                   description: The skos:definition of the h-list that describes the concept of the elements of the h-list.
       responses:
-        200:
+        "200":
           description: "OK"
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -2045,23 +1912,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        409:
-          description: "Userid or useriri already exists"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: "A list with a iri 'hyha:testhlist' already exists"
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     post:
       summary: Change the metadata of a hierarchical list
@@ -2083,6 +1937,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2109,11 +1964,12 @@ paths:
                           $ref: '#/components/schemas/LangString'
                     - type: "null"
       responses:
-        200:
+        "200":
           description: "OK"
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -2124,14 +1980,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     delete:
       summary: Delete a hierarchical list
@@ -2153,11 +2003,12 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        "200":
           description: Hierarchical list has been deleted successfully
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -2168,23 +2019,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        409:
-          description: "in use"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'Hierarchical cannot be deleted because it is in use'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     get:
       summary: Read a hierarchical list.
@@ -2254,14 +2092,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/hlist/{project}/{hlistid}/in_use:
     get:
@@ -2284,11 +2116,12 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        "200":
           description: The request was successfull
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   in_use:
                     type: boolean
@@ -2298,14 +2131,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/hlist/{project}/{hlistid}/download:
     get:
@@ -2368,14 +2195,7 @@ paths:
         "404":
           $ref: '#/components/responses/NotFound'
         "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/hlist/{project}/{hlistid}/{nodeid}:
     get:
@@ -2409,6 +2229,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   nodeid:
                     type: string
@@ -2522,11 +2343,12 @@ paths:
               position: "leftOf"
               refnode: "nodeA"
       responses:
-        200:
+        "200":
           description: "OK"
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -2537,23 +2359,11 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        409:
-          description: Resource already exists
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'A root node for "hyha:testhlist" already exists'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     delete:
       summary: Deletes a node inside a hierarchical list
       description: |
@@ -2594,6 +2404,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -2604,23 +2415,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        409:
-          description: Resource already exists
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'Cannot delete node with skos:broaderTransitive pointing to it!'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
     post:
       summary: Modify a node inside a hierarchical list
@@ -2652,6 +2450,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 prefLabel:
                   oneOf:
@@ -2679,6 +2478,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -2689,14 +2489,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/hlist/{project}/{hlistid}/{nodeid}/move:
     post:
@@ -2758,6 +2552,7 @@ paths:
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   message:
                     type: string
@@ -2768,23 +2563,10 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
-        409:
-          description: Resource already exists
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
-                    example: 'Cannot move node to target node that is part of the tree to be moved!'
-        500:
-          description: "Internal Server error. Should not be reachable"
-          content:
-            application/json:
-              schema:
-                properties:
-                  message:
-                    type: string
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /admin/hlist/search:
     get:
@@ -2850,13 +2632,14 @@ paths:
           schema:
             type: string
           description: Iri of hlist
-          required:
+          required: true
       responses:
-        200:
+        "200":
           description: "OK"
           content:
             application/json:
               schema:
+                type: object
                 properties:
                   hlistIri:
                     type: string
@@ -2903,9 +2686,9 @@ components:
           type: string
         userId:
           type: string
-        family_name:
+        familyName:
           type: string
-        given_name:
+        givenName:
           type: string
         in_projects:
           type: array

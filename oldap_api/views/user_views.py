@@ -495,16 +495,16 @@ def user_get_by_iri():
 
     # Building the response json
     answer = {
-        "creator": str(user.creator),
-        "created": str(user.created),
-        "contributor": str(user.contributor),
-        "modified": str(user.modified),
-        "userIri": str(user.userIri),
-        "userId": str(user.userId),
-        "familyName": str(user.familyName),
+        **({"creator": str(user.creator)} if user.creator else {}),
+        **({"created": str(user.created)} if user.created  else {}),
+        **({"contributor": str(user.contributor)} if user.contributor else {}),
+        **({"modified": str(user.modified)} if user.modified else {}),
+        **({"userIri": str(user.userIri)} if user.userIri else {}),
+        **({"userId": str(user.userId)} if user.userId else {}),
+        **({"familyName": str(user.familyName)} if user.familyName else {}),
         "isActive": bool(user.isActive),
-        "email": str(user.email),
-        "givenName": str(user.givenName),
+        **({"email": str(user.email)} if user.email else {}),
+        **({"givenName": str(user.givenName)} if user.givenName else {}),
         "inProjects": [],
         "hasPermissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
     }

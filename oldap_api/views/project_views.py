@@ -173,19 +173,17 @@ def read_project(projectid):
         return jsonify({'message': str(error)}), 404
     res = {
         'projectIri': str(project.projectIri),
-        'creator': str(project.creator),
-        'created': str(project.created),
-        'contributor': str(project.contributor),
-        'modified': str(project.modified),
-        'projectShortName': str(project.projectShortName),
-        'namespaceIri': str(project.namespaceIri),
-        'projectStart': str(project.projectStart) if project.projectStart else None,
-        'projectEnd': str(project.projectEnd) if project.projectEnd else None
+        **({"creator": str(project.creator)} if project.creator else {}),
+        **({"created": str(project.created)} if project.created  else {}),
+        **({"contributor": str(project.contributor)} if project.contributor else {}),
+        **({"modified": str(project.modified)} if project.modified else {}),
+        **({'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()]} if project.label else {}),
+        **({'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()]} if project.comment else {}),
+        **({"projectShortName": str(project.projectShortName)} if project.projectShortName else {}),
+        **({"namespaceIri": str(project.namespaceIri)} if project.namespaceIri else {}),
+        **({"projectStart": str(project.projectStart)} if project.projectStart else {}),
+        **({"projectEnd": str(project.projectEnd)} if project.projectEnd else {}),
     }
-    if project.label:
-        res['label'] = [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()]
-    if project.comment:
-        res['comment'] = [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()]
     return res, 200
 
 @project_bp.route('/project/get', methods=['GET'])
@@ -217,21 +215,17 @@ def get_project_by_iri():
         return jsonify({'message': str(error)}), 404
     res = {
         'projectIri': str(project.projectIri),
-        'creator': str(project.creator),
-        'created': str(project.created),
-        'contributor': str(project.contributor),
-        'modified': str(project.modified),
-        #'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()] if project.label else None,
-        #'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()] if project.comment else None,
-        'projectShortName': str(project.projectShortName),
-        'namespaceIri': str(project.namespaceIri),
-        'projectStart': str(project.projectStart) if project.projectStart else None,
-        'projectEnd': str(project.projectEnd) if project.projectEnd else None
+        **({"creator": str(project.creator)} if project.creator else {}),
+        **({"created": str(project.created)} if project.created  else {}),
+        **({"contributor": str(project.contributor)} if project.contributor else {}),
+        **({"modified": str(project.modified)} if project.modified else {}),
+        **({'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()]} if project.label else {}),
+        **({'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()]} if project.comment else {}),
+        **({"projectShortName": str(project.projectShortName)} if project.projectShortName else {}),
+        **({"namespaceIri": str(project.namespaceIri)} if project.namespaceIri else {}),
+        **({"projectStart": str(project.projectStart)} if project.projectStart else {}),
+        **({"projectEnd": str(project.projectEnd)} if project.projectEnd else {}),
     }
-    if project.label:
-        res['label'] = [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()]
-    if project.comment:
-        res['comment'] = [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()]
     return res, 200
 
 
