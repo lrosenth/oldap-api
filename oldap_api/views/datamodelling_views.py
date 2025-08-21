@@ -312,15 +312,26 @@ def add_resource_to_datamodel(project, resource):
                     return jsonify({"message": f"The Field/s {unknown_hasproperty_field} is/are not used to create a property in a resource. Usable are {known_hasproperty_fields}. Aborded operation"}), 400
                 if not mandatory_hasproperty_fields.issubset(set(prop.keys())):
                     return jsonify({"message": f"The Fields {mandatory_hasproperty_fields} are required to create a resource. Used where {set(prop.keys())}. Usable are {known_hasproperty_fields}"}), 400
-                if prop["property"].get("iri", None) is None:
-                    return jsonify({"message": f"Property IRI is missing in HasProperty"}), 400
-                try:
-                    property_iri = prop["property"]["iri"]
-                    endprop = process_property(con=con, project=project, property_iri=property_iri, data=prop["property"])
-                    hp1 = HasProperty(con=con, project=project, prop=endprop, minCount=prop["minCount"], maxCount=prop["maxCount"], order=prop["order"])
-                except ApiError as error:
-                    return jsonify({"message": str(error)}), 400
-                dm[Iri(iri)][endprop.property_class_iri] = hp1
+                if isinstance(prop["property"], dict):
+                    # we have a real internal, non-standalone property
+                    if prop["property"].get("iri", None) is None:
+                        return jsonify({"message": f"Property IRI is missing in HasProperty"}), 400
+                    try:
+                        property_iri = prop["property"]["iri"]
+                        endprop = process_property(con=con, project=project, property_iri=property_iri, data=prop["property"])
+                        hp1 = HasProperty(con=con, project=project, prop=endprop, minCount=prop["minCount"], maxCount=prop["maxCount"], order=prop["order"])
+                    except ApiError as error:
+                        return jsonify({"message": str(error)}), 400
+                    dm[Iri(iri)][endprop.property_class_iri] = hp1
+                elif isinstance(prop["property"], str):
+                    # we reference a standalone property
+                    if prop["property"] not in dm.get_propclasses():
+                        return jsonify({"message": f"Property {prop['property']} is not in the datamodel"}), 400
+                    hp1 = HasProperty(con=con, project=project, prop=Iri(prop["property"]), minCount=prop["minCount"],
+                                      maxCount=prop["maxCount"], order=prop["order"])
+                    dm[Iri(iri)][Iri(prop["property"])] = hp1
+                else:
+                    return jsonify({"message": f"The Field 'property' must be an iri of a standalone property or a dictionary with ainternal property definition."}), 400
 
         try:
             dm.update()
@@ -407,10 +418,18 @@ def add_property_to_resource(project, resource, property):
         if order:
             del data["order"]
 
-        try:
-            prop = process_property(con=con, project=project, property_iri=property, data=data)
-        except ApiError as error:  # should not be reachable
-            return jsonify({"message": str(error)}), 400
+        if (data):
+            # we have data for an internal property
+            try:
+                prop = process_property(con=con, project=project, property_iri=property, data=data)
+            except ApiError as error:  # should not be reachable
+                return jsonify({"message": str(error)}), 400
+        else:
+            # we should have a standalone property referenced
+            try:
+                prop = Iri(property)
+            except OldapErrorValue as error:
+                return jsonify({"message": str(error)}), 400
         hasprop = HasProperty(con=con, project=project, prop=prop, minCount=mincount, maxCount=maxcount, order=order)
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
@@ -535,6 +554,7 @@ def read_datamodel(project):
                     **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
                     **({"projectid": str(dm[prop].projectShortName)} if dm[prop].projectShortName is not None else {}),
                     **({"subPropertyOf": str(hp.prop.subPropertyOf)} if hp.prop.subPropertyOf is not None else {}),
+                    **({"toClass": str(hp.prop.toClass)} if hp.prop.toClass is not None else {}),
                     **({"datatype": str(hp.prop.datatype)} if hp.prop.datatype is not None else {}),
                     **({"name": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.name.items()]} if hp.prop.name else {}),
                     **({"description": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.description.items()]} if hp.prop.description else {}),

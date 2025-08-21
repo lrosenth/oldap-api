@@ -1033,6 +1033,40 @@ def test_cantfind_dm_to_modify_resource(client, token_headers, testfulldatamodel
     res = response.json
     print(res)
 
+def test_modify_resource_add_local_property(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:aNewProp', json={
+        "datatype": "xsd:string",
+        "name": ["A new property@en", "Eine neue Eigenschaft@de"],
+        "maxCount": 1
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
+
+def test_modify_resource_add_standalone_property(client, token_headers, testfulldatamodelresourcewithstandalone):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:testPropAdd', json={
+        "minCount": 1,
+        "maxCount": 1,
+        "order": 3
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
+
+
 def test_modify_attribute_in_has_prop(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 

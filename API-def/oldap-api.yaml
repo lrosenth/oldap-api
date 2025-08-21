@@ -1409,8 +1409,8 @@ paths:
                   description: Human readable Name.
                   $ref: '#/components/schemas/LangString'
                 description:
-                  $ref: '#/components/schemas/LangString'
                   description: A description of the property.
+                  $ref: '#/components/schemas/LangString'
                 languageIn:
                   type: array
                   description: The languages that are allowed in the property

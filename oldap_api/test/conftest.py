@@ -296,11 +296,83 @@ def testfulldatamodelresource(client, token_headers, testemptydatamodel):
                 "maxCount": 3,
                 "minCount": 1,
                 "order": 1
-            }
+            },
         ]
     }, headers=header)
 
     yield
+
+@pytest.fixture()
+def testfulldatamodelresourcewithstandalone(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+
+    response = client.put('/admin/datamodel/hyha/property/hyha:testPropAdd', json={
+        "subPropertyOf": "hyha:testProp",
+        "datatype": "rdf:langString",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+        "languageIn": ["en", "fr", "it", "de"],
+        "uniqueLang": True,
+        "inSet": ["Kappa", "Gaga", "gugus"],
+        "minLength": 1,
+        "maxLength": 50,
+        "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+        "minExclusive": 5.5,
+        "minInclusive": 5.5,
+        "maxExclusive": 5.5,
+        "maxInclusive": 5.5,
+        "lessThan": "hyha:testProp",
+        "lessThanOrEquals": "hyha:testProp"
+    }, headers=header)
+
+    response = client.put('/admin/datamodel/hyha/hyha:Sheep', json={
+        # "superclass": "hyha:Animal",
+        "label": [
+            "Eine Buchseite@de",
+            "A page of a book@en"
+        ],
+        "comment": [
+            "Eine Buchseite@de",
+            "A page of a book@en"
+        ],
+        "closed": True,
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:testProp2",
+                    "subPropertyOf": "hyha:testProp",
+                    "datatype": "rdf:langString",
+                    "name": ["Test Property@en", "Test Feld@de"],
+                    "description": ["Test Feld Beschreibung@de"],
+                    "languageIn": ["en", "fr", "it", "de"],
+                    "uniqueLang": True,
+                    "inSet": ["Kappa", "Gaga", "gugus"],
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+                    "minExclusive": 5.5,
+                    "minInclusive": 5.5,
+                    "maxExclusive": 5.5,
+                    "maxInclusive": 5.5,
+                    "lessThan": "hyha:testProp",
+                    "lessThanOrEquals": "hyha:testProp"
+                },
+                "maxCount": 3,
+                "minCount": 1,
+                "order": 1
+            },
+            # {
+            #     "property": "hyha:testProp2",
+            #     "minCount": 1,
+            #     "maxCount": 1,
+            #     "order": 2
+            # }
+        ]
+    }, headers=header)
+
+    yield
+
 
 @pytest.fixture()
 def testemptyhlist(client, token_headers):
