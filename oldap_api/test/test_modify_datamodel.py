@@ -734,7 +734,7 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
             continue
         assert "inSet" not in ele
 
-def test_add_resource_minimal(client, token_headers, testfulldatamodelresourcewithstandalone):
+def test_add_resource_minimalXX(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/hyha:PappaKappa', json={
