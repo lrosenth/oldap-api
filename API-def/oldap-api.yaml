@@ -1405,22 +1405,56 @@ paths:
               type: object
               minProperties: 1
               properties:
+                datatype:
+                  description: The datatype of the property
+                  type: string
+                class:
+                  description: Iri of the resource class the property must point to
+                  type: string
                 name:
                   description: Human readable Name.
-                  $ref: '#/components/schemas/LangString'
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
                 description:
                   description: A description of the property.
-                  $ref: '#/components/schemas/LangString'
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
                 languageIn:
-                  type: array
-                  description: The languages that are allowed in the property
-                  example: [ "en", "fr", "it", "de" ]
-                  items:
-                    type: string
-                uniqueLand:
+                  oneOf:
+                    - type: array
+                      description: The languages that are allowed in the property
+                      example: [ "en", "fr", "it", "de" ]
+                      items:
+                        type: string
+                    - type: "null"
+                uniqueLang:
                   type: boolean
                   description: Describes if each language must be present only once. This field is only applicable if the property is of datatype langstring.
                   example: True
+                inSet:
+                  oneOf:
+                    - type: array
+                      example: [ "Renault", "Opel", "BMW", "Mercedes" ]
+                      items:
+                        oneOf:
+                          - type: string
+                          - type: number
+                          - type: integer
+                    - type: "null"
                 minLength:
                   description: Only applicable in xsd:string and rdf:langString. Denotes the minimal length of the string.
                   oneOf:
@@ -1429,6 +1463,7 @@ paths:
                     - type: number
                       format: float
                       example: 1.1
+                    - type: "null"
                 maxLength:
                   description: Only applicable in xsd:string and rdf:langString. Denotes the maximal length of the string.
                   oneOf:
@@ -1437,10 +1472,13 @@ paths:
                     - type: number
                       format: float
                       example: 1.1
+                    - type: "null"
                 pattern:
                   description: Tells if the string must follow a certain regex pattern. Only applicable in xsd:string and rdf:langString.
-                  type: string
-                  example: r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
+                  oneOf:
+                    - type: string
+                      example: r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
+                    - type: "null"
                 minExclusive:
                   description: Minimal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
                   oneOf:
@@ -1449,6 +1487,7 @@ paths:
                       example: 5.5
                     - type: integer
                       example: 5
+                    - type: "null"
                 minInclusive:
                   description: Minimal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
                   oneOf:
@@ -1457,6 +1496,7 @@ paths:
                       example: 5.5
                     - type: integer
                       example: 5
+                    - type: "null"
                 maxExclusive:
                   description: Maximal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
                   oneOf:
@@ -1465,6 +1505,7 @@ paths:
                       example: 5.5
                     - type: integer
                       example: 5
+                    - type: "null"
                 maxInclusive:
                   description: Maximal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
                   oneOf:
@@ -1473,6 +1514,7 @@ paths:
                       example: 5.5
                     - type: integer
                       example: 5
+                    - type: "null"
       responses:
         "200":
           description: "OK"
@@ -1679,16 +1721,22 @@ paths:
                   properties:
                     maxCount:
                       description: Denotes how often (maximum) this property can be used in one resource
-                      type: number
+                      oneOf:
+                        - type: integer
+                        - type: number
                       example: 3
                     minCount:
                       description: Denotes how often (minimal) this property must be used in one resource
-                      type: number
-                      example: 1
+                      oneOf:
+                        - type: integer
+                        - type: number
+                      example: "null"
                     order:
                       description: Hint for GUI. Tells order of properties for a GUI
-                      type: number
-                      example: 2
+                      oneOf:
+                        - type: integer
+                        - type: number
+                      example: 3
       responses:
         "200":
           description: "OK"
@@ -1791,16 +1839,22 @@ paths:
                   $ref: '#/components/schemas/Property'
                 maxCount:
                   description: Denotes how often (maximum) this property can be used in one resource
-                  type: number
-                  example: 3
+                  oneOf:
+                    - type: integer
+                    - type: number
+                    - type: "null"
                 minCount:
                   description: Denotes how often (minimal) this property must be used in one resource
-                  type: number
-                  example: 1
+                  oneOf:
+                    - type: integer
+                    - type: number
+                    - type: "null"
                 order:
                   description: Hint for GUI. Tells order of properties for a GUI
-                  type: number
-                  example: 2
+                  oneOf:
+                    - type: integer
+                    - type: number
+                    - type: "null"
       responses:
         "200":
           description: "OK"
@@ -2874,34 +2928,58 @@ components:
           description: Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf would be generic case of pageOf
           example: "hyha:testProp"
         class:
-          $ref: '#/components/schemas/Iri'
+          oneOf:
+            - $ref: '#/components/schemas/Iri'
+            - type: "null"
           description: An Iri() that describes the class of the instance on which this property must point e.g. "myproj:Book" means that the property points on book.
           example: "xml:Date"
         datatype:
-          type: string
+          oneOf:
+            - type: string
+            - type: "null"
           description: xsd_datatype if the property is represented via a literal
           example: "rdf:langString"
         name:
-          $ref: '#/components/schemas/LangString'
           description: Human readable Name.
+          oneOf:
+            - $ref: '#/components/schemas/LangString'
+            - type: object
+              properties:
+                add:
+                  $ref: '#/components/schemas/LangString'
+                del:
+                  $ref: '#/components/schemas/LangString'
+            - type: "null"
         description:
-          $ref: '#/components/schemas/LangString'
           description: A description of the property.
+          oneOf:
+            - $ref: '#/components/schemas/LangString'
+            - type: object
+              properties:
+                add:
+                  $ref: '#/components/schemas/LangString'
+                del:
+                  $ref: '#/components/schemas/LangString'
+            - type: "null"
         languageIn:
-          type: array
-          description: The languages that are allowed in the property
-          example: [ "en", "fr", "it", "de" ]
-          items:
-            type: string
+          oneOf:
+            - type: array
+              description: The languages that are allowed in the property
+              example: [ "en", "fr", "it", "de" ]
+              items:
+                type: string
+            - type: "null"
         uniqueLang:
           type: boolean
           description: Describes if each language must be present only once. This field is only applicable if the property is of datatype langstring.
           example: True
         inSet:
-          type: array
-          example: [ "Renault", "Opel", "BMW", "Mercedes" ]
-          items:
-            type: string
+          oneOf:
+            - type: array
+              example: [ "Renault", "Opel", "BMW", "Mercedes" ]
+              items:
+                type: string
+            - type: "null"
         minLength:
           description: Only applicable in xsd:string and rdf:langString. Denotes the minimal length of the string.
           oneOf:
@@ -2910,6 +2988,7 @@ components:
             - type: number
               format: float
               example: 1.1
+            - type: "null"
         maxLength:
           description: Only applicable in xsd:string and rdf:langString. Denotes the maximal length of the string.
           oneOf:
@@ -2918,10 +2997,13 @@ components:
             - type: number
               format: float
               example: 1.1
+            - type: "null"
         pattern:
           description: Tells if the string must follow a certain regex pattern. Only applicable in xsd:string and rdf:langString.
-          type: string
-          example: r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
+          oneOf:
+            - type: string
+              example: r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
+            - type: "null"
         minExclusive:
           description: Minimal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
           oneOf:
@@ -2930,6 +3012,7 @@ components:
               example: 5.5
             - type: integer
               example: 5
+            - type: "null"
         minInclusive:
           description: Minimal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
           oneOf:
@@ -2938,6 +3021,7 @@ components:
               example: 5.5
             - type: integer
               example: 5
+            - type: "null"
         maxExclusive:
           description: Maximal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
           oneOf:
@@ -2946,6 +3030,7 @@ components:
               example: 5.5
             - type: integer
               example: 5
+            - type: "null"
         maxInclusive:
           description: Maximal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
           oneOf:
@@ -2954,6 +3039,7 @@ components:
               example: 5.5
             - type: integer
               example: 5
+            - type: "null"
         lessThan:
           description: The given numerical value must be smaller than the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
           $ref: '#/components/schemas/Iri'

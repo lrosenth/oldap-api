@@ -87,11 +87,11 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     """
     known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
-                         "maxInclusive", "lessThan", "lessThanOrEquals", "toClass"}
+                         "maxInclusive", "lessThan", "lessThanOrEquals"}
 
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
-        raise ApiError(f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. Aborded operation")
+        raise ApiError(f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. aborted operation")
     iri = property_iri  # Iri, z.B. "myproj:pageOf"
     subPropertyOf = data.get("subPropertyOf", None)  # Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf is generischer Fall von pageOf
     toClass = data.get("class", None)  # an Iri(). Beschreibt die Klasse der Instanz, auf die diese Property zeigen muss, Z.B. "myproj:Book" heisst, dass die Property auf ein Buch zeigen muss
@@ -266,7 +266,7 @@ def add_resource_to_datamodel(project, resource):
 
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborted operation (2)"}), 400
         iri = resource
         superclass = data.get("superclass", None)
         label = data.get("label", None)
@@ -290,26 +290,28 @@ def add_resource_to_datamodel(project, resource):
             return jsonify({"message": str(error)}), 404
 
         try:
-            resource = ResourceClass(con=con, project=project, owlclass_iri=iri, comment=comment, closed=closed, label=label, validate=True)
+            resource = ResourceClass(con=con,
+                                     project=project,
+                                     owlclass_iri=iri,
+                                     superclass=superclass,
+                                     comment=comment,
+                                     closed=closed,
+                                     label=label,
+                                     validate=True)
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
         except OldapError as error:
             return jsonify({"message": f"Oldap Error: {str(error)}"}), 500
-        if resource.superclass is not None:
-            try:
-                resource.superclass = superclass
-            except OldapError as error:
-                return jsonify({"message": str(error)}), 403
-            try:
-                dm[Iri(iri)] = resource
-            except OldapErrorAlreadyExists as error:
-                return jsonify({"message": str(error)}), 409
+        try:
+            dm[Iri(iri)] = resource
+        except OldapErrorAlreadyExists as error:
+            return jsonify({"message": str(error)}), 409
 
         if hasProperty and isinstance(hasProperty, list):
             for prop in hasProperty:
                 unknown_hasproperty_field = set(prop.keys()) - known_hasproperty_fields
                 if unknown_hasproperty_field:
-                    return jsonify({"message": f"The Field/s {unknown_hasproperty_field} is/are not used to create a property in a resource. Usable are {known_hasproperty_fields}. Aborded operation"}), 400
+                    return jsonify({"message": f"The Field/s {unknown_hasproperty_field} is/are not used to create a property in a resource. Usable are {known_hasproperty_fields}. aborted operation"}), 400
                 if not mandatory_hasproperty_fields.issubset(set(prop.keys())):
                     return jsonify({"message": f"The Fields {mandatory_hasproperty_fields} are required to create a resource. Used where {set(prop.keys())}. Usable are {known_hasproperty_fields}"}), 400
                 if isinstance(prop["property"], dict):
@@ -403,7 +405,7 @@ def add_property_to_resource(project, resource, property):
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborted operation (1)"}), 400
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to add to the resource. Usable for the add-viewfunction are {known_json_fields}"}), 400
 
@@ -733,10 +735,10 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "Property in resource successfully updated"}
     """
-    known_json_fields = {"subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    known_json_fields = {"subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
-        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborded operation"}), 400
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborted operation"}), 400
     if not set(data.keys()):
         return jsonify({"message": f"At least one field must be given to modify the project. Usable for the modify-viewfunction are {known_json_fields}"}), 400
     for attrname, attrval in data.items():
@@ -896,7 +898,7 @@ def modify_standalone_property(project, property):
     :return: A JSON informing about the success of the operation that has the following form:
     json={'message': 'Data model successfully modified'}
     """
-    known_json_fields = {"iri", "subPropertyOf", "toClass", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -919,7 +921,7 @@ def modify_standalone_property(project, property):
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. Aborted operation"}), 400
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to modify the standalone property. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
@@ -975,7 +977,7 @@ def modify_resource(project, resource):
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
-            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. Aborded operation"}), 400
+            return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a standalone property. Usable are {known_json_fields}. aborted operation"}), 400
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to modify the standalone property. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
@@ -1071,7 +1073,7 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
-        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify an attribute of a property in a resource. Usable are {known_json_fields}. Aborded operation"}), 400
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify an attribute of a property in a resource. Usable are {known_json_fields}. aborted operation"}), 400
     if not set(data.keys()):
         return jsonify({"message": f"At least one field must be given to modify an attribute of a property in a resource. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
