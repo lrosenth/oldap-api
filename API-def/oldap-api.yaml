@@ -1404,6 +1404,7 @@ paths:
             schema:
               type: object
               minProperties: 1
+              additionalProperties: false
               properties:
                 datatype:
                   description: The datatype of the property
@@ -1718,6 +1719,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/Property'
                 - type: object
+                  additionalProperties: false
                   properties:
                     maxCount:
                       description: Denotes how often (maximum) this property can be used in one resource
@@ -2909,6 +2911,8 @@ components:
       example: "myproj:pageOf"
 
     Property:
+      type: object
+      additionalProperties: false
       properties:
         creator:
           type: string

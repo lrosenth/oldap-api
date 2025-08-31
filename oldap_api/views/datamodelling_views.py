@@ -958,6 +958,8 @@ def modify_resource(project, resource):
     out = request.headers['Authorization']
     b, token = out.split()
 
+    resourceIri = Iri(resource, validate=True)
+
     try:
         con = Connection(server='http://localhost:7200',
                          repo="oldap",
@@ -984,7 +986,7 @@ def modify_resource(project, resource):
         for attrname, attrval in data.items():
             if attrname == "label":
                 try:
-                    process_langstring(dm[Iri(resource)], ResClassAttribute.LABEL, attrval, dm[Iri(resource)].notifier)
+                    process_langstring(dm[resourceIri], ResClassAttribute.LABEL, attrval, dm[resourceIri].notifier)
                 except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
                     return jsonify({"message": str(error)}), 400
                 except OldapError as error:
@@ -992,15 +994,52 @@ def modify_resource(project, resource):
                 continue
             if attrname == "comment":
                 try:
-                    process_langstring(dm[Iri(resource)], ResClassAttribute.COMMENT, attrval, dm[Iri(resource)].notifier)
+                    process_langstring(dm[resourceIri], ResClassAttribute.COMMENT, attrval, dm[resourceIri].notifier)
                 except (OldapErrorKey, OldapErrorValue, OldapErrorInconsistency) as error:
                     return jsonify({"message": str(error)}), 400
                 except OldapError as error:
                     return jsonify({"message": str(error)}), 500
                 continue
-
+            if attrname == "superclasses":
+                if isinstance(attrval, list):
+                    if not attrval:
+                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                    for item in attrval:
+                        if item is None:
+                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                    try:
+                        setattr(dm[resourceIri], attrname, attrval)
+                    except (OldapErrorKey, OldapErrorType, KeyError) as error:
+                        return jsonify({"message": str(error)}), 400
+                elif isinstance(attrval, dict):
+                    if not set(attrval.keys()).issubset({"add", "del"}):
+                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
+                    if "add" in attrval:
+                        adding = attrval.get("add", [])
+                        if not isinstance(adding, list):
+                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                        if not adding:
+                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                        try:
+                            dm[resourceIri].add_superclass(adding, validate=True)
+                        except (OldapErrorKey, OldapErrorType, KeyError) as error:
+                            return jsonify({"message": str(error)}), 400
+                    if "del" in attrval:
+                        deleting = attrval.get("del", [])
+                        if not isinstance(deleting, list):
+                            return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                        if not deleting:
+                            return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                        for item in deleting:
+                            if item is None:
+                                return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                            try:
+                                del dm[resourceIri][Iri(item)]
+                            except (OldapErrorKey, OldapErrorType, KeyError) as error:
+                                return jsonify({"message": str(error)}), 400
+                continue
             if attrval is not None:
-                setattr(dm[Iri(resource)], attrname, attrval)
+                setattr(dm[resourceIri], attrname, attrval)
         try:
             dm.update()
         except OldapErrorValue as error:
