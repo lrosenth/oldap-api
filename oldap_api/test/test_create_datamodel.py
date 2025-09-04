@@ -729,7 +729,7 @@ def test_not_find_superclass_when_creating_resource(client, token_headers, testf
         "superclass": 1234,
     }, headers=header)
     res = response.json
-    assert response.status_code == 403
+    assert response.status_code == 400
     print(res)
 
 def test_dm_to_add_resource_to_not_found(client, token_headers):

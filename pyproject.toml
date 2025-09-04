@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "oldap-api"
-packages = [{ include = "oldap-api" }]
+packages = [{ include = "oldap_api" }]
 version = "0.1.0"
 description = ""
 authors = ["ManuelRosenthaler <rosenthalermanuel@gmail.com>"]
@@ -11,9 +11,10 @@ python = "^3.12"
 flask = "^3.1.1"
 pytest = "^8.0.2"
 coverage = "^7.4.3"
-oldaplib = "^0.1.70"
-flask-cors = "^5.0.0"
+oldaplib = "==0.1.94"
+flask-cors = "==6.0.1"
 requests = "^2.32.3"
+black = "^25.1.0"
 
 
 

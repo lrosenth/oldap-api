@@ -734,7 +734,8 @@ def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelst
             continue
         assert "inSet" not in ele
 
-def test_add_resource_minimalXX(client, token_headers, testemptydatamodel):
+
+def test_add_resource_minimal(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/hyha:PappaKappa', json={
@@ -1324,6 +1325,38 @@ def test_no_permission_modify_resource(client, token_headers, testfulldatamodelr
     res2 = response2.json
     print(res2)
     assert response2.status_code == 403
+
+def test_modify_superclass_attribute_add(client, token_headers, testfulldatamodelresource):
+    headers = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "superclass": {'add': ['dcterms:Gaga']},
+    }, headers=headers)
+    assert response.status_code == 200
+
+    response = client.get('/admin/datamodel/hyha', headers=headers)
+    assert response.status_code == 200
+    dm = response.json
+    assert set(dm['resources'][0]['superclass']) == {'oldap:Thing', 'dcterms:Gaga'}
+
+def test_modify_superclass_attribute_del(client, token_headers, testfulldatamodelresourcesuperclasses):
+    headers = token_headers[1]
+
+    response = client.get('/admin/datamodel/hyha', headers=headers)
+    dm = response.json
+
+    response = client.post('/admin/datamodel/hyha/hyha:Lion', json={
+        "superclass": {'del': ["hyha:Mammal"]},
+    }, headers=headers)
+    assert response.status_code == 200
+
+    response = client.get('/admin/datamodel/hyha', headers=headers)
+    assert response.status_code == 200
+    dm = response.json
+    # we have to search for 'hyha:Lion'...
+    for res in dm['resources']:
+        if res['iri'] == 'hyha:Lion':
+            assert set(res['superclass']) == {'oldap:Thing', 'dcterms:Predator'}
 
 def test_stuff(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]

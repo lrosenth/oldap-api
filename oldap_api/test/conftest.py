@@ -303,6 +303,49 @@ def testfulldatamodelresource(client, token_headers, testemptydatamodel):
     yield
 
 @pytest.fixture()
+def testfulldatamodelresourcesuperclasses(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:Mammal', json={
+        "label": [
+            "Säugetier@de",
+            "Mammal@en"
+        ],
+        "closed": True,
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:mammalName",
+                    "datatype": "xsd:string",
+                    "name": ["Mammal name@en", "Säugetiername@de"],
+                },
+                "order": 1
+            },
+        ]
+    }, headers=header)
+
+    response = client.put('/admin/datamodel/hyha/hyha:Lion', json={
+        "label": [
+            "Löwe@de",
+            "Lion@en"
+        ],
+        "superclass": ["hyha:Mammal", "dcterms:Predator"],
+        "closed": True,
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:preyScheme",
+                    "datatype": "xsd:string",
+                    "name": ["Prey scheme@en", "Beuteschema@de"],
+                },
+                "order": 1
+            },
+        ]
+    }, headers=header)
+
+    yield
+
+@pytest.fixture()
 def testfulldatamodelresourcewithstandalone(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 

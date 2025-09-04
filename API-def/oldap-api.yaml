@@ -1657,6 +1657,22 @@ paths:
                   description: The standard closed constraint of RDF. See https://www.w3.org/TR/shacl/#ClosedConstraintComponent
                   type: boolean
                   example: True
+                superclass:
+                  oneOf:
+                    - type: array
+                      items:
+                        type: string
+                    - type: object
+                      properties:
+                        add:
+                          type: array
+                          items:
+                            type: string
+                        del:
+                          type: array
+                          items:
+                            type: string
+                    - type: "null"
                 label:
                   $ref: '#/components/schemas/LangString'
                   description: A label for the resource.
@@ -3067,6 +3083,12 @@ components:
         label:
           $ref: '#/components/schemas/LangString'
           description: A label for the resource.
+        superclass:
+          oneOf:
+            - type: array
+              items:
+                type: string
+            - type: string
         comment:
           $ref: '#/components/schemas/LangString'
           description: A comment for the resource.
