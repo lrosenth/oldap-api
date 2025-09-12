@@ -1674,11 +1674,27 @@ paths:
                             type: string
                     - type: "null"
                 label:
-                  $ref: '#/components/schemas/LangString'
                   description: A label for the resource.
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
                 comment:
-                  $ref: '#/components/schemas/LangString'
-                  description: A comment for the resource.
+                  description: A description of the resource.
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
       responses:
         "200":
           description: "OK"
@@ -2919,6 +2935,7 @@ components:
         - type: string
           description: Single string with optional language tag (e.g., "Lastname@en").
           example: "A page of a book@en"
+        - type: "null"
 
     Iri:
       type: string
@@ -2943,6 +2960,9 @@ components:
         projectid:
           type: string
           description: ID of project the property is defined in
+        iri:
+          type: string
+          description: Iri of property
         subPropertyOf:
           $ref: '#/components/schemas/Iri'
           description: Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf would be generic case of pageOf
