@@ -32,9 +32,7 @@ def login(userid):
         if password is None:
             return jsonify({"message": "Invalid content type, JSON required"}), 400
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             userId=userid,
+            con = Connection(userId=userid,
                              credentials=password,
                              context_name="DEFAULT")
             resp = jsonify({'message': 'Login succeeded', 'token': con.token}), 200

@@ -13,7 +13,7 @@ Available endpoints:
 The implementation includes error handling and validation for most operations.
 """
 
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, current_app
 from oldaplib.src.connection import Connection
 from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
 from oldaplib.src.enums.projectattr import ProjectAttr
@@ -70,9 +70,7 @@ def create_project(projectid):
         if label == [] or comment == []:
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -116,9 +114,7 @@ def delete_project(projectid):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -159,9 +155,7 @@ def read_project(projectid):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -200,9 +194,7 @@ def get_project_by_iri():
     projectIri = request.args.get('iri', None)
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -257,9 +249,7 @@ def search_project():
         comment = None
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -305,9 +295,7 @@ def modify_project(projectid):
         projectEnd = data.get("projectEnd", "NotSent")
 
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -373,9 +361,7 @@ def get_projectid():
 
     if iri:
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403

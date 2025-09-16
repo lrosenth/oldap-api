@@ -40,9 +40,7 @@ def permissionsetr_get_by_iri():
     permissionSetIri = request.args.get('iri', None)
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -114,9 +112,7 @@ def create_permissionset(definedByProject, permissionSetId):
             return jsonify({"message": str(error)}), 400
 
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -166,9 +162,7 @@ def read_permissionset(definedByProject, permissionSetId):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -226,9 +220,7 @@ def search_permissionset():
     definedbyproject = getattr(request, "args", {}).get("definedByProject", None)
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -253,9 +245,7 @@ def delete_permissionset(definedByProject, permissionSetId):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -312,9 +302,7 @@ def modify_permissionset(definedByProject, permissionSetId):
         givesPermission = data.get("givesPermission", "NotSent")
 
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -362,9 +350,7 @@ def permissionset_in_use(definedByProject, permissionSetId):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403

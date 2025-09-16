@@ -4,8 +4,9 @@ from time import sleep
 
 import pytest
 from oldaplib.src.connection import Connection
+from oldaplib.src.helpers.context import Context
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
-
+from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
 from oldap_api.factory import factory
 
 
@@ -29,29 +30,32 @@ def connection_manager():
 def app():
     app = factory()
 
-    uploaddir = Path(os.getcwd()) / 'uploads'
+    cfg = os.getenv("APP_ENV", "Dev")
+    app.config.from_object(f"oldap_api.config.{cfg}")
+
+    uploaddir = Path(app.config['UPLOAD_FOLDER'])
     if not uploaddir.exists():
         uploaddir.mkdir()
 
-    tmpdir = Path(os.getcwd()) / 'tmp'
+    tmpdir = Path(app.config['TMP_FOLDER'])
     if not tmpdir.exists():
         tmpdir.mkdir()
 
     app.config.update({
-        'TESTING': True,
-        'UPLOAD_FOLDER': str(uploaddir),
-        'TMP_FOLDER': str(tmpdir)
+        'TESTING': True
     })
-    con = Connection(server='http://localhost:7200',
-                     repo="oldap",
-                     userId="rosenth",
+    con = Connection(userId="rosenth",
                      credentials="RioGrande",
                      context_name="DEFAULT")
+    context = Context(name="DEFAULT")
+    context['hyha'] = NamespaceIRI('http://hyperhamlet.unibas.ch/')
     con.clear_graph(Xsd_QName('oldap:admin'))
     con.clear_graph(Xsd_QName('hyha:shacl'))
     con.clear_graph(Xsd_QName('hyha:onto'))
     con.clear_graph(Xsd_QName('hyha:lists'))
+    con.clear_graph(Xsd_QName('hyha:data'))
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin.trig")
+    con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin-testing.trig")
     sleep(1)
     yield app
 
@@ -256,6 +260,37 @@ def testfulldatamodeltwostandaloneprop(client, token_headers, testemptydatamodel
 
     yield
 
+
+@pytest.fixture()
+def testfulldatamodelresourcesimple(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:SimpleSheep', json={
+        "label": [
+            "Eine Buchseite@de",
+            "A page of a book@en"
+        ],
+        "comment": [
+            "Eine Buchseite@de",
+            "A page of a book@en"
+        ],
+        "closed": True,
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:testProp3",
+                    "datatype": "xsd:string",
+                    "name": ["Test Property@en", "Test Feld@de"],
+                    "description": ["Test Feld Beschreibung@de"],
+                },
+                "maxCount": 1,
+                "minCount": 1,
+                "order": 1
+            },
+        ]
+    }, headers=header)
+
+    yield
 
 @pytest.fixture()
 def testfulldatamodelresource(client, token_headers, testemptydatamodel):

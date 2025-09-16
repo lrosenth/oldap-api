@@ -60,9 +60,7 @@ def read_datamodel(project):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -179,9 +177,7 @@ def create_empty_datamodel(project):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -208,9 +204,7 @@ def delete_whole_datamodel(project):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -252,9 +246,7 @@ def modify_resource(project, resource):
     resourceIri = Iri(resource, validate=True)
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -453,9 +445,7 @@ def add_resource_to_datamodel(project, resource):
     if request.is_json:
 
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -558,9 +548,7 @@ def delete_whole_resource(project, resource):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -619,9 +607,7 @@ def add_standalone_property_to_datamodel(project, property):
     if request.is_json:
 
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -691,9 +677,7 @@ def add_property_to_resource(project, resource, property):
 
     if request.is_json:
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -776,9 +760,7 @@ def delete_whole_standalone_property(project, standaloneprop):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -815,9 +797,7 @@ def delete_hasprop_in_resource(project, resource, property):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -1017,9 +997,7 @@ def modify_standalone_property(project, property):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -1092,9 +1070,7 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403

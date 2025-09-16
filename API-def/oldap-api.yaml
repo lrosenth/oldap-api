@@ -2764,6 +2764,137 @@ paths:
         "404":
           $ref: '#/components/responses/NotFound'
 
+  /data/{project}/{resclass}:
+    put:
+      summary: Create a new instance of the resource class
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resclass
+          description: The name of the resource (NCName, *not* QName!)
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+
+  /data/{project}/{resclass}/{instance}:
+    put:
+      summary: Create a new instance of the given resource class with the given IRI
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resclass
+          description: The name of the resource (NCName, *not* QName!)
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: instance
+          description: The IRI of the instance
+          in: path
+          required: true
+          schema:
+            type: string
+            format: iri
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Modify an instance of the given resource class
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: resclass
+          description: The name of the resource (NCName, *not* QName!)
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: instance
+          description: The IRI of the instance
+          in: path
+          required: true
+          schema:
+            type: string
+            format: iri
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+
+
 
 components:
   schemas:

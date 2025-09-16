@@ -40,9 +40,7 @@ def upload_yaml_hlist(project):
         return jsonify({"message": "Only YAML files (ending with \".yaml\" are allowed"}), 400
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -97,9 +95,7 @@ def create_empty_hlist(project, hlistid):
             return jsonify({"message": f"A meaningful label and definition need to be provided and can not be empty"}), 400
 
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -160,9 +156,7 @@ def read_hlist(project, hlistid):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -201,9 +195,7 @@ def modify_hlist(project, hlistid):
             return jsonify({"message": f"At least one field must be given to move a node. Usable for the move-viewfunction are {known_json_fields}"}), 400
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -256,9 +248,7 @@ def delete_hlist(project, hlistid):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -298,9 +288,7 @@ def hlist_search():
     exactMatch = request.args.get('exactMatch', False)
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -334,9 +322,7 @@ def hlist_get_by_iri():
     [projectId, hlistId] = hlistIri.split(":")
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -385,9 +371,7 @@ def hlist_download(project, hlistid):
         else:
             raise OldapErrorNotImplemented(f"Format {formatstr} not implemented! Must be YAML or JSON.")
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -416,9 +400,7 @@ def hlist_is_in_use(project, hlistid):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -459,9 +441,7 @@ def get_node(project, hlistid, nodeid):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -534,9 +514,7 @@ def add_node(project, hlistid, nodeid):
             return jsonify({"message": f"A meaningful prefLabel and definition need to be provided and can not be empty"}), 400
 
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -612,9 +590,7 @@ def del_node(project, hlistid, nodeid):
     recursive = getattr(request, "args", {}).get("recursive", "false").lower() in truthvalues
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -687,9 +663,7 @@ def move_node(project, hlistid, nodeid):
             return jsonify({"message": f"Only one field can be given to move a node. Used where {set(data.keys())}. Usablable for the move-viewfunction is only one of {known_json_fields}"}), 400
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -754,9 +728,7 @@ def modify_node(project, hlistid, nodeid):
         prefLabel = data.get("prefLabel", "NotSent")
         definition = data.get("definition", "NotSent")
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403

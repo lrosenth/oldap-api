@@ -113,9 +113,7 @@ def create_user(userid):
             permission_set = set()
 
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -166,9 +164,7 @@ def read_users(userid):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -216,9 +212,7 @@ def delete_user(userid):
     b, token = out.split()
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -290,9 +284,7 @@ def modify_user(userid):
         isactive = data.get('isActive', None)
 
         try:
-            con = Connection(server='http://localhost:7200',
-                             repo="oldap",
-                             token=token,
+            con = Connection(token=token,
                              context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403

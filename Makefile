@@ -10,7 +10,11 @@ help:
 
 
 test:
+	OLDAP_TS_SERVER=http://localhost:7200 \
+	OLDAP_TS_REPO=oldap \
 	poetry run pytest -v $(TESTS)
 
 run:
+	OLDAP_TS_SERVER=http://localhost:7200 \
+	OLDAP_TS_REPO=oldap \
 	poetry run python oldap-api-app.py
