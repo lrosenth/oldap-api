@@ -1,3 +1,4 @@
+from pprint import pprint
 
 
 def test_create_instance(client, token_headers, testfulldatamodelresourcesimple):
@@ -8,4 +9,11 @@ def test_create_instance(client, token_headers, testfulldatamodelresourcesimple)
         'hyha:testProp3': "Waseliwas",
         'oldap:grantsPermission': 'oldap:GenericView'
     }, headers=header)
-    print(response.text)
+    assert response.status_code == 200
+    assert response.json['iri'] == 'hyha:MySimpleSheep'
+
+    response = client.get('/data/hyha/get/hyha:MySimpleSheep', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+    assert res['hyha:testProp3'] == ['Waseliwas']

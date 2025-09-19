@@ -2798,10 +2798,32 @@ paths:
                 properties:
                   message:
                     type: string
+                  iri:
+                    type: string
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
           $ref: '#/components/responses/Unauthorized'
+
+  /data/{project}/get/{instance}:
+    get:
+      summary: Get an instance of a resource only based on it's IRO
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: instance
+          description: The IRI of the instance
+          in: path
+          required: true
+          schema:
+            type: string
+            format: iri
 
   /data/{project}/{resclass}/{instance}:
     put:
@@ -2848,6 +2870,10 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "403":
           $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $resf: '#/components/responses/InternalServerError'
 
     post:
       summary: Modify an instance of the given resource class

@@ -24,13 +24,64 @@ def create_resource(project, resclass):
 
     try:
         project = Project.read(con=con, projectIri_SName=project)
-        factory = ResourceInstanceFactory(con=con, project=project)
-        Resclass = factory.createObjectInstance(resclass)
-
-        data = request.get_json()
-        instance = Resclass(**data)
-        instance.create()
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
-    return jsonify({'message': 'Resource created'}), 200
+
+    try:
+        factory = ResourceInstanceFactory(con=con, project=project)
+        Resclass = factory.createObjectInstance(resclass)
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+
+    data = request.get_json()
+
+    try:
+        instance = Resclass(**data)
+    except (OldapErrorValue, OldapErrorKey, Oldaperror) as error:
+        return jsonify({'message': str(error)}), 400
+
+    try:
+        instance.create()
+    except OldapErrorNoPermission as error:
+        return jsonify({'message': str(error)}), 403
+    except OldapErrorAlreadyExists as error:
+        return jsonify({'message': str(error)}), 409
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+
+    return jsonify({'message': 'OK', 'iri': str(instance.iri)}), 200
+
+@resource_bp.route('/<project>/get/<iri>', methods=['GET'])
+def get_resource(project, iri):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    try:
+        project = Project.read(con, projectIri_SName=project)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 400
+
+    try:
+        factory = ResourceInstanceFactory(con=con, project=project)
+    except (OldapErrorInconsistency, OldapErrorNotFound, OldapError) as error:
+        return jsonify({'message': str(error)}), 400
+
+    try:
+        instance = factory.read(iri)
+    except OldapErrorNoPermission as error:
+        return jsonify({'message': str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+    return jsonify(instance.toJsonObject()), 200
 
