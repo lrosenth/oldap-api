@@ -7,5 +7,11 @@ class Base:
     TMP_FOLDER = os.getenv("UPLOAD_FOLDER", str(Path(os.getcwd()) / 'tmp'))
 
 
-class Dev(Base): DEBUG = True
-class Prod(Base): DEBUG = False
+
+class Dev(Base):
+    DEBUG = True
+    OLDAP_API_PORT = os.getenv("OLDAP_API_PORT", 8000)
+
+class Prod(Base):
+    DEBUG = False
+    OLDAP_API_PORT = os.getenv("OLDAP_API_PORT", 8000)

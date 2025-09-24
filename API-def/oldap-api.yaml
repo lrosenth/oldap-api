@@ -115,6 +115,7 @@ paths:
                             - ADMIN_RESOURCES
                             - ADMIN_MODEL
                             - ADMIN_CREATE
+                            - ADMIN_LISTS
 
                 hasPermissions:
                   description: "Must be a list of QNames of the permission sets."

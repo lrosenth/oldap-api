@@ -1,4 +1,106 @@
-FROM ubuntu:latest
-LABEL authors="rosenth"
+# ---- Build stage: build wheel with Poetry ----
+FROM python:3.12-slim AS builder
 
-ENTRYPOINT ["top", "-b"]
+ENV POETRY_VERSION=1.8.3 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Install build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install --no-cache-dir "poetry==${POETRY_VERSION}"
+
+WORKDIR /app
+
+# Copy dependency metadata first (better caching)
+COPY pyproject.toml poetry.lock* ./
+
+# Install only main dependencies into Poetry’s venv (needed to build)
+RUN poetry install --only main --no-root
+
+# Copy full project to build wheel
+COPY . .
+
+# Build wheel into /dist
+RUN poetry build -f wheel
+
+
+# ---- Runtime stage: slim image with only app + deps ----
+FROM python:3.12-slim AS runtime
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    GUNICORN_CMD_ARGS="--workers=4 --threads=2 --bind=0.0.0.0:8000 --timeout=60 --access-logfile=- --error-logfile=-"
+
+# Install Redis and supervisor
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    redis-server \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN addgroup --system app && adduser --system --ingroup app app
+
+# Create directories and set permissions BEFORE switching user
+RUN mkdir -p /var/lib/redis /var/log/redis /var/log/supervisor /app /data/upload /data/tmp && \
+    chown -R app:app /var/lib/redis /var/log/redis /var/log/supervisor /app /data
+
+WORKDIR /app
+
+# Install app + dependencies from built wheel (as root)
+COPY --from=builder /app/dist/*.whl /tmp/
+RUN pip install --no-cache-dir gunicorn /tmp/*.whl && rm -rf /tmp/*.whl
+
+# Copy application files
+COPY . .
+RUN chown -R app:app /app
+
+# Create supervisor configuration with proper formatting
+COPY <<EOF /etc/supervisor/conf.d/supervisord.conf
+[supervisord]
+nodaemon=true
+logfile=/var/log/supervisor/supervisord.log
+pidfile=/tmp/supervisord.pid
+childlogdir=/var/log/supervisor/
+
+[program:redis]
+command=redis-server --bind 127.0.0.1 --port 6379 --dir /var/lib/redis --daemonize no
+user=app
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/redis/redis.log
+stderr_logfile=/var/log/redis/redis-error.log
+
+[program:flask-app]
+command=gunicorn oldap_api.wsgi:app
+user=app
+directory=/app
+autostart=true
+autorestart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+EOF
+
+# Set environment variables
+ENV APP_MODULE="oldap_api.wsgi:app"
+ENV OLDAP_REDIS_URL="redis://localhost:6379"
+
+# Switch to non-root user
+USER app
+
+USER app
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/ || exit 1
+
+# Start both Redis and Flask app using supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

@@ -20,6 +20,7 @@ from oldaplib.src.helpers.irincname import IriOrNCName
 from oldaplib.src.helpers.observable_set import ObservableSet
 from oldaplib.src.helpers.oldaperror import OldapErrorValue, OldapError, OldapErrorAlreadyExists, OldapErrorNotFound, \
     OldapErrorNoPermission, OldapErrorUpdateFailed
+from oldaplib.src.in_project import InProjectClass
 from oldaplib.src.user import User
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
@@ -321,7 +322,7 @@ def modify_user(userid):
                     if newproject["project"] == "":
                         return jsonify({"message": "The Name of the permissions is missing"}), 400
                     try:
-                        if Iri(newproject["project"]) in user.inProject:
+                        if user.inProject and Iri(newproject["project"]) in user.inProject:
                             if "permissions" not in newproject:
                                 return jsonify({"message": "The Permissions are missing for the project"}), 400
                             if newproject["permissions"] is None:
@@ -343,7 +344,7 @@ def modify_user(userid):
                             else:
                                 return jsonify({"message": f"Either a list or a dict is expected for the content of the permissions field"}), 400
                         else:
-                            # TODO: Is the new project existing? Where is this tested???
+                            # TODO: Is the new project existing? Where is this tested??? DOES NOT WORK!!!!!!
                             user.inProject[newproject["project"]] = {AdminPermission.from_string(x) for x in newproject["permissions"]}
                             # return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
                     except ValueError as error:
@@ -440,9 +441,7 @@ def user_search():
     inProject = request.args.get('inProject', None)
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
@@ -471,9 +470,7 @@ def user_get_by_iri():
     userIri = request.args.get('iri', None)
 
     try:
-        con = Connection(server='http://localhost:7200',
-                         repo="oldap",
-                         token=token,
+        con = Connection(token=token,
                          context_name="DEFAULT")
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403

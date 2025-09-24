@@ -15,5 +15,4 @@ def test_create_instance(client, token_headers, testfulldatamodelresourcesimple)
     response = client.get('/data/hyha/get/hyha:MySimpleSheep', headers=header)
     assert response.status_code == 200
     res = response.json
-    print(res)
     assert res['hyha:testProp3'] == ['Waseliwas']
