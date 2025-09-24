@@ -74,6 +74,20 @@ def token_headers(app, client):
     }
     return token, headers
 
+@pytest.fixture()
+def bareboneuser(client, token_headers):
+    header = token_headers[1]
+
+    client.put('/admin/user/simple', json={
+        "givenName": "Simple",
+        "familyName": "User",
+        "email": "simple.user@test.com",
+        "password": "kappa1234"
+    }, headers=header)
+
+    yield
+
+    client.delete('/admin/user/simple', headers=header)
 
 @pytest.fixture()
 def testuser(client, token_headers):

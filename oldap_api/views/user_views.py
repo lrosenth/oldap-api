@@ -298,7 +298,7 @@ def modify_user(userid):
             return jsonify({"message": str(error)}), 404
 
         if inprojects == []:
-            return jsonify({"message": "If you want to modify a project pls send the projectIri that should be modifiead as well as the desired changes"}), 400
+            return jsonify({"message": "If you want to modify a project pls send the projectIri that should be modified as well as the desired changes"}), 400
         if inprojects is None:
             user.inProject = None
         elif inprojects != "NotSent":
@@ -345,7 +345,10 @@ def modify_user(userid):
                                 return jsonify({"message": f"Either a list or a dict is expected for the content of the permissions field"}), 400
                         else:
                             # TODO: Is the new project existing? Where is this tested??? DOES NOT WORK!!!!!!
-                            user.inProject[newproject["project"]] = {AdminPermission.from_string(x) for x in newproject["permissions"]}
+                            if not user.inProject:
+                                user.inProject = InProjectClass(setdata={newproject["project"]: {AdminPermission.from_string(x) for x in newproject["permissions"]}})
+                            else:
+                                user.inProject[newproject["project"]] = {AdminPermission.from_string(x) for x in newproject["permissions"]}
                             # return jsonify({"message": f"Project '{newproject["project"]}' to modify does not exist"}), 404
                     except ValueError as error:
                         return jsonify({"message": str(error)}), 400

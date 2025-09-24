@@ -851,6 +851,27 @@ def test_json_with_unknown_fields(client, token_headers, testuser):
     res = response.json
     print(res)
 
+def test_add_inprojects(client, token_headers, bareboneuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/simple', json={
+        "inProjects": [
+            {
+                "project": "http://www.salsah.org/version/2.0/SwissBritNet",
+                "permissions": [
+                    "ADMIN_USERS",
+                    "ADMIN_MODEL"
+                ]
+            }
+        ]
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    read = client.get('/admin/user/simple', headers=header)
+    readed = read.json
+    assert set(readed['inProjects'][0]['permissions']) == {'oldap:ADMIN_MODEL', 'oldap:ADMIN_USERS'}
+    assert readed['inProjects'][0]['project'] == 'http://www.salsah.org/version/2.0/SwissBritNet'
+
 
 def test_change_own_user_pw(client, token_headers):
     header = token_headers[1]
