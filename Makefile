@@ -1,4 +1,4 @@
-.PHONY: help test run
+.PHONY: help test run docker-image docker-run
 
 help:
 	@echo "Usage: make [target] ..."
@@ -32,6 +32,9 @@ run-prod:
 	OLDAP_REDIS_URL="redis://localhost:6379" \
 	poetry run gunicorn oldap_api.wsgi:app -b 127.0.0.1:8000 --workers 2 --threads 2 --timeout 60 --access-logfile - --error-logfile -
 
+version-patch:
+	poetry run bump2version patch
+
 docker-image:
 	 docker build -t oldap-api:local .
 
@@ -49,3 +52,5 @@ docker-run:
 	-e OLDAP_REDIS_URL="redis://localhost:6379" \
 	-v "$(PWD)/../data:/data" \
 	oldap-api:local
+
+docker-push:

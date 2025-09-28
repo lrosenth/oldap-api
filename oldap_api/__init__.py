@@ -21,6 +21,6 @@ def create_app():
     if not tmpdir.exists():
         tmpdir.mkdir()
 
-    CORS(app, expose_headers=["Content-Disposition"])
+    CORS(app, origins="*", expose_headers=["Content-Disposition"])
 
     return app
