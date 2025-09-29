@@ -19,15 +19,12 @@ WORKDIR /app
 # Copy dependency metadata first (better caching)
 COPY pyproject.toml poetry.lock* ./
 
-# Install only main dependencies into Poetry’s venv (needed to build)
+# Install dependencies needed to build (but not the project itself)
 RUN poetry install --only main --no-root
 
-# Copy full project to build wheel
+# Copy full project and build wheel
 COPY . .
-
-# Build wheel into /dist
-RUN poetry build -f wheel
-
+RUN rm -rf dist && poetry build && ls -lh dist
 
 # ---- Runtime stage: slim image with only app + deps ----
 FROM python:3.12-slim AS runtime
@@ -41,6 +38,7 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     redis-server \
     supervisor \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -52,15 +50,15 @@ RUN mkdir -p /var/lib/redis /var/log/redis /var/log/supervisor /app /data/upload
 
 WORKDIR /app
 
-# Install app + dependencies from built wheel (as root)
-COPY --from=builder /app/dist/*.whl /tmp/
-RUN pip install --no-cache-dir gunicorn /tmp/*.whl && rm -rf /tmp/*.whl
+# Copy and install app wheel (only newest wheel is installed)
+COPY --from=builder /app/dist /tmp/dist
+RUN pip install --no-cache-dir gunicorn /tmp/dist/*.whl && rm -rf /tmp/dist
 
-# Copy application files
+# Copy application files (if you need static files/configs)
 COPY . .
 RUN chown -R app:app /app
 
-# Create supervisor configuration with proper formatting
+# Create supervisor configuration
 COPY <<EOF /etc/supervisor/conf.d/supervisord.conf
 [supervisord]
 nodaemon=true
@@ -93,8 +91,6 @@ ENV APP_MODULE="oldap_api.wsgi:app"
 ENV OLDAP_REDIS_URL="redis://localhost:6379"
 
 # Switch to non-root user
-USER app
-
 USER app
 EXPOSE 8000
 

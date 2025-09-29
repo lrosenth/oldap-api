@@ -2,7 +2,7 @@
 name = "oldap-api"
 packages = [{ include = "oldap_api" }]
 version = "0.1.2"
-description = ""
+description = "Flask API for OLDAP"
 authors = ["ManuelRosenthaler <rosenthalermanuel@gmail.com>"]
 readme = "README.md"
 

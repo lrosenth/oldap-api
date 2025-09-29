@@ -1,0 +1,51 @@
+# ==========================================
+# Ignore build artifacts
+# ==========================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+.cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.pytest_cache/
+.tox/
+.dmypy.json
+.pyre/
+
+# ==========================================
+# Ignore virtual environments
+# ==========================================
+.venv/
+venv/
+env/
+
+# ==========================================
+# Ignore VCS and editor files
+# ==========================================
+.git
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ==========================================
+# Ignore Docker leftovers
+# ==========================================
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# ==========================================
+# Ignore OS-specific junk
+# ==========================================
+.DS_Store
+Thumbs.db

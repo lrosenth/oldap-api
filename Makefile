@@ -1,15 +1,28 @@
-.PHONY: help test run docker-image docker-run
+.PHONY: help init-multiarch test run run-prod bump-patch-level bump-minor-level bump-major-level \
+docker-build docker-run docker-push
+
+VERSION = $(shell git describe --tags --abbrev=0)
 
 help:
 	@echo "Usage: make [target] ..."
 	@echo ""
 	@echo "Available targets:"
-	@echo "  help         Show this help message"
-	@echo "  test         Run all tests"
-	@echo "  run          Run development server"
-	@echo "  docker-image Create docker image"
-	@echo "  docker-run   Run the docker image"
+	@echo "  help             Show this help message"
+	@echo "  init-multiarch   Initialize multiarch for amd64/arm64"
+	@echo "  test             Run all tests locally without docker"
+	@echo "  run              Run development server without docker"
+	@echo "  run-prod         Run in production environment guniverse"
+	@echo "  bump-patch-level Increase version number, patch level"
+	@echo "  bump-minor-lavel Increase version number, minor level"
+	@echo "  bump-major-level Increase version numer, major level"
+	@echo "  docker-build     Build docker image"
+	@echo "  docker-run       Run the docker image"
+	@echo "  docker-push      Push latest version to docker-hub"
 
+init-multiarch:
+	docker buildx create --use
+	docker buildx create --name multiarch --use
+	docker buildx inspect --bootstrap
 
 test:
 	OLDAP_TS_SERVER=http://localhost:7200 \
@@ -32,13 +45,27 @@ run-prod:
 	OLDAP_REDIS_URL="redis://localhost:6379" \
 	poetry run gunicorn oldap_api.wsgi:app -b 127.0.0.1:8000 --workers 2 --threads 2 --timeout 60 --access-logfile - --error-logfile -
 
-version-patch:
+bump-patch-level:
 	poetry run bump2version patch
+	git push
 
-docker-image:
-	 docker build -t oldap-api:local .
+bump-minor-level:
+	poetry run bump2version minor
+	git push
+
+bump-major-level:
+	poetry run bump2version major
+	git push
+
+docker-build:
+	 docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-t lrosenth/oldap-api:$(VERSION) \
+		-t lrosenth/oldap-api:latest \
+		--push .
 
 docker-run:
+	docker pull lrosenth/oldap-api:latest
 	docker run --rm -it \
 	-p 8000:8000 \
 	--add-host=host.docker.internal:host-gateway \
@@ -51,6 +78,8 @@ docker-run:
 	-e OLDAP_API_PORT=8000 \
 	-e OLDAP_REDIS_URL="redis://localhost:6379" \
 	-v "$(PWD)/../data:/data" \
-	oldap-api:local
+	lrosenth/oldap-api:latest
 
 docker-push:
+	docker push lrosenth/oldap-api:$(VERSION)
+	docker push lrosenth/oldap-api:latest
