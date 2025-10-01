@@ -1,4 +1,5 @@
-.PHONY: help init-multiarch test run run-prod bump-patch-level bump-minor-level bump-major-level \
+.PHONY: help repo-init repo-minimal-datainit-multiarch test run run-prod \
+bump-patch-level bump-minor-level bump-major-level \
 docker-build docker-run docker-push
 
 VERSION = $(shell git describe --tags --abbrev=0)
@@ -7,17 +8,27 @@ help:
 	@echo "Usage: make [target] ..."
 	@echo ""
 	@echo "Available targets:"
-	@echo "  help             Show this help message"
-	@echo "  init-multiarch   Initialize multiarch for amd64/arm64"
-	@echo "  test             Run all tests locally without docker"
-	@echo "  run              Run development server without docker"
-	@echo "  run-prod         Run in production environment guniverse"
-	@echo "  bump-patch-level Increase version number, patch level"
-	@echo "  bump-minor-lavel Increase version number, minor level"
-	@echo "  bump-major-level Increase version numer, major level"
-	@echo "  docker-build     Build docker image"
-	@echo "  docker-run       Run the docker image"
-	@echo "  docker-push      Push latest version to docker-hub"
+	@echo "  help              Show this help message"
+	@echo "  repo-init         Create the GraphDB repository (empty)"
+	@echo "  repo-minimal-data Add the minimal OLDAP ontologies/SHACL to the repo"
+	@echo "  init-multiarch    Initialize multiarch for amd64/arm64"
+	@echo "  test              Run all tests locally without docker"
+	@echo "  run               Run development server without docker"
+	@echo "  run-prod          Run in production environment guniverse"
+	@echo "  bump-patch-level  Increase version number, patch level"
+	@echo "  bump-minor-lavel  Increase version number, minor level"
+	@echo "  bump-major-level  Increase version numer, major level"
+	@echo "  docker-build      Build docker image"
+	@echo "  docker-run        Run the docker image"
+	@echo "  docker-push       Push latest version to docker-hub"
+
+repo-init:
+	curl -X POST http://localhost:7200/rest/repositories -H 'Content-Type: multipart/form-data' -F config=@oldap-config.ttl
+
+repo-minimal-data:
+	curl -X POST -H 'Content-Type: application/x-trig' --data-binary @../oldaplib/oldaplib/ontologies/oldap.trig http://localhost:7200/repositories/oldap/statements
+	curl -X POST -H 'Content-Type: application/x-trig' --data-binary @../oldaplib/oldaplib/ontologies/admin.trig http://localhost:7200/repositories/oldap/statements
+	curl -X POST -H 'Content-Type: application/x-trig' --data-binary @../oldaplib/oldaplib/ontologies/shared.trig http://localhost:7200/repositories/oldap/statements
 
 init-multiarch:
 	docker buildx create --use
