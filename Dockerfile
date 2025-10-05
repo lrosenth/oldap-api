@@ -94,9 +94,9 @@ ENV OLDAP_REDIS_URL="redis://localhost:6379"
 USER app
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/ || exit 1
+# HEALTHCHECK: prüft alle 30 Sekunden, Timeout nach 10s
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+  CMD curl -f http://localhost:8000/status || exit 1
 
 # Start both Redis and Flask app using supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

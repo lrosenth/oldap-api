@@ -22,6 +22,9 @@ help:
 	@echo "  docker-run        Run the docker image"
 	@echo "  docker-push       Push latest version to docker-hub"
 
+show-version:
+	@echo "VERSION=${VERSION}"
+
 repo-init:
 	curl -X POST http://localhost:7200/rest/repositories -H 'Content-Type: multipart/form-data' -F config=@oldap-config.ttl
 
