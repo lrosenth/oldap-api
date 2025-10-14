@@ -15,7 +15,7 @@ class ConnectionManager:
 
     def __init__(self, jwt_secret: str):
         self._jwt_secret = jwt_secret
-        Connection.jwtkey = jwt_secret
+        os.environ['OLDAP_JWT_SECRET'] = jwt_secret
 
     @property
     def jwt_secret(self) -> str:

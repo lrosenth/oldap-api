@@ -28,6 +28,16 @@ def login(userid):
     """
     if request.is_json:
         data = request.get_json()
+        if userid == "unknown":  # we have a "pesudo-login" for the anonymous unknown user
+            try:
+                con = Connection(context_name="DEFAULT")
+                resp = jsonify({'message': 'Login succeeded', 'token': con.token}), 200
+                return resp
+            except OldapErrorNotFound as err:
+                return jsonify({'message': str(err)}), 404
+            except OldapError as error:
+                return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
         password = data.get('password')
         if password is None:
             return jsonify({"message": "Invalid content type, JSON required"}), 400
