@@ -69,7 +69,7 @@ def test_fill_empty_datamodel_with_prop_class_valid(client, token_headers, teste
 
     response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "subPropertyOf": "hyha:testProp",
-        "class": "https://this.is.myontology.com/Test",
+        "class": "hyha:TestKappa",
         "name": ["Test Property@en", "Test Feld@de"],
         "description": ["Test Feld Beschreibung@de"],
     }, headers=header)
@@ -85,7 +85,7 @@ def test_fill_empty_datamodel_with_prop_class_valid(client, token_headers, teste
         assert ele["iri"] == "hyha:testProp2"
         assert set(ele["name"]) == {"Test Property@en", "Test Feld@de"}
         assert ele['subPropertyOf'] == 'hyha:testProp'
-        assert ele['toClass'] == 'https://this.is.myontology.com/Test'
+        assert ele['toClass'] == 'hyha:TestKappa'
 
 def test_fill_empty_datamodel_with_prop_class_invalid_A(client, token_headers, testemptydatamodel):
     header = token_headers[1]
@@ -99,7 +99,7 @@ def test_fill_empty_datamodel_with_prop_class_invalid_A(client, token_headers, t
 
     assert response.status_code == 400
     res = response.json
-    assert res['message'] == 'Invalid value for IRI: "1234"'
+    assert res['message'] == 'Invalid value for QName "1234"'
 
 
 def test_fill_empty_datamodel_with_prop_class_invalid_B(client, token_headers, testemptydatamodel):

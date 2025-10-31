@@ -46,7 +46,7 @@ def permissionsetr_get_by_iri():
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        ps = PermissionSet.read(con=con, iri=permissionSetIri)
+        ps = PermissionSet.read(con=con, qname=permissionSetIri)
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:

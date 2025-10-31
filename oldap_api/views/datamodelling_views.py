@@ -33,8 +33,8 @@ from oldaplib.src.iconnection import IConnection
 from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
 from oldaplib.src.resourceclass import ResourceClass
-from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
+from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
 from oldap_api.apierror import ApiError
 from oldap_api.helpers.process_langstring import process_langstring
@@ -133,11 +133,11 @@ def read_datamodel(project):
             pdata = {
                 "property": {
                     "iri": str(iri),
-                    **({"created": str(dm[prop].created)} if dm[prop].created is not None else {}),
-                    **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
-                    **({"modified": str(dm[prop].modified)} if dm[prop].modified is not None else {}),
-                    **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
-                    **({"projectid": str(dm[prop].projectShortName)} if dm[prop].projectShortName is not None else {}),
+                    **({"created": str(hp.prop.created)} if hp.prop.created is not None else {}),
+                    **({"creator": str(hp.prop.creator)} if hp.prop.creator is not None else {}),
+                    **({"modified": str(hp.prop.modified)} if hp.prop.modified is not None else {}),
+                    **({"contributor": str(hp.prop.contributor)} if hp.prop.contributor is not None else {}),
+                    **({"projectid": str(hp.prop.projectShortName)} if hp.prop.projectShortName is not None else {}),
                     **({"subPropertyOf": str(hp.prop.subPropertyOf)} if hp.prop.subPropertyOf is not None else {}),
                     **({"toClass": str(hp.prop.toClass)} if hp.prop.toClass is not None else {}),
                     **({"datatype": str(hp.prop.datatype)} if hp.prop.datatype is not None else {}),
@@ -243,7 +243,7 @@ def modify_resource(project, resource):
     out = request.headers['Authorization']
     b, token = out.split()
 
-    resourceIri = Iri(resource, validate=True)
+    resourceIri = Xsd_QName(resource, validate=True)
 
     try:
         con = Connection(token=token,
@@ -379,9 +379,9 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     prop = PropertyClass(
         con=con,
         project=project,
-        property_class_iri=Iri(iri),
+        property_class_iri=Xsd_QName(iri),
         subPropertyOf=subPropertyOf,
-        toClass= None if toClass is None else Iri(toClass, validate=True),
+        toClass= None if toClass is None else Xsd_QName(toClass, validate=True),
         datatype = None if datatype is None else XsdDatatypes(datatype),
         name=LangString(name, validate=True),
         description=LangString(description, validate=True),
@@ -491,7 +491,7 @@ def add_resource_to_datamodel(project, resource):
         except OldapError as error:
             return jsonify({"message": f"Oldap Error: {str(error)}"}), 500
         try:
-            dm[Iri(iri)] = resource
+            dm[Xsd_QName(iri)] = resource
         except OldapErrorAlreadyExists as error:
             return jsonify({"message": str(error)}), 409
 
@@ -512,14 +512,14 @@ def add_resource_to_datamodel(project, resource):
                         hp1 = HasProperty(con=con, project=project, prop=endprop, minCount=prop.get("minCount"), maxCount=prop.get("maxCount"), order=prop.get("order"))
                     except ApiError as error:
                         return jsonify({"message": str(error)}), 400
-                    dm[Iri(iri)][endprop.property_class_iri] = hp1
+                    dm[Xsd_QName(iri)][endprop.property_class_iri] = hp1
                 elif isinstance(prop["property"], str):
                     # we reference a standalone property
                     if prop["property"] not in dm.get_propclasses():
                         return jsonify({"message": f"Property {prop['property']} is not in the datamodel"}), 400
-                    hp1 = HasProperty(con=con, project=project, prop=Iri(prop["property"]), minCount=prop["minCount"],
+                    hp1 = HasProperty(con=con, project=project, prop=Xsd_QName(prop["property"]), minCount=prop["minCount"],
                                       maxCount=prop["maxCount"], order=prop["order"])
-                    dm[Iri(iri)][Iri(prop["property"])] = hp1
+                    dm[Xsd_QName(iri)][Xsd_QName(prop["property"])] = hp1
                 else:
                     return jsonify({"message": f"The Field 'property' must be an iri of a standalone property or a dictionary with ainternal property definition."}), 400
 
@@ -718,13 +718,13 @@ def add_property_to_resource(project, resource, property):
         else:
             # we should have a standalone property referenced
             try:
-                prop = Iri(property)
+                prop = Xsd_QName(property)
             except OldapErrorValue as error:
                 return jsonify({"message": str(error)}), 400
         hasprop = HasProperty(con=con, project=project, prop=prop, minCount=mincount, maxCount=maxcount, order=order)
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
-            dm[Iri(resource)][Iri(property)] = hasprop
+            dm[Xsd_QName(resource)][Xsd_QName(property)] = hasprop
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
@@ -810,7 +810,7 @@ def delete_hasprop_in_resource(project, resource, property):
         return jsonify({'message': str(error)}), 404
 
     try:
-        del dm[Iri(resource)][Iri(property)]
+        del dm[Xsd_QName(resource)][Xsd_QName(property)]
         dm.update()
     except OldapErrorValue as error:
         return jsonify({'message': str(error)}), 404
@@ -1017,7 +1017,7 @@ def modify_standalone_property(project, property):
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to modify the standalone property. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
-        jsonmsg, statuscode = property_modifier(data, dm[Iri(property)])
+        jsonmsg, statuscode = property_modifier(data, dm[Xsd_QName(property)])
         if statuscode != 200:
             return jsonmsg, statuscode
         try:
@@ -1093,15 +1093,15 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
         return jsonify({"message": f"At least one field must be given to modify an attribute of a property in a resource. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
     if "minCount" in data:
-        dm[Iri(resiri)][Iri(propiri)].minCount = data["minCount"]
+        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].minCount = data["minCount"]
     if "maxCount" in data:
-        dm[Iri(resiri)][Iri(propiri)].maxCount = data["maxCount"]
+        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].maxCount = data["maxCount"]
     if "order" in data:
-        dm[Iri(resiri)][Iri(propiri)].order = data["order"]
+        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].order = data["order"]
 
     property_data = data.get("property", None)
     if property_data or property_data == {}:
-        jsonmsg, statuscode = property_modifier(property_data, dm[Iri(resiri)][Iri(propiri)].prop)
+        jsonmsg, statuscode = property_modifier(property_data, dm[Xsd_QName(resiri)][Xsd_QName(propiri)].prop)
         if statuscode != 200:
             return jsonmsg, statuscode
 

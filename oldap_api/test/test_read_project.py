@@ -16,6 +16,28 @@ def test_read_project(client, token_headers, testproject):
     for key, val in expected.items():
         assert res[key] == val
 
+def test_read_project_with_ontologies(client, token_headers, testproject_with_external_ontologies):
+    expected = {
+        "projectIri": "http://unittest.org/project/testprojectB",
+        "label": ["unittest@en", "unittest@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
+        "namespaceIri": "http://unitest.org/project/unittestB#",
+        "externalOntologies": [
+            {"prefix": "schema", "namespace": "http://www.w3.org/2000/01/rdf-schema#"},
+            {"prefix": "ex", "namespace": "http://example.org/ns/"}
+        ],
+        "projectStart": "1993-04-05",
+        "projectEnd": "2000-01-10"
+    }
+    header = token_headers[1]
+
+    response = client.get('/admin/project/testprojectB', headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    for key, val in expected.items():
+        assert res[key] == val
+
 def test_read_project_by_iri(client, token_headers, testproject):
     expected = {
         "projectIri": "http://unittest.org/project/testproject",

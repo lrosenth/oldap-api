@@ -39,7 +39,7 @@ def create_resource(project, resclass):
 
     try:
         instance = Resclass(**data)
-    except (OldapErrorValue, OldapErrorKey, Oldaperror) as error:
+    except (OldapErrorValue, OldapErrorKey, OldapError) as error:
         return jsonify({'message': str(error)}), 400
 
     try:

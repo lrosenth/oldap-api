@@ -509,6 +509,15 @@ paths:
                   $ref: '#/components/schemas/LangString'
                 namespaceIri:
                   type: string
+                externalOntologies:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      prefix:
+                        type: string
+                      namespace:
+                        type: string
                 projectStart:
                   type: string
                 projectEnd:
@@ -612,6 +621,15 @@ paths:
                     pattern: ^[a-zA-Z_][a-zA-Z0-9._-]*$
                   namespaceIri:
                     type: string
+                  externalOntologies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        prefix:
+                          type: string
+                        namespace:
+                          type: string
                   projectStart:
                     type: string
                     format: date
@@ -660,6 +678,34 @@ paths:
                           $ref: '#/components/schemas/LangString'
                         del:
                           $ref: '#/components/schemas/LangString'
+                    - type: "null"
+                externalOntologies:
+                  oneOf:
+                    - type: array
+                      items:
+                        type: object
+                        properties:
+                          prefix:
+                            type: string
+                          namespace:
+                            type: string
+                    - type: object
+                      properties:
+                        add:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              prefix:
+                                type: string
+                              namespace:
+                                type string
+                        del:
+                          oneOf:
+                            - type: string
+                            - type: array
+                              items:
+                                type: string
                     - type: "null"
                 projectStart:
                   oneOf:
