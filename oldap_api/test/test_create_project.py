@@ -7,10 +7,6 @@ def test_create_project(client, token_headers):
         "label": ["unittest@en", "unittest@de"],
         "comment": ["For testing@en", "Für Tests@de"],
         "namespaceIri": "http://unitest.org/project/unittest#",
-        "externalOntologies": [
-            {"prefix": "ex", "namespace": "http://example.org/"},
-            {"prefix": "foaf", "namespace": "http://xmlns.com/foaf/0.1/"}
-        ],
         "projectStart": "1993-04-05",
         "projectEnd": "2000-01-10"
     }, headers=header)

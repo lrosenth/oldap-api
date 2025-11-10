@@ -1,5 +1,14 @@
 from pprint import pprint
 
+def test_read_datamodel_extontos(client, token_headers, testdatamodelwithexternalontology):
+    header = token_headers[1]
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+
+    res = response.json
+    assert response.status_code == 200
+    assert len(res['externalOntologies']) == 1
+
 
 def test_read_standaloneporp_datamodel(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
@@ -8,6 +17,7 @@ def test_read_standaloneporp_datamodel(client, token_headers, testfulldatamodels
 
     res = response.json
     pprint(res)
+    assert response.status_code == 200
 
 
 def test_bad_token(client, token_headers):

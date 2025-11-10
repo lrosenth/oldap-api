@@ -22,10 +22,6 @@ def test_read_project_with_ontologies(client, token_headers, testproject_with_ex
         "label": ["unittest@en", "unittest@de"],
         "comment": ["For testing@en", "Für Tests@de"],
         "namespaceIri": "http://unitest.org/project/unittestB#",
-        "externalOntologies": [
-            {"prefix": "schema", "namespace": "http://www.w3.org/2000/01/rdf-schema#"},
-            {"prefix": "ex", "namespace": "http://example.org/ns/"}
-        ],
         "projectStart": "1993-04-05",
         "projectEnd": "2000-01-10"
     }

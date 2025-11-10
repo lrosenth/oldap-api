@@ -52,7 +52,7 @@ def create_project(projectid):
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "Project successfully created"}
     """
-    known_json_fields = {"projectIri", "label", "comment", "namespaceIri", "externalOntologies", "projectStart", "projectEnd"}
+    known_json_fields = {"projectIri", "label", "comment", "namespaceIri", "projectStart", "projectEnd"}
     mandatory_json_fields = {"namespaceIri"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -67,7 +67,6 @@ def create_project(projectid):
         label = data.get("label", None)
         comment = data.get('comment', None)
         namespaceIri = data.get('namespaceIri', None)
-        externalOntologies = data.get('externalOntologies', None)
         projectStart = data.get('projectStart', None)
         projectEnd = data.get('projectEnd', None)
 
@@ -81,13 +80,6 @@ def create_project(projectid):
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
         try:
-            if externalOntologies:
-                usesExternalOntology = {Xsd_NCName(item.get("prefix"), validate=True): NamespaceIRI(item.get("namespace"), validate=True) for item in externalOntologies}
-            else:
-                usesExternalOntology = None
-        except OldapErrorValue as error:
-            return jsonify({"message": f"External ontology prefix or namespace is invalid: {str(error)}"}), 400
-        try:
             project = Project(con=con,
                               projectShortName=Xsd_NCName(projectShortName),
                               projectIri=Iri(projectIri),
@@ -96,9 +88,7 @@ def create_project(projectid):
                               comment=LangString(comment),
                               projectStart=Xsd_date(projectStart) if projectEnd else None,
                               projectEnd=Xsd_date(projectEnd) if projectEnd else None,
-                              usesExternalOntology=usesExternalOntology,
-                              validate=True
-                              )
+                              validate=True)
             project.create()
         except OldapErrorNoPermission as error:
             return jsonify({'message': str(error)}), 403
@@ -180,10 +170,6 @@ def read_project(projectid):
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
 
-    if project.usesExternalOntology:
-        externalOntologies = [{'prefix': str(k), 'namespace': str(v)} for k, v in project.usesExternalOntology.items()]
-    else:
-        externalOntologies = []
     res = {
         'projectIri': str(project.projectIri),
         **({"creator": str(project.creator)} if project.creator else {}),
@@ -193,7 +179,6 @@ def read_project(projectid):
         **({'label': [f'{value}@{lang.name.lower()}' for lang, value in project.label.items()]} if project.label else {}),
         **({'comment': [f'{value}@{lang.name.lower()}' for lang, value in project.comment.items()]} if project.comment else {}),
         **({"projectShortName": str(project.projectShortName)} if project.projectShortName else {}),
-        **({"externalOntologies": externalOntologies} if externalOntologies else {}),
         **({"namespaceIri": str(project.namespaceIri)} if project.namespaceIri else {}),
         **({"projectStart": str(project.projectStart)} if project.projectStart else {}),
         **({"projectEnd": str(project.projectEnd)} if project.projectEnd else {}),
@@ -301,7 +286,7 @@ def modify_project(projectid):
     :return: A JSON informing about the success of the operation that has the following form:
     json={"message": "Project updated successfully"}
     """
-    known_json_fields = {"label", "comment", "projectStart", "projectEnd", "externalOntologies"}
+    known_json_fields = {"label", "comment", "projectStart", "projectEnd"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -314,7 +299,6 @@ def modify_project(projectid):
             return jsonify({"message": f"At least one field must be given to modify the project. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
         label = data.get("label", "NotSent")
         comment = data.get("comment", "NotSent")
-        externalOntologies = data.get("externalOntologies", "NotSent")
         projectStart = data.get("projectStart", "NotSent")
         projectEnd = data.get("projectEnd", "NotSent")
 
@@ -333,24 +317,6 @@ def modify_project(projectid):
         try:
             process_langstring(project, ProjectAttr.LABEL, label, project.notifier)
             process_langstring(project, ProjectAttr.COMMENT, comment, project.notifier)
-
-            if externalOntologies != "NotSent":
-                if externalOntologies is None:
-                    del project.usesExternalOntology
-                else:
-                    if externalOntologies.get("add", None):
-                        for onto in externalOntologies["add"]:
-                            onto: dict[Xsd_NCName, NamespaceIRI]
-                            project.usesExternalOntology[Xsd_NCName(onto.get("prefix"), validate=True)] = NamespaceIRI(onto.get("namespace"), validate=True)
-                    if externalOntologies.get("del", None):
-                        todel = externalOntologies["del"]
-                        if isinstance(todel, str):
-                            del project.usesExternalOntology[Xsd_NCName(todel, validate=True)]
-                        elif isinstance(todel, list):
-                            for prefix in todel:
-                                del project.usesExternalOntology[Xsd_NCName(prefix, validate=True)]
-                        else:
-                            raise ValueError(f"Unexpected type for del-field: {type(todel)}")
 
             if projectStart != "NotSent":
                 if projectStart is None:

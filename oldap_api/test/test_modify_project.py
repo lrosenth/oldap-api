@@ -591,57 +591,6 @@ def test_modify_comment_del_list_none(client, token_headers, testproject):
     }, headers=header)
     assert response.status_code == 400
     res = response.json
-    print(res)
-
-def test_modify_external_ontologies_del_ontology_A(client, token_headers, testproject_with_external_ontologies):
-    header = token_headers[1]
-
-    response = client.post('/admin/project/testprojectB', json={
-        "externalOntologies": {"del": "ex"}
-    }, headers=header)
-    assert response.status_code == 200
-    response2 = client.get('/admin/project/testprojectB', headers=header)
-    res = response2.json
-    assert res['externalOntologies'] == [{'namespace': 'http://www.w3.org/2000/01/rdf-schema#', 'prefix': 'schema'}]
-
-def test_modify_external_ontologies_del_ontology_B(client, token_headers, testproject_with_external_ontologies):
-    header = token_headers[1]
-
-    response = client.post('/admin/project/testprojectB', json={
-        "externalOntologies": {"del": ["ex"]}
-    }, headers=header)
-    assert response.status_code == 200
-    response2 = client.get('/admin/project/testprojectB', headers=header)
-    res = response2.json
-    assert res['externalOntologies'] == [{'namespace': 'http://www.w3.org/2000/01/rdf-schema#', 'prefix': 'schema'}]
-
-def test_modify_external_ontologies_del_ontology_C(client, token_headers, testproject_with_external_ontologies):
-    header = token_headers[1]
-
-    response = client.post('/admin/project/testprojectB', json={
-        "externalOntologies": None
-    }, headers=header)
-    assert response.status_code == 200
-
-    response2 = client.get('/admin/project/testprojectB', headers=header)
-    res = response2.json
-    assert res.get('externalOntologies') is None
-
-def test_modify_external_ontologies_del_ontology_D(client, token_headers, testproject_with_external_ontologies):
-    header = token_headers[1]
-
-    response = client.post('/admin/project/testprojectB', json={
-        "externalOntologies": {'add': [{'prefix': 'dada', 'namespace': 'http://dada.org/ns#'}]}
-    }, headers=header)
-    assert response.status_code == 200
-
-    response2 = client.get('/admin/project/testprojectB', headers=header)
-    res = response2.json
-    assert res.get('externalOntologies') == [
-        {'namespace': 'http://www.w3.org/2000/01/rdf-schema#', 'prefix': 'schema'},
-        {'namespace': 'http://example.org/ns/', 'prefix': 'ex'},
-        {'namespace': 'http://dada.org/ns#', 'prefix': 'dada'}
-    ]
 
 
 def test_modify_startdate(client, token_headers, testproject):

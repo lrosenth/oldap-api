@@ -19,11 +19,14 @@ from flask import Blueprint, request, jsonify, Response
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.dtypes.languagein import LanguageIn
+from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
 from oldaplib.src.dtypes.xsdset import XsdSet
+from oldaplib.src.enums.externalontologyattr import ExternalOntologyAttr
 from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.enums.resourceclassattr import ResClassAttribute
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
+from oldaplib.src.externalontology import ExternalOntology
 from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
@@ -34,6 +37,7 @@ from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
 from oldaplib.src.resourceclass import ResourceClass
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
+from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
 from oldap_api.apierror import ApiError
@@ -72,14 +76,24 @@ def read_datamodel(project):
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
 
+    extontos = set(dm.get_extontos())
     propclasses = set(dm.get_propclasses())
     resclasses = set(dm.get_resclasses())
 
     res = {
         "project": project,
+        "externalOntologies": [],
         "standaloneProperties": [],
         "resources": []
     }
+
+    for onto in extontos:
+        res['externalOntologies'].append({
+            "prefix": str(dm[onto].prefix),
+            "namespaceIri": str(dm[onto].namespaceIri),
+            **({"label": [f'{value}@{lang.name.lower()}' for lang, value in dm[onto].label.items()]} if dm[onto].label else {}),
+            **({"comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[onto].comment.items()]} if dm[onto].comment else {}),
+        })
 
     for prop in propclasses:
         if prop in {'dcterms:created', 'dcterms:creator', 'dcterms:modified', 'dcterms:contributor'}:
@@ -568,6 +582,151 @@ def delete_whole_resource(project, resource):
     return jsonify({'message': f'Resource in datamodel {project} successfully deleted'}), 200
 
 
+@datamodel_bp.route('/datamodel/<project>/extonto/<prefix>', methods=['PUT'])
+def add_external_ontology_to_datamodel(project, prefix):
+    """
+    Adds an external ontology reference to a specified data model in a project. This operation validates the provided
+    data fields and ensures compliance with the ontology addition rules. It establishes a connection using a provided
+    authorization token and processes the request's JSON data. The function performs necessary checks for valid fields
+    and handles exceptions appropriately during both the connection and ontology reference creation processes.
+
+    :param project: The name of the project where the external ontology reference will be added
+    :type project: str
+    :param prefix: The prefix identifying the ontology within the project
+    :type prefix: str
+    :return: A Flask response object containing a message and an HTTP status code
+    :rtype: flask.Response
+    :raises: Raises exceptions for various connection, validation, and processing errors handled internally to
+             provide user-friendly error messages with appropriate HTTP status codes
+    """
+    known_json_fields = {"namespaceIri", "label", "comment"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if not request.is_json:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+
+    try:
+        con = Connection(token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    data = request.get_json()
+    unknown_json_field = set(data.keys()) - known_json_fields
+    if unknown_json_field:
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to add an external ontology reference. Usable are {known_json_fields}. Aborted operation (1)"}), 400
+    if not set(data.keys()):
+        return jsonify({"message": f"At least one field must be given to add an external ontology reference. Usable for the add-viewfunction are {known_json_fields}"}), 400
+
+    namespaceIri = data.get("namespaceIri", None)
+    label = data.get("label", None)
+    comment = data.get("comment", None)
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 404
+
+    try:
+        extonto = ExternalOntology(con=con,
+                                   projectShortName=Xsd_NCName(project, validate=True),
+                                   prefix=Xsd_NCName(prefix, validate=True),
+                                   namespaceIri=NamespaceIRI(namespaceIri, validate=True),
+                                   label=label,
+                                   comment=comment,
+                                   validate=True)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    except OldapError as error:
+        return jsonify({"message": f"Oldap Error: {str(error)}"}), 500
+
+    try:
+        dm[Xsd_QName(project, prefix)] = extonto
+        dm.update()
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    except OldapErrorAlreadyExists as error:
+        return jsonify({"message": str(error)}), 409
+    except OldapError as error:  # Should not be reachable
+        return jsonify({"message": str(error)}), 500
+    return jsonify({"message": f'External ontology reference "{project}:{prefix}" successfully added'}), 200
+
+
+@datamodel_bp.route('/datamodel/<project>/extonto/<prefix>', methods=['DELETE'])
+def delete_external_ontology_to_datamodel(project, prefix):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    try:
+        del dm[Xsd_QName(project, prefix, validate=True)]
+        dm.update()
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
+    except OldapError as error:  # Should not be reachable
+        return jsonify({'message': str(error)}), 500
+    return jsonify({'message': f'External ontology reference "{project}:{prefix}" successfully deleted'}), 200
+
+
+@datamodel_bp.route('/datamodel/<project>/extonto/<prefix>', methods=['POST'])
+def modify_external_ontology_in_datamodel(project, prefix):
+    known_json_fields = {"namespaceIri", "label", "comment"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if not request.is_json:
+        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+    data = request.get_json()
+    unknown_json_field = set(data.keys()) - known_json_fields
+    if unknown_json_field:
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify an external ontology reference. Usable are {known_json_fields}. Aborted operation"}), 400
+    if not set(data.keys()):
+        return jsonify({"message": f"At least one field must be given to modify an external ontology reference. Usablable for the modify-viewfunction are {known_json_fields}"}), 400
+    namespaceIri = data.get("namespaceIri", "NotSent")
+    label = data.get("label", "NotSent")
+    comment = data.get("comment", "NotSent")
+
+    try:
+        con = Connection(token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        dm = DataModel.read(con, project, ignore_cache=True)
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+
+    onto = Xsd_QName(project, prefix, validate=True)
+
+    try:
+        if namespaceIri != "NotSent":
+            dm[onto].namespaceIri = NamespaceIRI(namespaceIri, validate=True)
+        process_langstring(dm[onto], ExternalOntologyAttr.LABEL, label, dm[onto].notifier)
+        process_langstring(dm[onto], ExternalOntologyAttr.COMMENT, comment, dm[onto].notifier)
+        dm.update()
+    except OldapErrorKey as error:
+        return jsonify({"message": str(error)}), 400
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500
+    return jsonify({"message": f'External ontology reference "{project}:{prefix}" successfully modified'}), 200
 
 
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['PUT'])

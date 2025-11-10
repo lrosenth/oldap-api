@@ -87,15 +87,15 @@ def test_find_several_projects(client, token_headers, testproject):
         "projectIri": "http://unittest.org/project/kappaproject",
         "label": ["unittest@en", "unittest@de"],
         "comment": ["For testing@en", "Für Tests@de"],
-        "namespaceIri": "http://unitest.org/project/unittest#",
+        "namespaceIri": "http://unitest.org/project/anotherUnittest#",
         "projectStart": "1993-04-05",
         "projectEnd": "2000-01-10"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.get('/admin/project/search', query_string={
         "label": "unittest"
     }, headers=header)
-
     assert response.status_code == 200
     res = response.json
     res2 = [(x['projectIri'], x['projectShortName']) for x in res]

@@ -12,6 +12,20 @@ def test_create_empty_datamodel(client, token_headers):
     res = response.json
     print(res)
 
+def test_fill_empty_datamodel_with_extonto(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/extonto/crm', json={
+        'namespaceIri': 'http://www.cidoc-crm.org/cidoc-crm/',
+        'label': 'CIDOC CRM'
+    }, headers=header)
+    assert response.status_code == 200
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+    assert response.status_code == 200
+    assert res['externalOntologies'][0]['namespaceIri'] == "http://www.cidoc-crm.org/cidoc-crm/"
+
 
 def test_fill_empty_datamodel_with_standalone_prop(client, token_headers, testemptydatamodel):
     header = token_headers[1]
@@ -99,7 +113,7 @@ def test_fill_empty_datamodel_with_prop_class_invalid_A(client, token_headers, t
 
     assert response.status_code == 400
     res = response.json
-    assert res['message'] == 'Invalid value for QName "1234"'
+    assert res['message'] == 'Invalid value for QName "1234" (type: int)'
 
 
 def test_fill_empty_datamodel_with_prop_class_invalid_B(client, token_headers, testemptydatamodel):

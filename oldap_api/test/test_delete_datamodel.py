@@ -19,6 +19,19 @@ def test_delete_whole_datamodel(client, token_headers, testemptydatamodel):
     assert res['message'] == 'Datamodel "hyha:shacl" not found'
 
 
+def test_delete_extonto(client, token_headers, testdatamodelwithexternalontology):
+    header = token_headers[1]
+
+    response = client.delete('/admin/datamodel/hyha/extonto/frbr', headers=header)
+    assert response.status_code == 200
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    res = response.json
+
+    assert response.status_code == 200
+    assert res['externalOntologies'] == []
+
+
 def test_delete_standalone_property(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 

@@ -509,15 +509,6 @@ paths:
                   $ref: '#/components/schemas/LangString'
                 namespaceIri:
                   type: string
-                externalOntologies:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      prefix:
-                        type: string
-                      namespace:
-                        type: string
                 projectStart:
                   type: string
                 projectEnd:
@@ -621,15 +612,6 @@ paths:
                     pattern: ^[a-zA-Z_][a-zA-Z0-9._-]*$
                   namespaceIri:
                     type: string
-                  externalOntologies:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        prefix:
-                          type: string
-                        namespace:
-                          type: string
                   projectStart:
                     type: string
                     format: date
@@ -679,34 +661,34 @@ paths:
                         del:
                           $ref: '#/components/schemas/LangString'
                     - type: "null"
-                externalOntologies:
-                  oneOf:
-                    - type: array
-                      items:
-                        type: object
-                        properties:
-                          prefix:
-                            type: string
-                          namespace:
-                            type: string
-                    - type: object
-                      properties:
-                        add:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              prefix:
-                                type: string
-                              namespace:
-                                type string
-                        del:
-                          oneOf:
-                            - type: string
-                            - type: array
-                              items:
-                                type: string
-                    - type: "null"
+#                externalOntologies:
+#                  oneOf:
+#                    - type: array
+#                      items:
+#                        type: object
+#                        properties:
+#                          prefix:
+#                            type: string
+#                          namespace:
+#                            type: string
+#                    - type: object
+#                      properties:
+#                        add:
+#                          type: array
+#                          items:
+#                            type: object
+#                            properties:
+#                              prefix:
+#                                type: string
+#                              namespace:
+#                                type string
+#                        del:
+#                          oneOf:
+#                            - type: string
+#                            - type: array
+#                              items:
+#                                type: string
+#                    - type: "null"
                 projectStart:
                   oneOf:
                     - type: string
@@ -1289,6 +1271,10 @@ paths:
                   project:
 #                    $ref: '#/components/schemas/Iri'
                     type: string
+                  externalOntologies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExternalOntology'
                   standaloneProperties:
                     type: array
                     items:
@@ -1336,6 +1322,147 @@ paths:
           $ref: '#/components/responses/NotFound'
         "500":
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/datamodel/{project}/extonto/{prefix}:
+    put:
+      summary: Adds an external ontology reference to an existing data model
+      description:
+        Add an external ontology reference to the data model. The external ontology reference is defined
+        by a prefx and the namespace Iri. If it's declared in the datamode, definitions from this ontology
+        may be used withing the data model.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          description: The prefix of the external ontology
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalOntology'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Standalone property in datamodel {project} successfully created"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete an external ontology reference from the datamodel of a project
+      description:
+        Viewfunction that deletes an external ontology reference inside the project's datamodel
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          description: The name (Iri) of the property one wish to delete
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "External ontology reference in datamodel {project} successfully deleted"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
+  post:
+      summary: Modify an external ontology reference
+      description:
+        Route to modify the label or the comment of an external ontology reference
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The Name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: prefix
+          description: The prefix that identifies the external ontology reference
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              additionalProperties: false
+              properties:
+                name:
+                  description: Human readable Name for the external ontology reference
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
+                description:
+                  description: A description of external ontology reference.
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
+
 
   /admin/datamodel/{project}/property/{property}:
     put:
@@ -3143,9 +3270,52 @@ components:
 
     Iri:
       type: string
-      pattern: "^[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+$"
+      pattern: '^[A-Za-z_][A-Za-z0-9._-]*:[A-Za-z_][A-Za-z0-9._-]*$'
       description: "IRI in the format 'project:object', where 'project' is the project name and 'object' is the object name."
       example: "myproj:pageOf"
+
+    ExternalOntology:
+      type: object
+      additionalProperties: false
+      properties:
+        creator:
+          type: string
+        created:
+          type: string
+          format: date-time
+        contributor:
+          type: string
+        modified:
+          type: string
+          format: date-time
+        prefix:
+          type: string
+          description: "Prefix to be used for the external ontology"
+        namespaceIri:
+          type: string
+          description: Namespace of the ontology
+        label:
+          description: Human readable label.
+          oneOf:
+            - $ref: '#/components/schemas/LangString'
+            - type: object
+              properties:
+                add:
+                  $ref: '#/components/schemas/LangString'
+                del:
+                  $ref: '#/components/schemas/LangString'
+            - type: "null"
+        comment:
+          description: A description of the property.
+          oneOf:
+            - $ref: '#/components/schemas/LangString'
+            - type: object
+              properties:
+                add:
+                  $ref: '#/components/schemas/LangString'
+                del:
+                  $ref: '#/components/schemas/LangString'
+            - type: "null"
 
     Property:
       type: object

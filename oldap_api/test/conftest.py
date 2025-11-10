@@ -62,14 +62,6 @@ def app():
     con.clear_graph(Xsd_QName('hyha:onto'))
     con.clear_graph(Xsd_QName('hyha:lists'))
     con.clear_graph(Xsd_QName('hyha:data'))
-    gaga = os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin.trig"
-    print(gaga)
-    path = Path(gaga)
-    if path.exists():
-        print("=====>OK")
-    else:
-        print("=====>NOK")
-    pass
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin.trig")
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin-testing.trig")
     sleep(1)
@@ -164,10 +156,6 @@ def testproject_with_external_ontologies(client, token_headers):
         "label": ["unittest@en", "unittest@de"],
         "comment": ["For testing@en", "Für Tests@de"],
         "namespaceIri": "http://unitest.org/project/unittestB#",
-        "externalOntologies": [
-            {"prefix": "schema", "namespace": "http://www.w3.org/2000/01/rdf-schema#"},
-            {"prefix": "ex", "namespace": "http://example.org/ns/"}
-        ],
         "projectStart": "1993-04-05",
         "projectEnd": "2000-01-10"
     }, headers=header)
@@ -214,6 +202,17 @@ def testhalffulldatamodelstandaloneprop(client, token_headers, testemptydatamode
         "minLength": 1,
         "maxLength": 50,
         "languageIn": ["en", "fr", "it", "de"],
+    }, headers=header)
+
+    yield
+
+@pytest.fixture()
+def testdatamodelwithexternalontology(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/extonto/frbr', json={
+        'namespaceIri': 'http://purl.org/vocab/frbr/core#',
+        'label': 'Functional Requirements for Bibliographic Records (FRBR)@en'
     }, headers=header)
 
     yield
