@@ -26,6 +26,14 @@ def connection_manager():
     cmanager = ConnectionManager("ABCDEFGHIJKLMNOPQRESTUVWXYZ0123456")
     return cmanager
 
+@pytest.fixture(scope="session", autouse=True)
+def set_test_env():
+    os.environ["OLDAP_TS_SERVER"] = "http://localhost:7200"
+    os.environ["OLDAP_TS_REPO"] = "oldap"
+    os.environ["OLDAP_API_PORT"] = "8000"
+    os.environ["OLDAP_REDIS_URL"] = "redis://localhost:6379"
+
+
 @pytest.fixture
 def app():
     app = factory()
@@ -54,6 +62,14 @@ def app():
     con.clear_graph(Xsd_QName('hyha:onto'))
     con.clear_graph(Xsd_QName('hyha:lists'))
     con.clear_graph(Xsd_QName('hyha:data'))
+    gaga = os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin.trig"
+    print(gaga)
+    path = Path(gaga)
+    if path.exists():
+        print("=====>OK")
+    else:
+        print("=====>NOK")
+    pass
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin.trig")
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin-testing.trig")
     sleep(1)
