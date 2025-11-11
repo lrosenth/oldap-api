@@ -2,7 +2,7 @@ from flask import request, jsonify, Blueprint
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapErrorKey, OldapErrorNoPermission, \
-    OldapErrorAlreadyExists
+    OldapErrorAlreadyExists, OldapErrorNotFound
 from oldaplib.src.helpers.query_processor import QueryProcessor
 from oldaplib.src.objectfactory import ResourceInstanceFactory
 from oldaplib.src.xsd.iri import Iri
@@ -57,18 +57,34 @@ def read_instance(project, resiri):
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-    iri = Iri(resiri)
+    try:
+        iri = Iri(resiri, validate=True)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
     context = Context(name=con.context_name)
+    if not context.get('project'):
+        return jsonify({"message": f"Project {project} not found"}), 404
+
     query = context.sparql_context
     query += f"SELECT ?resclass FROM {project}:data WHERE {{ {iri.toRdf} a ?resclass }}"
-    jsonres = con.query(query)
+    try:
+        jsonres = con.query(query)
+    except OldapError as error:
+        return jsonify({"message": str(error)}), 500
     res = QueryProcessor(context, jsonres)
     for r in res:
         resource = r['resclass']
 
-    data = ResourceInstanceFactory.read_data(con=con,
-                                             iri=Iri(resiri, validate=True),
-                                             projectShortName=Xsd_NCName(project, validate=True))
+    try:
+        data = ResourceInstanceFactory.read_data(con=con,
+                                                 iri=Iri(resiri, validate=True),
+                                                 projectShortName=Xsd_NCName(project, validate=True))
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
     data = {str(x): y for x, y in data.items()}
     return jsonify(data), 200
 
