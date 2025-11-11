@@ -830,7 +830,7 @@ def add_property_to_resource(project, resource, property):
     :return: A JSON informing about the success of the operation that has the following form:
     json={"message": f"Property in resource {resource} in datamodel {project} successfully created"}
     """
-    known_json_fields = {"subPropertyOf", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "minCount", "maxCount", "order"}
+    known_json_fields = {"subPropertyOf", "datatype", "class", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "minCount", "maxCount", "order"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -1048,6 +1048,13 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             else:
                 return jsonify({"message": f"To modify {attrname} accepted is either a list, dict or None. Received {type(attrname).__name__} instead."}), 400
             continue
+        if attrname == 'class':
+            try:
+                property.oldapSetAttr('toClass', attrval)
+            except ValueError as error:
+                return jsonify({'message': str(error)}), 400
+            continue
+
         if attrname == "inSet":  # a set of items of the required datatype
             datatype = property.datatype
             if isinstance(attrval, list):
