@@ -2,6 +2,7 @@ import json
 
 from flask import Blueprint, request, jsonify, Response
 from oldaplib.src.connection import Connection
+from oldaplib.src.datamodel import DataModel
 from oldaplib.src.project import Project
 from oldaplib.src.objectfactory import ResourceInstanceFactory
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
@@ -28,6 +29,9 @@ def create_resource(project, resclass):
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
+
+    dm = DataModel.read(con, project, ignore_cache=True)
+    pass
 
     try:
         factory = ResourceInstanceFactory(con=con, project=project)

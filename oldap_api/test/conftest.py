@@ -344,6 +344,58 @@ def testfulldatamodelresourcesimple(client, token_headers, testemptydatamodel):
     yield
 
 @pytest.fixture()
+def testfulldatamodelresourcedatatypes(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:Book', json={
+        "label": [
+            "Buch@de",
+            "Book@en"
+        ],
+        "comment": [
+            "Ein Buch@de",
+            "A  book@en"
+        ],
+        "closed": True,
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:title",
+                    "datatype": "rdf:langString",
+                    "name": ["Test Property@en", "Test Feld@de"],
+                    "description": ["Test Feld Beschreibung@de"],
+                },
+                "maxCount": 1,
+                "minCount": 1,
+                "order": 1
+            },
+            {
+                "property": {
+                    "iri": "hyha:numPages",
+                    "datatype": "xsd:integer",
+                    "name": ["Test Property@en", "Test Feld@de"],
+                    "description": ["Test Feld Beschreibung@de"],
+                },
+                "maxCount": 1,
+                "minCount": 1,
+                "order": 2
+            },
+            {
+                "property": {
+                    "iri": "hyha:publishingDate",
+                    "datatype": "xsd:date",
+                    "name": ["Publishing date@en", "Publikationsdatum@de"],
+                },
+                "maxCount": 1,
+                "minCount": 1,
+                "order": 3
+            },
+        ]
+    }, headers=header)
+
+    yield
+
+@pytest.fixture()
 def testfulldatamodelresource(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
@@ -430,6 +482,19 @@ def testfulldatamodelresourcesuperclasses(client, token_headers, testemptydatamo
     }, headers=header)
 
     yield
+
+@pytest.fixture()
+def testfulldatamodelwithinstances(client, token_headers, testfulldatamodelresourcesuperclasses):
+    header = token_headers[1]
+    response = client.put('/data/hyha/Lion', json={
+        'mammalName': 'Cat',
+        'preyScheme': 'Deer',
+        'grantsPermission': 'oldap:GenericView'
+    }, headers=header)
+    res = response.json
+    iri = res['iri']
+
+    yield iri
 
 @pytest.fixture()
 def testfulldatamodelresourcewithstandalone(client, token_headers, testemptydatamodel):

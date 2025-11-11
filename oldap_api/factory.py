@@ -52,6 +52,7 @@ def factory():
     from oldap_api.views import datamodelling_views
     from oldap_api.views import hierarchical_list_views
     from oldap_api.views import resource_views
+    from oldap_api.views import instance_views
 
     app.register_blueprint(auth_views.auth_bp)
     app.register_blueprint(user_views.user_bp)
@@ -60,5 +61,14 @@ def factory():
     app.register_blueprint(datamodelling_views.datamodel_bp)
     app.register_blueprint(hierarchical_list_views.hierarchical_list_bp)
     app.register_blueprint(resource_views.resource_bp)
+    app.register_blueprint(instance_views.instance_bp)
 
+    @app.get("/_routes")
+    def _routes():
+        return {
+            "rules": [
+                {"rule": str(r), "endpoint": r.endpoint, "methods": sorted(r.methods)}
+                for r in app.url_map.iter_rules()
+            ]
+        }
     return app

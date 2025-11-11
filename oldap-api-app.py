@@ -1,5 +1,5 @@
 from oldap_api import create_app
-
+#from oldap_api.factory import factory as create_app
 
 app = create_app()
 

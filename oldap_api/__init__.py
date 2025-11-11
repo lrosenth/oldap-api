@@ -9,7 +9,6 @@ def create_app():
     app = factory()
     set_logger(app.logger)
 
-
     cfg = os.getenv("APP_ENV", "Prod")
     app.config.from_object(f"oldap_api.config.{cfg}")
 
