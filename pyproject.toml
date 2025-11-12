@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 flask = "^3.1.1"
-oldaplib = "==0.3.7"
+oldaplib = "==0.3.10"
 flask-cors = "^6.0.1"
 requests = "^2.32.3"
 gunicorn = "^23.0"
@@ -17,7 +17,7 @@ poetry-core = "^2.2.1"
 bump2version = "^1.0.1"
 coverage = "==7.11.3"
 black = "==25.11.0"
-pytest = "==9.0.0"
+pytest = "==9.0.1"
 
 
 [tool.poetry.group.dev.dependencies]

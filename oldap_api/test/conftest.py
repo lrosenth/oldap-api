@@ -64,6 +64,14 @@ def app():
     con.clear_graph(Xsd_QName('hyha:data'))
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin.trig")
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/ontologies/admin-testing.trig")
+
+    context['test'] = NamespaceIRI('http://oldap.org/test#')
+    con.clear_graph(Xsd_QName('test:shacl'))
+    con.clear_graph(Xsd_QName('test:onto'))
+    con.clear_graph(Xsd_QName('test:lists'))
+    con.clear_graph(Xsd_QName('test:data'))
+    con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/testdata/objectfactory_test.trig")
+
     sleep(1)
     yield app
 
@@ -186,6 +194,14 @@ def testemptydatamodel(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha', json={}, headers=header)
+
+    yield
+
+@pytest.fixture()
+def testemptydatamodeltest(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/test', json={}, headers=header)
 
     yield
 
@@ -495,6 +511,40 @@ def testfulldatamodelwithinstances(client, token_headers, testfulldatamodelresou
     iri = res['iri']
 
     yield iri
+
+@pytest.fixture()
+def testfulldatamodeltestinstances(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.put('/data/test/Person', json={
+        'schema:familyName': 'Kirk',
+        'schema:givenName': ['James', 'Tiberius'],
+        'oldap:grantsPermission': 'oldap:GenericView'
+    }, headers=header)
+    res = response.json
+    kirk_iri = res['iri']
+
+    response = client.put('/data/test/Person', json={
+        'schema:familyName': 'Uhura',
+        'schema:givenName': ['Nyota'],
+        'oldap:grantsPermission': 'oldap:GenericView'
+    }, headers=header)
+    res = response.json
+    uhura_iri = res['iri']
+
+    response = client.put('/data/test/Book', json={
+        'test:title': 'How to contol NCC-1701-A',
+        'test:author': [kirk_iri, uhura_iri],
+        'test:pubDate': '2293-10-12',
+        'oldap:grantsPermission': 'oldap:GenericView'
+    }, headers=header)
+    res = response.json
+    book_iri = res['iri']
+
+    yield kirk_iri, uhura_iri, book_iri
+
+
+
 
 @pytest.fixture()
 def testfulldatamodelresourcewithstandalone(client, token_headers, testemptydatamodel):
