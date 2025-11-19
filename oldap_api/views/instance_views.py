@@ -4,7 +4,7 @@ from oldaplib.src.datamodel import DataModel
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapErrorKey, OldapErrorNoPermission, \
     OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse
 from oldaplib.src.helpers.query_processor import QueryProcessor
-from oldaplib.src.objectfactory import ResourceInstanceFactory
+from oldaplib.src.objectfactory import ResourceInstance, ResourceInstanceFactory, SortBy
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.helpers.context import Context
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
@@ -14,7 +14,7 @@ instance_bp = Blueprint('instance', __name__, url_prefix='/data')
 
 @instance_bp.route('/textsearch/<project>', methods=['GET'])
 def textsearch_instance(project):
-    known_json_fields = {"searchString", "countOnly", "limit", "offset"}
+    known_json_fields = {"searchString", "countOnly", "resclass", "sortBy", "limit", "offset"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -27,8 +27,36 @@ def textsearch_instance(project):
 
     searchString = getattr(request, "args", {}).get("searchString", None)
     countOnly = getattr(request, "args", {}).get("countOnly", None)
+    resClass = getattr(request, "args", {}).get("resClass", None)
+    sortBy = getattr(request, "args", {}).get("sortBy", None)
     limit = getattr(request, "args", {}).get("limit", None)
     offset = getattr(request, "args", {}).get("offset", None)
+
+    if not searchString:
+        return jsonify({"message": "No search string provided"}), 400
+    try:
+        params: dict[str, Any] = {
+            's': str(searchString),
+        }
+        if countOnly:
+            params['countOnly'] = True
+        if sortBy:
+            if sortBy == "PROPVAL":
+                params['sortBy'] = SortBy.PROPVAL
+            elif sortBy == "CREATED":
+                params['sortBy'] = SortBy.CREATED
+            elif sortBy == "LASTMOD":
+                params['sortBy'] = SortBy.LASTMOD
+            else:
+                return jsonify({"message": f'The Field/s {sortBy} is invalid. Usable are "PROPVAL", "CREATED", "LASTMOD". Aborded operation'}), 400
+        if resClass:
+            params['resClass'] = Xsd_QName(resClass, validate=True)
+        if limit:
+            params['limit'] = int(limit)
+        if offset:
+            params['offset'] = int(offset)
+    except (OldapErrorValue, OldapError) as error:
+        return jsonify({"message": str(error)}), 400
 
     try:
         con = Connection(token=token,
@@ -37,17 +65,85 @@ def textsearch_instance(project):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        res = ResourceInstanceFactory.search_fulltext(con=con,
-                                                      projectShortName=Xsd_NCName(project, validate=True),
-                                                      s=searchString,
-                                                      count_only=True if countOnly else False,
-                                                      limit=limit if limit else 100,
-                                                      offset=offset if offset else 0)
+        res = ResourceInstance.search_fulltext(con=con,
+                                               projectShortName=Xsd_NCName(project, validate=True),
+                                               **params)
+    except OldapError as error:
+        return jsonify({"message": f"Search failed: {str(error)}"}), 400
+
+    if countOnly:
+        return jsonify({"count": res.value}), 200
+    else:
+        tmp = {str(key): {str(x): str(y) for x, y in value.items()} for key, value in res.items()}
+        return jsonify(tmp), 200
+
+
+@instance_bp.route('/ofclass/<project>', methods=['GET'])
+def allofclass_instance(project):
+    known_json_fields = {"resClass", "includeProperties", "countOnly", "sortBy", "limit", "offset"}
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if request.args:
+        unknown_json_field = set(request.args.keys()) - known_json_fields
+    else:
+        unknown_json_field = set()
+    if unknown_json_field:
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
+
+    resClass = getattr(request, "args", {}).get("resClass", None)
+    includeProperties = getattr(request, "args", {}).get("includeProperties", None)
+    countOnly = getattr(request, "args", {}).get("countOnly", None)
+    sortBy = getattr(request, "args", {}).get("sortBy", None)
+    limit = getattr(request, "args", {}).get("limit", None)
+    offset = getattr(request, "args", {}).get("offset", None)
+
+    if not resClass:
+        return jsonify({"message": "No resource class provided"}), 400
+    try:
+        params: dict[str, Any] = {
+            'resClass': Xsd_QName(resClass),
+        }
+        if includeProperties:
+            params['includeProperties'] = [Xsd_QName(x, validate=true) for x in includeProperties] if isinstance(includeProperties,
+                                                                                            list) else [
+                Xsd_QName(includeProperties, validate=True)]
+        if countOnly:
+            params['countOnly'] = True
+        if sortBy:
+            if sortBy == "PROPVAL":
+                params['sortBy'] = SortBy.PROPVAL
+            elif sortBy == "CREATED":
+                params['sortBy'] = SortBy.CREATED
+            elif sortBy == "LASTMOD":
+                params['sortBy'] = SortBy.LASTMOD
+        if limit:
+            params['limit'] = int(limit)
+        if offset:
+            params['offset'] = int(offset)
+    except (OldapErrorValue, OldapError) as error:
+        return jsonify({"message": str(error)}), 400
+    try:
+        con = Connection(token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        res = ResourceInstance.all_resources(con=con,
+                                             projectShortName=Xsd_NCName(project, validate=True),
+                                             **params)
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 400
 
-    gaga = {str(key): {str(x): str(y) for x, y in value.items()} for key, value in res.items()}
-    return jsonify(gaga), 200
+    if countOnly:
+        return jsonify({"count": res.value}), 200
+    else:
+        tmp = {str(key): {str(x): str(y) for x, y in value.items()} for key, value in res.items()}
+        return jsonify(tmp), 200
+
+
+
 
 @instance_bp.route('/<project>/<resource>', methods=['PUT'])
 def add_instance(project, resource):

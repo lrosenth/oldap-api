@@ -71,6 +71,7 @@ def app():
     con.clear_graph(Xsd_QName('test:lists'))
     con.clear_graph(Xsd_QName('test:data'))
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/testdata/objectfactory_test.trig")
+    con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/testdata/instances_test.trig")
 
     sleep(1)
     yield app
@@ -204,7 +205,6 @@ def testemptydatamodeltest(client, token_headers):
     response = client.put('/admin/datamodel/test', json={}, headers=header)
 
     yield
-
 
 @pytest.fixture()
 def testhalffulldatamodelstandaloneprop(client, token_headers, testemptydatamodel):

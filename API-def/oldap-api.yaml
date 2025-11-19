@@ -2938,6 +2938,125 @@ paths:
         "404":
           $ref: '#/components/responses/NotFound'
 
+  /data/textsearch/{project}:
+    get:
+      summary: Search for instancing in a fulltext fasion over all text properties
+        - AccessToken
+      parameters:
+        - name: project
+          type: string
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+        - name: searchString
+          type: string
+          description: string that a text property should contain
+          in: query
+          examples: ["hello world", """phrase query""", "Einstein"]
+        - name: resClass
+          type: string
+          description: Restrict the search to the given resource class.
+          pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
+          in: query
+          example: ["hyha:Author", "fasnacht:Waggis"]
+        - name: countOnly
+          type: boolean
+          description: A flag. If set to true returns only the count of hits.
+          in: query
+        - name: sortBy
+          type: string
+          enum: [PROPVAL, CREATED, LASTMOD]
+          description: Sort according to value (PROPVAL), Creation date (CREATED) or last modification (LASTMOD)
+          in: query
+        - name: limit
+          type: integer
+          description: Maximum number of results to return
+          in: query
+          default: 100
+        - name: offset
+          type: integer
+          description: Start at record with the given number
+          in: query
+          default: 0
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  description: Mapping Xsd_QName → Any
+                  additionalProperties: {}
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /data/ofclass/{project}:
+    get:
+      summary: Search for instancing in a fulltext fasion over all text properties
+        - AccessToken
+      parameters:
+        - name: project
+          type: string
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+        - name: resClass
+          type: string
+          description: Restrict the search to the given resource class.
+          pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
+          in: query
+          required: true
+          example: [ "hyha:Author", "fasnacht:Waggis" ]
+        - name: includeProperties
+          type: array
+          items:
+            type: string
+            pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
+          description: Properties to be included in the result
+          example: ['schema:familyName', 'schema:givenName']
+        - name: countOnly
+          type: boolean
+          description: A flag. If set to true returns only the count of hits.
+          in: query
+        - name: sortBy
+          type: string
+          enum: [ PROPVAL, CREATED, LASTMOD ]
+          description: Sort according to value (PROPVAL), Creation date (CREATED) or last modification (LASTMOD)
+          in: query
+        - name: limit
+          type: integer
+          description: Maximum number of results to return
+          in: query
+          default: 100
+        - name: offset
+          type: integer
+          description: Start at record with the given number
+          in: query
+          default: 0
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  description: Mapping Xsd_QName → Any
+                  additionalProperties: { }
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
   /data/{project}/{resclass}:
     put:
       summary: Create a new instance of the resource class
@@ -3581,11 +3700,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-
-
-
-
-
 
   securitySchemes:
     AccessToken:
