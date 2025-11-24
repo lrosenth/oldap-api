@@ -20,7 +20,7 @@ def test_instance_read_wrong_prefix(client, token_headers, testfulldatamodelwith
     header = token_headers[1]
 
     response = client.get(f'/data/hyha/test:nonexistent', headers=header)
-    assert response.status_code == 500
+    assert response.status_code == 404
     res = response.json
     print(res)
 

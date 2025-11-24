@@ -692,6 +692,91 @@ def test_modify_standaloneprop_langstring18(client, token_headers, testfulldatam
     res = response.json
     pprint(res)
 
+def test_modify_standaloneprop_type_A(client, token_headers, testfulldatamodelstandaloneproplangstring):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "type": ["StatementProperty", "TransitiveProperty"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    # assert response.status_code == 400
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    assert set(res["standaloneProperties"][0]["type"]) == set(["StatementProperty", "TransitiveProperty"])
+
+
+def test_modify_standaloneprop_type_B(client, token_headers, testfulldatamodelpropwithtype):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp3', json={
+        "type": {"del": ["SymmetricProperty"], "add": ["StatementProperty"]}}, headers=header)
+    res = response.json
+    print(res)
+    # assert response.status_code == 400
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    assert set(res["standaloneProperties"][0]["type"]) == set(["StatementProperty", "TransitiveProperty"])
+
+def test_modify_standaloneprop_type_C(client, token_headers, testfulldatamodelpropwithtype):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/property/hyha:testProp3', json={
+        "type": None}, headers=header)
+    res = response.json
+    print(res)
+    # assert response.status_code == 400
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    assert set(res["standaloneProperties"][0]["type"]) == set()
+
+def test_modify_prop_in_res_type_A(client, token_headers, testfulldatamodelresourcedatatypesB):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:BookB/hyha:titleB', json={
+        "type": ["StatementProperty", "TransitiveProperty"],
+    }, headers=header)
+    res = response.json
+    print(res)
+    # assert response.status_code == 400
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    for hasprop in res["standaloneProperties"]:
+        if hasprop['property'].iri == "hyha:titleB":
+            assert set(hasprop["type"]) == set(["StatementProperty", "TransitiveProperty"])
+
+def test_modify_prop_in_res_type_B(client, token_headers, testfulldatamodelresourcedatatypesB):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:BookB/hyha:titleB', json={
+        "property": {"type": {"del": ["SymmetricProperty"], "add": ["StatementProperty"]}}}, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    # assert response.status_code == 400
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    for hasprop in res["standaloneProperties"]:
+        if hasprop['property'].iri == "hyha:titleB":
+            assert set(hasprop["type"]) == set(["StatementProperty", "TransitiveProperty"])
+
+def test_modify_prop_in_res_type_C(client, token_headers, testfulldatamodelresourcedatatypesB):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:BookB/hyha:titleB', json={
+        'property': {"type": None}}, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    for hasprop in res["standaloneProperties"]:
+        if hasprop['property'].iri == "hyha:titleB":
+            assert set(hasprop["type"]) == set()
 
 def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelstandalonepropstring):
     header = token_headers[1]

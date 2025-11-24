@@ -82,24 +82,30 @@ def test_fill_empty_datamodel_with_prop_class_valid(client, token_headers, teste
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "type": ["StatementProperty"],
         "subPropertyOf": "hyha:testProp",
         "class": "hyha:TestKappa",
         "name": ["Test Property@en", "Test Feld@de"],
         "description": ["Test Feld Beschreibung@de"],
+        "inverseOf": "hyha:testProp_XYZ",
+        "equivalentProperty": "hyha:testProp",
     }, headers=header)
-
     assert response.status_code == 200
 
     response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
     res = response.json
 
     for ele in res["standaloneProperties"]:
         if Iri(ele["iri"]) != "hyha:testProp2":
             continue
         assert ele["iri"] == "hyha:testProp2"
+        assert ele["type"] == ["StatementProperty"]
         assert set(ele["name"]) == {"Test Property@en", "Test Feld@de"}
         assert ele['subPropertyOf'] == 'hyha:testProp'
         assert ele['toClass'] == 'hyha:TestKappa'
+        assert ele['inverseOf'] == 'hyha:testProp_XYZ'
+        assert ele['equivalentProperty'] == 'hyha:testProp'
 
 def test_fill_empty_datamodel_with_prop_class_invalid_A(client, token_headers, testemptydatamodel):
     header = token_headers[1]

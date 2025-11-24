@@ -13,6 +13,7 @@ Available endpoints:
 The implementation includes error handling and validation for most operations.
 """
 import json
+from csv import excel
 from pprint import pprint
 
 from flask import Blueprint, request, jsonify, Response
@@ -23,6 +24,7 @@ from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
 from oldaplib.src.dtypes.xsdset import XsdSet
 from oldaplib.src.enums.externalontologyattr import ExternalOntologyAttr
 from oldaplib.src.enums.language import Language
+from oldaplib.src.enums.owlpropertytype import OwlPropertyType
 from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.enums.resourceclassattr import ResClassAttribute
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
@@ -30,6 +32,7 @@ from oldaplib.src.externalontology import ExternalOntology
 from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
+from oldaplib.src.helpers.observable_set import ObservableSet
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorValue, OldapErrorNoPermission, \
     OldapErrorInconsistency, OldapErrorAlreadyExists, OldapErrorKey, OldapErrorType
 from oldaplib.src.iconnection import IConnection
@@ -104,6 +107,8 @@ def read_datamodel(project):
             **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
             **({"modified": str(dm[prop].modified)} if dm[prop].modified is not None else {}),
             **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
+            **({"type": [val.name for val in dm[prop].type if
+                         val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if dm[prop].type is not None else {}),
             **({"projectid": str(dm[prop].projectShortName)} if dm[prop].projectShortName is not None else {}),
             **({"subPropertyOf": str(dm[prop].subPropertyOf)} if dm[prop].subPropertyOf is not None else {}),
             **({"toClass": str(dm[prop].toClass)} if dm[prop].toClass is not None else {}),
@@ -122,6 +127,8 @@ def read_datamodel(project):
             **({"maxInclusive": dm[prop].maxInclusive.value} if dm[prop].maxInclusive is not None else {}),
             **({"lessThan": str(dm[prop].lessThan)} if dm[prop].lessThan is not None else {}),
             **({"lessThanOrEquals": str(dm[prop].lessThanOrEquals)} if dm[prop].lessThanOrEquals is not None else {}),
+            **({"inverseOf": str(dm[prop].inverseOf)} if dm[prop].inverseOf is not None else {}),
+            **({"equivalentProperty": str(dm[prop].equivalentProperty)} if dm[prop].equivalentProperty is not None else {}),
         }
         res["standaloneProperties"].append(data)
 
@@ -151,6 +158,8 @@ def read_datamodel(project):
                     **({"creator": str(hp.prop.creator)} if hp.prop.creator is not None else {}),
                     **({"modified": str(hp.prop.modified)} if hp.prop.modified is not None else {}),
                     **({"contributor": str(hp.prop.contributor)} if hp.prop.contributor is not None else {}),
+                    **({"type": [val.name for val in hp.prop.type if
+                                 val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if hp.prop.type is not None else {}),
                     **({"projectid": str(hp.prop.projectShortName)} if hp.prop.projectShortName is not None else {}),
                     **({"subPropertyOf": str(hp.prop.subPropertyOf)} if hp.prop.subPropertyOf is not None else {}),
                     **({"toClass": str(hp.prop.toClass)} if hp.prop.toClass is not None else {}),
@@ -169,6 +178,8 @@ def read_datamodel(project):
                     **({"maxInclusive": hp.prop.maxInclusive.value} if hp.prop.maxInclusive is not None else {}),
                     **({"lessThan": str(hp.prop.lessThan)} if hp.prop.lessThan is not None else {}),
                     **({"lessThanOrEquals": str(hp.prop.lessThanOrEquals)} if hp.prop.lessThanOrEquals is not None else {}),
+                    **({"inverseOf": str(hp.prop.inverseOf)} if hp.prop.inverseOf is not None else {}),
+                    **({"equivalentProperty": str(hp.prop.equivalentProperty)} if hp.prop.equivalentProperty is not None else {}),
                 },
                 **({"maxCount": hp.maxCount.value} if hp.maxCount is not None else {}),
                 **({"minCount": hp.minCount.value} if hp.minCount is not None else {}),
@@ -359,14 +370,15 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     :param data: The data of the property
     :return: The processed PropertyClass
     """
-    known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
+    known_json_fields = {"iri", "type", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
                          "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
-                         "maxInclusive", "lessThan", "lessThanOrEquals"}
+                         "maxInclusive", "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty"}
 
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
         raise ApiError(f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. aborted operation")
     iri = property_iri  # Iri, z.B. "myproj:pageOf"
+    typelist = data.get("type", None)  # z.B. ["StatementProperty", "SymmetricProperty"]
     subPropertyOf = data.get("subPropertyOf", None)  # Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf is generischer Fall von pageOf
     toClass = data.get("class", None)  # an Iri(). Beschreibt die Klasse der Instanz, auf die diese Property zeigen muss, Z.B. "myproj:Book" heisst, dass die Property auf ein Buch zeigen muss
     datatype = data.get("datatype", None)  # "xsd:string", oder "xsd:integer" etc. Datentyp, wenn die Property durch einen Literal repräsentiert wird
@@ -384,15 +396,25 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     maxInclusive = data.get("maxInclusive", None)  # Maximaler Wert (inklusive) für einen numerischen Datentyp der Property z.B. Datum/int/float...
     lessThan = data.get("lessThan", None)  # Der (numerische) Wert muss kleiner sein als der durch die gegenebe IRI referenzierten Property z.B. Iri("myproj:deathDate")
     lessThanOrEquals = data.get("lessThanOrEquals", None)  # Der (numerische) Wert muss kleiner oder gleich sein als der durch die gegenebe IRI referenzierten Property z.B. Iri("myproj:deathDate")
+    inverseOf = data.get("inverseOf", None)
+    equivalentProperty = data.get("equivalentProperty", None)
 
     if datatype is None and toClass is None:
         raise ApiError("At least one of the two -- datatype or class -- needs to be given")
     if datatype is not None and toClass is not None:
         raise ApiError("It is not allowed to give both the datatype and the class at the same time")
+    if typelist:
+        if not isinstance(typelist, (list, set)):
+            typelist = {typelist}
+        try:
+            typelist = {OwlPropertyType[val] for val in typelist}
+        except KeyError as error:
+            raise ApiError(f"Invalid property type: {error}")
 
     prop = PropertyClass(
         con=con,
         project=project,
+        type=None if typelist is None else typelist,
         property_class_iri=Xsd_QName(iri),
         subPropertyOf=subPropertyOf,
         toClass= None if toClass is None else Xsd_QName(toClass, validate=True),
@@ -411,6 +433,8 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         maxInclusive=maxInclusive,
         lessThan=lessThan,
         lessThanOrEquals=lessThanOrEquals,
+        inverseOf=inverseOf,
+        equivalentProperty=equivalentProperty,
     )
     return prop
 
@@ -988,20 +1012,75 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "Property in resource successfully updated"}
     """
-    known_json_fields = {"subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+
+    def process_owl_propertytype(items: list[str]) -> set[OwlPropertyType]:
+        if None in items:
+            raise OldapErrorValue("None is not allowed in the modify OwlPropertyType")
+        tmpval = {OwlPropertyType[x] for x in items}
+        if OwlPropertyType.OwlDataProperty in tmpval:
+            raise OldapErrorValue("Setting OwlDataProperty directly is not allowed")
+        if OwlPropertyType.OwlObjectProperty in tmpval:
+            raise OldapErrorValue("Setting OwlObjectProperty directly is not allowed")
+        return list(tmpval)
+
+    known_json_fields = {"subPropertyOf", "type", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
+                         "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
+                         "maxInclusive", "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty"}
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborted operation"}), 400
     if not set(data.keys()):
         return jsonify({"message": f"At least one field must be given to modify the project. Usable for the modify-viewfunction are {known_json_fields}"}), 400
     for attrname, attrval in data.items():
+        if attrname == 'type':
+            if isinstance(attrval, list):
+                if not attrval:
+                    return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                if None in attrval:
+                    return jsonify({"message": f"None is not allowed in the modify"}), 400
+                try:
+                    tmpval = process_owl_propertytype(attrval)
+                    setattr(property, attrname, tmpval)  # TODO: IS THIS CORRECT? OR should it be an ObservableSet?
+                    #property._attributes[attrname] = tmpval
+                    #property.type = tmpval
+                except (OldapErrorValue, OldapErrorType, KeyError) as error:
+                    return jsonify({"message": str(error)}), 400
+            elif isinstance(attrval, dict):
+                if not set(attrval.keys()).issubset({"add", "del"}):
+                    return jsonify({"message": f"The  command (keyword in dict) is not known"}), 400
+                if "add" in attrval:
+                    adding = attrval.get("add", [])
+                    if not isinstance(adding, list):
+                        return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                    if not adding:
+                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                    try:
+                        tmpval = process_owl_propertytype(adding)
+                        for x in tmpval:
+                            property.type.add(x)
+                    except (OldapErrorValue, OldapErrorType) as error:
+                        return jsonify({"message": str(error)}), 400
+                if "del" in attrval:
+                    deleting = attrval.get("del", [])
+                    if not isinstance(deleting, list):
+                        return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
+                    if not deleting:
+                        return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                    try:
+                        tmpval = process_owl_propertytype(deleting)
+                        for x in tmpval:
+                            property.type.discard(x)
+                    except (OldapErrorValue, OldapErrorType) as error:
+                        return jsonify({"message": str(error)}), 400
+            elif attrval is None:
+                property.type = None
+            continue
         if attrname == "languageIn":  # is a set of Language items
             if isinstance(attrval, list):
                 if not attrval:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                for item in attrval:
-                    if item is None:
-                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                if None in attrval:
+                    return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                 try:
                     tmpval = [Language[x.upper()] for x in attrval]
                     setattr(property, attrname, LanguageIn(tmpval))
@@ -1016,9 +1095,9 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                         return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
                     if not adding:
                         return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                    if None in adding:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     for item in adding:
-                        if item is None:
-                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
                             Language[item.upper()]
                         except KeyError:
@@ -1036,9 +1115,9 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                         return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
                     if not deleting:
                         return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                    if None in deleting:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     for item in deleting:
-                        if item is None:
-                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
                             property.languageIn.discard(Language[item.upper()])
                         except AttributeError:
@@ -1060,9 +1139,8 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             if isinstance(attrval, list):
                 if not attrval:
                     return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
-                for item in attrval:
-                    if item is None:
-                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
+                if None in attrval:
+                    return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                 try:
                     tmpval = [convert2datatype(x, datatype, validate=True) for x in attrval]
                     setattr(property, attrname, XsdSet(tmpval))
@@ -1077,9 +1155,9 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                         return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
                     if not adding:
                         return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                    if None in adding:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     for item in adding:
-                        if item is None:
-                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
                             if property.inSet is None:
                                 property.inSet = XsdSet(convert2datatype(item, datatype, validate=True))
@@ -1093,9 +1171,9 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                         return jsonify({"message": "The given attributes in add and del must be in a list"}), 400
                     if not deleting:
                         return jsonify({"message": f"Using an empty list is not allowed in the modify"}), 400
+                    if None in deleting:
+                        return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                     for item in deleting:
-                        if item is None:
-                            return jsonify({"message": f"Using a None in a modifylist is not allowed"}), 400
                         try:
                             property.inSet.discard(convert2datatype(item, datatype, validate=True))
                         except OldapErrorValue as error:
@@ -1158,7 +1236,10 @@ def modify_standalone_property(project, property):
     :return: A JSON informing about the success of the operation that has the following form:
     json={'message': 'Data model successfully modified'}
     """
-    known_json_fields = {"iri", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals"}
+    known_json_fields = {"iri", "subPropertyOf", "type", "class", "datatype", "name", "description", "languageIn",
+                         "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive",
+                         "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals",
+                         "inverseOf", "equivalentProperty"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -1231,7 +1312,7 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
     :return: A JSON informing about the success of the operation that has the following form:
     json={'message': 'Data model successfully modified'}
     """
-    known_json_fields = {"maxCount", "minCount", "order", "property"}
+    known_json_fields = {"maxCount", "minCount", "order", "group", "property"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -1264,6 +1345,8 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
         dm[Xsd_QName(resiri)][Xsd_QName(propiri)].maxCount = data["maxCount"]
     if "order" in data:
         dm[Xsd_QName(resiri)][Xsd_QName(propiri)].order = data["order"]
+    if "group" in data:
+        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].group = Xsd_QName(data["group"])
 
     property_data = data.get("property", None)
     if property_data or property_data == {}:

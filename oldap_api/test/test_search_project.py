@@ -62,7 +62,8 @@ def test_no_query_params(client, token_headers):
         ('oldap:SystemProject', 'oldap'),
         ('oldap:SharedProject', 'shared'),
         ('oldap:HyperHamlet', 'hyha'),
-        ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet')
+        ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet'),
+        ('oldap:Test', 'test')
     }
 
 
@@ -76,7 +77,8 @@ def test_empty_query_params(client, token_headers):
         ('oldap:SystemProject', 'oldap'),
         ('oldap:SharedProject', 'shared'),
         ('oldap:HyperHamlet', 'hyha'),
-        ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet')
+        ('http://www.salsah.org/version/2.0/SwissBritNet', 'britnet'),
+        ('oldap:Test', 'test')
     }
 
 

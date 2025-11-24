@@ -1,5 +1,5 @@
 # ---- Build stage: build wheel with Poetry ----
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 
 ENV POETRY_VERSION=1.8.3 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \

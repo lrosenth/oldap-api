@@ -10,7 +10,7 @@ def test_read_datamodel_extontos(client, token_headers, testdatamodelwithexterna
     assert len(res['externalOntologies']) == 1
 
 
-def test_read_standaloneporp_datamodel(client, token_headers, testfulldatamodelstandaloneproplangstring):
+def test_read_standaloneporp_datamodel_A(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
     response = client.get('/admin/datamodel/hyha', headers=header)
@@ -18,6 +18,30 @@ def test_read_standaloneporp_datamodel(client, token_headers, testfulldatamodels
     res = response.json
     pprint(res)
     assert response.status_code == 200
+
+def test_read_standaloneporp_datamodel_B(client, token_headers, testfulldatamodelpropwithtype):
+    header = token_headers[1]
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+
+    res = response.json
+    pprint(res)
+    assert response.status_code == 200
+
+def test_read_standaloneporp_datamodel_C(client, token_headers, testfulldatamodelresourcedatatypesB):
+    header = token_headers[1]
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+
+    res = response.json
+    pprint(res)
+    assert response.status_code == 200
+    hasprops = res['resources'][0]['hasProperty']
+    for hasprop in hasprops:
+        if hasprop['property']['iri'] == 'hyha:titleB':
+            assert hasprop['property']['type'] == ['SymmetricProperty']
+        if hasprop['property']['iri'] == 'hyha:numPagesB':
+            assert hasprop['property']['type'] == ['TransitiveProperty']
 
 
 def test_bad_token(client, token_headers):

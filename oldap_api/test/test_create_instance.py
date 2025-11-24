@@ -60,3 +60,15 @@ def test_create_instance_with_superclass(client, token_headers, testfulldatamode
     }, headers=header)
     assert response.status_code == 200
 
+def test_create_instance_mediaobject(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/data/hyha/shared:MediaObject', json={
+        'originalName': 'Cat.tif',
+        'originalMimeType': 'image/tiff',
+        'serverUrl': 'http://iiif.oldap.org/iiif/3/',
+        'imageId': 'cat.tif',
+        'grantsPermission': 'oldap:GenericView'
+    }, headers=header)
+    print(response.json)
+    assert response.status_code == 200

@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import request, jsonify, Blueprint
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
@@ -143,8 +145,6 @@ def allofclass_instance(project):
         return jsonify(tmp), 200
 
 
-
-
 @instance_bp.route('/<project>/<resource>', methods=['PUT'])
 def add_instance(project, resource):
     out = request.headers['Authorization']
@@ -209,9 +209,9 @@ def read_instance(project, resiri):
         resource = r['resclass']
 
     try:
-        data = ResourceInstanceFactory.read_data(con=con,
-                                                 iri=Iri(resiri, validate=True),
-                                                 projectShortName=Xsd_NCName(project, validate=True))
+        data = ResourceInstance.read_data(con=con,
+                                          iri=Iri(resiri, validate=True),
+                                          projectShortName=Xsd_NCName(project, validate=True))
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:

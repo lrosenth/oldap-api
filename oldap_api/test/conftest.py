@@ -327,6 +327,18 @@ def testfulldatamodeltwostandaloneprop(client, token_headers, testemptydatamodel
 
     yield
 
+@pytest.fixture()
+def testfulldatamodelpropwithtype(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/property/hyha:testProp3', json={
+        "type": ["SymmetricProperty", "TransitiveProperty"],
+        "class": "test:Gaga",
+        "name": ["Test Property@en", "Test Feld@de"],
+        "description": ["Test Feld Beschreibung@de"],
+    }, headers=header)
+
+    yield
 
 @pytest.fixture()
 def testfulldatamodelresourcesimple(client, token_headers, testemptydatamodel):
@@ -399,6 +411,60 @@ def testfulldatamodelresourcedatatypes(client, token_headers, testemptydatamodel
             {
                 "property": {
                     "iri": "hyha:publishingDate",
+                    "datatype": "xsd:date",
+                    "name": ["Publishing date@en", "Publikationsdatum@de"],
+                },
+                "maxCount": 1,
+                "minCount": 1,
+                "order": 3
+            },
+        ]
+    }, headers=header)
+
+    yield
+
+@pytest.fixture()
+def testfulldatamodelresourcedatatypesB(client, token_headers, testemptydatamodel):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:BookB', json={
+        "label": [
+            "Buch@de",
+            "Book@en"
+        ],
+        "comment": [
+            "Ein Buch@de",
+            "A  book@en"
+        ],
+        "closed": True,
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:titleB",
+                    "type": ["SymmetricProperty"],
+                    "datatype": "rdf:langString",
+                    "name": ["Test Property@en", "Test Feld@de"],
+                    "description": ["Test Feld Beschreibung@de"],
+                },
+                "maxCount": 1,
+                "minCount": 1,
+                "order": 1
+            },
+            {
+                "property": {
+                    "iri": "hyha:numPagesB",
+                    "type": ["TransitiveProperty"],
+                    "datatype": "xsd:integer",
+                    "name": ["Test Property@en", "Test Feld@de"],
+                    "description": ["Test Feld Beschreibung@de"],
+                },
+                "maxCount": 1,
+                "minCount": 1,
+                "order": 2
+            },
+            {
+                "property": {
+                    "iri": "hyha:publishingDateB",
                     "datatype": "xsd:date",
                     "name": ["Publishing date@en", "Publikationsdatum@de"],
                 },

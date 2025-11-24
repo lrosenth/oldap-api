@@ -661,34 +661,6 @@ paths:
                         del:
                           $ref: '#/components/schemas/LangString'
                     - type: "null"
-#                externalOntologies:
-#                  oneOf:
-#                    - type: array
-#                      items:
-#                        type: object
-#                        properties:
-#                          prefix:
-#                            type: string
-#                          namespace:
-#                            type: string
-#                    - type: object
-#                      properties:
-#                        add:
-#                          type: array
-#                          items:
-#                            type: object
-#                            properties:
-#                              prefix:
-#                                type: string
-#                              namespace:
-#                                type string
-#                        del:
-#                          oneOf:
-#                            - type: string
-#                            - type: array
-#                              items:
-#                                type: string
-#                    - type: "null"
                 projectStart:
                   oneOf:
                     - type: string
@@ -3213,8 +3185,6 @@ paths:
         "403":
           $ref: '#/components/responses/Unauthorized'
 
-
-
 components:
   schemas:
     user_get_body_200:
@@ -3375,6 +3345,19 @@ components:
           items:
             type: string
 
+    OwlPropertyType:
+      type: array
+      items:
+        type: string
+        enum:
+          - StatementProperty
+          - TransitiveProperty
+          - SymmetricProperty
+          - ReflexiveProperty
+          - IrreflexiveProperty
+          - FunctionalProperty
+          - InverseFunctionalProperty
+
     LangString:
       oneOf:
         - type: array
@@ -3450,6 +3433,16 @@ components:
         modified:
           type: string
           format: date-time
+        type:
+          oneOf:
+            - $ref: '#/components/schemas/OwlPropertyType'
+            - type: object
+              properties:
+                add:
+                  $ref: '#/components/schemas/OwlPropertyType'
+                del:
+                  $ref: '#/components/schemas/OwlPropertyType'
+            - type: "null"
         projectid:
           type: string
           description: ID of project the property is defined in
@@ -3575,10 +3568,24 @@ components:
             - type: "null"
         lessThan:
           description: The given numerical value must be smaller than the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
-          $ref: '#/components/schemas/Iri'
+          oneOf:
+            - $ref: '#/components/schemas/Iri'
+            - type: "null"
         lessThanOrEquals:
           description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
-          $ref: '#/components/schemas/Iri'
+          oneOf:
+            - $ref: '#/components/schemas/Iri'
+            - type: "null"
+        inverseOf:
+          description: The inverse property of the current property. This is used to define the inverse relationship between two properties.
+          oneOf:
+            - $ref: '#/components/schemas/Iri'
+            - type: "null"
+        equivalentProperty:
+          description: The equivalent property of the current property. This is used to define the equivalence between two properties.
+          oneOf:
+            - $ref: '#/components/schemas/Iri'
+            - type: "null"
 
     Resource:
       type: object

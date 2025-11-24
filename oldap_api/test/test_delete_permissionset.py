@@ -8,7 +8,7 @@ def test_delete_permissionset(client, token_headers, testpermissionset):
     res = response.json
     assert res['message'] == 'Permissionset successfully deleted'
 
-    response = client.get('/admin/permissionset/testpermission', headers=header)
+    response = client.get('/admin/permissionset/oldap/testpermission', headers=header)
     assert response.status_code == 404
 
 
