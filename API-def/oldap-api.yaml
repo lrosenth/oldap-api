@@ -1384,7 +1384,7 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
-  post:
+    post:
       summary: Modify an external ontology reference
       description:
         Route to modify the label or the comment of an external ontology reference
@@ -1412,7 +1412,7 @@ paths:
               minProperties: 1
               additionalProperties: false
               properties:
-                name:
+                label:
                   description: Human readable Name for the external ontology reference
                   oneOf:
                     - $ref: '#/components/schemas/LangString'
@@ -1423,7 +1423,7 @@ paths:
                         del:
                           $ref: '#/components/schemas/LangString'
                     - type: "null"
-                description:
+                comment:
                   description: A description of external ontology reference.
                   oneOf:
                     - $ref: '#/components/schemas/LangString'
@@ -1434,6 +1434,25 @@ paths:
                         del:
                           $ref: '#/components/schemas/LangString'
                     - type: "null"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "External ontology reference in datamodel {project} successfully modified"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
 
   /admin/datamodel/{project}/property/{property}:
@@ -1552,12 +1571,26 @@ paths:
               minProperties: 1
               additionalProperties: false
               properties:
+                type:
+                  oneOf:
+                    - $ref: '#/components/schemas/OwlPropertyType'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/OwlPropertyType'
+                        del:
+                          $ref: '#/components/schemas/OwlPropertyType'
+                    - type: "null"
                 datatype:
                   description: The datatype of the property
-                  type: string
+                  oneOf:
+                    - type: string
+                    - type: "null"
                 class:
                   description: Iri of the resource class the property must point to
-                  type: string
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
                 name:
                   description: Human readable Name.
                   oneOf:
@@ -1662,6 +1695,27 @@ paths:
                     - type: integer
                       example: 5
                     - type: "null"
+                lessThan:
+                  description: The given numerical value must be smaller than the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
+                lessThanOrEquals:
+                  description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
+                inverseOf:
+                  description: The inverse property of the current property. This is used to define the inverse relationship between two properties.
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
+                equivalentProperty:
+                  description: The equivalent property of the current property. This is used to define the equivalence between two properties.
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
+
       responses:
         "200":
           description: "OK"
@@ -2924,7 +2978,7 @@ paths:
           type: string
           description: string that a text property should contain
           in: query
-          examples: ["hello world", """phrase query""", "Einstein"]
+          examples: ["hello world", "phrase query", "Einstein"]
         - name: resClass
           type: string
           description: Restrict the search to the given resource class.
@@ -3504,7 +3558,10 @@ components:
             - type: array
               example: [ "Renault", "Opel", "BMW", "Mercedes" ]
               items:
-                type: string
+                oneOf:
+                  - type: string
+                  - type: number
+                  - type: integer
             - type: "null"
         minLength:
           description: Only applicable in xsd:string and rdf:langString. Denotes the minimal length of the string.

@@ -92,6 +92,10 @@ def read_datamodel(project):
 
     for onto in extontos:
         res['externalOntologies'].append({
+            **({"created": str(dm[onto].created)} if dm[onto].created is not None else {}),
+            **({"creator": str(dm[onto].creator)} if dm[onto].creator is not None else {}),
+            **({"modified": str(dm[onto].modified)} if dm[onto].modified is not None else {}),
+            **({"contributor": str(dm[onto].contributor)} if dm[onto].contributor is not None else {}),
             "prefix": str(dm[onto].prefix),
             "namespaceIri": str(dm[onto].namespaceIri),
             **({"label": [f'{value}@{lang.name.lower()}' for lang, value in dm[onto].label.items()]} if dm[onto].label else {}),
