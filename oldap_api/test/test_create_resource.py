@@ -16,3 +16,18 @@ def test_create_instance(client, token_headers, testfulldatamodelresourcesimple)
     assert response.status_code == 200
     res = response.json
     assert res['hyha:testProp3'] == ['Waseliwas']
+
+def test_create_instance2(client, token_headers, testfulldatamodelresourcesimple):
+    header = token_headers[1]
+
+    response = client.put('/data/hyha/shared:MediaObject', json={
+        'shared:originalName': 'orig-image-file.tif',
+        'shared:originalMimeType': 'image/tiff',
+        'shared:serverUrl': 'http://iiif.oldap.org/iiif/3/',
+        'shared:imageId': 'a67dcf8d.jp2',
+        'shared:protocol': 'iiif',
+        'shared:path': 'gaga/gugus',
+        'oldap:grantsPermission': 'oldap:GenericView'
+    }, headers=header)
+    assert response.status_code == 200
+    print(response.json)

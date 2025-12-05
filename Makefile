@@ -39,23 +39,32 @@ init-multiarch:
 	docker buildx inspect --bootstrap
 
 test:
+	OLDAP_JWT_SECRET="A very short secret!" \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
+	OLDAP_IIIF_SERVER=http://localhost:8182 \
+	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
 	poetry run pytest -v $(TESTS)
 
 run:
+	OLDAP_JWT_SECRET="A very short secret!" \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
+	OLDAP_IIIF_SERVER=http://localhost:8182 \
+	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
 	poetry run python oldap-api-app.py
 
 run-prod:
+	OLDAP_JWT_SECRET="A very short secret!" \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
+	OLDAP_IIIF_SERVER=http://localhost:8182 \
+	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
 	poetry run gunicorn oldap_api.wsgi:app -b 127.0.0.1:8000 --workers 2 --threads 2 --timeout 60 --access-logfile - --error-logfile -
 
@@ -86,6 +95,7 @@ docker-run:
 	-e APP_ENV=Dev \
 	-e UPLOAD_FOLDER=/data/upload \
 	-e TMP_FOLDER=/data/tmp \
+	-e OLDAP_JWT_SECRET="A very short secret!" \
 	-e OLDAP_API_PORT=8000 \
 	-e OLDAP_TS_SERVER=http://host.docker.internal:7200 \
 	-e OLDAP_TS_REPO=oldap \
