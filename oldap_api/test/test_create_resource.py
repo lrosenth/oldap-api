@@ -27,7 +27,7 @@ def test_create_instance2(client, token_headers, testfulldatamodelresourcesimple
         'shared:imageId': 'a67dcf8d.jp2',
         'shared:protocol': 'iiif',
         'shared:path': 'gaga/gugus',
-        'oldap:grantsPermission': 'oldap:GenericView'
+        'oldap:grantsPermission': ['oldap:GenericView', 'britnet:Editor']
     }, headers=header)
     assert response.status_code == 200
     print(response.json)

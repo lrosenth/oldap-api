@@ -390,7 +390,7 @@ def hlist_download(project, hlistid):
         return jsonify({'message': str(error)}), 500
     return Response(
         hlist_str,
-        mimetype='application/x-yaml',
+        mimetype=mimetype,
         headers={ 'Content-Disposition': f'attachment; filename="{hlist.oldapListId}.{extension}"' })
 
 

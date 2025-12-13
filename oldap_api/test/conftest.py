@@ -579,6 +579,24 @@ def testfulldatamodelwithinstances(client, token_headers, testfulldatamodelresou
     yield iri
 
 @pytest.fixture()
+def testfulldatamodelwithmediaobject(client, token_headers, testfulldatamodelresourcesuperclasses):
+    header = token_headers[1]
+    response = client.put('/data/hyha/shared:MediaObject', json={
+        'shared:originalName': 'test.tif',
+        'shared:originalMimeType': 'image/tiff',
+        'shared:serverUrl': 'https://iiif.oldap.org',
+        'shared:imageId': 'xayb01.tif',
+        'shared:protocol': 'iiif',
+        'shared:path': 'britnet',
+        'oldap:grantsPermission': 'oldap:GenericView'
+    }, headers=header)
+    res = response.json
+    iri = res['iri']
+
+    yield iri
+
+
+@pytest.fixture()
 def testfulldatamodeltestinstances(client, token_headers, testemptydatamodeltest):
     header = token_headers[1]
 

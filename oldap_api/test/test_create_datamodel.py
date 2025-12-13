@@ -3,10 +3,10 @@ from pprint import pprint
 from oldaplib.src.xsd.iri import Iri
 
 
-def test_create_empty_datamodel(client, token_headers):
+def test_create_empty_datamodel(client, token_headers, testproject):
     header = token_headers[1]
 
-    response = client.put('/admin/datamodel/hyha', headers=header)
+    response = client.put('/admin/datamodel/testproject', headers=header)
 
     assert response.status_code == 200
     res = response.json

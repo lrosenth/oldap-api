@@ -40,4 +40,18 @@ def test_instance_read_inexisting_project(client, token_headers, testfulldatamod
     res = response.json
     print(res)
 
+def test_retrieving_mediaobject(client, token_headers, testfulldatamodelwithmediaobject):
+    header = token_headers[1]
+
+    response = client.get(f'/data/mediaobject/xayb01.tif', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    assert res['graph'] == 'hyha:data'
+    assert res['shared:originalMimeType'] == 'image/tiff'
+    assert res['shared:originalName'] == 'test.tif'
+    assert res['shared:path'] == 'britnet'
+    assert res['shared:protocol'] == 'iiif'
+    assert res['shared:serverUrl'] == 'https://iiif.oldap.org'
+    assert res['oldap:permissionValue'] == '2'
+
 

@@ -1,6 +1,6 @@
 from typing import Any
 
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, current_app
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapErrorKey, OldapErrorNoPermission, \
@@ -13,6 +13,22 @@ from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
 instance_bp = Blueprint('instance', __name__, url_prefix='/data')
+
+@instance_bp.route('/mediaobject/<imageid>', methods=['GET'])
+def media_object(imageid):
+    out = request.headers['Authorization']
+    b, token = out.split()
+    try:
+        con = Connection(token=token, context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    try:
+        res = ResourceInstance.get_media_object_by_id(con=con, mediaObjectId=imageid)
+    except OldapError as error:
+        return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
+    if not res:
+        return jsonify({"message": "MediaObject not found"}), 404
+    return jsonify({key: str(val) for key, val in res.items()}), 200
 
 @instance_bp.route('/textsearch/<project>', methods=['GET'])
 def textsearch_instance(project):
@@ -147,6 +163,7 @@ def allofclass_instance(project):
 
 @instance_bp.route('/<project>/<resource>', methods=['PUT'])
 def add_instance(project, resource):
+    current_app.logger.info(f"Starting add_instance for project: {project}, resource: {resource}")
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -167,10 +184,12 @@ def add_instance(project, resource):
     try:
         instance = instclass(**data)
     except (OldapErrorValue, OldapErrorKey, OldapError) as error:
+        current_app.logger.error(f"Failed to create Python instance: {str(error)}")
         return jsonify({"message": str(error)}), 400
     try:
         instance.create()
     except OldapErrorNoPermission as error:
+        current_app.logger.error(f"Failed to create instance in triplestore: {str(error)}")
         return jsonify({"message": str(error)}), 403
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 409

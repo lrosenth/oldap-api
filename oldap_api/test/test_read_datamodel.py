@@ -65,3 +65,15 @@ def test_read_nonexisting_dm(client, token_headers, testpermissionset):
     assert response.status_code == 404
     res = response.json
     print(res)
+
+def test_download_dm(client, token_headers):
+    header = token_headers[1]
+
+    response = client.get('/admin/datamodel/shared/download', headers=header)
+    assert response.status_code == 200
+    assert response.headers["Content-Type"] == 'application/trig'
+    cd = response.headers.get("Content-Disposition", "")
+    assert "attachment" in cd
+    assert 'filename="shared.trig"' in cd
+    data = response.data.decode("utf-8")
+    assert data.startswith("\n@prefix")

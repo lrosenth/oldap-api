@@ -73,7 +73,7 @@ def read_datamodel(project):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        dm = DataModel.read(con, project, ignore_cache=True)
+        dm = DataModel.read(con, project)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
@@ -215,6 +215,12 @@ def create_empty_datamodel(project):
 
     try:
         dm.create()
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": f"Permission denied: {str(error)}"}), 403
+    except OldapErrorAlreadyExists as error:
+        return jsonify({"message": f"A datamodel for the project {project} already exists"}), 400
+    except OldapErrorInconsistency as error:
+        return jsonify({"message": f"Datamodel creation failed due to inconsistency: {str(error)}"}), 400
     except OldapError as error:  # Should not be reachable
         return jsonify({"message": str(error)}), 500
 
@@ -252,6 +258,28 @@ def delete_whole_datamodel(project):
     return jsonify({'message': 'Data model successfully deleted'}), 200
 
 #================================================================================
+
+@datamodel_bp.route('/datamodel/<project>/download', methods=['GET'])
+def download_datamodel(project):
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    try:
+        con = Connection(token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    try:
+        dm = DataModel.read(con, project)
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+    trigstr = dm.write_as_str()
+    return Response(
+        trigstr,
+        mimetype='application/trig',
+        headers={ 'Content-Disposition': f'attachment; filename="{dm._project.projectShortName}.trig"' })
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['POST'])
 def modify_resource(project, resource):
@@ -912,6 +940,8 @@ def add_property_to_resource(project, resource, property):
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
             dm[Xsd_QName(resource)][Xsd_QName(property)] = hasprop
+        except KeyError as error:
+            return jsonify({'message': str(error)}), 404
         except OldapErrorValue as error:
             return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
