@@ -43,15 +43,45 @@ def test_instance_read_inexisting_project(client, token_headers, testfulldatamod
 def test_retrieving_mediaobject(client, token_headers, testfulldatamodelwithmediaobject):
     header = token_headers[1]
 
-    response = client.get(f'/data/mediaobject/xayb01.tif', headers=header)
+    response = client.get(f'/data/mediaobject/id/xayb01.tif', headers=header)
     assert response.status_code == 200
     res = response.json
     assert res['graph'] == 'hyha:data'
+    assert res['permval'] == '2'
     assert res['shared:originalMimeType'] == 'image/tiff'
     assert res['shared:originalName'] == 'test.tif'
     assert res['shared:path'] == 'britnet'
     assert res['shared:protocol'] == 'iiif'
     assert res['shared:serverUrl'] == 'https://iiif.oldap.org'
-    assert res['oldap:permissionValue'] == '2'
 
+def test_retrieving_derived_mediaobject(client, token_headers, testfulldatamodelwithderivedmediaobject):
+    header = token_headers[1]
 
+    response = client.get(f'/data/mediaobject/id/DCS_0001.tif', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    assert res['graph'] == 'hyha:data'
+    assert res['permval'] == '2'
+    assert res['shared:originalMimeType'] == 'image/tiff'
+    assert res['shared:originalName'] == 'shakespeare.tif'
+    assert res['shared:path'] == 'britnet'
+    assert res['shared:protocol'] == 'iiif'
+    assert res['shared:serverUrl'] == 'https://iiif.oldap.org'
+    assert res['hyha:hasCaption'] == ['This is a test caption']
+
+def test_retrieving_derived_mediaobject_by_iri(client, token_headers, testfulldatamodelwithderivedmediaobject):
+    header = token_headers[1]
+
+    iri = testfulldatamodelwithderivedmediaobject
+
+    response = client.get(f'/data/mediaobject/iri/{iri}', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    assert res['graph'] == 'hyha:data'
+    assert res['permval'] == '2'
+    assert res['shared:originalMimeType'] == 'image/tiff'
+    assert res['shared:originalName'] == 'shakespeare.tif'
+    assert res['shared:path'] == 'britnet'
+    assert res['shared:protocol'] == 'iiif'
+    assert res['shared:serverUrl'] == 'https://iiif.oldap.org'
+    assert res['hyha:hasCaption'] == ['This is a test caption']

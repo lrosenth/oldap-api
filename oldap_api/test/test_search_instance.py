@@ -41,3 +41,14 @@ def test_instance_allofclass_A(client, token_headers, testemptydatamodeltest):
     print(res)
 
     #assert len(res) == 4
+
+def test_instance_allofclass_image_object(client, token_headers, testfulldatamodelwithderivedmediaobject):
+    header = token_headers[1]
+
+    response = client.get(f'/data/ofclass/hyha', query_string={
+        "resClass": "hyha:ImageObject",
+        "sortBy": "LASTMOD"
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)

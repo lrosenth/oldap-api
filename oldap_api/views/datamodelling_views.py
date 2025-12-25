@@ -16,7 +16,7 @@ import json
 from csv import excel
 from pprint import pprint
 
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request, jsonify, Response, current_app
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.dtypes.languagein import LanguageIn
@@ -78,6 +78,8 @@ def read_datamodel(project):
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
+
+    current_app.logger.error(len(dm.get_resclasses()))
 
     extontos = set(dm.get_extontos())
     propclasses = set(dm.get_propclasses())
@@ -910,8 +912,8 @@ def add_property_to_resource(project, resource, property):
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborted operation (1)"}), 400
-        if not set(data.keys()):
-            return jsonify({"message": f"At least one field must be given to add to the resource. Usable for the add-viewfunction are {known_json_fields}"}), 400
+        #if not set(data.keys()):
+        #    return jsonify({"message": f"At least one field must be given to add to the resource. Usable for the add-viewfunction are {known_json_fields}"}), 400
 
         maxcount = data.get("maxCount", None)
         mincount = data.get("minCount", None)

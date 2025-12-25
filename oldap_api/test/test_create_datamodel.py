@@ -413,8 +413,11 @@ def test_create_empty_prop_in_resource(client, token_headers, testfulldatamodelr
 
     response = client.put('/admin/datamodel/hyha/hyha:Sheep/hyha:newprop', json={}, headers=header)
     res = response.json
-    print(res)
-    assert response.status_code == 400
+    assert response.status_code == 200
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
 
 def test_bad_fill_empty_datamodel_with_resource(client, token_headers, testemptydatamodel):
     header = token_headers[1]

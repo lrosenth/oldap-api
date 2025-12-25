@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from time import sleep
 
 import pytest
 from oldaplib.src.connection import Connection
@@ -73,7 +72,6 @@ def app():
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/testdata/objectfactory_test.trig")
     con.upload_turtle(os.environ['OLDAPBASE'] + "/oldaplib/oldaplib/testdata/instances_test.trig")
 
-    sleep(1)
     yield app
 
 
@@ -582,6 +580,7 @@ def testfulldatamodelwithinstances(client, token_headers, testfulldatamodelresou
 def testfulldatamodelwithmediaobject(client, token_headers, testfulldatamodelresourcesuperclasses):
     header = token_headers[1]
     response = client.put('/data/hyha/shared:MediaObject', json={
+        'dcterms:type': 'dcmitype:StillImage',
         'shared:originalName': 'test.tif',
         'shared:originalMimeType': 'image/tiff',
         'shared:serverUrl': 'https://iiif.oldap.org',
@@ -592,6 +591,56 @@ def testfulldatamodelwithmediaobject(client, token_headers, testfulldatamodelres
     }, headers=header)
     res = response.json
     iri = res['iri']
+
+    yield iri
+
+@pytest.fixture()
+def testfulldatamodelwithderivedmediaobject(client, token_headers, testfulldatamodelresourcesuperclasses):
+    header = token_headers[1]
+
+    response = client.put('/admin/datamodel/hyha/hyha:ImageObject', json={
+        "label": [
+            "Imageobject@en"
+        ],
+        "superclass": ["shared:MediaObject"],
+        "closed": True,
+        "hasProperty": [
+            {
+                "property": {
+                    "iri": "hyha:hasCaption",
+                    "datatype": "xsd:string",
+                    "name": ["Caption@en"],
+                },
+                "order": 1
+            },
+        ]
+    }, headers=header)
+
+    response = client.put('/data/hyha/hyha:ImageObject', json={
+        'dcterms:type': 'dcmitype:StillImage',
+        'shared:originalName': 'shakespeare.tif',
+        'shared:originalMimeType': 'image/tiff',
+        'shared:serverUrl': 'https://iiif.oldap.org',
+        'shared:imageId': 'DCS_0001.tif',
+        'shared:protocol': 'iiif',
+        'shared:path': 'britnet',
+        'oldap:grantsPermission': 'oldap:GenericView',
+        'hyha:hasCaption': 'This is a test caption'
+    }, headers=header)
+    res = response.json
+    iri = res['iri']
+
+    response = client.put('/data/hyha/hyha:ImageObject', json={
+        'dcterms:type': 'dcmitype:StillImage',
+        'shared:originalName': 'hamlet.tif',
+        'shared:originalMimeType': 'image/tiff',
+        'shared:serverUrl': 'https://iiif.oldap.org',
+        'shared:imageId': 'DCS_0002.tif',
+        'shared:protocol': 'iiif',
+        'shared:path': 'britnet',
+        'oldap:grantsPermission': 'oldap:GenericView',
+        'hyha:hasCaption': 'This is another test caption'
+    }, headers=header)
 
     yield iri
 

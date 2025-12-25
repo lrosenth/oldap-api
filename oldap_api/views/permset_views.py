@@ -12,7 +12,7 @@ Available endpoints:
 
 The implementation includes error handling and validation for most operations.
 """
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, current_app
 from oldaplib.src.connection import Connection
 from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.enums.permissionsetattr import PermissionSetAttr
@@ -20,9 +20,12 @@ from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
     OldapErrorValue, OldapErrorNotFound, OldapErrorUpdateFailed, OldapErrorKey, OldapErrorInconsistency, OldapErrorInUse
 from oldaplib.src.permissionset import PermissionSet
+from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
 from oldap_api.helpers.process_langstring import process_langstring
 from oldap_api.views import known_languages
+
+from oldaplib.src.helpers.context import Context
 
 permset_bp = Blueprint('permissionset', __name__, url_prefix='/admin')
 
@@ -46,8 +49,16 @@ def permissionsetr_get_by_iri():
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        ps = PermissionSet.read(con=con, qname=permissionSetIri)
+        permissionSetQname = Xsd_QName(permissionSetIri, validate=True)
+    except:
+        context = Context(name=con.context_name)
+        permissionSetQname = context.iri2qname(permissionSetIri)
+        if permissionSetQname is None:
+            return jsonify({"message": f'PermissionSet Iri "{permissionSetIri}" is not valid.'}), 400
+    try:
+        ps = PermissionSet.read(con=con, qname=permissionSetQname)
     except OldapErrorValue as error:
+        current_app.logger.error(f"Error while reading permissionset by iri: {str(error)}")
         return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
@@ -68,7 +79,7 @@ def permissionsetr_get_by_iri():
     return res, 200
 
 
-@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>', methods=['PUT'])
+@permset_bp.route('/permissionset/<path:definedByProject>/<permissionSetId>', methods=['PUT'])
 def create_permissionset(definedByProject, permissionSetId):
     '''
     Viewfunction to create a new permissionset. A JSON is expectet that contains the necessary information to create a new
@@ -139,7 +150,7 @@ def create_permissionset(definedByProject, permissionSetId):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 
-@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>', methods=['GET'])
+@permset_bp.route('/permissionset/<path:definedByProject>/<permissionSetId>', methods=['GET'])
 def read_permissionset(definedByProject, permissionSetId):
     '''
     Viewfunction to retrieve information about the project given by the projectid.
@@ -232,7 +243,7 @@ def search_permissionset():
     return jsonify([str(x) for x in permissionset]), 200
 
 
-@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>', methods=['DELETE'])
+@permset_bp.route('/permissionset/<path:definedByProject>/<permissionSetId>', methods=['DELETE'])
 def delete_permissionset(definedByProject, permissionSetId):
     '''
     Viewfunction to delete a project.
@@ -269,7 +280,7 @@ def delete_permissionset(definedByProject, permissionSetId):
     return jsonify({"message": "Permissionset successfully deleted"}), 200
 
 
-@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>', methods=['POST'])
+@permset_bp.route('/permissionset/<path:definedByProject>/<permissionSetId>', methods=['POST'])
 def modify_permissionset(definedByProject, permissionSetId):
     '''
     Viewfunction to modify a permissionset given its permissionsetid and its definedbyproject. The label, comment and
@@ -344,7 +355,7 @@ def modify_permissionset(definedByProject, permissionSetId):
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
-@permset_bp.route('/permissionset/<definedByProject>/<permissionSetId>/in_use', methods=['GET'])
+@permset_bp.route('/permissionset/<path:definedByProject>/<permissionSetId>/in_use', methods=['GET'])
 def permissionset_in_use(definedByProject, permissionSetId):
     out = request.headers['Authorization']
     b, token = out.split()

@@ -1295,6 +1295,41 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+  /admin/datamodel/{project}/downlad:
+    get:
+      summary: Download datamode as trig-file
+      description: Export the datamode as trig file
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          in: path
+          required: true
+          description: Project identifier (short name of project)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful download of datamodel
+          content:
+            application/trig:
+              schema: string
+          headers:
+            Content-Disposition:
+              description: Name of download file
+              schema:
+                type: string
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
+
+
   /admin/datamodel/{project}/extonto/{prefix}:
     put:
       summary: Adds an external ontology reference to an existing data model

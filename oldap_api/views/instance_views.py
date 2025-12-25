@@ -14,8 +14,8 @@ from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
 instance_bp = Blueprint('instance', __name__, url_prefix='/data')
 
-@instance_bp.route('/mediaobject/<imageid>', methods=['GET'])
-def media_object(imageid):
+@instance_bp.route('/mediaobject/id/<imageid>', methods=['GET'])
+def media_object_by_id(imageid):
     out = request.headers['Authorization']
     b, token = out.split()
     try:
@@ -28,7 +28,23 @@ def media_object(imageid):
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
     if not res:
         return jsonify({"message": "MediaObject not found"}), 404
-    return jsonify({key: str(val) for key, val in res.items()}), 200
+    return jsonify({key: [str(x) for x in val] if isinstance(val, list) else str(val) for key, val in res.items()}), 200
+
+@instance_bp.route('/mediaobject/iri/<imageiri>', methods=['GET'])
+def media_object_by_iri(imageiri):
+    out = request.headers['Authorization']
+    b, token = out.split()
+    try:
+        con = Connection(token=token, context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    try:
+        res = ResourceInstance.get_media_object_by_iri(con=con, mediaObjectIri=imageiri)
+    except OldapError as error:
+        return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
+    if not res:
+        return jsonify({"message": "MediaObject not found"}), 404
+    return jsonify({key: [str(x) for x in val] if isinstance(val, list) else str(val) for key, val in res.items()}), 200
 
 @instance_bp.route('/textsearch/<project>', methods=['GET'])
 def textsearch_instance(project):

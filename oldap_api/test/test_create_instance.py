@@ -64,6 +64,7 @@ def test_create_instance_mediaobject(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/data/hyha/shared:MediaObject', json={
+        'dcterms:type': 'dcmitype:StillImage',
         'originalName': 'Cat.tif',
         'originalMimeType': 'image/tiff',
         'serverUrl': 'http://iiif.oldap.org/iiif/3/',

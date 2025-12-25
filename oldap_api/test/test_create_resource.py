@@ -21,6 +21,7 @@ def test_create_instance2(client, token_headers, testfulldatamodelresourcesimple
     header = token_headers[1]
 
     response = client.put('/data/hyha/shared:MediaObject', json={
+        'dcterms:type': 'dcmitype:StillImage',
         'shared:originalName': 'orig-image-file.tif',
         'shared:originalMimeType': 'image/tiff',
         'shared:serverUrl': 'http://iiif.oldap.org/iiif/3/',

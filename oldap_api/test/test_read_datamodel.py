@@ -77,3 +77,12 @@ def test_download_dm(client, token_headers):
     assert 'filename="shared.trig"' in cd
     data = response.data.decode("utf-8")
     assert data.startswith("\n@prefix")
+
+def test_read_shared(client, token_headers):
+    header = token_headers[1]
+
+    response = client.get('/admin/datamodel/shared', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
+
