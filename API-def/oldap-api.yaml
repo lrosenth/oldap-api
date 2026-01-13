@@ -2767,8 +2767,9 @@ paths:
                 type: object
                 properties:
                   message:
-                    type: string
-                    example: "Node successfully modified"
+                    schema:
+                      type: string
+                    example: Node successfully modified
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -2842,7 +2843,6 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Node successfully moved"
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -2900,7 +2900,6 @@ paths:
                 type: array
                 items:
                   type: string
-                  example: ['https://orcid.org/0000-0003-1681-4036', 'https://orcid.org/0000-0003-1485-4923', 'https://orcid.org/0000-0001-9277-3921']
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -2980,38 +2979,38 @@ paths:
           schema:
             type: string
           description: string that a text property should contain
-
-          examples: ["hello world", "phrase query", "Einstein"]
-        - name: resClass
+        - in: query
+          name: resClass
           schema:
             type: string
-          description: Restrict the search to the given resource class.
-          pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
-          in: query
-          example: ["hyha:Author", "fasnacht:Waggis"]
-        - name: countOnly
+          description: Restrict the search to the given resource class
+          pattern: ^([A-Za-z_][A-Za-z0-9:_-]*:)?[A-Za-z_][A-Za-z0-9:_-]*$
+        - in: query
+          name: countOnly
           schema:
             type: boolean
-          description: A flag. If set to true returns only the count of hits.
-          in: query
-        - name: sortBy
+          description: A flag. If set to true returns only the count of hits
+        - in: query
+          name: sortBy
           schema:
             type: string
-          enum: [PROPVAL, CREATED, LASTMOD]
+            enum:
+              - PROPVAL
+              - CREATED
+              - LASTMOD
           description: Sort according to value (PROPVAL), Creation date (CREATED) or last modification (LASTMOD)
-          in: query
-        - name: limit
+        - in: query
+          name: limit
           schema:
             type: integer
-          description: Maximum number of results to return
-          in: query
           default: 100
-        - name: offset
+          description: Maximum number of results to return
+        - in: query
+          name: offset
           schema:
             type: integer
-          description: Start at record with the given number
-          in: query
           default: 0
+          description: Start at record with the given number
       responses:
         "200":
           description: "OK"
@@ -3035,44 +3034,55 @@ paths:
       summary: Search for instancing in a fulltext fasion over all text properties
         - AccessToken
       parameters:
-        - name: project
-          type: string
-          description: The name of the project where the datamodel is located
-          in: path
-          required: true
-        - name: resClass
-          type: string
-          description: Restrict the search to the given resource class.
-          pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
-          in: query
-          required: true
-          example: [ "hyha:Author", "fasnacht:Waggis" ]
-        - name: includeProperties
-          type: array
-          items:
+        - in: path
+          name: project
+          schema:
             type: string
-            pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
+          description: The name of the project where the datamodel is located
+          required: true
+        - in: query
+          name: resClass
+          schema:
+            type: string
+          description: Restrict the search to the given resource class
+          pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
+          required: true
+        - in: query
+          name: includeProperties
+          schema:
+            type: array
+            items:
+              type: string
+              pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
+          style: form
+          explode: true
           description: Properties to be included in the result
-          example: ['schema:familyName', 'schema:givenName']
-        - name: countOnly
-          type: boolean
-          description: A flag. If set to true returns only the count of hits.
-          in: query
-        - name: sortBy
-          type: string
-          enum: [ PROPVAL, CREATED, LASTMOD ]
+        - in: query
+          name: countOnly
+          schema:
+            type: boolean
+          description: If set to true returns only the count of hits
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum:
+              - PROPVAL
+              - CREATED
+              - LASTMOD
           description: Sort according to value (PROPVAL), Creation date (CREATED) or last modification (LASTMOD)
-          in: query
-        - name: limit
-          type: integer
-          description: Maximum number of results to return
-          in: query
+        - in: query
+          name: limit
+          schema:
+            type: integer
           default: 100
-        - name: offset
-          type: integer
-          description: Start at record with the given number
-          in: query
+          description: Maximum number of results to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
           default: 0
+          description: Start at record with the given number
       responses:
         "200":
           description: "OK"
@@ -3295,42 +3305,51 @@ paths:
                     format: iri
                     description: The IRI of the media object
                   graph:
-                    type: string
+                    schema:
+                      type: string
                     description: The graph (equivalent to the project shortname)
                   permval:
-                    type: integer
+                    schema:
+                      type: integer
                     description: The permission value
                   oldap:createdBy:
-                    type: string
-                    description: IRI of the user that created this media object
+                    schema:
+                      type: string
+                    description: an Iri of the user that created this media object
                   oldap:creationDate:
-                    type: string
+                    schema:
+                      type: string
                     format: date-time
                     description: Date when the media object has been created
                   oldap:lastModifiedBy:
-                    type: string
+                    schema:
+                      type: string
                     description: User that modified the media object
                   oldap:lastModificationDate:
-                    type: string
+                    schema:
+                      type: string
                     format: date-time
                     description: Date when the media object was last modified
                   shared:imageId:
-                    type: string
+                    schema:
+                      type: string
                     description: ID of the media object
                   shared:originalName:
-                    type: string
+                    schema:
+                      type: string
                     description: Original file name
                   dcterms:type:
-                    type: string
-                    description: The dcmitype
-                    enum:
-                      - dcmitype:Collection
-                      - dcmitype:Dataset
-                      - dcmitype:StillImage
-                      - dcmitype:Image
-                      - dcmitype:MovingImage
-                      - dcmitype:Sound
-                      - dcmitype:Text
+                    schema:
+                      type: string
+                      enum:
+                        - dcmitype:Collection
+                        - dcmitype:Dataset
+                        - dcmitype:StillImage
+                        - dcmitype:Image
+                        - dcmitye:MovingImage
+                        - dcmitype:Sound
+                        - dcmitype:Text
+                  description: The dcmitype
                   shared:originalMimeType:
                     type: string
                     description: original MIME type
