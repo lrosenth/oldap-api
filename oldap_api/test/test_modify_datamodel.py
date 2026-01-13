@@ -1346,9 +1346,7 @@ def test_no_permission_to_modify_attribute_in_has_propresource(client, token_hea
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
             }
         ],
-        "hasPermissions": [
-            "GenericRestricted"
-        ]
+        "hasRole": {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
 
     login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})
@@ -1383,9 +1381,7 @@ def test_no_permission_modify_standalone_prop(client, token_headers, testfulldat
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
             }
         ],
-        "hasPermissions": [
-            "GenericRestricted"
-        ]
+        "hasRole": {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
 
     login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})
@@ -1414,9 +1410,7 @@ def test_no_permission_modify_resource(client, token_headers, testfulldatamodelr
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
             }
         ],
-        "hasPermissions": [
-            "GenericRestricted"
-        ]
+        "hasRole": {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
 
     login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})

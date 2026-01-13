@@ -57,7 +57,7 @@ def test_bad_token(client, token_headers):
     assert res["message"] == "Connection failed: Wrong credentials"
 
 
-def test_read_nonexisting_dm(client, token_headers, testpermissionset):
+def test_read_nonexisting_dm(client, token_headers, testrole):
     header = token_headers[1]
 
     response = client.get('/admin/datamodel/doesnotexist', headers=header)

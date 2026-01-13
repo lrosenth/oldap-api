@@ -536,14 +536,11 @@ def test_modify_empty_inproject_name(client, token_headers, testuser):
     print(res)
 
 
-def test_modify_haspermission(client, token_headers, testuser):
+def test_modify_hasrole(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": [
-            "GenericRestricted",
-            "GenericView"
-        ]
+        "hasRole": {"add": {"test:TestRole": "DATA_UPDATE"}}
     }, headers=header)
 
     assert response.status_code == 200
@@ -551,35 +548,35 @@ def test_modify_haspermission(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert sorted(readed["hasPermissions"]) == sorted(['oldap:GenericRestricted', 'oldap:GenericView'])
+    assert readed["hasRole"] == {'oldap:Unknown': 'DATA_VIEW', 'test:TestRole': 'DATA_UPDATE'}
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": {"del": ["GenericRestricted", "GenericView"]}
+        "hasRole": {"del": ["test:TestRole", "oldap:Unknown"]}
     }, headers=header)
     assert response.status_code == 200
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["hasPermissions"] == []
+    assert readed["hasRole"] == {}
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": {"del": ["GenericRestricted"]}
+        "hasRole": {"del": ["oldap:Unknown"]}
     }, headers=header)
     assert response.status_code == 404
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": None
+        "hasRole": None
     }, headers=header)
     assert response.status_code == 200
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["hasPermissions"] == []
+    assert readed["hasRole"] == {}
 
 
-def test_modify_empty_haspermission(client, token_headers, testuser):
+def test_modify_empty_hasRole(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": []
+        "hasRole": {}
     }, headers=header)
 
     assert response.status_code == 200
@@ -587,34 +584,46 @@ def test_modify_empty_haspermission(client, token_headers, testuser):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["hasPermissions"] == []
+    assert readed["hasRole"] == {}
 
 
-def test_notwellformed_modify_haspermission(client, token_headers, testuser):
+def test_notwellformed_modify_hasrole_A(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": ['Gagaga+++kappa']
+        "hasRole": {'Gagaga+++kappa': 'DATA_UPDATE'}
     }, headers=header)
 
     assert response.status_code == 400
     res = response.json
-    assert res["message"] == "The given permission is not a QName"
+    assert res["message"] == "The given hasRole {'Gagaga+++kappa': 'DATA_UPDATE'} is invalid"
+
+def test_notwellformed_modify_hasrole_B(client, token_headers, testuser):
+    header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": 'Gagaga+++kappa'
+        "hasRole": 'Gagaga+++kappa'
     }, headers=header)
 
     assert response.status_code == 400
     res = response.json
-    assert res["message"] == "For the permissionset either a list or a dict is expected, not a string"
+    assert res["message"] == "For the hasRole a dict or None is expected, not a string"
 
-
-def test_bad_modify_haspermission(client, token_headers, testuser):
+def test_notwellformed_modify_hasrole_C(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": ['Gagagakappa']
+        "hasRole": {'oldap:Unknown': 'DATA_GUGUS'}
+    }, headers=header)
+
+    assert response.status_code == 400
+    res = response.json
+
+def test_bad_modify_hasrole_A(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "hasRole": {'test:Gagagakappa': 'DATA_UPDATE'}
     }, headers=header)
 
     assert response.status_code == 404
@@ -622,66 +631,70 @@ def test_bad_modify_haspermission(client, token_headers, testuser):
     print(res)
     assert res["message"] == "One of the permission sets is not existing!"
 
+def test_bad_modify_hasrole_B(client, token_headers, testuser):
+    header = token_headers[1]
+
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": {"add": "abcd"}
+        "hasPermissions": {"add": {"test:abcd": "DATA_UPDATE"}}
     }, headers=header)
 
     assert response.status_code == 400
     res = response.json
     print(res)
 
-    response = client.post('/admin/user/rosman', json={
-        "hasPermissions": {"add": ["GenericRestricted"]}
-    }, headers=header)
+def test_bad_modify_hasrole_C(client, token_headers, testuser):
+    header = token_headers[1]
 
+    response = client.post('/admin/user/rosman', json={
+        "hasRole": {"add": {"test:TestRole": "DATA_RESTRICTED"}}
+    }, headers=header)
     assert response.status_code == 200
     res = response.json
     print(res)
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert sorted(readed["hasPermissions"]) == sorted(["oldap:GenericRestricted", "oldap:GenericView"])
+    assert readed["hasRole"] == {"oldap:Unknown": "DATA_VIEW", "test:TestRole": "DATA_RESTRICTED"}
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": {"add": ["GenericRestricted"], "del": ["GenericView"]}
+        "hasRole": {"add": {"oldap:Unknown": "DATA_PERMISSIONS"}, "del": ["test:TestRole"]}
     }, headers=header)
-
     assert response.status_code == 200
     res = response.json
     print(res)
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["hasPermissions"] == ["oldap:GenericRestricted"]
+    print(readed["hasRole"])
+    assert readed["hasRole"] == {'oldap:Unknown': 'DATA_PERMISSIONS'}
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": {"del": "GenericRestricted"}
+        "hasRole": {"del": 'oldap:Unknown'}
     }, headers=header)
 
+    assert response.status_code == 200
+    res = response.json
+    print(res)
+
+    response = client.post('/admin/user/rosman', json={
+        "hasRole": {"oldap:kappa": "DATA_RESTRICTED"}
+    }, headers=header)
+    assert response.status_code == 404
+    res = response.json
+    assert res["message"] == "One of the permission sets is not existing!"
+
+    response = client.post('/admin/user/rosman', json={
+        "hasRole": 1234
+    }, headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
-    assert res["message"] == "The delete entry needs to be a list, not a string."
-
-    response = client.post('/admin/user/rosman', json={
-        "hasPermissions": {"kappa": "GenericRestricted"}
-    }, headers=header)
-    assert response.status_code == 400
-    res = response.json
-    assert res["message"] == "The sended command (keyword in dict) is not known"
-
-    response = client.post('/admin/user/rosman', json={
-        "hasPermissions": 1234
-    }, headers=header)
-    assert response.status_code == 400
-    res = response.json
-    print(res)
-    assert res["message"] == "Either a List or a dict is required."
+    assert res["message"] == "For the hasRole a dict or None is expected, not a string"
 
 
 def test_malicious_modify_haspermission(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={
-        "hasPermissions": ['Gagaga+++kappa<!$']
+        "hasRole": {'Gagaga+++kappa<!$': ';SELECT ?s ?p ?o WHERE {?s ?p ?o} LIMIT 100'}
     }, headers=header)
 
     assert response.status_code == 400
@@ -787,9 +800,7 @@ def test_no_permission_modify(client, token_headers, testuser):
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
             }
         ],
-        "hasPermissions": [
-            "GenericRestricted"
-        ]
+        "hasRole": {"oldap:Unknown": 'DATA_RESTRICTED'}
     }, headers=header)
 
     login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})
@@ -831,10 +842,9 @@ def test_modify_nonsense(client, token_headers, testuser):
     header = token_headers[1]
 
     response = client.post('/admin/user/rosman', json={}, headers=header)
-
-    # assert response.status_code == 200
+    print(response.status_code)
+    assert response.status_code == 400
     res = response.json
-    print(res)
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
     print(readed)
@@ -892,9 +902,7 @@ def test_change_own_user_pw(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": 'DATA_RESTRICTED'}
     }, headers=header)
 
     #

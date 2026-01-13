@@ -117,11 +117,8 @@ paths:
                             - ADMIN_CREATE
                             - ADMIN_LISTS
 
-                hasPermissions:
-                  description: "Must be a list of QNames of the permission sets."
-                  type: array
-                  items:
-                    type: string
+                hasRole:
+                  $ref: '#/components/schemas/HasRoleMap'
               required:
                 - givenName
                 - familyName
@@ -240,10 +237,10 @@ paths:
                           type: array
                           items:
                             type: string
-                  has_permissions:
-                    type: array
-                    items:
-                      type: string
+                  hasRole:
+                    $ref: '#/components/schemas/HasRoleMap'
+
+
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -320,21 +317,17 @@ paths:
                                     items:
                                       type: string
                               - type: "null"
-                hasPermissions:
+                hasRole:
                   oneOf:
-                    - type: array
-                      items:
-                        type: string
+                    - $ref: '#/components/schemas/HasRoleMap'
                     - type: object
                       properties:
                         add:
-                          type: array
-                          items:
-                            type: string
+                          $ref: '#/components/schemas/HasRoleMap'
                         del:
-                          type: array
-                          items:
-                            type: string
+                          $ref: '#/components/schemas/HasRoleMap'
+                    - type: "null"
+
               minProperties: 1
         required: true
       responses:
@@ -472,10 +465,8 @@ paths:
                           type: array
                           items:
                             type: string
-                  has_permissions:
-                    type: array
-                    items:
-                      type: string
+                  hasRole:
+                    $ref: '#/components/schemas/HasRoleMap'
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -826,7 +817,7 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
-  /admin/permissionset/{definedByProject}/{permissionSetId}:
+  /admin/role/{definedByProject}/{roleId}:
     put:
       summary: Permissionset creation
       description: Creates a new permissionset in the database
@@ -839,8 +830,8 @@ paths:
           required: true
           schema:
             type: string
-        - name: permissionSetId
-          description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+        - name: roleId
+          description: A unique identifier for the role (unique within the project as given by :definedByProject)
           in: path
           required: true
           schema:
@@ -855,15 +846,6 @@ paths:
                   $ref: '#/components/schemas/LangString'
                 comment:
                   $ref: '#/components/schemas/LangString'
-                givesPermission:
-                  type: string
-                  enum:
-                    - DATA_RESTRICTED
-                    - DATA_VIEW
-                    - DATA_EXTEND
-                    - DATA_UPDATE
-                    - DATA_DELETE
-                    - DATA_PERMISSIONS
         required: true
       responses:
         "200":
@@ -897,8 +879,8 @@ paths:
           required: true
           schema:
             type: string
-        - name: permissionSetId
-          description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+        - name: roleId
+          description: A unique identifier for the role (unique within the project as given by :definedByProject)
           in: path
           required: true
           schema:
@@ -926,8 +908,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
     get:
-      summary: "Gets/reads Information about a permissionset"
-      description: "The user that has the rights (given by his token) gets Information about a permissionset"
+      summary: "Gets/reads Information about a role"
+      description: "The user that has the rights (given by his token) gets Information about a role"
       security:
         - AccessToken: [ ]
       parameters:
@@ -937,7 +919,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: permissionSetId
+        - name: roleId
           description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
           in: path
           required: true
@@ -951,7 +933,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  permissionSetIri:
+                  roleIri:
                     type: string
                   creator:
                     type: string
@@ -963,14 +945,12 @@ paths:
                   modified:
                     type: string
                     format: date-time
-                  permissionSetId:
+                  roleId:
                     type: string
                   label:
                     $ref: '#/components/schemas/LangString'
                   comment:
                     $ref: '#/components/schemas/LangString'
-                  givesPermission:
-                    type: string
                   definedByProject:
                     type: string
         "400":
@@ -992,8 +972,8 @@ paths:
           required: true
           schema:
             type: string
-        - name: permissionSetId
-          description: A unique identifier for the permission set (unique within the project as given by :definedByProject)
+        - name: roleId
+          description: A unique identifier for the role (unique within the project as given by :definedByProject)
           in: path
           required: true
           schema:
@@ -1024,15 +1004,6 @@ paths:
                         del:
                           $ref: '#/components/schemas/LangString'
                     - type: "null"
-                givesPermission:
-                  type: string
-                  enum:
-                    - DATA_RESTRICTED
-                    - DATA_VIEW
-                    - DATA_EXTEND
-                    - DATA_UPDATE
-                    - DATA_DELETE
-                    - DATA_PERMISSIONS
         required: true
       responses:
         "200":
@@ -1054,10 +1025,10 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
-  /admin/permissionset/search:
+  /admin/role/search:
     get:
       summary: "Searches for given parameters"
-      description: "The user that has the rights (given by his token) searches for given parameters in permissionsets"
+      description: "The user that has the rights (given by his token) searches for given parameters in role"
       security:
         - AccessToken: [ ]
       parameters:
@@ -1072,12 +1043,6 @@ paths:
           schema:
             type: string
           description: "Filter by project definition"
-          required: false
-        - name: givesPermission
-          in: query
-          schema:
-            type: string
-          description: "Filter by permission"
           required: false
       responses:
         "200":
@@ -1099,10 +1064,10 @@ paths:
         "403":
           $ref: '#/components/responses/Unauthorized'
 
-  /admin/permissionset/get:
+  /admin/role/get:
     get:
-      summary: "Get permission set by iri"
-      description: "Get complete permission set data by iri"
+      summary: "Get role by iri"
+      description: "Get complete role data by iri"
       security:
         - AccessToken: [ ]
       parameters:
@@ -1130,16 +1095,14 @@ paths:
                   modified:
                     type: string
                     format: date-time
-                  permissionSetIri:
+                  roleIri:
                     type: string
-                  permissionSetId:
+                  roleId:
                     type: string
                   label:
                     $ref: '#/components/schemas/LangString'
                   comment:
                     $ref: '#/components/schemas/LangString'
-                  givesPermission:
-                    type: string
                   definedByProject:
                     type: string
         "400":
@@ -1151,7 +1114,7 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
-  /admin/permissionset/{definedByProject}/{permissionSetId}/in_use:
+  /admin/role/{definedByProject}/{roleId}/in_use:
     get:
       summary: Check if a permission set list is in use.
       description:
@@ -1165,7 +1128,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: permissionSetId
+        - name: roleId
           description: The id of the hierarchical list
           in: path
           required: true
@@ -3001,41 +2964,51 @@ paths:
 
   /data/textsearch/{project}:
     get:
-      summary: Search for instancing in a fulltext fasion over all text properties
-        - AccessToken
+      summary: "Get hlist by iri"
+      description: "Get all hlist data from the hlist iri"
+      security:
+        - AccessToken: [ ]
       parameters:
-        - name: project
-          type: string
+        - in: path
+          name: project
+          schema:
+            type: string
           description: The name of the project where the datamodel is located
-          in: path
           required: true
-        - name: searchString
-          type: string
+        - in: query
+          name: searchString
+          schema:
+            type: string
           description: string that a text property should contain
-          in: query
+
           examples: ["hello world", "phrase query", "Einstein"]
         - name: resClass
-          type: string
+          schema:
+            type: string
           description: Restrict the search to the given resource class.
           pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
           in: query
           example: ["hyha:Author", "fasnacht:Waggis"]
         - name: countOnly
-          type: boolean
+          schema:
+            type: boolean
           description: A flag. If set to true returns only the count of hits.
           in: query
         - name: sortBy
-          type: string
+          schema:
+            type: string
           enum: [PROPVAL, CREATED, LASTMOD]
           description: Sort according to value (PROPVAL), Creation date (CREATED) or last modification (LASTMOD)
           in: query
         - name: limit
-          type: integer
+          schema:
+            type: integer
           description: Maximum number of results to return
           in: query
           default: 100
         - name: offset
-          type: integer
+          schema:
+            type: integer
           description: Start at record with the given number
           in: query
           default: 0
@@ -3117,6 +3090,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "404":
           $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /data/{project}/{resclass}:
     put:
@@ -3158,6 +3133,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "403":
           $ref: '#/components/responses/Unauthorized'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /data/{project}/get/{instance}:
     get:
@@ -3178,6 +3155,21 @@ paths:
           schema:
             type: string
             format: iri
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
   /data/{project}/{resclass}/{instance}:
     put:
@@ -3227,7 +3219,7 @@ paths:
         "404":
           $ref: '#/components/responses/NotFound'
         "500":
-          $resf: '#/components/responses/InternalServerError'
+          $ref: '#/components/responses/InternalServerError'
 
     post:
       summary: Modify an instance of the given resource class
@@ -3273,9 +3265,201 @@ paths:
           $ref: '#/components/responses/BadRequest'
         "403":
           $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
+  /data/mediaobject/id/{id}:
+    get:
+      summary: Get a media object (class MediaObject) or a subclass thereof by object id
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: id
+          description: The id of the media object
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  iri:
+                    type: string
+                    format: iri
+                    description: The IRI of the media object
+                  graph:
+                    type: string
+                    description: The graph (equivalent to the project shortname)
+                  permval:
+                    type: integer
+                    description: The permission value
+                  oldap:createdBy:
+                    type: string
+                    description: IRI of the user that created this media object
+                  oldap:creationDate:
+                    type: string
+                    format: date-time
+                    description: Date when the media object has been created
+                  oldap:lastModifiedBy:
+                    type: string
+                    description: User that modified the media object
+                  oldap:lastModificationDate:
+                    type: string
+                    format: date-time
+                    description: Date when the media object was last modified
+                  shared:imageId:
+                    type: string
+                    description: ID of the media object
+                  shared:originalName:
+                    type: string
+                    description: Original file name
+                  dcterms:type:
+                    type: string
+                    description: The dcmitype
+                    enum:
+                      - dcmitype:Collection
+                      - dcmitype:Dataset
+                      - dcmitype:StillImage
+                      - dcmitype:Image
+                      - dcmitype:MovingImage
+                      - dcmitype:Sound
+                      - dcmitype:Text
+                  shared:originalMimeType:
+                    type: string
+                    description: original MIME type
+                  shared:serverUrl:
+                    type: string
+                    description: URL of the server where to find the object
+                  shared:path:
+                    type: string
+                    description: local path on the media server
+                  shared:protocol:
+                    type: string
+                    enum:
+                      - iiif
+                      - http
+                      - custom
+                    description: The protocol to be used to request the media file
+                additionalProperties: true
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
+  /data/mediaobject/iri/{iri}:
+    get:
+      summary: Get a media object (class MediaObject) or a subclass thereof by object id
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: iri
+          description: The iri of the media object
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  oldap:createdBy:
+                    type: string
+                    description: IRI of the user that created this media object
+                  oldap:creationDate:
+                    type: string
+                    format: date-time
+                    description: Date when the media object has been created
+                  oldap:lastModifiedBy:
+                    type: string
+                    description: User that modified the media object
+                  oldap:lastModificationDate:
+                    type: string
+                    format: date-time
+                    description: Date when the media object was last modified
+                  shared:imageId:
+                    type: string
+                    description: ID of the media object
+                  shared:originalName:
+                    type: string
+                    description: Original file name
+                  dcterms:type:
+                    type: string
+                    description: The dcmitype
+                    enum:
+                      - dcmitype:Collection
+                      - dcmitype:Dataset
+                      - dcmitype:StillImage
+                      - dcmitype:Image
+                      - dcmitype:MovingImage
+                      - dcmitype:Sound
+                      - dcmitype:Text
+                  shared:originalMimeType:
+                    type: string
+                    description: original MIME type
+                  shared:serverUrl:
+                    type: string
+                    description: URL of the server where to find the object
+                  shared:path:
+                    type: string
+                    description: local path on the media server
+                  shared:protocol:
+                    type: string
+                    enum:
+                      - iiif
+                      - http
+                      - custom
+                    description: The protocol to be used to request the media file
+                additionalProperties: true
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
 
 components:
   schemas:
+
+    DataPermission:
+      type: string
+      enum:
+        - DATA_RESTRICTED
+        - DATA_VIEW
+        - DATA_EXTEND
+        - DATA_UPDATE
+        - DATA_DELETE
+        - DATA_PERMISSIONS
+      nullable: true
+
+    QName:
+      type: string
+      description: XML QName (prefix:localName)
+      pattern: '^[A-Za-z_][A-Za-z0-9._-]*:[A-Za-z_][A-Za-z0-9._-]*$'
+
+    HasRoleMap:
+      type: object
+      description: Mapping from QName role to data permission
+      additionalProperties:
+        $ref: '#/components/schemas/DataPermission'
+
     user_get_body_200:
       type: object
       properties:
@@ -3298,10 +3482,8 @@ components:
                 type: array
                 items:
                   type: string
-        has_permissions:
-          type: array
-          items:
-            type: string
+        hasRole:
+          $ref: '#/components/schemas/HasRoleMap'
     user_get_body_401:
       type: object
       properties:

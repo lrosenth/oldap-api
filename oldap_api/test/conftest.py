@@ -108,7 +108,12 @@ def bareboneuser(client, token_headers):
 def testuser(client, token_headers):
     header = token_headers[1]
 
-    client.put('/admin/user/rosman', json={
+    response = client.put('/admin/role/test/TestRole', json={
+        "label": ["TestRole@en", "TestRolle@de"],
+    }, headers=header)
+    assert response.status_code == 200
+
+    response = client.put('/admin/user/rosman', json={
         "givenName": "Manuel",
         "familyName": "Rosenthaler",
         "email": "manuel.rosenthaler@unibas.ch",
@@ -127,10 +132,9 @@ def testuser(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
+    assert response.status_code == 200
 
     yield
 
@@ -174,18 +178,17 @@ def testproject_with_external_ontologies(client, token_headers):
 
 
 @pytest.fixture()
-def testpermissionset(client, token_headers):
+def testrole(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
+    response = client.put('/admin/role/oldap/testrole', json={
         "label": ["testPerm@en", "test@de"],
         "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "DATA_UPDATE",
     }, headers=header)
 
     yield
 
-    client.delete('/admin/permissionset/testpermission', headers=header)
+    client.delete('/admin/role/testrole', headers=header)
 
 
 @pytest.fixture()
@@ -587,7 +590,7 @@ def testfulldatamodelwithmediaobject(client, token_headers, testfulldatamodelres
         'shared:imageId': 'xayb01.tif',
         'shared:protocol': 'iiif',
         'shared:path': 'britnet',
-        'oldap:grantsPermission': 'oldap:GenericView'
+        'oldap:attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     res = response.json
     iri = res['iri']
@@ -624,7 +627,7 @@ def testfulldatamodelwithderivedmediaobject(client, token_headers, testfulldatam
         'shared:imageId': 'DCS_0001.tif',
         'shared:protocol': 'iiif',
         'shared:path': 'britnet',
-        'oldap:grantsPermission': 'oldap:GenericView',
+        'oldap:attachedToRole': {'oldap:Unknown': 'DATA_VIEW'},
         'hyha:hasCaption': 'This is a test caption'
     }, headers=header)
     res = response.json
@@ -652,7 +655,7 @@ def testfulldatamodeltestinstances(client, token_headers, testemptydatamodeltest
     response = client.put('/data/test/Person', json={
         'schema:familyName': 'Kirk',
         'schema:givenName': ['James', 'Tiberius'],
-        'oldap:grantsPermission': 'oldap:GenericView'
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     res = response.json
     kirk_iri = res['iri']
@@ -660,7 +663,7 @@ def testfulldatamodeltestinstances(client, token_headers, testemptydatamodeltest
     response = client.put('/data/test/Person', json={
         'schema:familyName': 'Uhura',
         'schema:givenName': ['Nyota'],
-        'oldap:grantsPermission': 'oldap:GenericView'
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     res = response.json
     uhura_iri = res['iri']
@@ -669,7 +672,7 @@ def testfulldatamodeltestinstances(client, token_headers, testemptydatamodeltest
         'test:title': 'How to contol NCC-1701-A',
         'test:author': [kirk_iri, uhura_iri],
         'test:pubDate': '2293-10-12',
-        'oldap:grantsPermission': 'oldap:GenericView'
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     res = response.json
     book_iri = res['iri']

@@ -85,3 +85,5 @@ def test_retrieving_derived_mediaobject_by_iri(client, token_headers, testfullda
     assert res['shared:protocol'] == 'iiif'
     assert res['shared:serverUrl'] == 'https://iiif.oldap.org'
     assert res['hyha:hasCaption'] == ['This is a test caption']
+
+

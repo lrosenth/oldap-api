@@ -1,10 +1,9 @@
-def test_create_permissionset(client, token_headers):
+def test_create_role(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
+    response = client.put('/admin/role/test/testrole', json={
         "label": ["testPerm@en", "test@Perm@de"],
         "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "DATA_UPDATE",
     }, headers=header)
 
     assert response.status_code == 200
@@ -14,19 +13,18 @@ def test_create_permissionset(client, token_headers):
 
 def test_no_json(client, token_headers):
     header = token_headers[1]
-    response = client.put('/admin/permissionset/oldap/testpermissionset', 'KEIN JSON', headers=header)
+    response = client.put('/admin/role/test/testrole', 'KEIN JSON', headers=header)
     assert response.status_code == 400
     res = response.json
     assert 'message' in res
     assert res['message'] == "JSON expected. Instead received None"
 
 
-def test_create_permissionset_with_missing_label(client, token_headers):
+def test_create_role_without_label(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/oldap:SystemProject/testpermissionset', json={
+    response = client.put('/admin/role/oldap:SystemProject/testrole', json={
         "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "DATA_UPDATE",
     }, headers=header)
 
     assert response.status_code == 200
@@ -34,12 +32,11 @@ def test_create_permissionset_with_missing_label(client, token_headers):
     print(res)
 
 
-def test_create_permissionset_with_missing_comment(client, token_headers):
+def test_create_permissionset_without_comment(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/oldap:SystemProject/testpermissionset', json={
+    response = client.put('/admin/role/oldap:SystemProject/testrole2', json={
         "label": ["testPerm@en", "test@Perm@de"],
-        "givesPermission": "DATA_UPDATE",
     }, headers=header)
 
     assert response.status_code == 200
@@ -47,27 +44,13 @@ def test_create_permissionset_with_missing_comment(client, token_headers):
     print(res)
 
 
-def test_create_permissionset_with_missing_givespermission(client, token_headers):
+def test_create_role_with_bad_field(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
-        "label": ["testPerm@en", "test@Perm@de"],
-        "comment": ["For testing@en", "Für Tests@de"],
-    }, headers=header)
-
-    assert response.status_code == 400
-    res = response.json
-    print(res)
-
-
-def test_create_permissionset_with_bad_field(client, token_headers):
-    header = token_headers[1]
-
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
+    response = client.put('/admin/role/oldap/testrole', json={
         "Nonsense": "Kappagaga",
         "label": ["testPerm@en", "test@Perm@de"],
         "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "DATA_UPDATE",
     }, headers=header)
 
     assert response.status_code == 400
@@ -81,10 +64,9 @@ def test_bad_token(client, token_headers):
     modified_token = token + "kappa"
     header['Authorization'] = 'Bearer ' + modified_token
 
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
+    response = client.put('/admin/role/oldap/testrole', json={
         "label": ["testPerm@en", "test@Perm@de"],
         "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "DATA_UPDATE",
     }, headers=header)
     assert response.status_code == 403
     res = response.json
@@ -92,20 +74,24 @@ def test_bad_token(client, token_headers):
     assert res["message"] == "Connection failed: Wrong credentials"
 
 
-def test_permissionset_already_exists(client, token_headers, testpermissionset):
+def test_role_already_exists(client, token_headers, testrole):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
+    response = client.put('/admin/role/test/testrole', json={
         "label": ["testPerm@en", "test@Perm@de"],
         "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "DATA_UPDATE",
+    }, headers=header)
+    assert response.status_code == 200
+    response = client.put('/admin/role/test/testrole', json={
+        "label": ["testPerm@en", "test@Perm@de"],
+        "comment": ["For testing@en", "Für Tests@de"],
     }, headers=header)
     assert response.status_code == 409
     res = response.json
     print(res)
 
 
-def test_no_permission_create_permissionset(client, token_headers):
+def test_no_permission_create_role(client, token_headers):
     header = token_headers[1]
 
     client.put('/admin/user/rosmankappa', json={
@@ -118,9 +104,7 @@ def test_no_permission_create_permissionset(client, token_headers):
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
             }
         ],
-        "hasPermissions": [
-            "GenericRestricted"
-        ]
+        "hasRole": {"oldap:Unknown": 'DATA_RESTRICTED'},
     }, headers=header)
 
     login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})
@@ -129,10 +113,9 @@ def test_no_permission_create_permissionset(client, token_headers):
         'Authorization': f'Bearer {token}'
     }
 
-    response2 = client.put('/admin/permissionset/oldap/testpermissionset', json={
+    response2 = client.put('/admin/role/oldap/testrole', json={
         "label": ["testPerm@en", "test@Perm@de"],
         "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "DATA_UPDATE",
     }, headers=headers)
     assert response2.status_code == 403
 
@@ -140,10 +123,9 @@ def test_no_permission_create_permissionset(client, token_headers):
 def test_empty_label(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
+    response = client.put('/admin/role/oldap/testrole', json={
         "label": [],
         "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "DATA_UPDATE",
     }, headers=header)
 
     assert response.status_code == 400
@@ -154,23 +136,8 @@ def test_empty_label(client, token_headers):
 def test_empty_comment(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
+    response = client.put('/admin/role/oldap/testrole', json={
         "comment": [],
-        "givesPermission": "DATA_UPDATE",
-    }, headers=header)
-
-    assert response.status_code == 400
-    res = response.json
-    print(res)
-
-
-def test_nonexisting_permission(client, token_headers):
-    header = token_headers[1]
-
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
-        "label": ["testPerm@en", "test@Perm@de"],
-        "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "NONEXISTING",
     }, headers=header)
 
     assert response.status_code == 400
@@ -181,10 +148,9 @@ def test_nonexisting_permission(client, token_headers):
 def test_bad_langstring(client, token_headers):
     header = token_headers[1]
 
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
+    response = client.put('/admin/role/oldap/testrole', json={
         "label": 123,
         "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": "DATA_UPDATE",
     }, headers=header)
 
     assert response.status_code == 400
@@ -192,15 +158,3 @@ def test_bad_langstring(client, token_headers):
     print(res)
 
 
-def test_list_permission(client, token_headers):
-    header = token_headers[1]
-
-    response = client.put('/admin/permissionset/oldap/testpermissionset', json={
-        "label": 123,
-        "comment": ["For testing@en", "Für Tests@de"],
-        "givesPermission": ["DATA_UPDATE", "ADDITIONAL_PERM"],
-    }, headers=header)
-
-    assert response.status_code == 400
-    res = response.json
-    print(res)

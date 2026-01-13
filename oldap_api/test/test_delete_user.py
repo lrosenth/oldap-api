@@ -14,9 +14,7 @@ def test_delete_user(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
 
     response = client.delete('/admin/user/rosman', headers=header)
@@ -41,9 +39,7 @@ def test_delete_nonexisting_user(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
 
     response = client.delete('/admin/user/kappa', headers=header)
@@ -83,9 +79,7 @@ def test_no_right_delete_user(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
 
     client.put('/admin/user/kappa', json={
@@ -94,7 +88,7 @@ def test_no_right_delete_user(client, token_headers):
         "email": "gaga@dumdum.com",
         "password": "dumdum",
         "inProjects": [],
-        "hasPermissions": []
+        "hasRole": {}
     }, headers=header)
 
     response = client.post('/admin/auth/kappa', json={'password': 'dumdum'})

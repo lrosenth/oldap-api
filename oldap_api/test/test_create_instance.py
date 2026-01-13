@@ -5,7 +5,7 @@ def test_create_instance(client, token_headers, testfulldatamodelresourcesimple)
     response = client.put('/data/hyha/SimpleSheep', json={
         'iri': 'MySimpleSheep',
         'testProp3': "Waseliwas",
-        'grantsPermission': 'oldap:GenericView'
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     assert response.status_code == 200
     res = response.json
@@ -17,7 +17,7 @@ def test_create_instance_URN(client, token_headers, testfulldatamodelresourcesim
 
     response = client.put('/data/hyha/SimpleSheep', json={
         'testProp3': "Waseliwas mit URN",
-        'grantsPermission': 'oldap:GenericView'
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     assert response.status_code == 200
     res = response.json
@@ -29,7 +29,7 @@ def test_create_instance_URN(client, token_headers, testfulldatamodelresource):
 
     response = client.put('/data/hyha/Sheep', json={
         'testProp2': ["a test@en", "ein Test@de", "un teste@fr"],
-        'grantsPermission': 'oldap:GenericView'
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     assert response.status_code == 200
     res = response.json
@@ -43,7 +43,7 @@ def test_create_instance_props(client, token_headers, testfulldatamodelresourced
         'title': ["Die Geschichte der ASD@de", "L'Histoire de l'ASD@fr"],
         'numPages': 123,
         'publishingDate': "2026-01-01",
-        'grantsPermission': 'oldap:GenericView'
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     assert response.status_code == 200
     res = response.json
@@ -56,7 +56,7 @@ def test_create_instance_with_superclass(client, token_headers, testfulldatamode
     response = client.put('/data/hyha/Lion', json={
         'mammalName': 'Cat',
         'preyScheme': 'Cows',
-        'grantsPermission': 'oldap:GenericView'
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     assert response.status_code == 200
 
@@ -71,7 +71,7 @@ def test_create_instance_mediaobject(client, token_headers, testemptydatamodel):
         'imageId': 'cat.tif',
         'protocol': 'iiif',
         'path': 'xxx',
-        'grantsPermission': 'oldap:GenericView'
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     print(response.json)
     assert response.status_code == 200

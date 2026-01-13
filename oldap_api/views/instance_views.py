@@ -3,6 +3,7 @@ from typing import Any
 from flask import request, jsonify, Blueprint, current_app
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
+from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapErrorKey, OldapErrorNoPermission, \
     OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse
 from oldaplib.src.helpers.query_processor import QueryProcessor
@@ -32,7 +33,9 @@ def media_object_by_id(imageid):
 
 @instance_bp.route('/mediaobject/iri/<imageiri>', methods=['GET'])
 def media_object_by_iri(imageiri):
-    out = request.headers['Authorization']
+    out = request.headers.get('Authorization')
+    if out is None:
+        return jsonify({"message": "No authorization token provided"}), 401
     b, token = out.split()
     try:
         con = Connection(token=token, context_name="DEFAULT")
@@ -253,8 +256,16 @@ def read_instance(project, resiri):
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
-    data = {str(x): y for x, y in data.items()}
-    return jsonify(data), 200
+    print(data)
+    #data = {str(x): y if isinstance(y, (str, int, float, bool, type(None))) else str(y) for x, y in data.items()}
+    res = {}
+    for x, y in data.items():
+        if isinstance(y, list):
+            res[str(x)] = [yy if isinstance(yy, (str, int, float, bool, type(None))) else str(yy) for yy in y]
+        else:
+            res[str(x)] = y if isinstance(y, (str, int, float, bool, type(None))) else str(y)
+
+    return jsonify(res), 200
 
 @instance_bp.route('/<project>/<resiri>', methods=['POST'])
 def update_instance(project, resiri):

@@ -18,9 +18,7 @@ def test_create_user(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_RESTRICTED"},
     }, headers=header)
     assert response.status_code == 200
     res = response.json
@@ -46,9 +44,7 @@ def test_create_user_2(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "hyha:HyperHamletMember", "oldap:GenericView"
-        ]
+        "hasRole": {"hyha:HyperHamletMember": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 200
     res = response.json
@@ -75,9 +71,7 @@ def test_user_already_exists(client, token_headers, testuser):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert secondlogin.status_code == 409
     res = secondlogin.json
@@ -102,9 +96,7 @@ def test_isActive(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 200
 
@@ -131,9 +123,7 @@ def test_bad_isActive(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 400
     res = response.json
@@ -152,9 +142,7 @@ def test_field_missing(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 400
     res = response.json
@@ -183,9 +171,7 @@ def test_wrong_projectpermission(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 400
     res = response.json
@@ -209,9 +195,7 @@ def test_bad_projectname(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 400
     res = response.json
@@ -235,14 +219,12 @@ def test_permission_QName(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "KAPPA!!!!!"
-        ]
+        "hasRole": {"oldap:Unknown": "KAPPA"},
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     assert 'message' in res
-    assert res['message'] == "The given permission is not a QName"
+    assert res['message'] == "The given role/datapermission pair is invalid"
 
 
 def test_haspermission_not_existing(client, token_headers):
@@ -261,14 +243,11 @@ def test_haspermission_not_existing(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "Gaga"
-        ]
+        "hasRole": {"oldap:KAPPA": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 400
     res = response.json
     assert 'message' in res
-    assert res['message'] == "One of the permission sets is not existing!"
 
 
 def test_userid_NCName_conform(client, token_headers):
@@ -287,9 +266,7 @@ def test_userid_NCName_conform(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 400
     res = response.json
@@ -310,16 +287,14 @@ def test_empty_permissions(client, token_headers):
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet"
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     res = response.json
     print(res)
     assert response.status_code == 200
 
 
-def test_empty_hasPermissions(client, token_headers):
+def test_empty_hasRole(client, token_headers):
     header = token_headers[1]
 
     response = client.put('/admin/user/rosman', json={
@@ -342,7 +317,7 @@ def test_empty_hasPermissions(client, token_headers):
 
     read = client.get('/admin/user/rosman', headers=header)
     readed = read.json
-    assert readed["hasPermissions"] == []
+    assert readed["hasRole"] == {}
 
 
 def test_bad_userid(client, token_headers):
@@ -361,9 +336,7 @@ def test_bad_userid(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 400
     res = response.json
@@ -389,9 +362,7 @@ def test_bad_token(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 403
     res = response.json
@@ -416,9 +387,7 @@ def test_json_with_unknown_fields(client, token_headers):
                 ]
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
     assert response.status_code == 400
     res = response.json

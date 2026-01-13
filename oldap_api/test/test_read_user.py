@@ -10,7 +10,7 @@ def test_read_user(client, token_headers, testuser):
     assert res["familyName"] == "Rosenthaler"
     assert res["givenName"] == "Manuel"
     assert res["email"] == "manuel.rosenthaler@unibas.ch"
-    assert res["hasPermissions"] == ['oldap:GenericView']
+    assert res["hasRole"] == {"oldap:Unknown": "DATA_VIEW"}
     assert res["inProjects"] == [{'permissions': ['oldap:ADMIN_USERS'], 'project': 'oldap:HyperHamlet'},
  {'permissions': ['oldap:ADMIN_USERS'],
   'project': 'http://www.salsah.org/version/2.0/SwissBritNet'}]
@@ -61,7 +61,7 @@ def test_empty_has_permissions(client, token_headers):
     response = client.get('/admin/user/rosman', headers=header)
 
     res = response.json
-    assert res["hasPermissions"] == []
+    assert res["hasRole"] == {}
 
     client.delete('/admin/user/rosman', headers=header)
 
@@ -79,9 +79,7 @@ def test_empty_projects(client, token_headers):
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet"
             }
         ],
-        "hasPermissions": [
-            "GenericView"
-        ]
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
 
     response = client.get('/admin/user/rosman', headers=header)
@@ -120,7 +118,9 @@ def test_get_user_by_iri(client, token_headers):
     assert res["familyName"] == "Rosenthaler"
     assert res["givenName"] == "Lukas"
     assert res["email"] == "lukas.rosenthaler@unibas.ch"
-    assert set(res["hasPermissions"]) == {'oldap:GenericRestricted', 'oldap:GenericView'}
+    assert res["hasRole"] == {'britnet:BritnetEditor': 'DATA_DELETE',
+                                   'hyha:HyperHamletMember': 'DATA_PERMISSIONS',
+                                   'oldap:Unknown': 'DATA_PERMISSIONS'}
 
     response = client.get('/admin/user/get', query_string={
     }, headers=header)

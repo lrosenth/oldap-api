@@ -16,6 +16,7 @@ from typing import Dict, Set
 from flask import jsonify, request, Blueprint
 from oldaplib.src.connection import Connection
 from oldaplib.src.enums.adminpermissions import AdminPermission
+from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.helpers.irincname import IriOrNCName
 from oldaplib.src.helpers.observable_set import ObservableSet
 from oldaplib.src.helpers.oldaperror import OldapErrorValue, OldapError, OldapErrorAlreadyExists, OldapErrorNotFound, \
@@ -46,13 +47,13 @@ def create_user(userid):
             "permissions": ['oldap:ADMIN_USERS', (...)],
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
             }, {...}],
-        "hasPermissions": ['oldap:GenericView', (...)]
+        "hasRole": {'oldap:Unknown': "DATA_RESTRICTED", (...)}
     }
     :param userid: The userid of the useraccount that should be created
     :return: A JSON containing the userIri that has the following form:
     json={"message": f"User {userid} created", "userIri": f"{userid}"}
     """
-    known_json_fields = {"givenName", "familyName", "email", "password","isActive", "inProjects", "hasPermissions"}
+    known_json_fields = {"givenName", "familyName", "email", "password","isActive", "inProjects", "hasRole"}
     mandatory_json_fields = {"givenName", "familyName", "email", "password"}
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
@@ -85,7 +86,7 @@ def create_user(userid):
             return jsonify({'message': 'Invalid input for isActive: must be a bool -- true or false'}), 400
 
         inprojects = data.get('inProjects', None)
-        haspermissions = data.get('hasPermissions', None)
+        hasrole = data.get('hasRole', None)
 
         # If "inproject" is given by the creation json, fill it...
         in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
@@ -105,13 +106,13 @@ def create_user(userid):
                     return jsonify({'message': f'The given projectname is not a valid anyIri'}), 400
 
         # If "haspermissions" is given by the creation json, fill it...
-        if haspermissions is not None:
+        if hasrole is not None:
             try:
-                permission_set = {Xsd_QName(x if ":" in x else f'oldap:{x}') for x in haspermissions}
-            except OldapErrorValue as error:
-                return jsonify({'message': f'The given permission is not a QName'}), 400
+                roles = {Xsd_QName(role): DataPermission.from_string(dpm) for role, dpm in hasrole.items()}
+            except (ValueError, OldapErrorValue) as error:
+                return jsonify({'message': f'The given role/datapermission pair is invalid'}), 400
         else:
-            permission_set = set()
+            roles = set()
 
         try:
             con = Connection(token=token,
@@ -126,7 +127,7 @@ def create_user(userid):
                         email=email,
                         credentials=credentials,
                         inProject=in_project_dict,
-                        hasPermissions=permission_set,
+                        hasRole=roles,
                         isActive=isActive,
                         validate=True)
             user.create()
@@ -151,7 +152,7 @@ def read_users(userid):
     json={
     'familyName': 'John',
     'givenName': 'Doe',
-    'hasPermissions': ['oldap:GenericView', (...)],
+    'hasRole': {'oldap:Unknown': 'DATA_RESTRICTED', (...)},
     'inProjects': [{
         'permissions': ['oldap:ADMIN_USERS', (...)],
         'project': 'http://www.salsah.org/version/2.0/SwissBritNet'
@@ -190,7 +191,7 @@ def read_users(userid):
         "email": str(user.email),
         "givenName": str(user.givenName),
         "inProjects": [],
-        "hasPermissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
+        "hasRole": {str(role): dperm.to_string() for role, dperm in user.hasRole.items()} if user.hasRole else {}
     }
 
     if user.inProject is not None:
@@ -255,16 +256,17 @@ def modify_user(userid):
             "add": [{"project": 'http://www.salsah.org/version/2.0/SwissBritNet', "permissions" ["oldap:GenericView", (...)]}],
             "del": ['http://www.salsah.org/version/2.0/SwissBritNet', (...)],
         },
-        "hasPermissions": ['oldap:GenericView', (...)] or {
-        "add": ["oldap:GenericView", (...)],
-        "del": ["oldap:GenericView", (...)]
+        "hasRole": {'oldap:Unknown': 'DATA_RESTRICTED', (...)] or
+        {
+           "add": {"oldap:Unknown": 'DATA_VIEW, (...)},
+           "del": ["hyha:HyhaMember", (...)]
         }
     }
     :param userid: The userid of the user that should be modified.
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "User updated successfully"}
     """
-    known_json_fields = {"userId", "givenName", "familyName", "email", "password", "inProjects", "hasPermissions", "isActive"}
+    known_json_fields = {"userId", "givenName", "familyName", "email", "password", "inProjects", "hasRole", "isActive"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -281,7 +283,7 @@ def modify_user(userid):
         email = data.get("email", None)
         password = data.get("password", None)
         inprojects = data.get('inProjects', "NotSent")
-        haspermissions = data.get('hasPermissions', "NotSent")
+        hasrole = data.get('hasRole', "NotSent")
         isactive = data.get('isActive', None)
 
         try:
@@ -359,37 +361,31 @@ def modify_user(userid):
             else:
                 return jsonify({"message": f"Either a List or a dict is expected for a modify request."}), 400
 
-        permission_set = None  # only needed if a list is sent
+        #roles = None  # only needed if a list is sent
         try:
-            if haspermissions != "NotSent":
-                if isinstance(haspermissions, str):
-                    return jsonify({"message": f"For the permissionset either a list or a dict is expected, not a string"}), 400
-                if isinstance(haspermissions, list):
-                    permission_set = set()
-                    for item in haspermissions:
-                        permission_set.add(Xsd_QName(item if ":" in item else f'oldap:{item}'))
-                elif isinstance(haspermissions, dict):
-                    if "add" in haspermissions:
-                        if not isinstance(haspermissions["add"], list):
-                            return jsonify({"message": f"The add entry needs to be a list, not a string."}), 400
-                        for item in haspermissions["add"]:
-                            user.hasPermissions.add(Xsd_QName(item if ":" in item else f'oldap:{item}'))
-                    if "del" in haspermissions:
-                        if not isinstance(haspermissions["del"], list):
-                            return jsonify({"message": f"The delete entry needs to be a list, not a string."}), 400
-                        for item in haspermissions["del"]:
-                            try:
-                                user.hasPermissions.remove(Xsd_QName(item if ":" in item else f'oldap:{item}'))
-                            except AttributeError as error:
-                                return jsonify({"message": f"The Element {item} does not exist and thus cant be deleted"}), 404
-                    if "add" not in haspermissions and "del" not in haspermissions:
-                        return jsonify({"message": f"The sended command (keyword in dict) is not known"}), 400
-                elif haspermissions is None:
-                    del user.hasPermissions
-                else:
-                    return jsonify({"message": f"Either a List or a dict is required."}), 400
-        except OldapErrorValue as error:
-            return jsonify({'message': f'The given permission is not a QName'}), 400
+            if hasrole != "NotSent":
+                if hasrole is not None and not isinstance(hasrole, dict):
+                    return jsonify({"message": f"For the hasRole a dict or None is expected, not a string"}), 400
+                if not hasrole:
+                    del user.hasRole
+                if hasrole and "del" in hasrole:
+                    if isinstance(hasrole["del"], list):
+                        for role in hasrole["del"]:
+                            if user.hasRole and role in user.hasRole:
+                                del user.hasRole[Xsd_QName(role, validate=True)]
+                            else:
+                                return jsonify({"message": f'The user does not have the role "{role}".'}), 404
+                    else:
+                        del user.hasRole[Xsd_QName(hasrole["del"], validate=True)]
+                if hasrole and "add" in hasrole:
+                    for role, dperm in hasrole["add"].items():
+                        user.hasRole[Xsd_QName(role, validate=True)] = DataPermission.from_string(dperm)
+                if hasrole and not "del" in hasrole and not "add" in hasrole: # replace all roles with given set of roles
+                    user.hasRole = {Xsd_QName(role, validate=True): DataPermission.from_string(dperm) for role, dperm in hasrole.items()}
+        except (ValueError, OldapErrorValue) as error:
+            return jsonify({'message': f'The given hasRole {hasrole} is invalid'}), 400
+        except OldapError as error:
+            return jsonify({'message': f'The given hasRole {hasrole} is invalid'}), 400
 
         if useridMOD:
             user.userId = Xsd_NCName(useridMOD)
@@ -406,10 +402,6 @@ def modify_user(userid):
                 return jsonify({'message': f'isActive needs to be a bool -- einter true or false'}), 400
             else:
                 user.isActive = Xsd_boolean(isactive)
-        if permission_set:
-            user.hasPermissions = permission_set
-        if permission_set == set():
-            user.hasPermissions = set()
         try:
             user.update()
         except OldapErrorUpdateFailed as error:  # hard to test
@@ -498,7 +490,7 @@ def user_get_by_iri():
         **({"email": str(user.email)} if user.email else {}),
         **({"givenName": str(user.givenName)} if user.givenName else {}),
         "inProjects": [],
-        "hasPermissions": [str(x) for x in user.hasPermissions] if user.hasPermissions else []
+        "hasRole": {str(role): str(dperm) if dperm else None for role, dperm in user.hasRole.items()} if user.hasRole else {}
     }
 
     if user.inProject is not None:

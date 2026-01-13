@@ -310,9 +310,7 @@ def test_no_permission(client, token_headers, testemptyhlist):
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
             }
         ],
-        "hasPermissions": [
-            "GenericRestricted"
-        ]
+        "hasRole": {'oldap:Unknown': 'DATA_RESTRICTED'}
     }, headers=header)
 
     login = client.post('/admin/auth/rosmankappa', json={'password': 'kappa1234'})
