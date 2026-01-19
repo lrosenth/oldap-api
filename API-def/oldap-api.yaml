@@ -3231,7 +3231,6 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
-  /data/{project}/{resclass}/{instance}:
     post:
       summary: Modify an instance of the given resource class
       security:
