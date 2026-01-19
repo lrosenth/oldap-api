@@ -3181,7 +3181,7 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
-  /data/{project}/{resclass}:
+  /data/{project}/{resclass}/{instance}:
     put:
       summary: Create a new instance of the given resource class with the given IRI
       security:
@@ -3199,6 +3199,13 @@ paths:
           required: true
           schema:
             type: string
+        - name: instance
+          description: The IRI of the instance
+          in: path
+          required: true
+          schema:
+            type: string
+            format: iri
       requestBody:
         required: true
         content:
