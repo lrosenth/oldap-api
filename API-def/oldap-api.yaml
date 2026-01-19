@@ -96,8 +96,7 @@ paths:
                 userIri:
                   type: string
                 inProjects:
-                  description: "The project field is the QName of the project,
-                  the permissions is a sets of admin permissions."
+                  description: "The project field is the QName of the project, the permissions is a sets of admin permissions."
                   type: array
                   items:
                     type: object
@@ -111,12 +110,11 @@ paths:
                           enum:
                             - ADMIN_OLDAP
                             - ADMIN_USERS
-                            - ADMIN_PERMISSION_SETS
+                            - ADMIN_ROLES
                             - ADMIN_RESOURCES
                             - ADMIN_MODEL
                             - ADMIN_CREATE
                             - ADMIN_LISTS
-
                 hasRole:
                   $ref: '#/components/schemas/HasRoleMap'
               required:
@@ -325,7 +323,9 @@ paths:
                         add:
                           $ref: '#/components/schemas/HasRoleMap'
                         del:
-                          $ref: '#/components/schemas/HasRoleMap'
+                          type: array
+                          items:
+                            type: string
                     - type: "null"
 
               minProperties: 1
@@ -3146,7 +3146,7 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
-  /data/{project}/get/{instance}:
+  /data/{project}/{instiri}:
     get:
       summary: Get an instance of a resource only based on it's IRO
       security:
@@ -3158,7 +3158,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: instance
+        - name: instiri
           description: The IRI of the instance
           in: path
           required: true
@@ -3477,7 +3477,9 @@ components:
       type: object
       description: Mapping from QName role to data permission
       additionalProperties:
-        $ref: '#/components/schemas/DataPermission'
+        anyOf:
+          - $ref: '#/components/schemas/DataPermission'
+          - type: "null"
 
     user_get_body_200:
       type: object
@@ -3595,7 +3597,7 @@ components:
                   enum:
                     - ADMIN_OLDAP
                     - ADMIN_USERS
-                    - ADMIN_PERMISSION_SETS
+                    - ADMIN_ROLES
                     - ADMIN_RESOURCES
                     - ADMIN_MODEL
                     - ADMIN_CREATE

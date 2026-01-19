@@ -80,6 +80,7 @@ def read_datamodel(project):
         return jsonify({'message': str(error)}), 500
 
     current_app.logger.error(len(dm.get_resclasses()))
+    current_app.logger.error(len(dm.get_propclasses()))
 
     extontos = set(dm.get_extontos())
     propclasses = set(dm.get_propclasses())

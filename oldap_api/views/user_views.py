@@ -96,10 +96,11 @@ def create_user(userid):
                 try:
                     if item.get("permissions") is not None:
                         permissions = {AdminPermission.from_string(x) for x in item["permissions"]}
+
                     else:
                         permissions = set()
                 except ValueError as error:
-                    return jsonify({'message': f'The given project project permission is not a valid one'}), 400
+                    return jsonify({'message': f'The given project permission is not a valid one'}), 400
                 try:
                     in_project_dict[Iri(project_name)] = permissions
                 except OldapErrorValue as error:
@@ -191,7 +192,7 @@ def read_users(userid):
         "email": str(user.email),
         "givenName": str(user.givenName),
         "inProjects": [],
-        "hasRole": {str(role): dperm.to_string() for role, dperm in user.hasRole.items()} if user.hasRole else {}
+        "hasRole": {str(role): dperm.to_string() if dperm is not None else None for role, dperm in user.hasRole.items()} if user.hasRole else {}
     }
 
     if user.inProject is not None:

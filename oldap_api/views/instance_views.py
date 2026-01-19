@@ -218,8 +218,8 @@ def add_instance(project, resource):
         return jsonify({"message": str(error)}), 500
     return jsonify({"message": "Instance successfully created", "iri": str(instance.iri)}), 200
 
-@instance_bp.route('/<project>/<resiri>', methods=['GET'])
-def read_instance(project, resiri):
+@instance_bp.route('/<project>/<instiri>', methods=['GET'])
+def read_instance(project, instiri):
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -229,7 +229,7 @@ def read_instance(project, resiri):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        iri = Iri(resiri, validate=True)
+        iri = Iri(instiri, validate=True)
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
     context = Context(name=con.context_name)
@@ -248,7 +248,7 @@ def read_instance(project, resiri):
 
     try:
         data = ResourceInstance.read_data(con=con,
-                                          iri=Iri(resiri, validate=True),
+                                          iri=Iri(instiri, validate=True),
                                           projectShortName=Xsd_NCName(project, validate=True))
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400

@@ -66,6 +66,16 @@ def test_read_nonexisting_dm(client, token_headers, testrole):
     res = response.json
     print(res)
 
+def test_read_shared_dm(client, token_headers, testrole):
+    header = token_headers[1]
+
+    response = client.get('/admin/datamodel/shared', headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
+
+
 def test_download_dm(client, token_headers):
     header = token_headers[1]
 
