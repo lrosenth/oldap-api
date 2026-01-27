@@ -307,7 +307,7 @@ def update_instance(project, instiri):
             if attrval is None:
                 instance[attr].discard()
             elif isinstance(attrval, list):
-                instance[attr].replace(attrval)
+                instance[attr] = attrval
             elif isinstance(attrval, dict):
                 if "add" in attrval:
                     adding = attrval.get("add", [])
