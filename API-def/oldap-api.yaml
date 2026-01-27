@@ -3224,8 +3224,45 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+    delete:
+      summary: Delete an instance of a resource based on it's IRI
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: instiri
+          description: The IRI of the instance
+          in: path
+          required: true
+          schema:
+            type: string
+            format: iri
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "instance deleted"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
 
-#  /data/{project}/{resclass}/{instance}:
+    #  /data/{project}/{resclass}/{instance}:
 #    put:
 #      summary: Create a new instance of the given resource class with the given IRI
 #      security:
@@ -3275,54 +3312,54 @@ paths:
 #        "500":
 #          $ref: '#/components/responses/InternalServerError'
 
-    post:
-      summary: Modify an instance of the given resource class
-      security:
-        - AccessToken: [ ]
-      parameters:
-        - name: project
-          description: The name of the project where the datamodel is located
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: resclass
-          description: The name of the resource (NCName, *not* QName!)
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: instance
-          description: The IRI of the instance
-          in: path
-          required: true
-          schema:
-            type: string
-            format: iri
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        "400":
-          $ref: '#/components/responses/BadRequest'
-        "403":
-          $ref: '#/components/responses/Unauthorized'
-        "404":
-          $ref: '#/components/responses/NotFound'
-        "500":
-          $ref: '#/components/responses/InternalServerError'
+#    post:
+#      summary: Modify an instance of the given resource class
+#      security:
+#        - AccessToken: [ ]
+#      parameters:
+#        - name: project
+#          description: The name of the project where the datamodel is located
+#          in: path
+#          required: true
+#          schema:
+#            type: string
+#        - name: resclass
+#          description: The name of the resource (NCName, *not* QName!)
+#          in: path
+#          required: true
+#          schema:
+#            type: string
+#        - name: instance
+#          description: The IRI of the instance
+#          in: path
+#          required: true
+#          schema:
+#            type: string
+#            format: iri
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#      responses:
+#        "200":
+#          description: "OK"
+#          content:
+#            application/json:
+#              schema:
+#                type: object
+#                properties:
+#                  message:
+#                    type: string
+#        "400":
+#          $ref: '#/components/responses/BadRequest'
+#        "403":
+#          $ref: '#/components/responses/Unauthorized'
+#        "404":
+#          $ref: '#/components/responses/NotFound'
+#        "500":
+#          $ref: '#/components/responses/InternalServerError'
 
   /data/mediaobject/id/{id}:
     get:

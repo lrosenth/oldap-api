@@ -330,10 +330,10 @@ def update_instance(project, instiri):
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
 
-@instance_bp.route('/<path:project>/<path:resiri>', methods=['DELETE'])
-def delete_instance(project, resiri):
+@instance_bp.route('/<path:project>/<path:instiri>', methods=['DELETE'])
+def delete_instance(project, instiri):
     project = unquote(project)
-    resiri = unquote(resiri)
+    instiri = unquote(instiri)
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -343,7 +343,7 @@ def delete_instance(project, resiri):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        iri = Iri(resiri, validate=True)
+        iri = Iri(instiri, validate=True)
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
     context = Context(name=con.context_name)
