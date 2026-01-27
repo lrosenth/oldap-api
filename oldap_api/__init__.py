@@ -23,7 +23,7 @@ def create_app():
     #CORS(app, origins="*", expose_headers=["Content-Disposition"])
     CORS(app,
          resources={r"/*": {"origins": "*"}},
-         supports_credentials=True,
+         supports_credentials=False,
          expose_headers=["Content-Disposition"])
 
     return app

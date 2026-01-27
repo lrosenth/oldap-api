@@ -265,7 +265,8 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
                 },
                 "maxCount": 3,
                 "minCount": 1,
-                "order": 1
+                "order": 1,
+                "editor": "dash:TextAreaEditor"
             }
         ]
     }, headers=header)
@@ -275,7 +276,7 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
 
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    print(res)
+    pprint(res)
 
     assert response.status_code == 200
     assert res["resources"][0]["iri"] == "hyha:Sheep"
@@ -302,6 +303,7 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
     assert res["resources"][0]["hasProperty"][0]["maxCount"] == 3
     assert res["resources"][0]["hasProperty"][0]["minCount"] == 1
     assert res["resources"][0]["hasProperty"][0]["order"] == 1.0
+    assert res["resources"][0]["hasProperty"][0]["editor"] == 'dash:TextAreaEditor'
 
 def test_resource_already_exists(client, token_headers, testemptydatamodel):
     header = token_headers[1]
@@ -345,7 +347,8 @@ def test_create_prop_in_resource(client, token_headers, testfulldatamodelresourc
         "lessThanOrEquals": "hyha:testProp",
         "minCount": 1,
         "maxCount": 2,
-        "order": 2
+        "order": 2,
+        "editor": "dash:TextAreaEditor"
     }, headers=header)
     res = response.json
     print(res)
@@ -377,7 +380,8 @@ def test_prop_in_resource_already_exists(client, token_headers, testfulldatamode
         "lessThanOrEquals": "hyha:testProp",
         "minCount": 1,
         "maxCount": 2,
-        "order": 2
+        "order": 2,
+        "editor": "dash:TextAreaEditor"
     }, headers=header)
     res = response.json
     print(res)

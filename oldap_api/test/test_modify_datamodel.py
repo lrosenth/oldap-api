@@ -778,6 +778,36 @@ def test_modify_prop_in_res_type_C(client, token_headers, testfulldatamodelresou
         if hasprop['property'].iri == "hyha:titleB":
             assert set(hasprop["type"]) == set()
 
+def test_modify_prop_in_res_type_E(client, token_headers, testfulldatamodelresourcedatatypesB):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:BookB/hyha:titleB', json={
+        "editor": None
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    for hasprop in res["standaloneProperties"]:
+        if hasprop['property'].iri == "hyha:titleB":
+            assert hasprop["editor"] == None
+
+def test_modify_prop_in_res_type_F(client, token_headers, testfulldatamodelresourcedatatypesB):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:BookB/hyha:titleB', json={
+        "editor": 'dash:TextAreaEditor'
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    for hasprop in res["standaloneProperties"]:
+        if hasprop['property'].iri == "hyha:titleB":
+            assert set(hasprop["editor"]) == 'dash:TextAreaEditor'
+
 def test_modify_standaloneprop_string(client, token_headers, testfulldatamodelstandalonepropstring):
     header = token_headers[1]
 

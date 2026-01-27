@@ -1,5 +1,5 @@
 from typing import Any
-
+from urllib.parse import unquote
 from flask import request, jsonify, Blueprint, current_app
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
@@ -31,8 +31,9 @@ def media_object_by_id(imageid):
         return jsonify({"message": "MediaObject not found"}), 404
     return jsonify({key: [str(x) for x in val] if isinstance(val, list) else str(val) for key, val in res.items()}), 200
 
-@instance_bp.route('/mediaobject/iri/<imageiri>', methods=['GET'])
+@instance_bp.route('/mediaobject/iri/<path:imageiri>', methods=['GET'])
 def media_object_by_iri(imageiri):
+    imageiri = unquote(imageiri)
     out = request.headers.get('Authorization')
     if out is None:
         return jsonify({"message": "No authorization token provided"}), 401
@@ -49,8 +50,9 @@ def media_object_by_iri(imageiri):
         return jsonify({"message": "MediaObject not found"}), 404
     return jsonify({key: [str(x) for x in val] if isinstance(val, list) else str(val) for key, val in res.items()}), 200
 
-@instance_bp.route('/textsearch/<project>', methods=['GET'])
+@instance_bp.route('/textsearch/<path:project>', methods=['GET'])
 def textsearch_instance(project):
+    project = unquote(project)
     known_json_fields = {"searchString", "countOnly", "resclass", "sortBy", "limit", "offset"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -115,8 +117,9 @@ def textsearch_instance(project):
         return jsonify(tmp), 200
 
 
-@instance_bp.route('/ofclass/<project>', methods=['GET'])
+@instance_bp.route('/ofclass/<path:project>', methods=['GET'])
 def allofclass_instance(project):
+    project = unquote(project)
     known_json_fields = {"resClass", "includeProperties", "countOnly", "sortBy", "limit", "offset"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -180,8 +183,10 @@ def allofclass_instance(project):
         return jsonify(tmp), 200
 
 
-@instance_bp.route('/<project>/<resource>', methods=['PUT'])
+@instance_bp.route('/<path:project>/<resource>', methods=['PUT'])
 def add_instance(project, resource):
+    project = unquote(project)
+    resource = unquote(resource)
     current_app.logger.info(f"Starting add_instance for project: {project}, resource: {resource}")
     out = request.headers['Authorization']
     b, token = out.split()
@@ -218,8 +223,10 @@ def add_instance(project, resource):
         return jsonify({"message": str(error)}), 500
     return jsonify({"message": "Instance successfully created", "iri": str(instance.iri)}), 200
 
-@instance_bp.route('/<project>/<instiri>', methods=['GET'])
+@instance_bp.route('/<path:project>/<path:instiri>', methods=['GET'])
 def read_instance(project, instiri):
+    project = unquote(project)
+    instiri = unquote(instiri)
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -267,32 +274,10 @@ def read_instance(project, instiri):
 
     return jsonify(res), 200
 
-@instance_bp.route('/<project>/<resiri>', methods=['POST'])
-def update_instance(project, resiri):
-    """
-    Update instance information for a specified project and resource identifier (resiri).
-
-    This route handles the logic for updating instances within the provided
-    project and resource identifier. It validates the request format, handles
-    authentication via a token, verifies the provided resource identifier, and
-    checks the existence of the specified project in the context. Appropriate
-    responses are returned based on the success or failure of these operations.
-    The JSON passed in the body has the following structure:
-    {
-        property_qname: null,  // deletes this property
-        property_qname: value,  // replaces the existing value with this new value, or creates the property
-        property_qname: [value1, value2, ...],  // replaces the existing value with the new values
-        property_qname: {"add": "[value1, value2, ...], "del": "[value1, value2, ...]"},  // adds and deletes values},
-    }
-
-    :param project: The name of the project to which the instance belongs
-    :type project: str
-    :param resiri: The resource identifier for the instance to be updated
-    :type resiri: str
-    :return: JSON response containing a success or error message, along with
-        appropriate HTTP status codes
-    :rtype: flask.Response
-    """
+@instance_bp.route('/<path:project>/<path:instiri>', methods=['POST'])
+def update_instance(project, instiri):
+    project = unquote(project)
+    instiri = unquote(instiri)
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -308,7 +293,7 @@ def update_instance(project, resiri):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        iri = Iri(resiri, validate=True)
+        iri = Iri(instiri, validate=True)
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
     context = Context(name=con.context_name)
@@ -345,8 +330,10 @@ def update_instance(project, resiri):
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
 
-@instance_bp.route('/<project>/<resiri>', methods=['DELETE'])
+@instance_bp.route('/<path:project>/<path:resiri>', methods=['DELETE'])
 def delete_instance(project, resiri):
+    project = unquote(project)
+    resiri = unquote(resiri)
     out = request.headers['Authorization']
     b, token = out.split()
 

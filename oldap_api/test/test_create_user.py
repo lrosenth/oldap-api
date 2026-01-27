@@ -176,7 +176,7 @@ def test_wrong_projectpermission(client, token_headers):
     assert response.status_code == 400
     res = response.json
     assert 'message' in res
-    assert res['message'] == "The given project project permission is not a valid one"
+    assert res['message'] == "The given project permission is not a valid one"
 
 
 def test_bad_projectname(client, token_headers):

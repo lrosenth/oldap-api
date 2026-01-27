@@ -449,7 +449,8 @@ def testfulldatamodelresourcedatatypesB(client, token_headers, testemptydatamode
                 },
                 "maxCount": 1,
                 "minCount": 1,
-                "order": 1
+                "order": 1,
+                "editor": "dash:TextAreaWithLangEditor"
             },
             {
                 "property": {

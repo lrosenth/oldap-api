@@ -191,6 +191,8 @@ def read_datamodel(project):
                 **({"maxCount": hp.maxCount.value} if hp.maxCount is not None else {}),
                 **({"minCount": hp.minCount.value} if hp.minCount is not None else {}),
                 **({"order": hp.order.value} if hp.order is not None else {}),
+                **({"group": hp.group.value} if hp.group is not None else {}),
+                **({"editor": hp.editor.value} if hp.editor is not None else {}),
             }
             rdata["hasProperty"].append(pdata)
         res["resources"].append(rdata)
@@ -475,42 +477,8 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['PUT'])
 def add_resource_to_datamodel(project, resource):
-    """
-    Viewfunction to add a standalone property to an existing datamodel. A JSON is expectet that has the following form.
-    If a non-empty hasProperty is given then property a mandatory field. The others are all optional.
-    json={
-        "label": [
-        "Eine Buchseite@de",
-        "A page of a book@en"
-        ],
-        "comment": [
-            "Eine Buchseite@de",
-            "A page of a book@en"
-        ],
-        "closed": True,
-        "hasProperty": [
-            {
-                "property": {...},
-                "maxCount": 3,
-                "minCount": 1,
-                "order": 1
-            },
-            {
-                "property": {...},
-                "maxCount": 4,
-                "minCount": 2,
-                "order": 2
-            }
-        ]
-    }
-    Note: in property_1 and property_2 are the same fields as in add_standalone_property_to_datamodel
-    :param project: The project where the datamodel is located
-    :param resource: The name (Iri) of the resource one wish to add
-    :return: A JSON informing about the success of the operation that has the following form:
-    json={"message": f"Resource in datamodel {project} successfully created"}
-    """
     known_json_fields = {"superclass", "label", "comment", "closed", "hasProperty"}
-    known_hasproperty_fields = {"property", "maxCount", "minCount", "order"}
+    known_hasproperty_fields = {"property", "maxCount", "minCount", "order", "group", "editor"}
     mandatory_hasproperty_fields = {"property"}
     out = request.headers['Authorization']
     b, token = out.split()
@@ -543,7 +511,6 @@ def add_resource_to_datamodel(project, resource):
             return jsonify({"message": str(error)}), 404
         except OldapError as error:
             return jsonify({"message": str(error)}), 500
-
 
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
@@ -582,7 +549,9 @@ def add_resource_to_datamodel(project, resource):
                     try:
                         property_iri = prop["property"]["iri"]
                         endprop = process_property(con=con, project=project, property_iri=property_iri, data=prop["property"])
-                        hp1 = HasProperty(con=con, project=project, prop=endprop, minCount=prop.get("minCount"), maxCount=prop.get("maxCount"), order=prop.get("order"))
+                        hp1 = HasProperty(con=con, project=project, prop=endprop,
+                                          minCount=prop.get("minCount"), maxCount=prop.get("maxCount"),
+                                          group=prop.get("group"), order=prop.get("order"), editor=prop.get("editor"))
                     except ApiError as error:
                         return jsonify({"message": str(error)}), 400
                     dm[Xsd_QName(iri)][endprop.property_class_iri] = hp1
@@ -590,8 +559,9 @@ def add_resource_to_datamodel(project, resource):
                     # we reference a standalone property
                     if prop["property"] not in dm.get_propclasses():
                         return jsonify({"message": f"Property {prop['property']} is not in the datamodel"}), 400
-                    hp1 = HasProperty(con=con, project=project, prop=Xsd_QName(prop["property"]), minCount=prop["minCount"],
-                                      maxCount=prop["maxCount"], order=prop["order"])
+                    hp1 = HasProperty(con=con, project=project, prop=Xsd_QName(prop["property"]),
+                                      minCount=prop.get("minCount"), maxCount=prop.get("maxCount"),
+                                      group=prop.get(group), order=prop.get("order"), editor=prop.get("editor"))
                     dm[Xsd_QName(iri)][Xsd_QName(prop["property"])] = hp1
                 else:
                     return jsonify({"message": f"The Field 'property' must be an iri of a standalone property or a dictionary with ainternal property definition."}), 400
@@ -881,7 +851,8 @@ def add_property_to_resource(project, resource, property):
         "lessThanOrEquals": "hyha:testProp",
         "minCount": 1,
         "maxCount": 2,
-        "order": 2
+        "order": 2,
+        "editor": "dash:TextAreaEditor"
     }
     :param project: The project where the datamodel is located
     :param resource: The name (Iri) of the resource where the property should be added
@@ -889,7 +860,10 @@ def add_property_to_resource(project, resource, property):
     :return: A JSON informing about the success of the operation that has the following form:
     json={"message": f"Property in resource {resource} in datamodel {project} successfully created"}
     """
-    known_json_fields = {"subPropertyOf", "datatype", "class", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "minCount", "maxCount", "order"}
+    known_json_fields = {"subPropertyOf", "datatype", "class", "name", "description", "languageIn", "uniqueLang",
+                         "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive",
+                         "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "minCount", "maxCount",
+                         "group", "order", "editor"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -919,6 +893,8 @@ def add_property_to_resource(project, resource, property):
         maxcount = data.get("maxCount", None)
         mincount = data.get("minCount", None)
         order = data.get("order", None)
+        group = data.get("group", None)
+        editor = data.get("editor", None)
 
         if maxcount:
             del data["maxCount"]
@@ -926,6 +902,10 @@ def add_property_to_resource(project, resource, property):
             del data["minCount"]
         if order:
             del data["order"]
+        if group:
+            del data["group"]
+        if editor:
+            del data["editor"]
 
         if (data):
             # we have data for an internal property
@@ -939,7 +919,8 @@ def add_property_to_resource(project, resource, property):
                 prop = Xsd_QName(property)
             except OldapErrorValue as error:
                 return jsonify({"message": str(error)}), 400
-        hasprop = HasProperty(con=con, project=project, prop=prop, minCount=mincount, maxCount=maxcount, order=order)
+        hasprop = HasProperty(con=con, project=project, prop=prop,
+                              minCount=mincount, maxCount=maxcount, group=group, order=order, editor=editor)
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
             dm[Xsd_QName(resource)][Xsd_QName(property)] = hasprop
@@ -1349,7 +1330,7 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
     :return: A JSON informing about the success of the operation that has the following form:
     json={'message': 'Data model successfully modified'}
     """
-    known_json_fields = {"maxCount", "minCount", "order", "group", "property"}
+    known_json_fields = {"maxCount", "minCount", "order", "group", "editor", "property"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -1383,7 +1364,9 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
     if "order" in data:
         dm[Xsd_QName(resiri)][Xsd_QName(propiri)].order = data["order"]
     if "group" in data:
-        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].group = Xsd_QName(data["group"])
+        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].group = None if data["group"] is None else Xsd_QName(data["group"])
+    if "editor" in data:
+        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].editor = None if data["editor"] is None else Xsd_QName(data["editor"])
 
     property_data = data.get("property", None)
     if property_data or property_data == {}:
