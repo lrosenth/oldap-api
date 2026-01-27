@@ -305,7 +305,8 @@ def update_instance(project, instiri):
         for attrname, attrval in data.items():
             attr = Xsd_QName(attrname)
             if attrval is None:
-                instance[attr].discard()
+                if instance.get(attr):
+                    instance[attr].discard()
             elif isinstance(attrval, list):
                 instance[attr] = attrval
             elif isinstance(attrval, dict):
