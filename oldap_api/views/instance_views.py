@@ -1,3 +1,4 @@
+from pprint import pprint
 from typing import Any
 from urllib.parse import unquote
 from flask import request, jsonify, Blueprint, current_app
@@ -8,7 +9,12 @@ from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapEr
     OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse
 from oldaplib.src.helpers.query_processor import QueryProcessor
 from oldaplib.src.objectfactory import ResourceInstance, ResourceInstanceFactory, SortBy
+from oldaplib.src.xsd.xsd import Xsd
 from oldaplib.src.xsd.iri import Iri
+from oldaplib.src.xsd.xsd_integer import Xsd_integer
+from oldaplib.src.xsd.floatingpoint import FloatingPoint
+from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
+
 from oldaplib.src.helpers.context import Context
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
@@ -225,6 +231,20 @@ def add_instance(project, resource):
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['GET'])
 def read_instance(project, instiri):
+
+    # Sanitizes XSD values to primitive Python types
+    def sanitize_datatype(val: Xsd | None) -> str | int | float | bool | None:
+        if val is None:
+            return None
+        if isinstance(val, dict):
+            return {sanitize_datatype(k): sanitize_datatype(v) for k, v in val.items()}
+        elif isinstance(val, list):
+            return [sanitize_datatype(v) for v in val]
+        elif isinstance(val, (Xsd_integer, FloatingPoint, Xsd_boolean)):
+            return val.value
+        else:
+            return str(val)
+
     project = unquote(project)
     instiri = unquote(instiri)
     out = request.headers['Authorization']
@@ -263,15 +283,12 @@ def read_instance(project, instiri):
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
-    print(data)
-    #data = {str(x): y if isinstance(y, (str, int, float, bool, type(None))) else str(y) for x, y in data.items()}
     res = {}
     for x, y in data.items():
         if isinstance(y, list):
-            res[str(x)] = [yy if isinstance(yy, (str, int, float, bool, type(None))) else str(yy) for yy in y]
+            res[str(x)] = [sanitize_datatype(yy) for yy in y]
         else:
-            res[str(x)] = y if isinstance(y, (str, int, float, bool, type(None))) else str(y)
-
+            res[str(x)] = sanitize_datatype(y)
     return jsonify(res), 200
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['POST'])
@@ -305,18 +322,23 @@ def update_instance(project, instiri):
         for attrname, attrval in data.items():
             attr = Xsd_QName(attrname)
             if attrval is None:
-                if instance.get(attr):
-                    instance[attr].discard()
+                del instance[attr]
             elif isinstance(attrval, list):
                 instance[attr] = attrval
             elif isinstance(attrval, dict):
                 if "add" in attrval:
                     adding = attrval.get("add", [])
                     if adding and not isinstance(adding, list):
-                        instance[attr].add(adding)
+                        if instance.get(attr) is None:
+                            instance[attr] = [adding]
+                        else:
+                            instance[attr].add(adding)
                     else:
-                        for x in adding:
-                            instance[attr].add(x)
+                        if instance.get(attr) is None:
+                            instance[attr] = adding
+                        else:
+                            for x in adding:
+                                instance[attr].add(x)
                 if "del" in attrval:
                     deleting = attrval.get("del", [])
                     if deleting and not isinstance(deleting, list):
@@ -325,7 +347,10 @@ def update_instance(project, instiri):
                         for x in deleting:
                             instance[attr].discard(x)
             else:
-                instance[attr].replace([attrval])
+                if isinstance(instance[attr], LangString):
+                    instance[attr] = attrval
+                else:
+                    instance[attr].replace([attrval])
         instance.update()
         return jsonify({"message": "Instance successfully updated"}), 200
     except OldapError as error:

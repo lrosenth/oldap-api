@@ -648,6 +648,32 @@ def testfulldatamodelwithderivedmediaobject(client, token_headers, testfulldatam
 
     yield iri
 
+@pytest.fixture()
+def testinstancetestersetter(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.put('/data/test/SetterTester', json={
+        'test:stringSetter': 'This is a string',
+        'test:langStringSetter': ['En français@fr', 'In Deutsch@de'],
+        'test:booleanSetter': True,
+        'test:decimalSetter': [3.14159, 2.7],
+        'test:integerSetter': [42, 23],
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
+    }, headers=header)
+    res = response.json
+    iri1 = res['iri']
+
+    response = client.put('/data/test/SetterTester', json={
+        'test:stringSetter': 'This is a string',
+        'test:langStringSetter': ['In Deutsch@de'],
+        'test:booleanSetter': True,
+        'test:decimalSetter': [3.14159],
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
+    }, headers=header)
+    res = response.json
+    iri2 = res['iri']
+
+    yield iri1, iri2
 
 @pytest.fixture()
 def testfulldatamodeltestinstances(client, token_headers, testemptydatamodeltest):
@@ -679,8 +705,6 @@ def testfulldatamodeltestinstances(client, token_headers, testemptydatamodeltest
     book_iri = res['iri']
 
     yield kirk_iri, uhura_iri, book_iri
-
-
 
 
 @pytest.fixture()
