@@ -88,6 +88,23 @@ def test_instance_langstring_modify_add(client, token_headers, testinstanceteste
     obj = response.json
     assert obj['test:integerSetter'] == [42, 23, 333, 222, 111]
 
+def test_instance_langstring_modify_add(client, token_headers, testinstancetestersetter):
+    header = token_headers[1]
+    iri1, iri2 = testinstancetestersetter
+
+    response = client.get(f'/data/test/{iri1}', headers=header)
+    assert response.status_code == 200
+
+    response = client.post(f'/data/test/{iri1}', json={
+        'test:integerSetter': {'del': [42]}
+    }, headers=header)
+    assert response.status_code == 200
+
+    response = client.get(f'/data/test/{iri1}', headers=header)
+    assert response.status_code == 200
+    obj = response.json
+    assert obj['test:integerSetter'] == [23]
+
 def test_instance_langstring_modify_replace(client, token_headers, testinstancetestersetter):
     header = token_headers[1]
     iri1, iri2 = testinstancetestersetter

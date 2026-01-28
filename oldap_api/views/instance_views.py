@@ -7,6 +7,7 @@ from oldaplib.src.datamodel import DataModel
 from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapErrorKey, OldapErrorNoPermission, \
     OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse
+from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.query_processor import QueryProcessor
 from oldaplib.src.objectfactory import ResourceInstance, ResourceInstanceFactory, SortBy
 from oldaplib.src.xsd.xsd import Xsd
