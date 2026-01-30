@@ -3171,7 +3171,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/InstanceData"
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -3561,6 +3561,91 @@ components:
         anyOf:
           - $ref: '#/components/schemas/DataPermission'
           - type: "null"
+
+    AttachedToRoleMap:
+      description: Map of role IRI/QName to permission value.
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/DataPermission"
+
+    ValueArray:
+      type: array
+      items:
+        oneOf:
+          - type: string
+          - type: number
+            format: integer
+          - type: number
+            format: float
+          - type: boolean
+          - type: "null"
+
+    InstanceData:
+      description: >
+        Instance data as a property-value map. Known OLDAP system keys are modeled explicitly.
+        Project-specific properties appear as additional keys with array-of-string values.
+      type: object
+
+      required:
+        - oldap:createdBy
+        - oldap:creationDate
+        - oldap:lastModifiedBy
+        - oldap:lastModificationDate
+
+      properties:
+        # If you keep it, I'd strongly recommend making it an array too
+        # to preserve the invariant "all values are arrays".
+#        virtual:resourceIri:
+#          type: array
+#          items:
+#            type: string
+#            description: IRI of the instance (string form)
+#            format: uri
+#          minItems: 1
+#          maxItems: 1
+
+        rdf:type:
+          type: array
+          items:
+            type: string
+            format: uri
+          minItems: 1
+
+        oldap:attachedToRole:
+          $ref: "#/components/schemas/AttachedToRoleMap"
+
+        oldap:createdBy:
+          type: array
+          items:
+            type: string
+            format: uri
+          minItems: 1
+
+        oldap:lastModifiedBy:
+          type: array
+          items:
+            type: string
+            format: uri
+          minItems: 1
+
+        oldap:creationDate:
+          type: array
+          items:
+            type: string
+            format: date-time
+          minItems: 1
+
+        oldap:lastModificationDate:
+          type: array
+          items:
+            type: string
+            format: date-time
+          minItems: 1
+
+      # This is the crucial part: any other key (hyha:mammalName etc.)
+      # is assumed to be string[].
+      additionalProperties:
+        $ref: "#/components/schemas/ValueArray"
 
     user_get_body_200:
       type: object

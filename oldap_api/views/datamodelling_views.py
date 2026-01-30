@@ -22,6 +22,7 @@ from oldaplib.src.datamodel import DataModel
 from oldaplib.src.dtypes.languagein import LanguageIn
 from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
 from oldaplib.src.dtypes.xsdset import XsdSet
+from oldaplib.src.enums.editor import Editor
 from oldaplib.src.enums.externalontologyattr import ExternalOntologyAttr
 from oldaplib.src.enums.language import Language
 from oldaplib.src.enums.owlpropertytype import OwlPropertyType
@@ -1366,7 +1367,7 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
     if "group" in data:
         dm[Xsd_QName(resiri)][Xsd_QName(propiri)].group = None if data["group"] is None else Xsd_QName(data["group"])
     if "editor" in data:
-        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].editor = None if data["editor"] is None else Xsd_QName(data["editor"])
+        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].editor = None if data["editor"] is None else Editor(data["editor"])
 
     property_data = data.get("property", None)
     if property_data or property_data == {}:

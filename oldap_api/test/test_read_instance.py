@@ -1,3 +1,6 @@
+import pytest
+from pprint import pprint
+
 
 def test_instance_read(client, token_headers, testfulldatamodelwithinstances):
     header = token_headers[1]
@@ -6,6 +9,8 @@ def test_instance_read(client, token_headers, testfulldatamodelwithinstances):
     assert response.status_code == 200
 
     res = response.json
+    print("\n")
+    pprint(res)
     assert res['rdf:type'] == ['hyha:Lion']
     assert res['hyha:mammalName'] == ['Cat']
     assert res['hyha:preyScheme'] == ['Deer']
