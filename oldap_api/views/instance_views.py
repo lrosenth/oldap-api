@@ -5,6 +5,7 @@ from flask import request, jsonify, Blueprint, current_app
 from oldaplib.src.connection import Connection
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.enums.datapermissions import DataPermission
+from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapErrorKey, OldapErrorNoPermission, \
     OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse
 from oldaplib.src.helpers.langstring import LangString
@@ -19,6 +20,7 @@ from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
 from oldaplib.src.helpers.context import Context
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
+from oldaplib.src.xsd.xsd_string import Xsd_string
 
 instance_bp = Blueprint('instance', __name__, url_prefix='/data')
 
@@ -328,28 +330,39 @@ def update_instance(project, instiri):
                 instance[attr] = attrval
             elif isinstance(attrval, dict):
                 if "add" in attrval:
-                    adding = attrval.get("add", [])
-                    if adding and not isinstance(adding, list):
-                        if instance.get(attr) is None:
-                            instance[attr] = [adding]
-                        else:
-                            instance[attr].add(adding)
+                    if (isinstance(attrval.get("add", []), list)):
+                        adding = attrval.get("add", [])  # adding is now a list even if attrval["add"] not existing
                     else:
-                        if instance.get(attr) is None:
-                            instance[attr] = adding
-                        else:
-                            for x in adding:
-                                instance[attr].add(x)
+                        adding = [attrval['add']]
+                    if instance.properties[attr].prop.datatype == XsdDatatypes.langString:
+                        #
+                        # LangStrings are special – the can replace. We need a list of all languages added. Some
+                        # of these may just replace an "old" value!
+                        #
+                        adding_langlist = [Xsd_string(x).lang.shortlang for x in adding]
+                    if instance.get(attr) is None:
+                        instance[attr] = adding
+                    else:
+                        for x in adding:
+                            instance[attr].add(x)
                 if "del" in attrval:
-                    deleting = attrval.get("del", [])
-                    if deleting and not isinstance(deleting, list):
-                        instance[attr].discard(deleting)
+                    if (isinstance(attrval.get("del", []), list)):
+                        deleting = attrval.get("del", [])
                     else:
-                        for x in deleting:
-                            instance[attr].discard(x)
+                        deleting = [attrval['del']]
+                    if instance.properties[attr].prop.datatype == XsdDatatypes.langString:
+                        #
+                        # In Langstrings, adding a new lang that already exists results in a replacement.
+                        # Therefore, we remove only languages that are not being replaced. The TypeScript
+                        # langstring.ts cannot distinguish between adding and replacing.
+                        #
+                        deleting = list(set(deleting) - set(adding_langlist))
+                    for x in deleting:
+                        instance[attr].discard(x)
             else:
+                # TODO: This else should never occur....
                 if isinstance(instance[attr], LangString):
-                    instance[attr] = attrval
+                    instance[attr] = attrval  # replace the complete LangString
                 else:
                     instance[attr].replace([attrval])
         instance.update()
