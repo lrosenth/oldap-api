@@ -127,7 +127,7 @@ def textsearch_instance(project):
 @instance_bp.route('/ofclass/<path:project>', methods=['GET'])
 def allofclass_instance(project):
     project = unquote(project)
-    known_json_fields = {"resClass", "includeProperties", "countOnly", "sortBy", "limit", "offset"}
+    known_json_fields = {"resClass", "includeProperties[]", "countOnly", "sortBy", "limit", "offset"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -136,14 +136,16 @@ def allofclass_instance(project):
     else:
         unknown_json_field = set()
     if unknown_json_field:
-        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
+        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for an instance. Usable are {known_json_fields}. Aborded operation"}), 400
 
     resClass = getattr(request, "args", {}).get("resClass", None)
-    includeProperties = getattr(request, "args", {}).get("includeProperties", None)
+    includeProperties = getattr(request, "args", {}).getlist("includeProperties[]", None)
     countOnly = getattr(request, "args", {}).get("countOnly", None)
     sortBy = getattr(request, "args", {}).get("sortBy", None)
     limit = getattr(request, "args", {}).get("limit", None)
     offset = getattr(request, "args", {}).get("offset", None)
+
+    current_app.logger.info(f"/data/allofclass/{project}: resClass: {resClass}, includeProperties: {includeProperties}, countOnly: {countOnly}, sortBy: {sortBy}, limit: {limit}, offset: {offset}")
 
     if not resClass:
         return jsonify({"message": "No resource class provided"}), 400
@@ -152,9 +154,7 @@ def allofclass_instance(project):
             'resClass': Xsd_QName(resClass),
         }
         if includeProperties:
-            params['includeProperties'] = [Xsd_QName(x, validate=true) for x in includeProperties] if isinstance(includeProperties,
-                                                                                            list) else [
-                Xsd_QName(includeProperties, validate=True)]
+            params['includeProperties'] = [Xsd_QName(x, validate=True) for x in includeProperties] if isinstance(includeProperties, list) else [Xsd_QName(includeProperties, validate=True)]
         if countOnly:
             params['countOnly'] = True
         if sortBy:

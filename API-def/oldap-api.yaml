@@ -3089,11 +3089,21 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-                  description: Mapping Xsd_QName → Any
-                  additionalProperties: { }
+                oneOf:
+                  # Normal result: mapping QName -> object (instance data)
+                  - type: object
+                    additionalProperties:
+                      type: object
+                      description: Mapping Xsd_QName → Any
+                      additionalProperties: {}
+
+                  # Count-only result: {"class": <number>}
+                  - type: object
+                    properties:
+                      count:
+                        type: integer
+                    required: [class]
+                    additionalProperties: false
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
