@@ -10,7 +10,7 @@ from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapEr
     OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.query_processor import QueryProcessor
-from oldaplib.src.objectfactory import ResourceInstance, ResourceInstanceFactory, SortBy
+from oldaplib.src.objectfactory import ResourceInstance, ResourceInstanceFactory, SortBy, SortDir
 from oldaplib.src.xsd.xsd import Xsd
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_integer import Xsd_integer
@@ -129,7 +129,7 @@ def textsearch_instance(project):
 @instance_bp.route('/ofclass/<path:project>', methods=['GET'])
 def allofclass_instance(project):
     project = unquote(project)
-    known_json_fields = {"resClass", "includeProperties[]", "countOnly", "sortBy", "limit", "offset"}
+    known_json_fields = {"resClass", "includeProperties[]", "countOnly", "sortBy[]", "limit", "offset"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -143,7 +143,7 @@ def allofclass_instance(project):
     resClass = getattr(request, "args", {}).get("resClass", None)
     includeProperties = getattr(request, "args", {}).getlist("includeProperties[]", None)
     countOnly = getattr(request, "args", {}).get("countOnly", None)
-    sortBy = getattr(request, "args", {}).get("sortBy", None)
+    sortBy = getattr(request, "args", {}).getlist("sortBy[]", None)
     limit = getattr(request, "args", {}).get("limit", None)
     offset = getattr(request, "args", {}).get("offset", None)
 
@@ -160,12 +160,17 @@ def allofclass_instance(project):
         if countOnly:
             params['countOnly'] = True
         if sortBy:
-            if sortBy == "PROPVAL":
-                params['sortBy'] = SortBy.PROPVAL
-            elif sortBy == "CREATED":
-                params['sortBy'] = SortBy.CREATED
-            elif sortBy == "LASTMOD":
-                params['sortBy'] = SortBy.LASTMOD
+            sortByParam: list[SortBy] = []
+            for val in sortBy:
+                tmp = val.split("|")
+                property = Xsd_QName(tmp[0], validate=True)
+                if len(tmp) > 1 and tmp[1].upper == "DESC":
+                    sortByParam.append(SortBy(property, SortDir.desc))
+                elif len(tmp) > 1 and tmp[1].upper == "ASC":
+                    sortByParam.append(SortBy(property, SortDir.asc))
+                else:
+                    sortByParam.append(SortBy(property))
+            params['sortBy'] = sortByParam
         if limit:
             params['limit'] = int(limit)
         if offset:
@@ -188,7 +193,7 @@ def allofclass_instance(project):
     if countOnly:
         return jsonify({"count": res.value}), 200
     else:
-        tmp = {str(key): {str(x): str(y) for x, y in value.items()} for key, value in res.items()}
+        tmp = {str(iri): {str(prop): [str(val) for val in vals] for prop, vals in props.items()} for iri, props in res.items()}
         return jsonify(tmp), 200
 
 

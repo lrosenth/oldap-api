@@ -3065,11 +3065,10 @@ paths:
         - in: query
           name: sortBy
           schema:
-            type: string
-            enum:
-              - PROPVAL
-              - CREATED
-              - LASTMOD
+            type: array
+            items:
+              type: string
+              pattern: ^(?:[A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*\|(asc|desc)$
           description: Sort according to value (PROPVAL), Creation date (CREATED) or last modification (LASTMOD)
         - in: query
           name: limit
@@ -3095,7 +3094,10 @@ paths:
                     additionalProperties:
                       type: object
                       description: Mapping Xsd_QName → Any
-                      additionalProperties: {}
+                      additionalProperties:
+                        type: array
+                        items:
+                          type: string
 
                   # Count-only result: {"class": <number>}
                   - type: object
@@ -3403,33 +3405,33 @@ paths:
                     schema:
                       type: integer
                     description: The permission value
-                  oldap:createdBy:
+                  "oldap:createdBy":
                     schema:
                       type: string
                     description: an Iri of the user that created this media object
-                  oldap:creationDate:
+                  "oldap:creationDate":
                     schema:
                       type: string
                     format: date-time
                     description: Date when the media object has been created
-                  oldap:lastModifiedBy:
+                  "oldap:lastModifiedBy":
                     schema:
                       type: string
                     description: User that modified the media object
-                  oldap:lastModificationDate:
+                  "oldap:lastModificationDate":
                     schema:
                       type: string
                     format: date-time
                     description: Date when the media object was last modified
-                  shared:imageId:
+                  "shared:imageId":
                     schema:
                       type: string
                     description: ID of the media object
-                  shared:originalName:
+                  "shared:originalName":
                     schema:
                       type: string
                     description: Original file name
-                  dcterms:type:
+                  "dcterms:type":
                     schema:
                       type: string
                       enum:
@@ -3441,16 +3443,16 @@ paths:
                         - dcmitype:Sound
                         - dcmitype:Text
                   description: The dcmitype
-                  shared:originalMimeType:
+                  "shared:originalMimeType":
                     type: string
                     description: original MIME type
-                  shared:serverUrl:
+                  "shared:serverUrl":
                     type: string
                     description: URL of the server where to find the object
-                  shared:path:
+                  "shared:path":
                     type: string
                     description: local path on the media server
-                  shared:protocol:
+                  "shared:protocol":
                     type: string
                     enum:
                       - iiif
@@ -3487,27 +3489,27 @@ paths:
               schema:
                 type: object
                 properties:
-                  oldap:createdBy:
+                  "oldap:createdBy":
                     type: string
                     description: IRI of the user that created this media object
-                  oldap:creationDate:
+                  "oldap:creationDate":
                     type: string
                     format: date-time
                     description: Date when the media object has been created
-                  oldap:lastModifiedBy:
+                  "oldap:lastModifiedBy":
                     type: string
                     description: User that modified the media object
-                  oldap:lastModificationDate:
+                  "oldap:lastModificationDate":
                     type: string
                     format: date-time
                     description: Date when the media object was last modified
-                  shared:imageId:
+                  "shared:imageId":
                     type: string
                     description: ID of the media object
-                  shared:originalName:
+                  "shared:originalName":
                     type: string
                     description: Original file name
-                  dcterms:type:
+                  "dcterms:type":
                     type: string
                     description: The dcmitype
                     enum:
@@ -3518,16 +3520,16 @@ paths:
                       - dcmitype:MovingImage
                       - dcmitype:Sound
                       - dcmitype:Text
-                  shared:originalMimeType:
+                  "shared:originalMimeType":
                     type: string
                     description: original MIME type
-                  shared:serverUrl:
+                  "shared:serverUrl":
                     type: string
                     description: URL of the server where to find the object
-                  shared:path:
+                  "shared:path":
                     type: string
                     description: local path on the media server
-                  shared:protocol:
+                  "shared:protocol":
                     type: string
                     enum:
                       - iiif
@@ -3614,38 +3616,38 @@ components:
 #          minItems: 1
 #          maxItems: 1
 
-        rdf:type:
+        "rdf:type":
           type: array
           items:
             type: string
             format: uri
           minItems: 1
 
-        oldap:attachedToRole:
+        "oldap:attachedToRole":
           $ref: "#/components/schemas/AttachedToRoleMap"
 
-        oldap:createdBy:
+        "oldap:createdBy":
           type: array
           items:
             type: string
             format: uri
           minItems: 1
 
-        oldap:lastModifiedBy:
+        "oldap:lastModifiedBy":
           type: array
           items:
             type: string
             format: uri
           minItems: 1
 
-        oldap:creationDate:
+        "oldap:creationDate":
           type: array
           items:
             type: string
             format: date-time
           minItems: 1
 
-        oldap:lastModificationDate:
+        "oldap:lastModificationDate":
           type: array
           items:
             type: string
@@ -3655,7 +3657,9 @@ components:
       # This is the crucial part: any other key (hyha:mammalName etc.)
       # is assumed to be string[].
       additionalProperties:
-        $ref: "#/components/schemas/ValueArray"
+        oneOf:
+          - $ref: "#/components/schemas/ValueArray"
+          - $ref: "#/components/schemas/AttachedToRoleMap"
 
     user_get_body_200:
       type: object
