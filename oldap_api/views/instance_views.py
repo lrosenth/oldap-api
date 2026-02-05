@@ -26,6 +26,8 @@ instance_bp = Blueprint('instance', __name__, url_prefix='/data')
 
 @instance_bp.route('/mediaobject/id/<imageid>', methods=['GET'])
 def media_object_by_id(imageid):
+    current_app.logger.info(f"/data/mediaobject/id/{imageid} with GET called")
+
     out = request.headers['Authorization']
     b, token = out.split()
     try:
@@ -42,6 +44,7 @@ def media_object_by_id(imageid):
 
 @instance_bp.route('/mediaobject/iri/<path:imageiri>', methods=['GET'])
 def media_object_by_iri(imageiri):
+    current_app.logger.info(f"/data/mediaobject/iri/{imageiri} with GET called")
     imageiri = unquote(imageiri)
     out = request.headers.get('Authorization')
     if out is None:
@@ -61,6 +64,7 @@ def media_object_by_iri(imageiri):
 
 @instance_bp.route('/textsearch/<path:project>', methods=['GET'])
 def textsearch_instance(project):
+    current_app.logger.info(f"/data/textsearch/{project} with GET called")
     project = unquote(project)
     known_json_fields = {"searchString", "countOnly", "resclass", "sortBy", "limit", "offset"}
     out = request.headers['Authorization']
@@ -128,6 +132,8 @@ def textsearch_instance(project):
 
 @instance_bp.route('/ofclass/<path:project>', methods=['GET'])
 def allofclass_instance(project):
+    current_app.logger.info(f"/data/ofclass/{project} with GET called")
+
     project = unquote(project)
     known_json_fields = {"resClass", "includeProperties[]", "countOnly", "sortBy[]", "limit", "offset"}
     out = request.headers['Authorization']
@@ -199,6 +205,8 @@ def allofclass_instance(project):
 
 @instance_bp.route('/<path:project>/<resource>', methods=['PUT'])
 def add_instance(project, resource):
+    current_app.logger.info(f"/data/{project}/{resource} with GET called")
+
     project = unquote(project)
     resource = unquote(resource)
     current_app.logger.info(f"Starting add_instance for project: {project}, resource: {resource}")
@@ -239,6 +247,7 @@ def add_instance(project, resource):
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['GET'])
 def read_instance(project, instiri):
+    current_app.logger.info(f"/data/{project}/{instiri} with GET called")
 
     # Sanitizes XSD values to primitive Python types
     def sanitize_datatype(val: Xsd | None) -> str | int | float | bool | None:
@@ -301,6 +310,8 @@ def read_instance(project, instiri):
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['POST'])
 def update_instance(project, instiri):
+    current_app.logger.info(f"/data/{project}/{instiri} with POST called")
+
     project = unquote(project)
     instiri = unquote(instiri)
     out = request.headers['Authorization']
@@ -334,6 +345,7 @@ def update_instance(project, instiri):
             elif isinstance(attrval, list):
                 instance[attr] = attrval
             elif isinstance(attrval, dict):
+                adding_langlist = []
                 if "add" in attrval:
                     if (isinstance(attrval.get("add", []), list)):
                         adding = attrval.get("add", [])  # adding is now a list even if attrval["add"] not existing
@@ -373,10 +385,13 @@ def update_instance(project, instiri):
         instance.update()
         return jsonify({"message": "Instance successfully updated"}), 200
     except OldapError as error:
+        current_app.logger.exception("update_instance failed")
         return jsonify({"message": str(error)}), 500
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['DELETE'])
 def delete_instance(project, instiri):
+    current_app.logger.info(f"/data/{project}/{instiri} with DELETE called")
+
     project = unquote(project)
     instiri = unquote(instiri)
     out = request.headers['Authorization']

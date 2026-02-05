@@ -71,7 +71,7 @@ def test_instance_modify_D(client, token_headers, testinstancetestersetter):
     obj = response.json
     assert obj['test:langStringSetter'] == ['WASELIWAS@de']
 
-def test_instance_langstring_modify_del(client, token_headers, testinstancetestersetter):
+def test_instance_langstring_modify_del_A(client, token_headers, testinstancetestersetter):
     header = token_headers[1]
     iri1, iri2 = testinstancetestersetter
 
@@ -87,6 +87,24 @@ def test_instance_langstring_modify_del(client, token_headers, testinstanceteste
     assert response.status_code == 200
     obj = response.json
     assert obj['test:langStringSetter'] == ['En français@fr']
+
+def test_instance_langstring_modify_del_B(client, token_headers, testinstancetestersetter2):
+    header = token_headers[1]
+    iri = testinstancetestersetter2
+
+    response = client.get(f'/data/test/{iri}', headers=header)
+    assert response.status_code == 200
+
+    response = client.post(f'/data/test/{iri}', json={
+        'test:langStringSetter2': {'del': 'de'}
+    }, headers=header)
+    assert response.status_code == 200
+
+    response = client.get(f'/data/test/{iri}', headers=header)
+    assert response.status_code == 200
+    obj = response.json
+    print(obj)
+    #assert obj['test:langStringSetter'] == ['En français@fr']
 
 def test_instance_langstring_modify_add(client, token_headers, testinstancetestersetter):
     header = token_headers[1]

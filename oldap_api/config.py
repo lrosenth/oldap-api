@@ -9,8 +9,10 @@ class Base:
 class Dev(Base):
     DEBUG = True
     OLDAP_API_PORT = os.getenv("OLDAP_API_PORT", 8000)
+    LOG_LEVEL = "DEBUG"
 
 
 class Prod(Base):
     DEBUG = False
     OLDAP_API_PORT = os.getenv("OLDAP_API_PORT", 8000)
+    LOG_LEVEL = "INFO"

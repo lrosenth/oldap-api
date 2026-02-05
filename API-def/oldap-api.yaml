@@ -2993,11 +2993,10 @@ paths:
         - in: query
           name: sortBy
           schema:
-            type: string
-            enum:
-              - PROPVAL
-              - CREATED
-              - LASTMOD
+            type: array
+            items:
+              type: string
+              pattern: ^(?:[A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*\|(asc|desc)$
           description: Sort according to value (PROPVAL), Creation date (CREATED) or last modification (LASTMOD)
         - in: query
           name: limit

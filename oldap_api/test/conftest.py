@@ -676,6 +676,24 @@ def testinstancetestersetter(client, token_headers, testemptydatamodeltest):
     yield iri1, iri2
 
 @pytest.fixture()
+def testinstancetestersetter2(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.put('/data/test/SetterTester', json={
+        'test:stringSetter': 'This is a string',
+        'test:langStringSetter': ['----En français@fr'],
+        'test:decimalSetter': [3.14159],
+        'test:langStringSetter2': ['En français@fr', 'In Deutsch@de', 'Italiano@it', "English@en"],
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
+    }, headers=header)
+    res = response.json
+    print(res)
+    iri = res['iri']
+
+    yield iri
+
+
+@pytest.fixture()
 def testfulldatamodeltestinstances(client, token_headers, testemptydatamodeltest):
     header = token_headers[1]
 
