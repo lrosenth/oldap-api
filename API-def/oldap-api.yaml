@@ -3089,8 +3089,8 @@ paths:
               schema:
                 oneOf:
                   # Normal result: mapping QName -> object (instance data)
-                  - type: object
-                    additionalProperties:
+                  - type: array
+                    items:
                       type: object
                       description: Mapping Xsd_QName → Any
                       additionalProperties:

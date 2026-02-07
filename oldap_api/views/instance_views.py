@@ -170,9 +170,9 @@ def allofclass_instance(project):
             for val in sortBy:
                 tmp = val.split("|")
                 property = Xsd_QName(tmp[0], validate=True)
-                if len(tmp) > 1 and tmp[1].upper == "DESC":
+                if len(tmp) > 1 and tmp[1].upper() == "DESC":
                     sortByParam.append(SortBy(property, SortDir.desc))
-                elif len(tmp) > 1 and tmp[1].upper == "ASC":
+                elif len(tmp) > 1 and tmp[1].upper() == "ASC":
                     sortByParam.append(SortBy(property, SortDir.asc))
                 else:
                     sortByParam.append(SortBy(property))
@@ -199,7 +199,8 @@ def allofclass_instance(project):
     if countOnly:
         return jsonify({"count": res.value}), 200
     else:
-        tmp = {str(iri): {str(prop): [str(val) for val in vals] for prop, vals in props.items()} for iri, props in res.items()}
+        tmp = [{str(prop): [str(val) for val in vals] for prop, vals in x.items()} for x in res]
+
         return jsonify(tmp), 200
 
 
