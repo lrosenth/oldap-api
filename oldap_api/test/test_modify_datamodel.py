@@ -1136,6 +1136,15 @@ def test_modify_resource_21(client, token_headers, testfulldatamodelresource):
     print(res)
     assert response.status_code == 400
 
+def test_modify_resource_22(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
+        "label": {"del": [None]},
+    }, headers=header)
+    res = response.json
+    print(res)
+
 def test_bad_token_standaloneprop(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
     token = header['Authorization'].split(' ')[1]
@@ -1249,6 +1258,17 @@ def test_modify_attribute_in_has_prop(client, token_headers, testfulldatamodelre
                 assert item["property"]["name"] == "pappakappa@de"
                 assert set(item["property"]["languageIn"]) == set["zu", "en", "it", "de"]
         assert "inSet" not in ele
+
+def test_modify_editor_in_has_prop(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
+        "editor": "dash:TextAreaWithLangEditor",
+        "order": 42
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+    print(res)
 
 def test_unknown_json_fields_for_property_modifier(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
