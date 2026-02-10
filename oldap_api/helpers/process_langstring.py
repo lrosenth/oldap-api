@@ -34,6 +34,12 @@ def process_langstring(obj: Model,
                 # If a langstring is being modified, the old value should be in newval["del"] and
                 # the modified value should be in newval["add"]
                 #
+
+                #
+                # first we prepend the '@' where necessary, since Xsd_string demands a '@' in the string!
+                #
+                newval["del"] = [x if x.startswith('@') else f'@{x}' for x in newval["del"]]
+
                 dellangs = set([Xsd_string(x).lang for x in newval["del"]])
                 addlangs = set([Xsd_string(x).lang for x in newval["add"]])
                 mods = dellangs & addlangs
@@ -53,15 +59,12 @@ def process_langstring(obj: Model,
                     raise OldapErrorValue("The given attributes in add and del must be in a list")
                 if not deleting:
                     raise OldapErrorValue(f"Using an empty list is not allowed in the modify")
-                delstrs = [Xsd_string(x) for x in deleting]  # Convert to Xsd_strings
-                for item in delstrs:
-                    if item.lang:
-                        try:
-                            del obj[attr][item.lang]
-                        except KeyError as error:
-                            raise OldapErrorValue(f"{item.lang} is not a valid language. Supportet are {known_languages}")
-                    else:
-                        raise OldapErrorValue(f"Please add a correct language tags e.g. @de")
+                #delstrs = [Xsd_string(x) for x in deleting]  # Convert to Xsd_strings
+                for item in deleting:
+                    try:
+                        obj[attr].discard(item)
+                    except KeyError as error:
+                        raise OldapErrorValue(f"{item} is not a valid language. Supportet are {known_languages}")
             if "add" in newval:
                 adding = newval["add"]
                 if not isinstance(adding, list):

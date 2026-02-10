@@ -9,7 +9,6 @@ from oldap_api.factory import factory
 def create_app():
     app = factory()
 
-
     cfg = os.getenv("APP_ENV", "Prod")
     app.config.from_object(f"oldap_api.config.{cfg}")
 
@@ -25,6 +24,20 @@ def create_app():
     level = logging.getLevelName(level_name)
     app.logger.setLevel(level)
     set_logger(app.logger)
+
+    lib_logger = logging.getLogger("oldaplib")  # or your package root name
+    lib_logger.setLevel(app.logger.level)
+
+    for handler in app.logger.handlers:
+        lib_logger.addHandler(handler)
+
+    fmt = logging.Formatter(
+        "[%(asctime)s] %(levelname)s %(name)s: %(message)s"
+    )
+    for handler in app.logger.handlers:
+        handler.setFormatter(fmt)
+
+    lib_logger.propagate = False  # prevents duplicates if root also has handlers
 
     app.logger.info(f"Logging initialized at level {level_name}")
     app.logger.info(f"Using config {cfg}")

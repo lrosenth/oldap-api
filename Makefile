@@ -46,6 +46,7 @@ test:
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
+	APP_ENV="Dev" \
 	poetry run pytest -v $(TESTS)
 
 run:
@@ -56,6 +57,7 @@ run:
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
+	APP_ENV="Dev" \
 	poetry run python oldap-api-app.py
 
 run-prod:
@@ -66,6 +68,7 @@ run-prod:
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
+	APP_ENV="Prod" \
 	poetry run gunicorn oldap_api.wsgi:app -b 127.0.0.1:8000 --workers 2 --threads 2 --timeout 60 --access-logfile - --error-logfile -
 
 bump-patch-level:
@@ -101,6 +104,7 @@ docker-run:
 	-e OLDAP_TS_REPO=oldap \
 	-e OLDAP_API_PORT=8000 \
 	-e OLDAP_REDIS_URL="redis://localhost:6379" \
+	-e APP_ENV="Dev" \
 	-v "$(PWD)/../data:/data" \
 	lrosenth/oldap-api:latest
 
