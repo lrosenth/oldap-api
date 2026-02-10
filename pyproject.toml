@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "oldap-api"
 packages = [{ include = "oldap_api" }]
-version = "0.1.4"
+version = "0.1.5"
 description = "Flask API for OLDAP"
 authors = ["ManuelRosenthaler <rosenthalermanuel@gmail.com>", "Lukas Rosenthaler <lukas.rosenthaler@pm.me>"]
 readme = "README.md"
