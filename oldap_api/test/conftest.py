@@ -590,6 +590,7 @@ def testfulldatamodelwithmediaobject(client, token_headers, testfulldatamodelres
         'shared:serverUrl': 'https://iiif.oldap.org',
         'shared:imageId': 'xayb01.tif',
         'shared:protocol': 'iiif',
+        'shared:derivativeName': 'iiif.tif',
         'shared:path': 'britnet',
         'oldap:attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
@@ -627,6 +628,7 @@ def testfulldatamodelwithderivedmediaobject(client, token_headers, testfulldatam
         'shared:serverUrl': 'https://iiif.oldap.org',
         'shared:imageId': 'DCS_0001.tif',
         'shared:protocol': 'iiif',
+        'shared:derivativeName': 'iiif.tif',
         'shared:path': 'britnet',
         'oldap:attachedToRole': {'oldap:Unknown': 'DATA_VIEW'},
         'hyha:hasCaption': 'This is a test caption'
@@ -641,6 +643,7 @@ def testfulldatamodelwithderivedmediaobject(client, token_headers, testfulldatam
         'shared:serverUrl': 'https://iiif.oldap.org',
         'shared:imageId': 'DCS_0002.tif',
         'shared:protocol': 'iiif',
+        'shared:derivativeName': 'iiif.tif',
         'shared:path': 'britnet',
         'oldap:grantsPermission': 'oldap:GenericView',
         'hyha:hasCaption': 'This is another test caption'
@@ -655,17 +658,21 @@ def testinstancetestersetter(client, token_headers, testemptydatamodeltest):
     response = client.put('/data/test/SetterTester', json={
         'test:stringSetter': 'This is a string',
         'test:langStringSetter': ['En français@fr', 'In Deutsch@de'],
+        'test:langStringSetter2': ['En français2@fr', 'In Deutsch2@de'],
         'test:booleanSetter': True,
         'test:decimalSetter': [3.14159, 2.7],
         'test:integerSetter': [42, 23],
         'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     res = response.json
+    print("=========================")
+    print(res)
     iri1 = res['iri']
 
     response = client.put('/data/test/SetterTester', json={
         'test:stringSetter': 'This is a string',
         'test:langStringSetter': ['In Deutsch@de'],
+        'test:langStringSetter2': ['In Deutsch2@de'],
         'test:booleanSetter': True,
         'test:decimalSetter': [3.14159],
         'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
@@ -682,12 +689,12 @@ def testinstancetestersetter2(client, token_headers, testemptydatamodeltest):
     response = client.put('/data/test/SetterTester', json={
         'test:stringSetter': 'This is a string',
         'test:langStringSetter': ['----En français@fr'],
+        'test:langStringSetter2': ['----En français2@fr'],
         'test:decimalSetter': [3.14159],
         'test:langStringSetter2': ['En français@fr', 'In Deutsch@de', 'Italiano@it', "English@en"],
         'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)
     res = response.json
-    print(res)
     iri = res['iri']
 
     yield iri

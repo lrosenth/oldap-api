@@ -70,6 +70,7 @@ def test_create_instance_mediaobject(client, token_headers, testemptydatamodel):
         'serverUrl': 'http://iiif.oldap.org/iiif/3/',
         'imageId': 'cat.tif',
         'protocol': 'iiif',
+        'derivativeName': 'iiif.tif',
         'path': 'xxx',
         'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
     }, headers=header)

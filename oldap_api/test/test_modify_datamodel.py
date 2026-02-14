@@ -86,10 +86,11 @@ def test_modify_standaloneprop_langstring_02(client, token_headers, testfulldata
     header = token_headers[1]
 
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-        "name": {"add": ["NewKappa@en"], "del": ["Kappa@de"]},
+        "name": {"add": ["NewKappa@en"], "del": ["de"]},
     }, headers=header)
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
+    print("==========>", res)
     for ele in res["standaloneProperties"]:
         if Iri(ele["iri"]).prefix != "hyha":
             continue
@@ -902,7 +903,6 @@ def test_modify_resource_01(client, token_headers, testfulldatamodelresource):
     response = client.get('/admin/datamodel/hyha', headers=header)
     assert response.status_code == 200
     res = response.json
-    pprint(res)
     assert res["resources"][0]["closed"] == False
     assert set(res["resources"][0]["label"]) == set(['A page of a book@en', "Ein Test@zu"])
     assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "Ein Test@zu"])
@@ -963,7 +963,6 @@ def test_modify_resource_06(client, token_headers, testfulldatamodelresource):
         "label": ["d"],
     }, headers=header)
     res = response.json
-    print(res)
     assert response.status_code == 200
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
@@ -974,7 +973,7 @@ def test_modify_resource_07(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
     response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-        "label": {"add": ["Ein Test@z"], "del": ["Eine Buchseite@de"]},
+        "label": {"add": ["Ein Test@z"], "del": ["@de"]},
     }, headers=header)
     res = response.json
     print(res)
@@ -988,7 +987,7 @@ def test_modify_resource_08(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
     response = client.post('/admin/datamodel/hyha/hyha:Sheep', json={
-        "label": {"add": ["Ein Test@z"], "del": ["Eine Buchseite@de"]},
+        "label": {"add": ["Ein Test@z"], "del": ["de"]},
     }, headers=header)
     res = response.json
     print(res)
@@ -1441,7 +1440,7 @@ def test_no_permission_modify_standalone_prop(client, token_headers, testfulldat
     }
 
     response2 = client.post('/admin/datamodel/hyha/property/hyha:testProp2', json={
-        "name": {"add": ["NewKappa@en"], "del": ["Kappa@de"]},
+        "name": {"add": ["NewKappa@en"], "del": ["de"]},
     }, headers=headers)
     res2 = response2.json
     print(res2)
@@ -1473,8 +1472,8 @@ def test_no_permission_modify_resource(client, token_headers, testfulldatamodelr
         "closed": False,
         #"label": ["Ein Test@de"],
         #"comment": ["A test comment@en"],
-        "label": {"add": ["Ein Test@zu"], "del": ["Eine Buchseite@de"]},
-        "comment": {"add": ["Ein Test@zu"], "del": ["A page of a book@en"]},
+        "label": {"add": ["Ein Test@zu"], "del": ["de"]},
+        "comment": {"add": ["Ein Test@zu"], "del": ["en"]},
     }, headers=headers)
     res2 = response2.json
     print(res2)

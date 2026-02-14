@@ -29,7 +29,7 @@ def test_modify_label_C(client, token_headers, testproject):
     header = token_headers[1]
 
     responsedict = client.post('/admin/project/testproject', json={
-        "label": {"add": ["Kappa@it"], "del": ["test@de"]}
+        "label": {"add": ["Kappa@it"], "del": ["de"]}
     }, headers=header)
     res = responsedict.json
     print(res)
@@ -138,7 +138,7 @@ def test_modify_label_lang_default(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
-        "label": {"add": ["u"], "del": ["gagagagagag@en"]}
+        "label": {"add": ["u"], "del": ["en"]}
     }, headers=header)
     assert response.status_code == 200
     responsedict2 = client.get('/admin/project/testproject', headers=header)
@@ -149,7 +149,7 @@ def test_modify_label_lang_default_addsign(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
-        "label": {"add": ["u@asdfgasdg"], "del": ["gagagagagag@en"]}
+        "label": {"add": ["u@asdfgasdg"], "del": ["en"]}
     }, headers=header)
     assert response.status_code == 200
     res = response.json
@@ -171,7 +171,7 @@ def test_modify_label_del_nonexistent(client, token_headers, testproject):
     header = token_headers[1]
 
     response = client.post('/admin/project/testproject', json={
-        "label": {"del": ["doesnotexist@zu"]}
+        "label": {"del": ["@zu"]}
     }, headers=header)
     assert response.status_code == 400
     res = response.json

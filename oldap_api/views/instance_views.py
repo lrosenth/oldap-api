@@ -88,7 +88,7 @@ def textsearch_instance(project):
         return jsonify({"message": "No search string provided"}), 400
     try:
         params: dict[str, Any] = {
-            's': str(searchString),
+            'searchstr': str(searchString),
         }
         if countOnly:
             params['countOnly'] = True

@@ -39,7 +39,7 @@ init-multiarch:
 	docker buildx inspect --bootstrap
 
 test:
-	OLDAP_JWT_SECRET="A very short secret!" \
+	OLDAP_JWT_SECRET="56cbaa67af5bc403f1de9b7035e7c88239a853e4b40d6fc659ab4e4679b42785" \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
@@ -47,10 +47,10 @@ test:
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
 	APP_ENV="Dev" \
-	poetry run pytest -v $(TESTS)
+	poetry run pytest -W always -v $(TESTS)
 
 run:
-	OLDAP_JWT_SECRET="A very short secret!" \
+	OLDAP_JWT_SECRET="56cbaa67af5bc403f1de9b7035e7c88239a853e4b40d6fc659ab4e4679b42785" \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
@@ -61,7 +61,7 @@ run:
 	poetry run python oldap-api-app.py
 
 run-prod:
-	OLDAP_JWT_SECRET="A very short secret!" \
+	OLDAP_JWT_SECRET="56cbaa67af5bc403f1de9b7035e7c88239a853e4b40d6fc659ab4e4679b42785" \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
@@ -98,7 +98,7 @@ docker-run:
 	-e APP_ENV=Dev \
 	-e UPLOAD_FOLDER=/data/upload \
 	-e TMP_FOLDER=/data/tmp \
-	-e OLDAP_JWT_SECRET="A very short secret!" \
+	-e OLDAP_JWT_SECRET="56cbaa67af5bc403f1de9b7035e7c88239a853e4b40d6fc659ab4e4679b42785" \
 	-e OLDAP_API_PORT=8000 \
 	-e OLDAP_TS_SERVER=http://host.docker.internal:7200 \
 	-e OLDAP_TS_REPO=oldap \

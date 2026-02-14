@@ -61,8 +61,10 @@ def process_langstring(obj: Model,
                     raise OldapErrorValue(f"Using an empty list is not allowed in the modify")
                 #delstrs = [Xsd_string(x) for x in deleting]  # Convert to Xsd_strings
                 for item in deleting:
+                    if obj[attr].get(Xsd_string(item).lang) is None:
+                        raise OldapErrorValue(f"{item} is not a valid language. Supportet are {known_languages}")
                     try:
-                        obj[attr].discard(item)
+                        obj[attr].discard(Xsd_string(item).lang)  # we need the Language.<lang> here
                     except KeyError as error:
                         raise OldapErrorValue(f"{item} is not a valid language. Supportet are {known_languages}")
             if "add" in newval:
