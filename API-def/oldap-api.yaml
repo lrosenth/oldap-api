@@ -3422,7 +3422,7 @@ paths:
                       type: string
                     format: date-time
                     description: Date when the media object was last modified
-                  "shared:imageId":
+                  "shared:assetId":
                     schema:
                       type: string
                     description: ID of the media object
@@ -3502,7 +3502,7 @@ paths:
                     type: string
                     format: date-time
                     description: Date when the media object was last modified
-                  "shared:imageId":
+                  "shared:asssetId":
                     type: string
                     description: ID of the media object
                   "shared:originalName":

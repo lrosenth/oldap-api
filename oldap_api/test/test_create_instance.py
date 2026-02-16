@@ -68,7 +68,7 @@ def test_create_instance_mediaobject(client, token_headers, testemptydatamodel):
         'originalName': 'Cat.tif',
         'originalMimeType': 'image/tiff',
         'serverUrl': 'http://iiif.oldap.org/iiif/3/',
-        'imageId': 'cat.tif',
+        'assetId': 'cat.tif',
         'protocol': 'iiif',
         'derivativeName': 'iiif.tif',
         'path': 'xxx',

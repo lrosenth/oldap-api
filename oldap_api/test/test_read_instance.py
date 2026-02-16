@@ -52,7 +52,7 @@ def test_retrieving_mediaobject(client, token_headers, testfulldatamodelwithmedi
     assert response.status_code == 200
     res = response.json
     assert res['graph'] == 'hyha:data'
-    assert res['permval'] == '2'
+    assert res['permval'] == 2
     assert res['shared:originalMimeType'] == 'image/tiff'
     assert res['shared:originalName'] == 'test.tif'
     assert res['shared:path'] == 'britnet'
@@ -66,7 +66,7 @@ def test_retrieving_derived_mediaobject(client, token_headers, testfulldatamodel
     assert response.status_code == 200
     res = response.json
     assert res['graph'] == 'hyha:data'
-    assert res['permval'] == '2'
+    assert res['permval'] == 2
     assert res['shared:originalMimeType'] == 'image/tiff'
     assert res['shared:originalName'] == 'shakespeare.tif'
     assert res['shared:path'] == 'britnet'

@@ -1368,7 +1368,6 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
         dm[Xsd_QName(resiri)][Xsd_QName(propiri)].group = None if data["group"] is None else Xsd_QName(data["group"])
     if "editor" in data:
         dm[Xsd_QName(resiri)][Xsd_QName(propiri)].editor = None if data["editor"] is None else Editor(data["editor"])
-
     property_data = data.get("property", None)
     if property_data or property_data == {}:
         jsonmsg, statuscode = property_modifier(property_data, dm[Xsd_QName(resiri)][Xsd_QName(propiri)].prop)

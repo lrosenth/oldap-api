@@ -25,7 +25,7 @@ def test_create_instance2(client, token_headers, testfulldatamodelresourcesimple
         'shared:originalName': 'orig-image-file.tif',
         'shared:originalMimeType': 'image/tiff',
         'shared:serverUrl': 'http://iiif.oldap.org/iiif/3/',
-        'shared:imageId': 'a67dcf8d.jp2',
+        'shared:assetId': 'a67dcf8d.jp2',
         'shared:protocol': 'iiif',
         'shared:derivativeName': 'iiif.tif',
         'shared:path': 'gaga/gugus',

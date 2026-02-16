@@ -16,8 +16,8 @@ poetry-core = "^2.2.1"
 coverage = "==7.13.0"
 black = "==25.12.0"
 pytest = "==9.0.2"
-#oldaplib = {path = "../oldaplib", develop = true}
-oldaplib = "^0.4.8"
+oldaplib = {path = "../oldaplib", develop = true}
+#oldaplib = "^0.4.8"
 bump-my-version = "^1.2.7"
 
 

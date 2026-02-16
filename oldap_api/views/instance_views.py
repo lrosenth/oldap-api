@@ -24,8 +24,22 @@ from oldaplib.src.xsd.xsd_string import Xsd_string
 
 instance_bp = Blueprint('instance', __name__, url_prefix='/data')
 
+
+def to_json_compatible_value(val) -> str | int | None:
+    if isinstance(val, Xsd_integer):
+        return int(val) if val else None
+    elif isinstance(val, FloatingPoint):
+        return float(val) if val else None
+    elif isinstance(val, Xsd_boolean):
+        return bool(val) if val else None
+    else:
+        return str(val) if val else None
+
+
 @instance_bp.route('/mediaobject/id/<imageid>', methods=['GET'])
 def media_object_by_id(imageid):
+
+
     current_app.logger.info(f"/data/mediaobject/id/{imageid} with GET called")
 
     out = request.headers['Authorization']
@@ -40,7 +54,7 @@ def media_object_by_id(imageid):
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
     if not res:
         return jsonify({"message": "MediaObject not found"}), 404
-    return jsonify({key: [str(x) for x in val] if isinstance(val, list) else str(val) for key, val in res.items()}), 200
+    return jsonify({key: [to_json_compatible_value(x) for x in val] if isinstance(val, list) else to_json_compatible_value(val) for key, val in res.items()}), 200
 
 @instance_bp.route('/mediaobject/iri/<path:imageiri>', methods=['GET'])
 def media_object_by_iri(imageiri):
@@ -60,7 +74,7 @@ def media_object_by_iri(imageiri):
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
     if not res:
         return jsonify({"message": "MediaObject not found"}), 404
-    return jsonify({key: [str(x) for x in val] if isinstance(val, list) else str(val) for key, val in res.items()}), 200
+    return jsonify({key: [to_json_compatible_value(x) for x in val] if isinstance(val, list) else to_json_compatible_value(val) for key, val in res.items()}), 200
 
 @instance_bp.route('/textsearch/<path:project>', methods=['GET'])
 def textsearch_instance(project):
