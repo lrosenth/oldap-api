@@ -83,7 +83,7 @@ def test_retrieving_derived_mediaobject_by_iri(client, token_headers, testfullda
     assert response.status_code == 200
     res = response.json
     assert res['graph'] == 'hyha:data'
-    assert res['permval'] == '2'
+    assert res['permval'] == 2
     assert res['shared:originalMimeType'] == 'image/tiff'
     assert res['shared:originalName'] == 'shakespeare.tif'
     assert res['shared:path'] == 'britnet'

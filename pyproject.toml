@@ -11,13 +11,13 @@ python = "^3.12"
 flask = "^3.1.1"
 flask-cors = "^6.0.1"
 requests = "^2.32.3"
-gunicorn = "^23.0"
+gunicorn = "==25.1.0"
 poetry-core = "^2.2.1"
-coverage = "==7.13.0"
-black = "==25.12.0"
-pytest = "==9.0.2"
-oldaplib = {path = "../oldaplib", develop = true}
-#oldaplib = "^0.4.8"
+coverage = "==7.13.4"
+black = "==26.1.0"
+pytest = "^9.0.2"
+#oldaplib = {path = "../oldaplib", develop = true}
+oldaplib = "^0.4.11"
 bump-my-version = "^1.2.7"
 
 
@@ -25,7 +25,7 @@ bump-my-version = "^1.2.7"
 pytest = "^9.0.0"
 coverage = "^7.4.3"
 openapi-spec-validator = "^0.7"
-black = "^25.1.0"
+black = "^26.0.0"
 
 [build-system]
 requires = ["poetry-core"]
