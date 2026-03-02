@@ -73,15 +73,15 @@ run-prod:
 
 bump-patch-level:
 	poetry run bump-my-version bump patch
-	git push
+	git push --follow-tags
 
 bump-minor-level:
 	poetry run bump-my-version bump minor
-	git push
+	git push --follow-tags
 
 bump-major-level:
 	poetry run bump-my-version bump major
-	git push
+	git push --follow-tags
 
 docker-build:
 	 docker buildx build \
