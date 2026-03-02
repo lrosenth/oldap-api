@@ -2,9 +2,6 @@
 name = "oldap-api"
 packages = [{ include = "oldap_api" }]
 version = "0.1.6"
-commit = true
-tag = true
-tag_name = "v{new_version}"
 description = "Flask API for OLDAP"
 authors = ["ManuelRosenthaler <rosenthalermanuel@gmail.com>", "Lukas Rosenthaler <lukas.rosenthaler@pm.me>"]
 readme = "README.md"
@@ -33,3 +30,14 @@ black = "^26.0.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.bump-my-version]
+current_version = "0.1.6"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+
+[[tool.bump-my-version.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
