@@ -10,7 +10,7 @@ Available endpoints:
 The implementation includes error handling and validation for most operations.
 """
 
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, current_app
 from oldaplib.src.connection import Connection
 from oldaplib.src.helpers.oldaperror import OldapErrorNotFound, OldapError
 
@@ -26,11 +26,14 @@ def login(userid):
     :return: A JSON with the token that has the following form:
     json={'message': 'Login succeeded', 'token': token}
     """
+    current_app.logger.info(f"/auth/{userid} with POST called")
     if request.is_json:
         data = request.get_json()
         if userid == "unknown":  # we have a "pesudo-login" for the anonymous unknown user
+            current_app.logger.info(f"/auth/{userid}: Unknown pseudo-login requested")
             try:
                 con = Connection(context_name="DEFAULT")
+                current_app.logger.info(f"/auth/{userid}: Unknown pseudo-login succeeded")
                 resp = jsonify({'message': 'Login succeeded', 'token': con.token}), 200
                 return resp
             except OldapErrorNotFound as err:
@@ -45,11 +48,14 @@ def login(userid):
             con = Connection(userId=userid,
                              credentials=password,
                              context_name="DEFAULT")
+            current_app.logger.info(f"Login for {userid} succeeded.")
             resp = jsonify({'message': 'Login succeeded', 'token': con.token}), 200
             return resp
         except OldapErrorNotFound as err:
+            current_app.logger.info(f"Login for {userid} failed.")
             return jsonify({'message': str(err)}), 404
         except OldapError as error:
+            current_app.logger.info(f"Login for {userid} failed.")
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400

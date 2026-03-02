@@ -38,12 +38,21 @@ def to_json_compatible_value(val) -> str | int | None:
 
 @instance_bp.route('/mediaobject/id/<imageid>', methods=['GET'])
 def media_object_by_id(imageid):
-
-
     current_app.logger.info(f"/data/mediaobject/id/{imageid} with GET called")
 
-    out = request.headers['Authorization']
-    b, token = out.split()
+    out = request.headers.get('Authorization')
+    current_app.logger.info("mediaobject_by_id auth header present=%s", bool(out))
+    if out is None:
+        return jsonify({"message": "No authorization token provided"}), 401
+
+
+    # Expected format: "Bearer <token>"
+    parts = out.split()
+    if len(parts) != 2:
+        return jsonify({"message": "Invalid authorization header"}), 401
+    b, token = parts
+    if b.lower() != "bearer" or not token:
+        return jsonify({"message": "Invalid authorization header"}), 401
     try:
         con = Connection(token=token, context_name="DEFAULT")
     except OldapError as error:
@@ -63,7 +72,12 @@ def media_object_by_iri(imageiri):
     out = request.headers.get('Authorization')
     if out is None:
         return jsonify({"message": "No authorization token provided"}), 401
-    b, token = out.split()
+    parts = out.split()
+    if len(parts) != 2:
+        return jsonify({"message": "Invalid authorization header"}), 401
+    b, token = parts
+    if b.lower() != "bearer" or not token:
+        return jsonify({"message": "Invalid authorization header"}), 401
     try:
         con = Connection(token=token, context_name="DEFAULT")
     except OldapError as error:
