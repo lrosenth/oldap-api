@@ -41,7 +41,7 @@ def media_object_by_id(imageid):
     current_app.logger.info(f"/data/mediaobject/id/{imageid} with GET called")
 
     out = request.headers.get('Authorization')
-    current_app.logger.info("mediaobject_by_id auth header present=%s", bool(out))
+    current_app.logger.info("mediaobject_by_id: auth header present=%s", bool(out))
     if out is None:
         return jsonify({"message": "No authorization token provided"}), 401
 
@@ -60,6 +60,7 @@ def media_object_by_id(imageid):
     try:
         res = ResourceInstance.get_media_object_by_id(con=con, mediaObjectId=imageid)
     except OldapError as error:
+        current_app.logger.error(f"mediaobject_by_id: Retrieving MediaObject with id='{imageid}' failed: {str(error)}")
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
     if not res:
         return jsonify({"message": "MediaObject not found"}), 404
