@@ -27,7 +27,7 @@ COPY . .
 RUN rm -rf dist && poetry build && ls -lh dist
 
 # ---- Runtime stage: slim image with only app + deps ----
-FROM python:3.12-slim AS runtime
+FROM python:3.13-slim AS runtime
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -50,7 +50,7 @@ WORKDIR /app
 
 # Copy and install app wheel (only newest wheel is installed)
 COPY --from=builder /app/dist /tmp/dist
-RUN pip install --no-cache-dir gunicorn /tmp/dist/*.whl && rm -rf /tmp/dist
+RUN pip install --no-cache-dir /tmp/dist/*.whl && rm -rf /tmp/dist
 
 # Copy application files (if you need static files/configs)
 COPY . .
