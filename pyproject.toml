@@ -17,7 +17,7 @@ coverage = "==7.13.4"
 black = "==26.1.0"
 pytest = "^9.0.2"
 #oldaplib = {path = "../oldaplib", develop = true}
-oldaplib = "^0.4.11"
+oldaplib = "^0.4.17"
 bump-my-version = "^1.2.7"
 
 

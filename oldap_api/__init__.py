@@ -3,8 +3,8 @@ from pathlib import Path
 from flask_cors import CORS
 import logging
 
-from oldaplib.src.oldaplogging import set_logger
 from oldap_api.factory import factory
+from oldaplib.src.cachesingleton import CacheSingletonRedis
 
 def create_app():
     app = factory()
@@ -23,13 +23,6 @@ def create_app():
     level_name = app.config.get("LOG_LEVEL", "INFO")
     level = logging.getLevelName(level_name)
     app.logger.setLevel(level)
-    set_logger(app.logger)
-
-    lib_logger = logging.getLogger("oldaplib")  # or your package root name
-    lib_logger.setLevel(app.logger.level)
-
-    for handler in app.logger.handlers:
-        lib_logger.addHandler(handler)
 
     fmt = logging.Formatter(
         "[%(asctime)s] %(levelname)s %(name)s: %(message)s"
@@ -37,7 +30,13 @@ def create_app():
     for handler in app.logger.handlers:
         handler.setFormatter(fmt)
 
-    lib_logger.propagate = False  # prevents duplicates if root also has handlers
+
+    lib_logger = logging.getLogger("oldaplib")  # or your package root name
+    lib_logger.setLevel(app.logger.level)
+
+    # Option A (recommended): let oldaplib propagate to root/app handlers
+    lib_logger.propagate = True
+
 
     app.logger.info(f"Logging initialized at level {level_name}")
     app.logger.info(f"Using config {cfg}")
@@ -50,4 +49,8 @@ def create_app():
          supports_credentials=False,
          expose_headers=["Content-Disposition"])
 
+    cache = CacheSingletonRedis()
+    cache.clear()
+
+    app.logger.info(f"Redis cache cleared.")
     return app
