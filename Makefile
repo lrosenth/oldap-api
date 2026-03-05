@@ -3,6 +3,8 @@ bump-patch-level bump-minor-level bump-major-level \
 docker-build docker-run docker-push
 
 VERSION = $(shell git describe --tags --abbrev=0)
+UNAME_S := $(shell uname -s)
+OBJC_FORK_SAFETY := $(if $(filter Darwin,$(UNAME_S)),YES,)
 
 help:
 	@echo "Usage: make [target] ..."
@@ -61,6 +63,8 @@ run:
 	poetry run python oldap-api-app.py
 
 run-prod:
+	# Avoid macOS objc fork() crashes in gunicorn worker startup.
+	OBJC_DISABLE_INITIALIZE_FORK_SAFETY="$(OBJC_FORK_SAFETY)" \
 	OLDAP_JWT_SECRET="56cbaa67af5bc403f1de9b7035e7c88239a853e4b40d6fc659ab4e4679b42785" \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
@@ -69,7 +73,7 @@ run-prod:
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
 	APP_ENV="Prod" \
-	poetry run gunicorn oldap_api.wsgi:app -b 127.0.0.1:8000 --workers 2 --threads 2 --timeout 60 --access-logfile - --error-logfile -
+	poetry run gunicorn oldap_api.wsgi:app -b 127.0.0.1:8000 --workers 1 --threads 4 --timeout 60 --access-logfile - --error-logfile -
 
 bump-patch-level:
 	poetry run bump-my-version bump patch
