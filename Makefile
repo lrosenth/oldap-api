@@ -27,6 +27,9 @@ help:
 show-version:
 	@echo "VERSION=${VERSION}"
 
+make-version:
+	@echo '__version__ = "$(VERSION)"' > oldap_api/version.py
+
 repo-init:
 	curl -X POST http://localhost:7200/rest/repositories -H 'Content-Type: multipart/form-data' -F config=@oldap-config.ttl
 
@@ -78,14 +81,17 @@ run-prod:
 bump-patch-level:
 	poetry run bump-my-version bump patch
 	git push --follow-tags
+	echo '__version__ = "$(VERSION)"' > oldap_api/version.py
 
 bump-minor-level:
 	poetry run bump-my-version bump minor
 	git push --follow-tags
+	echo '__version__ = "$(VERSION)"' > oldap_api/version.py
 
 bump-major-level:
 	poetry run bump-my-version bump major
 	git push --follow-tags
+	echo '__version__ = "$(VERSION)"' > oldap_api/version.py
 
 docker-build:
 	 docker buildx build \

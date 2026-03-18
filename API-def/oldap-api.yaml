@@ -3016,11 +3016,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-                  description: Mapping Xsd_QName → Any
-                  additionalProperties: {}
+                oneOf:
+                  - type: object
+                    description: Mapping Xsd_QName → Any
+                    additionalProperties:
+                      type: object
+                      additionalProperties: {}
+                  - type: object
+                    description: Count result
+                    properties:
+                      count:
+                        type: integer
+                    required:
+                      - count
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":

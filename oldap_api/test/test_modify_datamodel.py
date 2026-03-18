@@ -1269,6 +1269,25 @@ def test_modify_editor_in_has_prop(client, token_headers, testfulldatamodelresou
     res = response.json
     print(res)
 
+def test_modify_maxCount_in_has_prop(client, token_headers, testfulldatamodelresource):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', json={
+        "maxCount": 42
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    pprint(res)
+    for ele in res["resources"]:
+        if Iri(ele["iri"]).prefix != "hyha:sheep":
+            continue
+        assert ele["maxCount"] == 42
+
+
 def test_unknown_json_fields_for_property_modifier(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
 
