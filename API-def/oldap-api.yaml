@@ -3901,6 +3901,13 @@ components:
     Property:
       type: object
       additionalProperties: false
+      oneOf:
+        - required: [datatype]
+          not:
+            required: [toClass]
+        - required: [toClass]
+          not:
+            required: [datatype]
       properties:
         creator:
           type: string
@@ -3932,7 +3939,14 @@ components:
           $ref: '#/components/schemas/Iri'
           description: Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf would be generic case of pageOf
           example: "hyha:testProp"
+        # may be remove class
         class:
+          oneOf:
+            - $ref: '#/components/schemas/Iri'
+            - type: "null"
+          description: An Iri() that describes the class of the instance on which this property must point e.g. "myproj:Book" means that the property points on book.
+          example: "xml:Date"
+        toClass:
           oneOf:
             - $ref: '#/components/schemas/Iri'
             - type: "null"
