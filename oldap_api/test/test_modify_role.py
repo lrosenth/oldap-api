@@ -509,7 +509,7 @@ def test_permissionset_to_modify_not_found(client, token_headers):
 
 def test_no_json(client, token_headers, testuser):
     header = token_headers[1]
-    response = client.post('/admin/role/oldap/testrole', 'Kein JSON!!', headers=header)
+    response = client.post('/admin/role/oldap/testrole', data='Kein JSON!!', headers=header)
     assert response.status_code == 400
     res = response.json
     assert 'message' in res
