@@ -75,7 +75,7 @@ def test_empty_node_already_exists(client, token_headers):
 
 def test_no_json_to_create_empty_hlist(client, token_headers):
     header = token_headers[1]
-    response = client.put('/admin/hlist/hyha/testhlist', 'KEIN JSON', headers=header)
+    response = client.put('/admin/hlist/hyha/testhlist', data='KEIN JSON', headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)
@@ -244,7 +244,7 @@ def test_create_below_node(client, token_headers, testemptyhlist):
 
 def test_no_json_to_add_node(client, token_headers, testemptyhlist):
     header = token_headers[1]
-    response = client.put('/admin/hlist/hyha/testhlist/nodeB', 'KEIN JSON', headers=header)
+    response = client.put('/admin/hlist/hyha/testhlist/nodeB', data='KEIN JSON', headers=header)
     assert response.status_code == 400
     res = response.json
     print(res)

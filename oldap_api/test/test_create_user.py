@@ -149,7 +149,7 @@ def test_field_missing(client, token_headers):
 
 def test_no_json(client, token_headers):
     header = token_headers[1]
-    response = client.put('/admin/user/rosman', 'Kein JSON!!', headers=header)
+    response = client.put('/admin/user/rosman', data='Kein JSON!!', headers=header)
     assert response.status_code == 400
     res = response.json
     assert 'message' in res

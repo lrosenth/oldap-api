@@ -37,7 +37,7 @@ def test_logout(client):
 
 
 def test_no_json(client, token_headers, testuser):
-    response = client.post('/admin/auth/rosenth', 'Kein JSON!!')
+    response = client.post('/admin/auth/rosenth', data='Kein JSON!!')
     assert response.status_code == 400
     res = response.json
     assert 'message' in res

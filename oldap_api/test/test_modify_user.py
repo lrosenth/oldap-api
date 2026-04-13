@@ -746,7 +746,7 @@ def test_too_long_modify(client, token_headers, testuser):
 
 def test_no_json(client, token_headers, testuser):
     header = token_headers[1]
-    response = client.post('/admin/user/rosman', 'Kein JSON!!', headers=header)
+    response = client.post('/admin/user/rosman', data='Kein JSON!!', headers=header)
     assert response.status_code == 400
     res = response.json
     assert 'message' in res

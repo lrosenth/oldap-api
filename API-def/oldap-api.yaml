@@ -3901,6 +3901,13 @@ components:
     Property:
       type: object
       additionalProperties: false
+      oneOf:
+        - required: [datatype]
+          not:
+            required: [toClass]
+        - required: [toClass]
+          not:
+            required: [datatype]
       properties:
         creator:
           type: string

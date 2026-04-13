@@ -49,7 +49,8 @@ def app():
         tmpdir.mkdir()
 
     app.config.update({
-        'TESTING': True
+        'TESTING': True,
+        'SERVER_NAME': 'localhost'
     })
     con = Connection(userId="rosenth",
                      credentials="RioGrande",
@@ -77,7 +78,9 @@ def app():
 
 @pytest.fixture()
 def client(app):
-    return app.test_client()
+    client = app.test_client()
+    client.environ_base['HTTP_HOST'] = 'localhost'
+    return client
 
 
 @pytest.fixture()

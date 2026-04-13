@@ -919,6 +919,7 @@ def add_property_to_resource(project, resource, property):
         except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
         except OldapError as error:
+            current_app.logger.error(f"Error while adding property to datamodel: {str(error)}")
             return jsonify({'message': str(error)}), 500
 
         try:
@@ -928,6 +929,7 @@ def add_property_to_resource(project, resource, property):
         except OldapErrorAlreadyExists as error:
             return jsonify({'message': str(error)}), 409
         except OldapError as error:  # Should not be reachable
+            current_app.logger.error(f"Error while updating resource with new property: {str(error)}")
             return jsonify({"message": str(error)}), 500
         return jsonify({"message": f"Property in resource {resource} in datamodel {project} successfully created"}), 200
     else:
