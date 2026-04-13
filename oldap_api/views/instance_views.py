@@ -381,7 +381,7 @@ def update_instance(project, instiri):
                         adding = attrval.get("add", [])  # adding is now a list even if attrval["add"] not existing
                     else:
                         adding = [attrval['add']]
-                    if instance.properties[attr].prop.datatype == XsdDatatypes.langString:
+                    if instance.properties[attr].datatype == XsdDatatypes.langString:
                         #
                         # LangStrings are special – the can replace. We need a list of all languages added. Some
                         # of these may just replace an "old" value!
@@ -397,7 +397,7 @@ def update_instance(project, instiri):
                         deleting = attrval.get("del", [])
                     else:
                         deleting = [attrval['del']]
-                    if instance.properties[attr].prop.datatype == XsdDatatypes.langString:
+                    if instance.properties[attr].datatype == XsdDatatypes.langString:
                         #
                         # In Langstrings, adding a new lang that already exists results in a replacement.
                         # Therefore, we remove only languages that are not being replaced. The TypeScript

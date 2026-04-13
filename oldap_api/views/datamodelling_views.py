@@ -30,7 +30,6 @@ from oldaplib.src.enums.propertyclassattr import PropClassAttr
 from oldaplib.src.enums.resourceclassattr import ResClassAttribute
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.externalontology import ExternalOntology
-from oldaplib.src.hasproperty import HasProperty
 from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.observable_set import ObservableSet
@@ -90,7 +89,7 @@ def read_datamodel(project):
     res = {
         "project": project,
         "externalOntologies": [],
-        "standaloneProperties": [],
+        "annotationProperties": [],
         "resources": []
     }
 
@@ -106,6 +105,9 @@ def read_datamodel(project):
             **({"comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[onto].comment.items()]} if dm[onto].comment else {}),
         })
 
+    #
+    # process the assertion properties
+    #
     for prop in propclasses:
         if prop in {'dcterms:created', 'dcterms:creator', 'dcterms:modified', 'dcterms:contributor'}:
             continue
@@ -115,10 +117,10 @@ def read_datamodel(project):
             **({"creator": str(dm[prop].creator)} if dm[prop].creator is not None else {}),
             **({"modified": str(dm[prop].modified)} if dm[prop].modified is not None else {}),
             **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
-            **({"type": [val.name for val in dm[prop].type if
-                         val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if dm[prop].type is not None else {}),
             **({"projectid": str(dm[prop].projectShortName)} if dm[prop].projectShortName is not None else {}),
+            **({"type": [Xsd_QName(val.value).fragment for val in dm[prop].type if val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if dm[prop].type is not None else {}),
             **({"subPropertyOf": str(dm[prop].subPropertyOf)} if dm[prop].subPropertyOf is not None else {}),
+            **({"appliesToProperty": str(dm[prop].appliesToProperty)} if dm[prop].appliesToProperty is not None else {}),
             **({"toClass": str(dm[prop].toClass)} if dm[prop].toClass is not None else {}),
             **({"datatype": str(dm[prop].datatype)} if dm[prop].datatype is not None else {}),
             **({"name": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].name.items()]} if dm[prop].name else {}),
@@ -137,8 +139,13 @@ def read_datamodel(project):
             **({"lessThanOrEquals": str(dm[prop].lessThanOrEquals)} if dm[prop].lessThanOrEquals is not None else {}),
             **({"inverseOf": str(dm[prop].inverseOf)} if dm[prop].inverseOf is not None else {}),
             **({"equivalentProperty": str(dm[prop].equivalentProperty)} if dm[prop].equivalentProperty is not None else {}),
+            **({"maxCount": dm[prop].maxCount.value} if dm[prop].maxCount is not None else {}),
+            **({"minCount": dm[prop].minCount.value} if dm[prop].minCount is not None else {}),
+            **({"order": dm[prop].order.value} if dm[prop].order is not None else {}),
+            **({"group": dm[prop].group.value} if dm[prop].group is not None else {}),
+            **({"editor": dm[prop].editor.value} if dm[prop].editor is not None else {}),
         }
-        res["standaloneProperties"].append(data)
+        res["annotationProperties"].append(data)
 
     for resource in resclasses:
         superclass_iris = None
@@ -155,47 +162,40 @@ def read_datamodel(project):
             **({"label": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].label.items()]} if dm[resource].label else {}),
             **({"comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[resource].comment.items()]} if dm[resource].comment else {}),
             **({"closed": bool(dm[resource].closed)} if dm[resource].closed is not None else {}),
-            "hasProperty": []
+            "properties": []
         }
-        for iri, hp in dm[resource].properties.items():
+        for iri, prop in dm[resource].properties.items():
             # hp.prop.subPropertyOf
             pdata = {
-                "property": {
-                    "iri": str(iri),
-                    **({"created": str(hp.prop.created)} if hp.prop.created is not None else {}),
-                    **({"creator": str(hp.prop.creator)} if hp.prop.creator is not None else {}),
-                    **({"modified": str(hp.prop.modified)} if hp.prop.modified is not None else {}),
-                    **({"contributor": str(hp.prop.contributor)} if hp.prop.contributor is not None else {}),
-                    **({"type": [val.name for val in hp.prop.type if
-                                 val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if hp.prop.type is not None else {}),
-                    **({"projectid": str(hp.prop.projectShortName)} if hp.prop.projectShortName is not None else {}),
-                    **({"subPropertyOf": str(hp.prop.subPropertyOf)} if hp.prop.subPropertyOf is not None else {}),
-                    **({"toClass": str(hp.prop.toClass)} if hp.prop.toClass is not None else {}),
-                    **({"datatype": str(hp.prop.datatype)} if hp.prop.datatype is not None else {}),
-                    **({"name": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.name.items()]} if hp.prop.name else {}),
-                    **({"description": [f'{value}@{lang.name.lower()}' for lang, value in hp.prop.description.items()]} if hp.prop.description else {}),
-                    **({"languageIn": [f'{tag}'[-2:].lower() for tag in hp.prop.languageIn]} if hp.prop.languageIn else {}),
-                    **({"uniqueLang": bool(hp.prop.uniqueLang)} if hp.prop.uniqueLang is not None else {}),
-                    **({"inSet": list({str(x) for x in hp.prop.inSet})} if hp.prop.inSet is not None else {}),
-                    **({"minLength": hp.prop.minLength.value} if hp.prop.minLength is not None else {}),
-                    **({"maxLength": hp.prop.maxLength.value} if hp.prop.maxLength is not None else {}),
-                    **({"pattern": str(hp.prop.pattern)} if hp.prop.pattern is not None else {}),
-                    **({"minExclusive": hp.prop.minExclusive.value} if hp.prop.minExclusive is not None else {}),
-                    **({"minInclusive": hp.prop.minInclusive.value} if hp.prop.minInclusive is not None else {}),
-                    **({"maxExclusive": hp.prop.maxExclusive.value} if hp.prop.maxExclusive is not None else {}),
-                    **({"maxInclusive": hp.prop.maxInclusive.value} if hp.prop.maxInclusive is not None else {}),
-                    **({"lessThan": str(hp.prop.lessThan)} if hp.prop.lessThan is not None else {}),
-                    **({"lessThanOrEquals": str(hp.prop.lessThanOrEquals)} if hp.prop.lessThanOrEquals is not None else {}),
-                    **({"inverseOf": str(hp.prop.inverseOf)} if hp.prop.inverseOf is not None else {}),
-                    **({"equivalentProperty": str(hp.prop.equivalentProperty)} if hp.prop.equivalentProperty is not None else {}),
-                },
-                **({"maxCount": hp.maxCount.value} if hp.maxCount is not None else {}),
-                **({"minCount": hp.minCount.value} if hp.minCount is not None else {}),
-                **({"order": hp.order.value} if hp.order is not None else {}),
-                **({"group": hp.group.value} if hp.group is not None else {}),
-                **({"editor": hp.editor.value} if hp.editor is not None else {}),
+                "iri": str(iri),
+                **({"projectid": str(prop.projectShortName)} if prop.projectShortName is not None else {}),
+                **({"type": [val.name for val in prop.type if val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if prop.type is not None else {}),
+                **({"subPropertyOf": str(prop.subPropertyOf)} if prop.subPropertyOf is not None else {}),
+                **({"toClass": str(prop.toClass)} if prop.toClass is not None else {}),
+                **({"datatype": str(prop.datatype)} if prop.datatype is not None else {}),
+                **({"name": [f'{value}@{lang.name.lower()}' for lang, value in prop.name.items()]} if prop.name else {}),
+                **({"description": [f'{value}@{lang.name.lower()}' for lang, value in prop.description.items()]} if prop.description else {}),
+                **({"languageIn": [f'{tag}'[-2:].lower() for tag in prop.languageIn]} if prop.languageIn else {}),
+                **({"uniqueLang": bool(prop.uniqueLang)} if prop.uniqueLang is not None else {}),
+                **({"inSet": list({str(x) for x in prop.inSet})} if prop.inSet is not None else {}),
+                **({"minLength": prop.minLength.value} if prop.minLength is not None else {}),
+                **({"maxLength": prop.maxLength.value} if prop.maxLength is not None else {}),
+                **({"pattern": str(prop.pattern)} if prop.pattern is not None else {}),
+                **({"minExclusive": prop.minExclusive.value} if prop.minExclusive is not None else {}),
+                **({"minInclusive": prop.minInclusive.value} if prop.minInclusive is not None else {}),
+                **({"maxExclusive": prop.maxExclusive.value} if prop.maxExclusive is not None else {}),
+                **({"maxInclusive": prop.maxInclusive.value} if prop.maxInclusive is not None else {}),
+                **({"lessThan": str(prop.lessThan)} if prop.lessThan is not None else {}),
+                **({"lessThanOrEquals": str(prop.lessThanOrEquals)} if prop.lessThanOrEquals is not None else {}),
+                **({"inverseOf": str(prop.inverseOf)} if prop.inverseOf is not None else {}),
+                **({"equivalentProperty": str(prop.equivalentProperty)} if prop.equivalentProperty is not None else {}),
+                **({"maxCount": prop.maxCount.value} if prop.maxCount is not None else {}),
+                **({"minCount": prop.minCount.value} if prop.minCount is not None else {}),
+                **({"order": prop.order.value} if prop.order is not None else {}),
+                **({"group": prop.group.value} if prop.group is not None else {}),
+                **({"editor": prop.editor.value} if prop.editor is not None else {}),
             }
-            rdata["hasProperty"].append(pdata)
+            rdata["properties"].append(pdata)
         res["resources"].append(rdata)
     return res, 200
 
@@ -408,9 +408,10 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     :param data: The data of the property
     :return: The processed PropertyClass
     """
-    known_json_fields = {"iri", "type", "subPropertyOf", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
-                         "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
-                         "maxInclusive", "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty"}
+    known_json_fields = {"iri", "type", "subPropertyOf", "appliesToProperty", "class", "datatype", "name",
+                         "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern",
+                         "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals",
+                         "inverseOf", "equivalentProperty", "maxCount", "minCount", "order", "group", "editor"}
 
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
@@ -418,6 +419,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     iri = property_iri  # Iri, z.B. "myproj:pageOf"
     typelist = data.get("type", None)  # z.B. ["StatementProperty", "SymmetricProperty"]
     subPropertyOf = data.get("subPropertyOf", None)  # Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf is generischer Fall von pageOf
+    appliesToProperty = data.get("appliesToProperty", None)  # Iro() of properties an assertion property applies to
     toClass = data.get("class", None)  # an Iri(). Beschreibt die Klasse der Instanz, auf die diese Property zeigen muss, Z.B. "myproj:Book" heisst, dass die Property auf ein Buch zeigen muss
     datatype = data.get("datatype", None)  # "xsd:string", oder "xsd:integer" etc. Datentyp, wenn die Property durch einen Literal repräsentiert wird
     name = data.get("name", None)  # Human readable Name, ist ein LangString (kann also in verschiedenen Sprachen vorkommen, z.B. ["Seite@de", Page@fr", "Page@en"]
@@ -436,6 +438,12 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     lessThanOrEquals = data.get("lessThanOrEquals", None)  # Der (numerische) Wert muss kleiner oder gleich sein als der durch die gegenebe IRI referenzierten Property z.B. Iri("myproj:deathDate")
     inverseOf = data.get("inverseOf", None)
     equivalentProperty = data.get("equivalentProperty", None)
+    maxCount = data.get("maxCount", None)
+    minCount = data.get("minCount", None)
+    order = data.get("order", None)
+    group = data.get("group", None)
+    editor = data.get("editor", None)
+
 
     if datatype is None and toClass is None:
         raise ApiError("At least one of the two -- datatype or class -- needs to be given")
@@ -455,6 +463,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         type=None if typelist is None else typelist,
         property_class_iri=Xsd_QName(iri),
         subPropertyOf=subPropertyOf,
+        appliesToProperty=appliesToProperty,
         toClass= None if toClass is None else Xsd_QName(toClass, validate=True),
         datatype = None if datatype is None else XsdDatatypes(datatype),
         name=LangString(name, validate=True),
@@ -473,22 +482,29 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         lessThanOrEquals=lessThanOrEquals,
         inverseOf=inverseOf,
         equivalentProperty=equivalentProperty,
+        maxCount=maxCount,
+        minCount=minCount,
+        order=order,
+        group=group,
+        editor=editor
     )
     return prop
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['PUT'])
 def add_resource_to_datamodel(project, resource):
-    known_json_fields = {"superclass", "label", "comment", "closed", "hasProperty"}
-    known_hasproperty_fields = {"property", "maxCount", "minCount", "order", "group", "editor"}
-    mandatory_hasproperty_fields = {"property"}
+    known_json_fields = {"superclass", "label", "comment", "closed", "properties"}
+    known_property_fields = {"type", "iri", "subPropertyOf", "appliesToProperty", "class", "datatype", "name",
+                             "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength",
+                             "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
+                             "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty",
+                             "maxCount", "minCount", "order", "group", "editor"}
+    mandatory_property_fields = {"iri"}
     out = request.headers['Authorization']
     b, token = out.split()
 
     if request.is_json:
-
         try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
+            con = Connection(token=token, context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
@@ -502,7 +518,7 @@ def add_resource_to_datamodel(project, resource):
         label = data.get("label", None)
         comment = data.get("comment", None)
         closed = data.get("closed", None)
-        hasProperty = data.get("hasProperty", None)
+        properties = data.get("properties", None)
 
         try:
             project = Project.read(con, project)
@@ -536,36 +552,25 @@ def add_resource_to_datamodel(project, resource):
         except OldapErrorAlreadyExists as error:
             return jsonify({"message": str(error)}), 409
 
-        if hasProperty and isinstance(hasProperty, list):
-            for prop in hasProperty:
-                unknown_hasproperty_field = set(prop.keys()) - known_hasproperty_fields
-                if unknown_hasproperty_field:
-                    return jsonify({"message": f"The Field/s {unknown_hasproperty_field} is/are not used to create a property in a resource. Usable are {known_hasproperty_fields}. aborted operation"}), 400
-                if not mandatory_hasproperty_fields.issubset(set(prop.keys())):
-                    return jsonify({"message": f"The Fields {mandatory_hasproperty_fields} are required to create a resource. Used where {set(prop.keys())}. Usable are {known_hasproperty_fields}"}), 400
-                if isinstance(prop["property"], dict):
+        if properties and isinstance(properties, list):
+            for prop in properties:
+                unknown_property_field = set(prop.keys()) - known_property_fields
+                if unknown_property_field:
+                    return jsonify({"message": f"The Field/s {unknown_property_field} is/are not used to create a property in a resource. Usable are {unknown_property_field}. aborted operation"}), 400
+                if not mandatory_property_fields.issubset(set(prop.keys())):
+                    return jsonify({"message": f"The Fields {mandatory_property_fields} are required to create a resource. Used where {set(prop.keys())}. Usable are {unknown_property_field}"}), 400
+                if isinstance(prop, dict):
                     # we have a real internal, non-standalone property
-                    if prop["property"].get("iri", None) is None:
+                    if prop.get("iri", None) is None:
                         return jsonify({"message": f"Property IRI is missing in HasProperty"}), 400
                     try:
-                        property_iri = prop["property"]["iri"]
-                        endprop = process_property(con=con, project=project, property_iri=property_iri, data=prop["property"])
-                        hp1 = HasProperty(con=con, project=project, prop=endprop,
-                                          minCount=prop.get("minCount"), maxCount=prop.get("maxCount"),
-                                          group=prop.get("group"), order=prop.get("order"), editor=prop.get("editor"))
+                        property_iri = prop["iri"]
+                        prop = process_property(con=con, project=project, property_iri=property_iri, data=prop)
                     except ApiError as error:
                         return jsonify({"message": str(error)}), 400
-                    dm[Xsd_QName(iri)][endprop.property_class_iri] = hp1
-                elif isinstance(prop["property"], str):
-                    # we reference a standalone property
-                    if prop["property"] not in dm.get_propclasses():
-                        return jsonify({"message": f"Property {prop['property']} is not in the datamodel"}), 400
-                    hp1 = HasProperty(con=con, project=project, prop=Xsd_QName(prop["property"]),
-                                      minCount=prop.get("minCount"), maxCount=prop.get("maxCount"),
-                                      group=prop.get(group), order=prop.get("order"), editor=prop.get("editor"))
-                    dm[Xsd_QName(iri)][Xsd_QName(prop["property"])] = hp1
+                    dm[Xsd_QName(iri)][prop.property_class_iri] = prop
                 else:
-                    return jsonify({"message": f"The Field 'property' must be an iri of a standalone property or a dictionary with ainternal property definition."}), 400
+                    return jsonify({"message": f"The Field 'property' must be a dictionary with a property definition."}), 400
 
         try:
             dm.update()
@@ -790,21 +795,25 @@ def add_standalone_property_to_datamodel(project, property):
     :return: A JSON informing about the success of the operation that has the following form:
     json={"message": f"Standalone property in datamodel {project} successfully created"}
     """
+    known_property_fields = {"type", "iri", "subPropertyOf", "appliesToProperty", "class", "datatype", "name",
+                             "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength",
+                             "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
+                             "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty",
+                             "maxCount", "minCount", "order", "group", "editor"}
+    mandatory_property_fields = {'iri', 'appliesToProperty'}
+
     out = request.headers['Authorization']
     b, token = out.split()
 
     if request.is_json:
-
         try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
+            con = Connection(token=token, context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
         data = request.get_json()
         try:
             prop = process_property(con=con, project=project, property_iri=property, data=data)
-            prop.force_external()
         except (ApiError, AttributeError, TypeError, ValueError, OldapErrorValue, OldapErrorInconsistency) as error:
             return jsonify({"message": str(error)}), 400
         except OldapErrorNotFound as error:
@@ -823,7 +832,7 @@ def add_standalone_property_to_datamodel(project, property):
             return jsonify({"message": str(error)}), 409
         except OldapError as error:  # Should not be reachable
             return jsonify({"message": str(error)}), 500
-        return jsonify({"message": f"Standalone property in datamodel {project} successfully created"}), 200
+        return jsonify({"message": f"Assertion property in datamodel {project} successfully created"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
@@ -861,17 +870,17 @@ def add_property_to_resource(project, resource, property):
     :return: A JSON informing about the success of the operation that has the following form:
     json={"message": f"Property in resource {resource} in datamodel {project} successfully created"}
     """
-    known_json_fields = {"subPropertyOf", "datatype", "class", "name", "description", "languageIn", "uniqueLang",
-                         "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive",
-                         "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "minCount", "maxCount",
-                         "group", "order", "editor"}
+    known_json_fields = {"type", "subPropertyOf", "class", "datatype", "name",
+                         "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength",
+                         "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
+                         "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty",
+                         "maxCount", "minCount", "order", "group", "editor"}
     out = request.headers['Authorization']
     b, token = out.split()
 
     if request.is_json:
         try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
+            con = Connection(token=token, context_name="DEFAULT")
         except OldapError as error:
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
@@ -885,46 +894,22 @@ def add_property_to_resource(project, resource, property):
             return jsonify({"message": str(error)}), 500
 
         data = request.get_json()
+        pprint(data)
         unknown_json_field = set(data.keys()) - known_json_fields
         if unknown_json_field:
             return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to create a resource. Usable are {known_json_fields}. Aborted operation (1)"}), 400
         #if not set(data.keys()):
         #    return jsonify({"message": f"At least one field must be given to add to the resource. Usable for the add-viewfunction are {known_json_fields}"}), 400
+        if not not (data.get('class') and data.get('datatype')):
+            return jsonify({"message": f"At least one of the field 'class' or 'datatype' must be given to add to the resource. Usable for the add-viewfunction are {known_json_fields}"}), 400
 
-        maxcount = data.get("maxCount", None)
-        mincount = data.get("minCount", None)
-        order = data.get("order", None)
-        group = data.get("group", None)
-        editor = data.get("editor", None)
-
-        if maxcount:
-            del data["maxCount"]
-        if mincount:
-            del data["minCount"]
-        if order:
-            del data["order"]
-        if group:
-            del data["group"]
-        if editor:
-            del data["editor"]
-
-        if (data):
-            # we have data for an internal property
-            try:
-                prop = process_property(con=con, project=project, property_iri=property, data=data)
-            except ApiError as error:  # should not be reachable
-                return jsonify({"message": str(error)}), 400
-        else:
-            # we should have a standalone property referenced
-            try:
-                prop = Xsd_QName(property)
-            except OldapErrorValue as error:
-                return jsonify({"message": str(error)}), 400
-        hasprop = HasProperty(con=con, project=project, prop=prop,
-                              minCount=mincount, maxCount=maxcount, group=group, order=order, editor=editor)
+        try:
+            prop = process_property(con=con, project=project, property_iri=property, data=data)
+        except ApiError as error:  # should not be reachable
+            return jsonify({"message": str(error)}), 400
         try:
             dm = DataModel.read(con, project, ignore_cache=True)
-            dm[Xsd_QName(resource)][Xsd_QName(property)] = hasprop
+            dm[Xsd_QName(resource)][Xsd_QName(property)] = prop
         except KeyError as error:
             return jsonify({'message': str(error)}), 404
         except OldapErrorValue as error:
@@ -950,7 +935,7 @@ def add_property_to_resource(project, resource, property):
 
 
 @datamodel_bp.route('/datamodel/<project>/property/<standaloneprop>', methods=['DELETE'])
-def delete_whole_standalone_property(project, standaloneprop):
+def delete_whole_assertion_property(project, standaloneprop):
     """
     Viewfunction that deletes an entire standalone property inside the projects datamodel
     :param project: The project, where the standalone property should be deleted
@@ -981,12 +966,12 @@ def delete_whole_standalone_property(project, standaloneprop):
         return jsonify({'message': str(error)}), 400
     except OldapError as error:  # Should not be reachable
         return jsonify({'message': str(error)}), 500
-    return jsonify({'message': f'Standalone property in datamodel {project} successfully deleted'}), 200
+    return jsonify({'message': f'Assertion property in datamodel {project} successfully deleted'}), 200
 
 
 
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['DELETE'])
-def delete_hasprop_in_resource(project, resource, property):
+def delete_prop_in_resource(project, resource, property):
     """
     Viewfunction that deletes an entire property inside a resource that is located in the projects datamodel
     :param project: The project, where the property is located
@@ -1042,9 +1027,10 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
             raise OldapErrorValue("Setting OwlObjectProperty directly is not allowed")
         return list(tmpval)
 
-    known_json_fields = {"subPropertyOf", "type", "class", "datatype", "name", "description", "languageIn", "uniqueLang",
-                         "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive", "maxExclusive",
-                         "maxInclusive", "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty"}
+    known_json_fields = {"subPropertyOf", "appliesToProperty", "type", "class", "datatype", "name", "description",
+                         "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive",
+                         "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "inverseOf",
+                         "equivalentProperty", "maxCount", "minCount", "order", "group", "editor"}
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborted operation"}), 400
@@ -1088,7 +1074,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
                     try:
                         tmpval = process_owl_propertytype(deleting)
                         for x in tmpval:
-                            property.type.discard(x)
+                            property.type.remove(x)  # TODO!!!!!!!!!!!!!!!
                     except (OldapErrorValue, OldapErrorType) as error:
                         return jsonify({"message": str(error)}), 400
             elif attrval is None:
@@ -1233,7 +1219,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     return jsonify({"message": "Property in resource successfully updated"}), 200
 
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['POST'])
-def modify_standalone_property(project, property):
+def modify_assertion_property(project, property):
     """
     Viewfunction to modify a standalone property. A JSON is expected that has the following form. At least one field
     must be given. All fields are optional. At least one field must be given.
@@ -1298,40 +1284,11 @@ def modify_standalone_property(project, property):
 
 
 @datamodel_bp.route('/datamodel/<project>/<resiri>/<propiri>', methods=['POST'])
-def modify_attribute_in_has_prop(project, resiri, propiri):
-    """
-    Viewfunction to modify the fields of a single property inside a resource.A JSON is expected that has the following form.
-    json={
-        "property": {
-            "subPropertyOf": "hyha:kappa",
-            "class": "hyha:kappa",
-            "datatype": "xsd:string",
-            "name": ["pappakappa@de"],
-            "description": ["descriptiv stuff@en"],
-            "languageIn": {"add": ["zu"], "del": ["fr"]},
-            "uniqueLang": True,
-            "inSet": ["Renault", "Opel", "BMW", "Mercedes"],
-            "minLength": 2,
-            "maxLength": 5,
-            "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
-            "minExclusive": 5.5,
-            "minInclusive": 5.5,
-            "maxExclusive": 5.5,
-            "maxInclusive": 5.5,
-            "lessThan": 2,
-            "lessThanOrEquals": 2
-        },
-        "maxCount": 4,
-        "minCount": 2,
-        "order": 42
-    }
-    :param project: The project where the resource is located
-    :param resiri: The Iri of the resource where the attributes are located that should be changed
-    :param propiri: The Iri of the property where the attributes are located that should be changed
-    :return: A JSON informing about the success of the operation that has the following form:
-    json={'message': 'Data model successfully modified'}
-    """
-    known_json_fields = {"maxCount", "minCount", "order", "group", "editor", "property"}
+def modify_attribute_in_prop(project, resiri, propiri):
+    known_json_fields = {"maxCount", "minCount", "order", "group", "editor","iri", "subPropertyOf", "type", "class",
+                         "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength",
+                         "maxLength", "pattern", "minExclusive", "minInclusive","maxExclusive", "maxInclusive",
+                         "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -1358,21 +1315,9 @@ def modify_attribute_in_has_prop(project, resiri, propiri):
     if not set(data.keys()):
         return jsonify({"message": f"At least one field must be given to modify an attribute of a property in a resource. Usable for the modify-viewfunction are {known_json_fields}"}), 400
 
-    if "minCount" in data:
-        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].minCount = data["minCount"]
-    if "maxCount" in data:
-        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].maxCount = data["maxCount"]
-    if "order" in data:
-        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].order = data["order"]
-    if "group" in data:
-        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].group = None if data["group"] is None else Xsd_QName(data["group"])
-    if "editor" in data:
-        dm[Xsd_QName(resiri)][Xsd_QName(propiri)].editor = None if data["editor"] is None else Editor(data["editor"])
-    property_data = data.get("property", None)
-    if property_data or property_data == {}:
-        jsonmsg, statuscode = property_modifier(property_data, dm[Xsd_QName(resiri)][Xsd_QName(propiri)].prop)
-        if statuscode != 200:
-            return jsonmsg, statuscode
+    jsonmsg, statuscode = property_modifier(data, dm[Xsd_QName(resiri)][Xsd_QName(propiri)])
+    if statuscode != 200:
+        return jsonmsg, statuscode
 
     try:
         dm.update()

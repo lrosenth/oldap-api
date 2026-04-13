@@ -1210,7 +1210,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/ExternalOntology'
-                  standaloneProperties:
+                  assertionProperties:
                     type: array
                     items:
                       $ref: '#/components/schemas/Property'
@@ -3932,6 +3932,10 @@ components:
           $ref: '#/components/schemas/Iri'
           description: Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf would be generic case of pageOf
           example: "hyha:testProp"
+        appliesToProperty:
+          oneOf:
+            - $ref: '#/components/schemas/Iri'
+            - type: "null"
         class:
           oneOf:
             - $ref: '#/components/schemas/Iri'
@@ -4068,10 +4072,29 @@ components:
           oneOf:
             - $ref: '#/components/schemas/Iri'
             - type: "null"
+        maxCount:
+          description: Denotes how often (maximum) this property can be used in one resource
+          type: number
+          example: 3
+        minCount:
+          description: Denotes how often (minimal) this property must be used in one resource
+          type: number
+          example: 1
+        order:
+          description: Hint for GUI. Tells order of properties for a GUI
+          type: number
+          example: 2
+        group:
+          description: Hint for GUI for grouping the properties
+          type: string
+        editor:
+          description: Hint for GUI for grouping which editor should be taken for the property
 
     Resource:
       type: object
       properties:
+        iri:
+          $ref: '#/components/schemas/Iri'
         creator:
           type: string
         created:
@@ -4082,15 +4105,15 @@ components:
         modified:
           type: string
           format: date-time
+        projectid:
+          type: string
         label:
           $ref: '#/components/schemas/LangString'
           description: A label for the resource.
         superclass:
-          oneOf:
-            - type: array
-              items:
-                type: string
-            - type: string
+          type: array
+          items:
+            type: string
         comment:
           $ref: '#/components/schemas/LangString'
           description: A comment for the resource.
@@ -4098,36 +4121,17 @@ components:
           description: The standard closed constraint of RDF. See https://www.w3.org/TR/shacl/#ClosedConstraintComponent
           type: boolean
           example: True
-        hasProperty:
+        properties:
           type: array
           items:
-            type: object
-            properties:
-              property:
-                oneOf:
-                  - allOf:
-                      - type: object
-                        properties:
-                          iri:
-                            $ref: '#/components/schemas/Iri'
-                            description: The Iri of the property inside the resource.
-                            example: "hyha:testProp"
-                      - $ref: '#/components/schemas/Property'
-                  - $ref: '#/components/schemas/Iri'
-                    description: The Iri that references an already existing standalone property
-              maxCount:
-                description: Denotes how often (maximum) this property can be used in one resource
-                type: number
-                example: 3
-              minCount:
-                description: Denotes how often (minimal) this property must be used in one resource
-                type: number
-                example: 1
-              order:
-                description: Hint for GUI. Tells order of properties for a GUI
-                type: number
-                example: 2
-
+            allOf:
+              - type: object
+                properties:
+                  iri:
+                    $ref: '#/components/schemas/Iri'
+                    description: The Iri of the property inside the resource.
+                    example: "hyha:testProp"
+              - $ref: '#/components/schemas/Property'
     Error:
       type: object
       properties:

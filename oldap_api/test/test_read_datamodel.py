@@ -36,12 +36,12 @@ def test_read_standaloneporp_datamodel_C(client, token_headers, testfulldatamode
     res = response.json
     pprint(res)
     assert response.status_code == 200
-    hasprops = res['resources'][0]['hasProperty']
-    for hasprop in hasprops:
-        if hasprop['property']['iri'] == 'hyha:titleB':
-            assert hasprop['property']['type'] == ['SymmetricProperty']
-        if hasprop['property']['iri'] == 'hyha:numPagesB':
-            assert hasprop['property']['type'] == ['TransitiveProperty']
+    props = res['resources'][0]['properties']
+    for prop in props:
+        if prop['iri'] == 'hyha:titleB':
+            assert prop['type'] == ['SymmetricProperty']
+        if prop['iri'] == 'hyha:numPagesB':
+            assert prop['type'] == ['TransitiveProperty']
 
 
 def test_bad_token(client, token_headers):

@@ -241,6 +241,7 @@ def testfulldatamodelstandaloneproplangstring(client, token_headers, testemptyda
 
     response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
         "subPropertyOf": "hyha:testProp",
+        "appliesToProperty": "hyha:hasGaga",
         "datatype": "rdf:langString",
         "name": ["Test Property@en", "Test Feld@de"],
         "description": ["Test Feld Beschreibung@de"],
@@ -257,6 +258,7 @@ def testfulldatamodelstandaloneproplangstring(client, token_headers, testemptyda
         "lessThanOrEquals": "hyha:testProp"
     }, headers=header)
 
+    pass
     yield
 
 @pytest.fixture()
@@ -264,6 +266,7 @@ def testfulldatamodelstandalonepropstring(client, token_headers, testemptydatamo
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/property/hyha:testProp3', json={
+        "appliesToProperty": "hyha:starGaga",
         "subPropertyOf": "hyha:testProp",
         "datatype": "xsd:string",
         "name": ["Test Property@en", "Test Feld@de"],
@@ -333,11 +336,13 @@ def testfulldatamodelpropwithtype(client, token_headers, testemptydatamodel):
     header = token_headers[1]
 
     response = client.put('/admin/datamodel/hyha/property/hyha:testProp3', json={
+        "appliesToProperty": "hyha:GAGA",
         "type": ["SymmetricProperty", "TransitiveProperty"],
         "class": "test:Gaga",
         "name": ["Test Property@en", "Test Feld@de"],
         "description": ["Test Feld Beschreibung@de"],
     }, headers=header)
+    assert response.status_code == 200
 
     yield
 
@@ -355,14 +360,12 @@ def testfulldatamodelresourcesimple(client, token_headers, testemptydatamodel):
             "A page of a book@en"
         ],
         "closed": True,
-        "hasProperty": [
+        "properties": [
             {
-                "property": {
-                    "iri": "hyha:testProp3",
-                    "datatype": "xsd:string",
-                    "name": ["Test Property@en", "Test Feld@de"],
-                    "description": ["Test Feld Beschreibung@de"],
-                },
+                "iri": "hyha:testProp3",
+                "datatype": "xsd:string",
+                "name": ["Test Property@en", "Test Feld@de"],
+                "description": ["Test Feld Beschreibung@de"],
                 "maxCount": 1,
                 "minCount": 1,
                 "order": 1
@@ -386,35 +389,29 @@ def testfulldatamodelresourcedatatypes(client, token_headers, testemptydatamodel
             "A  book@en"
         ],
         "closed": True,
-        "hasProperty": [
+        "properties": [
             {
-                "property": {
-                    "iri": "hyha:title",
-                    "datatype": "rdf:langString",
-                    "name": ["Test Property@en", "Test Feld@de"],
-                    "description": ["Test Feld Beschreibung@de"],
-                },
+                "iri": "hyha:title",
+                "datatype": "rdf:langString",
+                "name": ["Test Property@en", "Test Feld@de"],
+                "description": ["Test Feld Beschreibung@de"],
                 "maxCount": 1,
                 "minCount": 1,
                 "order": 1
             },
             {
-                "property": {
-                    "iri": "hyha:numPages",
-                    "datatype": "xsd:integer",
-                    "name": ["Test Property@en", "Test Feld@de"],
-                    "description": ["Test Feld Beschreibung@de"],
-                },
+                "iri": "hyha:numPages",
+                "datatype": "xsd:integer",
+                "name": ["Test Property@en", "Test Feld@de"],
+                "description": ["Test Feld Beschreibung@de"],
                 "maxCount": 1,
                 "minCount": 1,
                 "order": 2
             },
             {
-                "property": {
-                    "iri": "hyha:publishingDate",
-                    "datatype": "xsd:date",
-                    "name": ["Publishing date@en", "Publikationsdatum@de"],
-                },
+                "iri": "hyha:publishingDate",
+                "datatype": "xsd:date",
+                "name": ["Publishing date@en", "Publikationsdatum@de"],
                 "maxCount": 1,
                 "minCount": 1,
                 "order": 3
@@ -438,38 +435,32 @@ def testfulldatamodelresourcedatatypesB(client, token_headers, testemptydatamode
             "A  book@en"
         ],
         "closed": True,
-        "hasProperty": [
+        "properties": [
             {
-                "property": {
-                    "iri": "hyha:titleB",
-                    "type": ["SymmetricProperty"],
-                    "datatype": "rdf:langString",
-                    "name": ["Test Property@en", "Test Feld@de"],
-                    "description": ["Test Feld Beschreibung@de"],
-                },
+                "iri": "hyha:titleB",
+                "type": ["SymmetricProperty"],
+                "datatype": "rdf:langString",
+                "name": ["Test Property@en", "Test Feld@de"],
+                "description": ["Test Feld Beschreibung@de"],
                 "maxCount": 1,
                 "minCount": 1,
                 "order": 1,
                 "editor": "dash:TextAreaWithLangEditor"
             },
             {
-                "property": {
-                    "iri": "hyha:numPagesB",
-                    "type": ["TransitiveProperty"],
-                    "datatype": "xsd:integer",
-                    "name": ["Test Property@en", "Test Feld@de"],
-                    "description": ["Test Feld Beschreibung@de"],
-                },
+                "iri": "hyha:numPagesB",
+                "type": ["TransitiveProperty"],
+                "datatype": "xsd:integer",
+                "name": ["Test Property@en", "Test Feld@de"],
+                "description": ["Test Feld Beschreibung@de"],
                 "maxCount": 1,
                 "minCount": 1,
                 "order": 2
             },
             {
-                "property": {
-                    "iri": "hyha:publishingDateB",
-                    "datatype": "xsd:date",
-                    "name": ["Publishing date@en", "Publikationsdatum@de"],
-                },
+                "iri": "hyha:publishingDateB",
+                "datatype": "xsd:date",
+                "name": ["Publishing date@en", "Publikationsdatum@de"],
                 "maxCount": 1,
                 "minCount": 1,
                 "order": 3
@@ -494,33 +485,34 @@ def testfulldatamodelresource(client, token_headers, testemptydatamodel):
             "A page of a book@en"
         ],
         "closed": True,
-        "hasProperty": [
+        "properties": [
             {
-                "property": {
-                    "iri": "hyha:testProp2",
-                    "subPropertyOf": "hyha:testProp",
-                    "datatype": "rdf:langString",
-                    "name": ["Test Property@en", "Test Feld@de"],
-                    "description": ["Test Feld Beschreibung@de"],
-                    "languageIn": ["en", "fr", "it", "de"],
-                    "uniqueLang": True,
-                    "inSet": ["Kappa", "Gaga", "gugus"],
-                    "minLength": 1,
-                    "maxLength": 50,
-                    "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
-                    "minExclusive": 5.5,
-                    "minInclusive": 5.5,
-                    "maxExclusive": 5.5,
-                    "maxInclusive": 5.5,
-                    "lessThan": "hyha:testProp",
-                    "lessThanOrEquals": "hyha:testProp"
-                },
+                "iri": "hyha:testProp2",
+                "subPropertyOf": "hyha:testProp",
+                "datatype": "rdf:langString",
+                "name": ["Test Property@en", "Test Feld@de"],
+                "description": ["Test Feld Beschreibung@de"],
+                "languageIn": ["en", "fr", "it", "de"],
+                "uniqueLang": True,
+                "inSet": ["Kappa", "Gaga", "gugus"],
+                "minLength": 1,
+                "maxLength": 50,
+                "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+                "minExclusive": 5.5,
+                "minInclusive": 5.5,
+                "maxExclusive": 5.5,
+                "maxInclusive": 5.5,
+                "lessThan": "hyha:testProp",
+                "lessThanOrEquals": "hyha:testProp",
                 "maxCount": 3,
                 "minCount": 1,
                 "order": 1
             },
         ]
     }, headers=header)
+
+    if response.status_code != 200:
+        raise Exception(response.status_code, response.text)
 
     yield
 
@@ -534,13 +526,11 @@ def testfulldatamodelresourcesuperclasses(client, token_headers, testemptydatamo
             "Mammal@en"
         ],
         "closed": True,
-        "hasProperty": [
+        "properties": [
             {
-                "property": {
-                    "iri": "hyha:mammalName",
-                    "datatype": "xsd:string",
-                    "name": ["Mammal name@en", "Säugetiername@de"],
-                },
+                "iri": "hyha:mammalName",
+                "datatype": "xsd:string",
+                "name": ["Mammal name@en", "Säugetiername@de"],
                 "order": 1
             },
         ]
@@ -553,13 +543,11 @@ def testfulldatamodelresourcesuperclasses(client, token_headers, testemptydatamo
         ],
         "superclass": ["hyha:Mammal", "dcterms:Predator"],
         "closed": True,
-        "hasProperty": [
+        "properties": [
             {
-                "property": {
-                    "iri": "hyha:preyScheme",
-                    "datatype": "xsd:string",
-                    "name": ["Prey scheme@en", "Beuteschema@de"],
-                },
+                "iri": "hyha:preyScheme",
+                "datatype": "xsd:string",
+                "name": ["Prey scheme@en", "Beuteschema@de"],
                 "order": 1
             },
         ]
@@ -609,13 +597,11 @@ def testfulldatamodelwithderivedmediaobject(client, token_headers, testfulldatam
         ],
         "superclass": ["shared:MediaObject"],
         "closed": True,
-        "hasProperty": [
+        "properties": [
             {
-                "property": {
-                    "iri": "hyha:hasCaption",
-                    "datatype": "xsd:string",
-                    "name": ["Caption@en"],
-                },
+                "iri": "hyha:hasCaption",
+                "datatype": "xsd:string",
+                "name": ["Caption@en"],
                 "order": 1
             },
         ]
@@ -767,37 +753,29 @@ def testfulldatamodelresourcewithstandalone(client, token_headers, testemptydata
             "A page of a book@en"
         ],
         "closed": True,
-        "hasProperty": [
+        "properties": [
             {
-                "property": {
-                    "iri": "hyha:testProp2",
-                    "subPropertyOf": "hyha:testProp",
-                    "datatype": "rdf:langString",
-                    "name": ["Test Property@en", "Test Feld@de"],
-                    "description": ["Test Feld Beschreibung@de"],
-                    "languageIn": ["en", "fr", "it", "de"],
-                    "uniqueLang": True,
-                    "inSet": ["Kappa", "Gaga", "gugus"],
-                    "minLength": 1,
-                    "maxLength": 50,
-                    "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
-                    "minExclusive": 5.5,
-                    "minInclusive": 5.5,
-                    "maxExclusive": 5.5,
-                    "maxInclusive": 5.5,
-                    "lessThan": "hyha:testProp",
-                    "lessThanOrEquals": "hyha:testProp"
-                },
+                "iri": "hyha:testProp2",
+                "subPropertyOf": "hyha:testProp",
+                "datatype": "rdf:langString",
+                "name": ["Test Property@en", "Test Feld@de"],
+                "description": ["Test Feld Beschreibung@de"],
+                "languageIn": ["en", "fr", "it", "de"],
+                "uniqueLang": True,
+                "inSet": ["Kappa", "Gaga", "gugus"],
+                "minLength": 1,
+                "maxLength": 50,
+                "pattern": r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$",
+                "minExclusive": 5.5,
+                "minInclusive": 5.5,
+                "maxExclusive": 5.5,
+                "maxInclusive": 5.5,
+                "lessThan": "hyha:testProp",
+                "lessThanOrEquals": "hyha:testProp",
                 "maxCount": 3,
                 "minCount": 1,
                 "order": 1
             },
-            # {
-            #     "property": "hyha:testProp2",
-            #     "minCount": 1,
-            #     "maxCount": 1,
-            #     "order": 2
-            # }
         ]
     }, headers=header)
 
@@ -823,12 +801,14 @@ def testfullhlist(client, token_headers):
         "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeA', json={
         "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeB', json={
         "prefLabel": ["testrootnodelabel@en"],
@@ -836,6 +816,7 @@ def testfullhlist(client, token_headers):
         "position": "rightOf",
         "refnode": "nodeA"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeC', json={
         "prefLabel": ["testrootnodelabel@en"],
@@ -843,6 +824,7 @@ def testfullhlist(client, token_headers):
         "position": "rightOf",
         "refnode": "nodeB"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBA', json={
         "prefLabel": ["testrootnodelabel@en"],
@@ -850,6 +832,7 @@ def testfullhlist(client, token_headers):
         "position": "belowOf",
         "refnode": "nodeB"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBB', json={
         "prefLabel": ["testrootnodelabel@en"],
@@ -857,6 +840,7 @@ def testfullhlist(client, token_headers):
         "position": "rightOf",
         "refnode": "nodeBA"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBC', json={
         "prefLabel": ["testrootnodelabel@en"],
@@ -864,6 +848,7 @@ def testfullhlist(client, token_headers):
         "position": "rightOf",
         "refnode": "nodeBB"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBA', json={
         "prefLabel": ["testrootnodelabel@en"],
@@ -871,6 +856,7 @@ def testfullhlist(client, token_headers):
         "position": "belowOf",
         "refnode": "nodeBB"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBB', json={
         "prefLabel": ["testrootnodelabel@en"],
@@ -878,6 +864,7 @@ def testfullhlist(client, token_headers):
         "position": "rightOf",
         "refnode": "nodeBBA"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBC', json={
         "prefLabel": ["testrootnodelabel@en"],
@@ -885,6 +872,7 @@ def testfullhlist(client, token_headers):
         "position": "rightOf",
         "refnode": "nodeBBB"
     }, headers=header)
+    assert response.status_code == 200
 
     response = client.put('/admin/hlist/hyha/testfullhlist/nodeBBBA', json={
         "prefLabel": ["testrootnodelabel@en"],
@@ -892,6 +880,6 @@ def testfullhlist(client, token_headers):
         "position": "belowOf",
         "refnode": "nodeBBB"
     }, headers=header)
-
+    assert response.status_code == 200
 
     yield

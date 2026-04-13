@@ -16,7 +16,7 @@ def test_delete_whole_datamodel(client, token_headers, testemptydatamodel):
     res = response.json
     print(res)
     assert response.status_code == 404
-    assert res['message'] == 'Datamodel "hyha:shacl" not found'
+    assert res['message'] == 'Datamodel for project hyha not existing!'
 
 
 def test_delete_extonto(client, token_headers, testdatamodelwithexternalontology):
@@ -32,7 +32,7 @@ def test_delete_extonto(client, token_headers, testdatamodelwithexternalontology
     assert res['externalOntologies'] == []
 
 
-def test_delete_standalone_property(client, token_headers, testfulldatamodelstandaloneproplangstring):
+def test_delete_assertion_property(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]
 
     response = client.delete('/admin/datamodel/hyha/property/hyha:testProp2', headers=header)
@@ -41,13 +41,13 @@ def test_delete_standalone_property(client, token_headers, testfulldatamodelstan
 
     res = response.json
     print(res)
-    assert res['message'] == 'Standalone property in datamodel hyha successfully deleted'
+    assert res['message'] == 'Assertion property in datamodel hyha successfully deleted'
 
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
     print(res)
 
-    for ele in res["standaloneProperties"]:
+    for ele in res["annotationProperties"]:
         assert Iri(ele["iri"]).prefix != "hyha"
 
 
@@ -81,7 +81,7 @@ def test_delete_property_in_resource(client, token_headers, testfulldatamodelres
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
     print(res)
-    assert res["resources"][0]['hasProperty'] == []
+    assert res["resources"][0]['properties'] == []
 
 def test_bad_token(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]

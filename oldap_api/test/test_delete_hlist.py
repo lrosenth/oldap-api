@@ -32,6 +32,7 @@ def test_list_in_use(client, token_headers, testemptydatamodel, testfullhlist):
     hlist = response.json
 
     response = client.put('/admin/datamodel/hyha/property/hyha:testProp2', json={
+        "appliesToProperty": "hyha:gagaProp",
         "class": hlist['nodeClassIri'],
         "name": ["SELECTION@en", "SELECTION@de"],
     }, headers=header)
