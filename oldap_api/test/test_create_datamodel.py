@@ -1,6 +1,7 @@
 from pprint import pprint
 
 from oldaplib.src.xsd.iri import Iri
+from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 
 
 def test_create_empty_datamodel(client, token_headers, testproject):
@@ -17,7 +18,8 @@ def test_fill_empty_datamodel_with_extonto(client, token_headers, testemptydatam
 
     response = client.put('/admin/datamodel/hyha/extonto/crm', json={
         'namespaceIri': 'http://www.cidoc-crm.org/cidoc-crm/',
-        'label': 'CIDOC CRM'
+        'label': 'CIDOC CRM',
+        'proposedResourceClass': ['Gaga', 'Gugus'],
     }, headers=header)
     assert response.status_code == 200
 
@@ -25,6 +27,8 @@ def test_fill_empty_datamodel_with_extonto(client, token_headers, testemptydatam
     res = response.json
     assert response.status_code == 200
     assert res['externalOntologies'][0]['namespaceIri'] == "http://www.cidoc-crm.org/cidoc-crm/"
+    assert set(res['externalOntologies'][0]['proposedResourceClass']) == {'Gaga', 'Gugus'}
+
 
 
 def test_fill_empty_datamodel_with_assertion_prop(client, token_headers, testemptydatamodel):

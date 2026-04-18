@@ -232,7 +232,8 @@ def testdatamodelwithexternalontology(client, token_headers, testemptydatamodel)
 
     response = client.put('/admin/datamodel/hyha/extonto/frbr', json={
         'namespaceIri': 'http://purl.org/vocab/frbr/core#',
-        'label': 'Functional Requirements for Bibliographic Records (FRBR)@en'
+        'label': 'Functional Requirements for Bibliographic Records (FRBR)@en',
+        'proposedResourceClass': ['Gaga', 'Gugus', 'Waseliwas'],
     }, headers=header)
 
     yield

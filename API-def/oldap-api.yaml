@@ -1331,7 +1331,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Standalone property in datamodel {project} successfully created"
+                    example: "Annotation property in datamodel {project} successfully created"
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -1406,32 +1406,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              minProperties: 1
-              additionalProperties: false
-              properties:
-                label:
-                  description: Human readable Name for the external ontology reference
-                  oneOf:
-                    - $ref: '#/components/schemas/LangString'
-                    - type: object
-                      properties:
-                        add:
-                          $ref: '#/components/schemas/LangString'
-                        del:
-                          $ref: '#/components/schemas/LangString'
-                    - type: "null"
-                comment:
-                  description: A description of external ontology reference.
-                  oneOf:
-                    - $ref: '#/components/schemas/LangString'
-                    - type: object
-                      properties:
-                        add:
-                          $ref: '#/components/schemas/LangString'
-                        del:
-                          $ref: '#/components/schemas/LangString'
-                    - type: "null"
+              $ref: '#/components/schemas/ExternalOntology'
       responses:
         "200":
           description: "OK"
@@ -1455,9 +1430,9 @@ paths:
 
   /admin/datamodel/{project}/property/{property}:
     put:
-      summary: Adds a standalone property to an existing datamodel
+      summary: Adds a annotation property to an existing datamodel
       description:
-        Viewfunction to add a standalone property to an existing datamodel. A JSON is expectet that has the following form. 
+        Viewfunction to add a annotation property to an existing datamodel. A JSON is expectet that has the following form. 
         Either the class or the datatype must be given but not both at the same time. If the datatype is given, then all fields are optional. 
         If the class is given, only subPropertyOf, name and desctiption are allowed.
       security:
@@ -1491,7 +1466,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Standalone property in datamodel {project} successfully created"
+                    example: "Annotation property in datamodel {project} successfully created"
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -1502,9 +1477,9 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
     delete:
-      summary: Delete an entire standalone property inside the datamodel of a project
+      summary: Delete an entire annotation property inside the datamodel of a project
       description:
-        Viewfunction that deletes an entire standalone property inside the projects datamodel
+        Viewfunction that deletes an entire Annotation property inside the projects datamodel
       security:
         - AccessToken: [ ]
       parameters:
@@ -1530,7 +1505,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Standalone property in datamodel {project} successfully deleted"
+                    example: "Annotation property in datamodel {project} successfully deleted"
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -1541,9 +1516,9 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
     post:
-      summary: Modify a standalone property
+      summary: Modify a annotation property
       description:
-        Viewfunction to modify a standalone property. A JSON is expected that has the following form. At least one field
+        Viewfunction to modify a annotation property. A JSON is expected that has the following form. At least one field
         must be given. All fields are optional. At least one field must be given.
       security:
         - AccessToken: [ ]
@@ -3829,7 +3804,9 @@ components:
       items:
         type: string
         enum:
-          - StatementProperty
+          - AnnotationProperty
+          - DataProperty
+          - ObjectProperty
           - TransitiveProperty
           - SymmetricProperty
           - ReflexiveProperty
@@ -3858,6 +3835,7 @@ components:
     ExternalOntology:
       type: object
       additionalProperties: false
+      minProperties: 1
       properties:
         creator:
           type: string
@@ -3897,6 +3875,60 @@ components:
                 del:
                   $ref: '#/components/schemas/LangString'
             - type: "null"
+        proposedResourceClass:
+          description: Resource classes that can be proposed a superclasses
+          oneOf:
+            - type: array
+              items:
+                type: string
+            - type: object
+              properties:
+                add:
+                  type: array
+                  items:
+                    type: string
+                del:
+                  type: array
+                  items:
+                    type: string
+            - type: "null"
+        proposedDatatypePropertyClass:
+          description: Property classes that can be proposed a super-properties (owl:DatatypeProperty)
+          oneOf:
+            - type: array
+              items:
+                type: string
+            - type: object
+              properties:
+                add:
+                  type: array
+                  items:
+                    type: string
+                del:
+                  type: array
+                  items:
+                    type: string
+            - type: "null"
+        proposedObjectPropertyClass:
+          description: Property classes that can be proposed a super-properties (owl:DatatypeProperty)
+          oneOf:
+            - type: array
+              items:
+                type: string
+            - type: object
+              properties:
+                add:
+                  type: array
+                  items:
+                    type: string
+                del:
+                  type: array
+                  items:
+                    type: string
+            - type: "null"
+
+
+
 
     Property:
       type: object

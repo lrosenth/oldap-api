@@ -45,6 +45,7 @@ from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
 from oldap_api.apierror import ApiError
 from oldap_api.helpers.process_langstring import process_langstring
+from oldap_api.helpers.process_set import process_set
 from oldap_api.views import known_languages
 
 datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
@@ -103,6 +104,9 @@ def read_datamodel(project):
             "namespaceIri": str(dm[onto].namespaceIri),
             **({"label": [f'{value}@{lang.name.lower()}' for lang, value in dm[onto].label.items()]} if dm[onto].label else {}),
             **({"comment": [f'{value}@{lang.name.lower()}' for lang, value in dm[onto].comment.items()]} if dm[onto].comment else {}),
+            **({"proposedResourceClass" : [str(rc) for rc in dm[onto].proposedResourceClass]} if dm[onto].proposedResourceClass else {}),
+            **({"proposedDatatypePropertyClass": [str(rc) for rc in dm[onto].proposedDatatypePropertyClass]} if dm[onto].proposedDatatypePropertyClass else {}),
+            **({"proposedObjectPropertyClass": [str(rc) for rc in dm[onto].proposedObjectPropertyClass]} if dm[onto].proposedObjectPropertyClass else {})
         })
 
     #
@@ -122,6 +126,7 @@ def read_datamodel(project):
             **({"subPropertyOf": str(dm[prop].subPropertyOf)} if dm[prop].subPropertyOf is not None else {}),
             **({"appliesToProperty": str(dm[prop].appliesToProperty)} if dm[prop].appliesToProperty is not None else {}),
             **({"toClass": str(dm[prop].toClass)} if dm[prop].toClass is not None else {}),
+            **({"nodeKind": str(dm[prop].nodeKind)} if dm[prop].nodeKind is not None else {}),
             **({"datatype": str(dm[prop].datatype)} if dm[prop].datatype is not None else {}),
             **({"name": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].name.items()]} if dm[prop].name else {}),
             **({"description": [f'{value}@{lang.name.lower()}' for lang, value in dm[prop].description.items()]} if dm[prop].description else {}),
@@ -634,7 +639,8 @@ def add_external_ontology_to_datamodel(project, prefix):
     :raises: Raises exceptions for various connection, validation, and processing errors handled internally to
              provide user-friendly error messages with appropriate HTTP status codes
     """
-    known_json_fields = {"namespaceIri", "label", "comment"}
+    known_json_fields = {"namespaceIri", "label", "comment", "proposedResourceClass", "proposedDatatypePropertyClass",
+                         "proposedObjectPropertyClass"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -657,6 +663,9 @@ def add_external_ontology_to_datamodel(project, prefix):
     namespaceIri = data.get("namespaceIri", None)
     label = data.get("label", None)
     comment = data.get("comment", None)
+    proposedResourceClass = data.get("proposedResourceClass", None)
+    proposedDatatypePropertyClass = data.get("proposedDatatypePropertyClass", None)
+    proposedObjectPropertyClass = data.get("proposedObjectPropertyClass", None)
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -670,6 +679,9 @@ def add_external_ontology_to_datamodel(project, prefix):
                                    namespaceIri=NamespaceIRI(namespaceIri, validate=True),
                                    label=label,
                                    comment=comment,
+                                   proposedResourceClass=proposedResourceClass,
+                                   proposedDatatypePropertyClass=proposedDatatypePropertyClass,
+                                   proposedObjectPropertyClass=proposedObjectPropertyClass,
                                    validate=True)
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
@@ -718,7 +730,8 @@ def delete_external_ontology_to_datamodel(project, prefix):
 
 @datamodel_bp.route('/datamodel/<project>/extonto/<prefix>', methods=['POST'])
 def modify_external_ontology_in_datamodel(project, prefix):
-    known_json_fields = {"namespaceIri", "label", "comment"}
+    known_json_fields = {"namespaceIri", "label", "comment", "proposedResourceClass",
+                         "proposedDatatypePropertyClass", "proposedObjectPropertyClass"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -733,6 +746,9 @@ def modify_external_ontology_in_datamodel(project, prefix):
     namespaceIri = data.get("namespaceIri", "NotSent")
     label = data.get("label", "NotSent")
     comment = data.get("comment", "NotSent")
+    proposedResourceClass = data.get("proposedResourceClass", "NotSent")
+    proposedDatatypePropertyClass = data.get("proposedDatatypePropertyClass", "NotSent")
+    proposedObjectPropertyClass = data.get("proposedObjectPropertyClass", "NotSent")
 
     try:
         con = Connection(token=token,
@@ -754,6 +770,9 @@ def modify_external_ontology_in_datamodel(project, prefix):
             dm[onto].namespaceIri = NamespaceIRI(namespaceIri, validate=True)
         process_langstring(dm[onto], ExternalOntologyAttr.LABEL, label, dm[onto].notifier)
         process_langstring(dm[onto], ExternalOntologyAttr.COMMENT, comment, dm[onto].notifier)
+        process_set(dm[onto], ExternalOntologyAttr.PROPOSED_RESOURCE_CLASS, proposedResourceClass, dm[onto].notifier)
+        process_set(dm[onto], ExternalOntologyAttr.PROPOSED_DATATYPE_PROPERTY_CLASS, proposedDatatypePropertyClass, dm[onto].notifier)
+        process_set(dm[onto], ExternalOntologyAttr.PROPOSED_OBJECT_PROPERTY_CLASS, proposedObjectPropertyClass, dm[onto].notifier)
         dm.update()
     except OldapErrorKey as error:
         return jsonify({"message": str(error)}), 400

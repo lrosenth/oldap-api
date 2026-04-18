@@ -8,7 +8,8 @@ def test_modify_extonto(client, token_headers, testdatamodelwithexternalontology
 
     response = client.post('/admin/datamodel/hyha/extonto/frbr', json={
         "label": {'add': ['Waseliwassolldenndas@de']},
-        "comment": ["a comment@en", 'ein Kommentar@de']
+        "comment": ["a comment@en", 'ein Kommentar@de'],
+        'proposedResourceClass': {'del': ['Waseliwas'], 'add': ['Hallo', 'Velo']}
     }, headers=header)
     assert response.status_code == 200
     res = response.json
