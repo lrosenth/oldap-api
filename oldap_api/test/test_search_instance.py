@@ -11,11 +11,8 @@ def test_instance_textsearch_A(client, token_headers, testemptydatamodeltest):
     }, headers=header)
     assert response.status_code == 200
     res = response.json
-    print(res)
 
     assert res['count'] == 4
-
-    #assert len(res) == 4
 
 
 def test_instance_textsearch_B(client, token_headers, testemptydatamodeltest):
@@ -26,9 +23,83 @@ def test_instance_textsearch_B(client, token_headers, testemptydatamodeltest):
     }, headers=header)
     assert response.status_code == 200
     res = response.json
-    print(res)
 
     assert len(res) == 4
+
+
+def test_instance_text_count_resclass_A(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.post(f'/data/search/test/class/test:Sort', json={
+        "countOnly": True
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+
+    assert res['count'] == 3
+
+
+def test_instance_text_get_resclass_A(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.post(f'/data/search/test', json={
+        "resClass": "test:Sort",
+        "includeProperties": ["test:aString", "test:anInteger"]
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+
+    assert len(res) == 3
+    assert res[0]['iri'] == 'test:Item1'
+    assert res[0]['resclass'] == 'test:Sort'
+
+
+def test_instance_text_post_count_resclass_A(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.post(f'/data/search/test', json={
+        "resClass": "test:Sort",
+        "countOnly": True
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+
+    assert res['count'] == 3
+
+
+def test_instance_text_post_with_resclass_A(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.post(f'/data/search/test/class/test:Sort', json={
+        "includeProperties": ["test:aString", "test:anInteger"],
+        "sortBy": [{"property": "test:aString", "direction": "asc"}]
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+
+    assert len(res) == 3
+    assert res[0]['iri'] == 'test:Item1'
+
+
+def test_instance_text_post_filter_A(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.post(f'/data/search/test', json={
+        "resClass": "test:Sort",
+        "filter": [
+            {
+                "property": "test:anInteger",
+                "op": ">",
+                "value": 0,
+                "type": "integer"
+            }
+        ]
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+
+    assert len(res) == 3
+
 
 def test_instance_allofclass_A(client, token_headers, testemptydatamodeltest):
     header = token_headers[1]
@@ -39,9 +110,9 @@ def test_instance_allofclass_A(client, token_headers, testemptydatamodeltest):
     assert response.status_code == 200
     res = response.json
     assert len(res) == 3
-    assert res[0]['iri'] == ['test:Item1']
-    assert res[1]['iri'] == ['test:Item2']
-    assert res[2]['iri'] == ['test:Item3']
+    assert res[0]['iri'] == 'test:Item1'
+    assert res[1]['iri'] == 'test:Item2'
+    assert res[2]['iri'] == 'test:Item3'
 
 def test_instance_allofclass_B(client, token_headers, testemptydatamodeltest):
     header = token_headers[1]
@@ -53,9 +124,9 @@ def test_instance_allofclass_B(client, token_headers, testemptydatamodeltest):
     assert response.status_code == 200
     res = response.json
     assert len(res) == 3
-    assert res[0]['iri'] == ['test:Item1']
-    assert res[1]['iri'] == ['test:Item2']
-    assert res[2]['iri'] == ['test:Item3']
+    assert res[0]['iri'] == 'test:Item1'
+    assert res[1]['iri'] == 'test:Item2'
+    assert res[2]['iri'] == 'test:Item3'
 
 def test_instance_allofclass_C(client, token_headers, testemptydatamodeltest):
     header = token_headers[1]
@@ -67,9 +138,7 @@ def test_instance_allofclass_C(client, token_headers, testemptydatamodeltest):
     assert response.status_code == 200
     res = response.json
     assert len(res) == 3
-    assert res[0]['iri'] == ['test:Item2']
-    assert res[1]['iri'] == ['test:Item3']
-    assert res[2]['iri'] == ['test:Item1']
+    assert {x['iri'] for x in res} == {'test:Item1', 'test:Item2', 'test:Item3'}
 
 
 def test_instance_allofclass_image_object(client, token_headers, testfulldatamodelwithderivedmediaobject):

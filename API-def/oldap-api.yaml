@@ -54,6 +54,12 @@ paths:
       description: "Logout from system"
       security:
         - AccessToken: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: "OK"
@@ -1276,7 +1282,8 @@ paths:
           description: Successful download of datamodel
           content:
             application/trig:
-              schema: string
+              schema:
+                type: string
           headers:
             Content-Disposition:
               description: Name of download file
@@ -2938,8 +2945,8 @@ paths:
 
   /data/textsearch/{project}:
     get:
-      summary: "Get hlist by iri"
-      description: "Get all hlist data from the hlist iri"
+      summary: "Search all text fields in instances"
+      description: "Compatibility endpoint for ResourceInstance.search_fulltext. Searches all available text fields for the given string and optionally restricts results to a resource class."
       security:
         - AccessToken: [ ]
       parameters:
@@ -2953,13 +2960,99 @@ paths:
           name: searchString
           schema:
             type: string
-          description: string that a text property should contain
+          description: String that any text property should contain
+          required: true
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Alias for searchString
         - in: query
           name: resClass
           schema:
             type: string
+            pattern: ^([A-Za-z_][A-Za-z0-9:_-]*:)?[A-Za-z_][A-Za-z0-9:_-]*$
           description: Restrict the search to the given resource class
-          pattern: ^([A-Za-z_][A-Za-z0-9:_-]*:)?[A-Za-z_][A-Za-z0-9:_-]*$
+        - in: query
+          name: countOnly
+          schema:
+            type: boolean
+          description: A flag. If set to true returns only the count of hits
+        - in: query
+          name: sortBy
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [PROPVAL, CREATED, LASTMOD, PROPVAL|asc, PROPVAL|desc, CREATED|asc, CREATED|desc, LASTMOD|asc, LASTMOD|desc]
+          description: Sort by matched property value, creation date or last modification date
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+          description: Maximum number of results to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+          description: Start at record with the given number
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    description: Search result list
+                    items:
+                      type: object
+                      additionalProperties: {}
+                  - type: object
+                    description: Count result
+                    properties:
+                      count:
+                        type: integer
+                    required:
+                      - count
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /data/text/{project}:
+    get:
+      summary: "Search all text fields in instances"
+      description: "Searches all available text fields for the given string via ResourceInstance.search_fulltext. The optional resource class can be provided as the resClass query parameter."
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: path
+          name: project
+          schema:
+            type: string
+          description: The name of the project where the datamodel is located
+          required: true
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Full-text query to search in all available text fields
+        - in: query
+          name: searchString
+          schema:
+            type: string
+          description: string that a text property should contain. Kept for backwards compatibility with /data/textsearch.
+        - in: query
+          name: resClass
+          schema:
+            type: string
+            pattern: ^([A-Za-z_][A-Za-z0-9:_-]*:)?[A-Za-z_][A-Za-z0-9:_-]*$
+          description: Restrict the search to the given resource class
         - in: query
           name: countOnly
           schema:
@@ -2977,13 +3070,13 @@ paths:
           name: limit
           schema:
             type: integer
-          default: 100
+            default: 100
           description: Maximum number of results to return
         - in: query
           name: offset
           schema:
             type: integer
-          default: 0
+            default: 0
           description: Start at record with the given number
       responses:
         "200":
@@ -2992,9 +3085,300 @@ paths:
             application/json:
               schema:
                 oneOf:
+                  - type: array
+                    description: Search result list
+                    items:
+                      type: object
+                      additionalProperties: {}
                   - type: object
-                    description: Mapping Xsd_QName → Any
-                    additionalProperties:
+                    description: Count result
+                    properties:
+                      count:
+                        type: integer
+                    required:
+                      - count
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+  /data/search/{project}:
+    post:
+      summary: "Structured search for instances using a JSON body"
+      description: "Structured property-based instance search. Use this endpoint for filter, ftfilter and hlfilter searches where each criterion refers to a property."
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: path
+          name: project
+          schema:
+            type: string
+          description: The name of the project where the datamodel is located
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                q:
+                  type: string
+                  description: Full-text query. Without ftProperty, searches all available text fields via search_fulltext; with ftProperty, searches that property.
+                searchString:
+                  type: string
+                  description: Legacy name for q
+                ftProperty:
+                  type: string
+                  description: Optional property used together with q or searchString for property-specific full-text search
+                resClass:
+                  type: string
+                  description: Restrict the search to the given resource class
+                  pattern: ^([A-Za-z_][A-Za-z0-9:_-]*:)?[A-Za-z_][A-Za-z0-9:_-]*$
+                includeProperties:
+                  type: array
+                  items:
+                    type: string
+                  description: Properties to include in the result
+                filter:
+                  type: array
+                  description: Normal property filters and logic operators
+                  items:
+                    oneOf:
+                      - type: string
+                      - type: object
+                        additionalProperties: true
+                ftfilter:
+                  type: array
+                  description: Full-text filters and AND/OR operators
+                  items:
+                    oneOf:
+                      - type: string
+                      - type: object
+                        additionalProperties: true
+                hlfilter:
+                  type: array
+                  description: Hierarchical-list filters and logic operators
+                  items:
+                    oneOf:
+                      - type: string
+                      - type: object
+                        additionalProperties: true
+                countOnly:
+                  type: boolean
+                  description: A flag. If set to true returns only the count of hits
+                sortBy:
+                  type: array
+                  items:
+                    type: string
+                  description: Sort according to PROPVAL, CREATED or LASTMOD, optionally with |asc or |desc
+                limit:
+                  type: integer
+                  default: 100
+                  description: Maximum number of results to return
+                offset:
+                  type: integer
+                  default: 0
+                  description: Start at record with the given number
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    description: Search result list
+                    items:
+                      type: object
+                      additionalProperties: {}
+                  - type: object
+                    description: Count result
+                    properties:
+                      count:
+                        type: integer
+                    required:
+                      - count
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /data/text/{project}/class/{resclass}:
+    get:
+      summary: "Search all text fields in instances of a class"
+      description: "Searches all available text fields for the given string via ResourceInstance.search_fulltext, restricted to the given resource class."
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: path
+          name: project
+          schema:
+            type: string
+          description: The name of the project where the datamodel is located
+          required: true
+        - in: path
+          name: resclass
+          schema:
+            type: string
+            pattern: ^([A-Za-z_][A-Za-z0-9:_-]*:)?[A-Za-z_][A-Za-z0-9:_-]*$
+          description: Restrict the search to the given resource class
+          required: true
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Full-text query to search in all available text fields
+        - in: query
+          name: searchString
+          schema:
+            type: string
+          description: string that a text property should contain
+        - in: query
+          name: countOnly
+          schema:
+            type: boolean
+          description: A flag. If set to true returns only the count of hits
+        - in: query
+          name: sortBy
+          schema:
+            type: array
+            items:
+              type: string
+          description: Sort according to value (PROPVAL), creation date (CREATED) or last modification (LASTMOD), optionally with |asc or |desc
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+          description: Maximum number of results to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+          description: Start at record with the given number
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    description: Search result list
+                    items:
+                      type: object
+                      additionalProperties: {}
+                  - type: object
+                    description: Count result
+                    properties:
+                      count:
+                        type: integer
+                    required:
+                      - count
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+  /data/search/{project}/class/{resclass}:
+    post:
+      summary: "Structured search for instances by class using a JSON body"
+      description: "Structured property-based instance search restricted to the given resource class. Use this endpoint for filter, ftfilter and hlfilter searches where each criterion refers to a property."
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - in: path
+          name: project
+          schema:
+            type: string
+          description: The name of the project where the datamodel is located
+          required: true
+        - in: path
+          name: resclass
+          schema:
+            type: string
+            pattern: ^([A-Za-z_][A-Za-z0-9:_-]*:)?[A-Za-z_][A-Za-z0-9:_-]*$
+          description: Restrict the search to the given resource class
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                q:
+                  type: string
+                  description: Full-text query. Without ftProperty, searches all available text fields via search_fulltext; with ftProperty, searches that property.
+                searchString:
+                  type: string
+                  description: Legacy name for q
+                ftProperty:
+                  type: string
+                  description: Optional property used together with q or searchString for property-specific full-text search
+                includeProperties:
+                  type: array
+                  items:
+                    type: string
+                  description: Properties to include in the result
+                filter:
+                  type: array
+                  description: Normal property filters and logic operators
+                  items:
+                    oneOf:
+                      - type: string
+                      - type: object
+                        additionalProperties: true
+                ftfilter:
+                  type: array
+                  description: Full-text filters and AND/OR operators
+                  items:
+                    oneOf:
+                      - type: string
+                      - type: object
+                        additionalProperties: true
+                hlfilter:
+                  type: array
+                  description: Hierarchical-list filters and logic operators
+                  items:
+                    oneOf:
+                      - type: string
+                      - type: object
+                        additionalProperties: true
+                countOnly:
+                  type: boolean
+                  description: A flag. If set to true returns only the count of hits
+                sortBy:
+                  type: array
+                  items:
+                    type: string
+                  description: Sort according to PROPVAL, CREATED or LASTMOD, optionally with |asc or |desc
+                limit:
+                  type: integer
+                  default: 100
+                  description: Maximum number of results to return
+                offset:
+                  type: integer
+                  default: 0
+                  description: Start at record with the given number
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    description: Search result list
+                    items:
                       type: object
                       additionalProperties: {}
                   - type: object
@@ -3026,8 +3410,8 @@ paths:
           name: resClass
           schema:
             type: string
+            pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
           description: Restrict the search to the given resource class
-          pattern: ^([A-Za-z_][A-Za-z0-9._-]*:)?[A-Za-z_][A-Za-z0-9._-]*$
           required: true
         - in: query
           name: includeProperties
@@ -3056,13 +3440,13 @@ paths:
           name: limit
           schema:
             type: integer
-          default: 100
+            default: 100
           description: Maximum number of results to return
         - in: query
           name: offset
           schema:
             type: integer
-          default: 0
+            default: 0
           description: Start at record with the given number
       responses:
         "200":
@@ -3077,16 +3461,21 @@ paths:
                       type: object
                       description: Mapping Xsd_QName → Any
                       additionalProperties:
-                        type: array
-                        items:
-                          type: string
+                        oneOf:
+                          - type: string
+                          - type: number
+                          - type: boolean
+                          - type: "null"
+                          - $ref: "#/components/schemas/ValueArray"
+                          - type: object
+                            additionalProperties: true
 
                   # Count-only result: {"class": <number>}
                   - type: object
                     properties:
                       count:
                         type: integer
-                    required: [class]
+                    required: [count]
                     additionalProperties: false
         "400":
           $ref: '#/components/responses/BadRequest'
@@ -3424,7 +3813,7 @@ paths:
                         - dcmitye:MovingImage
                         - dcmitype:Sound
                         - dcmitype:Text
-                  description: The dcmitype
+                    description: The dcmitype
                   "shared:originalMimeType":
                     type: string
                     description: original MIME type
@@ -3926,9 +4315,6 @@ components:
                   items:
                     type: string
             - type: "null"
-
-
-
 
     Property:
       type: object

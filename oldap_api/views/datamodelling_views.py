@@ -83,6 +83,7 @@ def read_datamodel(project):
     current_app.logger.debug(f'Project {project}: Number of resources classes found: {len(dm.get_resclasses())}')
     current_app.logger.debug(f'Project {project}: Number of properties found: {len(dm.get_propclasses())}')
 
+
     extontos = set(dm.get_extontos())
     propclasses = set(dm.get_propclasses())
     resclasses = set(dm.get_resclasses())
@@ -95,6 +96,10 @@ def read_datamodel(project):
     }
 
     for onto in extontos:
+        #current_app.logger.debug(dm[onto].proposedResourceClass)
+        print(onto, "--->", dm[onto].proposedResourceClass)
+        print(onto, "--->", dm[onto].proposedDatatypePropertyClass)
+        print(onto, "--->", dm[onto].proposedObjectPropertyClass)
         res['externalOntologies'].append({
             **({"created": str(dm[onto].created)} if dm[onto].created is not None else {}),
             **({"creator": str(dm[onto].creator)} if dm[onto].creator is not None else {}),
@@ -202,6 +207,7 @@ def read_datamodel(project):
             }
             rdata["properties"].append(pdata)
         res["resources"].append(rdata)
+    #print(json.dumps(res, indent=4))
     return res, 200
 
 @datamodel_bp.route('/datamodel/<project>', methods=['PUT'])

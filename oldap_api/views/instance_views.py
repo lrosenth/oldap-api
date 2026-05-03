@@ -10,12 +10,18 @@ from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapEr
     OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.query_processor import QueryProcessor
-from oldaplib.src.objectfactory import ResourceInstance, ResourceInstanceFactory, SortBy, SortDir
+from oldaplib.src.objectfactory import CompOp, FTSearchFilter, HLSearchFilter, LogicOp, ResourceInstance, \
+    ResourceInstanceFactory, SearchFilter, SortBy, SortDir, SortKind, convert2datatype
 from oldaplib.src.xsd.xsd import Xsd
 from oldaplib.src.xsd.iri import Iri
+from oldaplib.src.xsd.listnode import HListNode
+from oldaplib.src.xsd.xsd_date import Xsd_date
+from oldaplib.src.xsd.xsd_datetime import Xsd_dateTime
+from oldaplib.src.xsd.xsd_decimal import Xsd_decimal
 from oldaplib.src.xsd.xsd_integer import Xsd_integer
 from oldaplib.src.xsd.floatingpoint import FloatingPoint
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
+from oldaplib.src.xsd.dating import Dating
 
 from oldaplib.src.helpers.context import Context
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
@@ -25,15 +31,356 @@ from oldaplib.src.xsd.xsd_string import Xsd_string
 instance_bp = Blueprint('instance', __name__, url_prefix='/data')
 
 
-def to_json_compatible_value(val) -> str | int | None:
-    if isinstance(val, Xsd_integer):
-        return int(val) if val else None
+def get_authorization_token() -> tuple[str | None, tuple[Any, int] | None]:
+    out = request.headers.get('Authorization')
+    if out is None:
+        return None, (jsonify({"message": "No authorization token provided"}), 401)
+    parts = out.split()
+    if len(parts) != 2:
+        return None, (jsonify({"message": "Invalid authorization header"}), 401)
+    b, token = parts
+    if b.lower() != "bearer" or not token:
+        return None, (jsonify({"message": "Invalid authorization header"}), 401)
+    return token, None
+
+
+def to_json_compatible_value(val):
+    if isinstance(val, dict):
+        return {str(k): to_json_compatible_value(v) for k, v in val.items()}
+    elif isinstance(val, list):
+        return [to_json_compatible_value(v) for v in val]
+    elif isinstance(val, bool):
+        return val
+    elif isinstance(val, (int, float)):
+        return val
+    elif isinstance(val, Xsd_integer):
+        return int(val) if val is not None else None
     elif isinstance(val, FloatingPoint):
-        return float(val) if val else None
+        return float(val) if val is not None else None
     elif isinstance(val, Xsd_boolean):
-        return bool(val) if val else None
+        return bool(val) if val is not None else None
     else:
-        return str(val) if val else None
+        return str(val) if val is not None else None
+
+
+def parse_bool_query_param(value: str | bool | None) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    return str(value).lower() in {"1", "true", "t", "yes", "y"}
+
+
+def parse_logic_op(value: str) -> LogicOp:
+    logic_map = {
+        "AND": LogicOp.AND,
+        "&&": LogicOp.AND,
+        "OR": LogicOp.OR,
+        "||": LogicOp.OR,
+        "(": LogicOp.LEFT_,
+        "LEFT": LogicOp.LEFT_,
+        "LEFT_": LogicOp.LEFT_,
+        ")": LogicOp._RIGHT,
+        "RIGHT": LogicOp._RIGHT,
+        "_RIGHT": LogicOp._RIGHT,
+    }
+    try:
+        return logic_map[str(value).upper()]
+    except KeyError as err:
+        raise OldapErrorValue(f'Invalid logic operator "{value}".') from err
+
+
+def parse_comp_op(value: str) -> CompOp:
+    for op in CompOp:
+        if str(value).upper() == op.name or str(value).lower() == op.value:
+            return op
+    raise OldapErrorValue(f'Invalid comparison operator "{value}".')
+
+
+def parse_search_value(value: Any, value_type: str | None = None, lang: str | None = None):
+    if isinstance(value, dict) and (value_type is None or value_type.lower() == "dating"):
+        return Dating(dateStart=value.get("dateStart"),
+                      dateEnd=value.get("dateEnd", None),
+                      verbatimDate=value.get("verbatimDate", None))
+    if value_type is None:
+        value_type = "string"
+    match value_type.lower():
+        case "string" | "langstring":
+            return Xsd_string(value, lang=lang)
+        case "int" | "integer":
+            return Xsd_integer(value, validate=True)
+        case "decimal":
+            return Xsd_decimal(value, validate=True)
+        case "float" | "double":
+            return FloatingPoint(value)
+        case "bool" | "boolean":
+            return Xsd_boolean(value, validate=True)
+        case "iri":
+            return Iri(value, validate=True)
+        case "qname":
+            return Xsd_QName(value, validate=True)
+        case "date":
+            return Xsd_date(value, validate=True)
+        case "datetime":
+            return Xsd_dateTime(value, validate=True)
+        case "dating":
+            return Dating(value)
+        case _:
+            raise OldapErrorValue(f'Invalid search value type "{value_type}".')
+
+
+def parse_search_filter_items(items: list[Any]) -> list[SearchFilter | LogicOp]:
+    result: list[SearchFilter | LogicOp] = []
+    for item in items:
+        if isinstance(item, str):
+            result.append(parse_logic_op(item))
+            continue
+        if not isinstance(item, dict):
+            raise OldapErrorValue("Filter entries must be objects or logic operator strings.")
+        if "logic" in item:
+            result.append(parse_logic_op(item["logic"]))
+            continue
+        prop = item.get("property", item.get("prop", None))
+        op = item.get("op", None)
+        if not prop or not op:
+            raise OldapErrorValue('Filter entries require "property" and "op".')
+        result.append(SearchFilter(prop=Xsd_QName(prop, validate=True),
+                                   op=parse_comp_op(op),
+                                   value=parse_search_value(item.get("value", None),
+                                                            item.get("type", None),
+                                                            item.get("lang", None))))
+    return result
+
+
+def parse_ftfilter_items(items: list[Any]) -> list[FTSearchFilter | str]:
+    result: list[FTSearchFilter | str] = []
+    for item in items:
+        if isinstance(item, str):
+            logic = str(item).upper()
+            if logic not in {"AND", "OR"}:
+                raise OldapErrorValue(f'Invalid fulltext logic operator "{item}".')
+            result.append(logic)
+            continue
+        if not isinstance(item, dict):
+            raise OldapErrorValue("Fulltext filter entries must be objects or AND/OR strings.")
+        prop = item.get("property", item.get("prop", None))
+        query = item.get("query", item.get("q", None))
+        if not prop or not query:
+            raise OldapErrorValue('Fulltext filter entries require "property" and "query".')
+        result.append(FTSearchFilter(prop=Xsd_QName(prop, validate=True), query=str(query)))
+    return result
+
+
+def parse_hlfilter_items(items: list[Any]) -> list[HLSearchFilter | LogicOp]:
+    result: list[HLSearchFilter | LogicOp] = []
+    for item in items:
+        if isinstance(item, str):
+            result.append(parse_logic_op(item))
+            continue
+        if not isinstance(item, dict):
+            raise OldapErrorValue("Hierarchical list filter entries must be objects or logic operator strings.")
+        if "logic" in item:
+            result.append(parse_logic_op(item["logic"]))
+            continue
+        prop = item.get("property", item.get("prop", None))
+        node = item.get("node", None)
+        if not prop or not node:
+            raise OldapErrorValue('Hierarchical list filter entries require "property" and "node".')
+        result.append(HLSearchFilter(prop=Xsd_QName(prop, validate=True),
+                                     node=HListNode(node, validate=True)))
+    return result
+
+
+def parse_text_search_sort_by(sort_by_values: list[str | dict[str, Any]]) -> list[SortBy]:
+    field_map = {
+        "PROPVAL": Xsd_QName("oldap:propval"),
+        "CREATED": Xsd_QName("oldap:creationDate"),
+        "LASTMOD": Xsd_QName("oldap:lastModificationDate"),
+    }
+    sort_by_param: list[SortBy] = []
+    for val in sort_by_values:
+        kind = SortKind.AUTO
+        if isinstance(val, dict):
+            field = val.get("property", val.get("prop", None))
+            if not field:
+                raise OldapErrorValue('Sort entries require "property".')
+            direction = SortDir(str(val.get("direction", val.get("dir", "asc"))).lower())
+            kind = SortKind(str(val.get("kind", "auto")).lower())
+        else:
+            tmp = val.split("|")
+            field = tmp[0]
+            direction = SortDir.asc
+            if len(tmp) > 1:
+                if tmp[1].upper() == "DESC":
+                    direction = SortDir.desc
+                elif tmp[1].upper() != "ASC":
+                    raise OldapErrorValue(f'The sort direction "{tmp[1]}" is invalid. Usable are "ASC" and "DESC".')
+        if field.upper() in field_map:
+            property_ = field_map[field.upper()]
+        else:
+            property_ = Xsd_QName(field, validate=True)
+        sort_by_param.append(SortBy(property_, direction, kind))
+    return sort_by_param
+
+
+def parse_text_search_request(resclass: str | None = None,
+                              allow_search_fulltext: bool = False) -> tuple[dict[str, Any] | None, tuple[Any, int] | None]:
+    known_fields = {
+        "q", "searchString", "ftProperty", "resClass", "resclass", "includeProperties", "filter", "ftfilter", "hlfilter",
+        "countOnly", "sortBy", "sortBy[]", "limit", "offset",
+    }
+
+    if request.method == "POST":
+        if not request.is_json:
+            return None, (jsonify({"message": "Invalid request format, JSON required"}), 400)
+        data = request.get_json()
+        if not isinstance(data, dict):
+            return None, (jsonify({"message": "Invalid request format, JSON object required"}), 400)
+        unknown_field = set(data.keys()) - known_fields
+        if unknown_field:
+            return None, (jsonify({"message": f"The Field/s {unknown_field} is/are not used to search for an instance. Usable are {known_fields}. Aborted operation"}), 400)
+
+        raw = {
+            "search_string": data.get("q", data.get("searchString", None)),
+            "count_only": parse_bool_query_param(data.get("countOnly", None)),
+            "ft_property": data.get("ftProperty", None),
+            "res_class": resclass or data.get("resClass", data.get("resclass", None)),
+            "include_properties": data.get("includeProperties", None),
+            "filter": data.get("filter", None),
+            "ftfilter": data.get("ftfilter", None),
+            "hlfilter": data.get("hlfilter", None),
+            "sort_by": data.get("sortBy[]", data.get("sortBy", [])),
+            "limit": data.get("limit", None),
+            "offset": data.get("offset", None),
+        }
+    else:
+        if request.args:
+            unknown_field = set(request.args.keys()) - known_fields
+        else:
+            unknown_field = set()
+        if unknown_field:
+            return None, (jsonify({"message": f"The Field/s {unknown_field} is/are not used to search for an instance. Usable are {known_fields}. Aborted operation"}), 400)
+
+        raw = {
+            "search_string": request.args.get("q", request.args.get("searchString", None)),
+            "count_only": parse_bool_query_param(request.args.get("countOnly", None)),
+            "ft_property": request.args.get("ftProperty", None),
+            "res_class": resclass or request.args.get("resClass", request.args.get("resclass", None)),
+            "include_properties": request.args.getlist("includeProperties[]") or request.args.getlist("includeProperties"),
+            "filter": None,
+            "ftfilter": None,
+            "hlfilter": None,
+            "sort_by": request.args.getlist("sortBy[]") or request.args.getlist("sortBy"),
+            "limit": request.args.get("limit", None),
+            "offset": request.args.get("offset", None),
+        }
+
+    if allow_search_fulltext:
+        if not raw["search_string"]:
+            return None, (jsonify({"message": "No search string provided"}), 400)
+        if any([raw["ft_property"], raw["include_properties"], raw["filter"], raw["ftfilter"], raw["hlfilter"]]):
+            return None, (jsonify({"message": "Structured search options require /data/search."}), 400)
+
+    try:
+        params: dict[str, Any] = {
+            'countOnly': raw["count_only"],
+            'searchstr': str(raw["search_string"]).lower() if raw["search_string"] else None,
+            'use_search_fulltext': False,
+        }
+        if raw["res_class"]:
+            params['resClass'] = Xsd_QName(raw["res_class"], validate=True)
+        if raw["include_properties"]:
+            include_properties = raw["include_properties"]
+            if not isinstance(include_properties, list):
+                raise OldapErrorValue('"includeProperties" must be a list.')
+            params['includeProperties'] = {Xsd_QName(x, validate=True) for x in include_properties}
+        if raw["filter"]:
+            if not isinstance(raw["filter"], list):
+                raise OldapErrorValue('"filter" must be a list.')
+            params['filter'] = parse_search_filter_items(raw["filter"])
+        if raw["ftfilter"]:
+            if not isinstance(raw["ftfilter"], list):
+                raise OldapErrorValue('"ftfilter" must be a list.')
+            params['ftfilter'] = parse_ftfilter_items(raw["ftfilter"])
+        elif raw["search_string"]:
+            if raw["ft_property"]:
+                params['ftfilter'] = [FTSearchFilter(prop=Xsd_QName(raw["ft_property"], validate=True),
+                                                    query=str(raw["search_string"]))]
+            elif allow_search_fulltext and not any([raw["include_properties"], raw["filter"], raw["hlfilter"]]):
+                params['use_search_fulltext'] = True
+            else:
+                raise OldapErrorValue('Fulltext search with "q" requires "ftProperty". Alternatively use "ftfilter".')
+        if raw["hlfilter"]:
+            if not isinstance(raw["hlfilter"], list):
+                raise OldapErrorValue('"hlfilter" must be a list.')
+            params['hlfilter'] = parse_hlfilter_items(raw["hlfilter"])
+        if raw["sort_by"]:
+            sort_by = raw["sort_by"]
+            if not isinstance(sort_by, list):
+                sort_by = [sort_by]
+            params['sortBy'] = parse_text_search_sort_by(sort_by)
+        if raw["limit"]:
+            params['limit'] = int(raw["limit"])
+        if raw["offset"]:
+            params['offset'] = int(raw["offset"])
+    except (ValueError, OldapErrorValue, OldapError) as error:
+        return None, (jsonify({"message": str(error)}), 400)
+
+    if not params['use_search_fulltext'] and not any([
+        params.get('resClass'), params.get('filter'), params.get('ftfilter'), params.get('hlfilter')
+    ]):
+        return None, (jsonify({"message": "Search without filters requires resClass, filter, ftfilter or hlfilter."}), 400)
+
+    return params, None
+
+
+def text_search_response(project: str, resclass: str | None = None, allow_search_fulltext: bool = False):
+    route = f"/data/text/{project}" if allow_search_fulltext else f"/data/search/{project}"
+    if resclass:
+        route += f"/class/{resclass}"
+    current_app.logger.info(f"{route} with {request.method} called")
+
+    project = unquote(project)
+    resclass = unquote(resclass) if resclass else None
+
+    token, auth_error = get_authorization_token()
+    if auth_error:
+        return auth_error
+
+    params, parse_error = parse_text_search_request(resclass=resclass,
+                                                    allow_search_fulltext=allow_search_fulltext)
+    if parse_error:
+        return parse_error
+
+    try:
+        con = Connection(token=token,
+                         context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        searchstr = params.pop('searchstr')
+        use_search_fulltext = params.pop('use_search_fulltext')
+        if use_search_fulltext:
+            res = ResourceInstance.search_fulltext(con=con,
+                                                   project=Xsd_NCName(project, validate=True),
+                                                   searchstr=searchstr,
+                                                   **params)
+        else:
+            res = ResourceInstance.search(con=con,
+                                          project=Xsd_NCName(project, validate=True),
+                                          **params)
+    except OldapError as error:
+        return jsonify({"message": f"Search failed: {str(error)}"}), 400
+
+    if params['countOnly']:
+        return jsonify({"count": to_json_compatible_value(res)}), 200
+    else:
+        if isinstance(res, dict):
+            tmp = {str(key): {str(x): to_json_compatible_value(y) for x, y in value.items()} for key, value in res.items()}
+        else:
+            tmp = to_json_compatible_value(res)
+        return jsonify(tmp), 200
 
 
 @instance_bp.route('/mediaobject/id/<imageid>', methods=['GET'])
@@ -91,72 +438,21 @@ def media_object_by_iri(imageiri):
         return jsonify({"message": "MediaObject not found"}), 404
     return jsonify({key: [to_json_compatible_value(x) for x in val] if isinstance(val, list) else to_json_compatible_value(val) for key, val in res.items()}), 200
 
+@instance_bp.route('/text/<path:project>', methods=['GET'])
+@instance_bp.route('/text/<path:project>/class/<path:resclass>', methods=['GET'])
+def text_instance(project, resclass=None):
+    return text_search_response(project=project, resclass=resclass, allow_search_fulltext=True)
+
+
+@instance_bp.route('/search/<path:project>', methods=['GET', 'POST'])
+@instance_bp.route('/search/<path:project>/class/<path:resclass>', methods=['GET', 'POST'])
+def search_instance(project, resclass=None):
+    return text_search_response(project=project, resclass=resclass)
+
+
 @instance_bp.route('/textsearch/<path:project>', methods=['GET'])
 def textsearch_instance(project):
-    current_app.logger.info(f"/data/textsearch/{project} with GET called")
-    project = unquote(project)
-    known_json_fields = {"searchString", "countOnly", "resclass", "sortBy", "limit", "offset"}
-    out = request.headers['Authorization']
-    b, token = out.split()
-
-    if request.args:
-        unknown_json_field = set(request.args.keys()) - known_json_fields
-    else:
-        unknown_json_field = set()
-    if unknown_json_field:
-        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to search for a permissionset. Usable are {known_json_fields}. Aborded operation"}), 400
-
-    searchString = getattr(request, "args", {}).get("searchString", None)
-    countOnly = getattr(request, "args", {}).get("countOnly", None)
-    resClass = getattr(request, "args", {}).get("resClass", None)
-    sortBy = getattr(request, "args", {}).get("sortBy", None)
-    limit = getattr(request, "args", {}).get("limit", None)
-    offset = getattr(request, "args", {}).get("offset", None)
-
-    if not searchString:
-        return jsonify({"message": "No search string provided"}), 400
-    try:
-        params: dict[str, Any] = {
-            'searchstr': str(searchString),
-        }
-        if countOnly:
-            params['countOnly'] = True
-        if sortBy:
-            if sortBy == "PROPVAL":
-                params['sortBy'] = SortBy.PROPVAL
-            elif sortBy == "CREATED":
-                params['sortBy'] = SortBy.CREATED
-            elif sortBy == "LASTMOD":
-                params['sortBy'] = SortBy.LASTMOD
-            else:
-                return jsonify({"message": f'The Field/s {sortBy} is invalid. Usable are "PROPVAL", "CREATED", "LASTMOD". Aborded operation'}), 400
-        if resClass:
-            params['resClass'] = Xsd_QName(resClass, validate=True)
-        if limit:
-            params['limit'] = int(limit)
-        if offset:
-            params['offset'] = int(offset)
-    except (OldapErrorValue, OldapError) as error:
-        return jsonify({"message": str(error)}), 400
-
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
-
-    try:
-        res = ResourceInstance.search_fulltext(con=con,
-                                               projectShortName=Xsd_NCName(project, validate=True),
-                                               **params)
-    except OldapError as error:
-        return jsonify({"message": f"Search failed: {str(error)}"}), 400
-
-    if countOnly:
-        return jsonify({"count": res.value}), 200
-    else:
-        tmp = {str(key): {str(x): str(y) for x, y in value.items()} for key, value in res.items()}
-        return jsonify(tmp), 200
+    return text_search_response(project=project, allow_search_fulltext=True)
 
 
 @instance_bp.route('/ofclass/<path:project>', methods=['GET'])
@@ -187,13 +483,14 @@ def allofclass_instance(project):
     if not resClass:
         return jsonify({"message": "No resource class provided"}), 400
     try:
+        count_only = parse_bool_query_param(countOnly)
         params: dict[str, Any] = {
             'resClass': Xsd_QName(resClass),
         }
         if includeProperties:
-            params['includeProperties'] = [Xsd_QName(x, validate=True) for x in includeProperties] if isinstance(includeProperties, list) else [Xsd_QName(includeProperties, validate=True)]
-        if countOnly:
-            params['countOnly'] = True
+            params['includeProperties'] = {Xsd_QName(x, validate=True) for x in includeProperties} if isinstance(includeProperties, list) else {Xsd_QName(includeProperties, validate=True)}
+        if countOnly is not None:
+            params['countOnly'] = count_only
         if sortBy:
             sortByParam: list[SortBy] = []
             for val in sortBy:
@@ -219,16 +516,16 @@ def allofclass_instance(project):
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     try:
-        res = ResourceInstance.all_resources(con=con,
-                                             projectShortName=Xsd_NCName(project, validate=True),
-                                             **params)
+        res = ResourceInstance.search(con=con,
+                                      project=Xsd_NCName(project, validate=True),
+                                      **params)
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 400
 
-    if countOnly:
-        return jsonify({"count": res.value}), 200
+    if count_only:
+        return jsonify({"count": to_json_compatible_value(res)}), 200
     else:
-        tmp = [{str(prop): [str(val) for val in vals] for prop, vals in x.items()} for x in res]
+        tmp = to_json_compatible_value(res)
 
         return jsonify(tmp), 200
 
@@ -280,9 +577,11 @@ def read_instance(project, instiri):
     current_app.logger.info(f"/data/{project}/{instiri} with GET called")
 
     # Sanitizes XSD values to primitive Python types
-    def sanitize_datatype(val: Xsd | None) -> str | int | float | bool | None:
+    def sanitize_datatype(val: Xsd | None) -> str | int | float | bool | list[str] | None:
         if val is None:
             return None
+        if isinstance(val, LangString):
+            return [str(langval) for langval in val]
         if isinstance(val, dict):
             return {sanitize_datatype(k): sanitize_datatype(v) for k, v in val.items()}
         elif isinstance(val, list):
@@ -317,10 +616,15 @@ def read_instance(project, instiri):
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
     res = QueryProcessor(context, jsonres)
+    resource = None
     for r in res:
         resource = r['resclass']
+    if resource is None:
+        return jsonify({'message': f'Resource with iri <{iri}> not found.'}), 404
 
     try:
+        factory = ResourceInstanceFactory(con=con, project=project)
+        instance_class = factory.createObjectInstance(resource)
         data = ResourceInstance.read_data(con=con,
                                           iri=Iri(instiri, validate=True),
                                           projectShortName=Xsd_NCName(project, validate=True))
@@ -331,9 +635,41 @@ def read_instance(project, instiri):
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
     res = {}
+    ordered_datatypes = {
+        XsdDatatypes.langString,
+        XsdDatatypes.integer,
+        XsdDatatypes.nonPositiveInteger,
+        XsdDatatypes.negativeInteger,
+        XsdDatatypes.long,
+        XsdDatatypes.int,
+        XsdDatatypes.short,
+        XsdDatatypes.byte,
+        XsdDatatypes.nonNegativeInteger,
+        XsdDatatypes.unsignedLong,
+        XsdDatatypes.unsignedInt,
+        XsdDatatypes.unsignedShort,
+        XsdDatatypes.unsignedByte,
+        XsdDatatypes.positiveInteger,
+        XsdDatatypes.decimal,
+        XsdDatatypes.float,
+        XsdDatatypes.double,
+    }
     for x, y in data.items():
+        attr = Xsd_QName(str(x), validate=False)
+        datatype = instance_class.properties.get(attr).datatype if instance_class.properties.get(attr) else None
         if isinstance(y, list):
-            res[str(x)] = [sanitize_datatype(yy) for yy in y]
+            values = []
+            for yy in y:
+                if datatype is not None and not isinstance(yy, LangString):
+                    yy = convert2datatype(yy, datatype)
+                sanitized = sanitize_datatype(yy)
+                if isinstance(yy, LangString):
+                    values.extend(sanitized)
+                else:
+                    values.append(sanitized)
+            if datatype in ordered_datatypes:
+                values.sort()
+            res[str(x)] = values
         else:
             res[str(x)] = sanitize_datatype(y)
     return jsonify(res), 200
@@ -456,4 +792,3 @@ def delete_instance(project, instiri):
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
     return jsonify({"message": "Instance successfully deleted"}), 200
-

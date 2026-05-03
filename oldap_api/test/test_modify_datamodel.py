@@ -3,7 +3,25 @@ from pprint import pprint
 from oldaplib.src.xsd.iri import Iri
 
 
-def test_modify_extonto(client, token_headers, testdatamodelwithexternalontology):
+def test_modify_extonto1(client, token_headers, testdatamodelwithexternalontology):
+    header = token_headers[1]
+
+    response = client.post('/admin/datamodel/hyha/extonto/frbr', json={
+        "label": {'add': ['Waseliwassolldenndas@de']},
+        "comment": ["a comment@en", 'ein Kommentar@de'],
+        'proposedDatatypePropertyClass': ['hasHallo', 'hasVelo']
+    }, headers=header)
+    assert response.status_code == 200
+    res = response.json
+
+    response = client.get('/admin/datamodel/hyha', headers=header)
+    assert response.status_code == 200
+
+    res = response.json
+    assert set(res["externalOntologies"][0]["proposedDatatypePropertyClass"]) == {'hasHallo', 'hasVelo'}
+
+
+def test_modify_extonto2(client, token_headers, testdatamodelwithexternalontology):
     header = token_headers[1]
 
     response = client.post('/admin/datamodel/hyha/extonto/frbr', json={
