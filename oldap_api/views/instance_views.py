@@ -14,7 +14,7 @@ from oldaplib.src.objectfactory import CompOp, FTSearchFilter, HLSearchFilter, L
     ResourceInstanceFactory, SearchFilter, SortBy, SortDir, SortKind, convert2datatype
 from oldaplib.src.xsd.xsd import Xsd
 from oldaplib.src.xsd.iri import Iri
-from oldaplib.src.xsd.listnode import HListNode
+from oldaplib.src.xsd.listnode import HListNodeRef
 from oldaplib.src.xsd.xsd_date import Xsd_date
 from oldaplib.src.xsd.xsd_datetime import Xsd_dateTime
 from oldaplib.src.xsd.xsd_decimal import Xsd_decimal
@@ -186,8 +186,16 @@ def parse_hlfilter_items(items: list[Any]) -> list[HLSearchFilter | LogicOp]:
         node = item.get("node", None)
         if not prop or not node:
             raise OldapErrorValue('Hierarchical list filter entries require "property" and "node".')
+        if isinstance(node, dict):
+            list_id = node.get("listId", None)
+            node_id = node.get("nodeId", None)
+            if not list_id or not node_id:
+                raise OldapErrorValue('Structured hierarchical list node references require "listId" and "nodeId".')
+            node_ref = HListNodeRef(listId=list_id, nodeId=node_id, validate=True)
+        else:
+            node_ref = HListNodeRef.from_value(node, validate=True)
         result.append(HLSearchFilter(prop=Xsd_QName(prop, validate=True),
-                                     node=HListNode(node, validate=True)))
+                                     node=node_ref))
     return result
 
 

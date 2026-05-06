@@ -412,19 +412,32 @@ Suchbedingung.
 ## Hierarchische Listen
 
 Hierarchische Listen werden ueber `hlfilter` gesucht. Jeder Filter braucht eine
-Property und einen Node:
+Property und einen strukturierten Node-Verweis mit `listId` und `nodeId`:
 
 ```json
 {
   "resClass": "test:SomeClass",
   "hlfilter": [
-    {"property": "test:category", "node": "myList:someNode"}
+    {
+      "property": "test:category",
+      "node": {
+        "listId": "myList",
+        "nodeId": "someNode"
+      }
+    }
   ]
 }
 ```
 
+Intern identifiziert OLDAP Listenknoten als `L-<listId>:<nodeId>`. Der API-Vertrag
+verwendet absichtlich nur die fachliche Kombination aus `listId` und `nodeId`, damit
+kein UI- oder Admin-Output mit internen Prefixen geparst werden muss.
+
 `prop` ist als Alias fuer `property` erlaubt. Logikoperatoren funktionieren wie
 bei normalen `filter`-Eintraegen, also inklusive `AND`, `OR` und Klammern.
+
+Legacy-Strings wie `"myList:someNode"` werden weiterhin akzeptiert, sollten fuer
+neue Aufrufe aber nicht mehr verwendet werden.
 
 Beispiel mit Logik:
 
@@ -432,9 +445,9 @@ Beispiel mit Logik:
 {
   "resClass": "test:SomeClass",
   "hlfilter": [
-    {"property": "test:category", "node": "myList:nodeA"},
+    {"property": "test:category", "node": {"listId": "myList", "nodeId": "nodeA"}},
     "OR",
-    {"property": "test:category", "node": "myList:nodeB"}
+    {"property": "test:category", "node": {"listId": "myList", "nodeId": "nodeB"}}
   ]
 }
 ```

@@ -3160,12 +3160,32 @@ paths:
                         additionalProperties: true
                 hlfilter:
                   type: array
-                  description: Hierarchical-list filters and logic operators
+                  description: Hierarchical-list filters and logic operators. Prefer structured node references with listId and nodeId; legacy "listId:nodeId" strings are still accepted.
                   items:
                     oneOf:
                       - type: string
                       - type: object
-                        additionalProperties: true
+                        additionalProperties: false
+                        properties:
+                          logic:
+                            type: string
+                          property:
+                            type: string
+                          prop:
+                            type: string
+                          node:
+                            oneOf:
+                              - type: string
+                              - type: object
+                                additionalProperties: false
+                                properties:
+                                  listId:
+                                    type: string
+                                  nodeId:
+                                    type: string
+                                required:
+                                  - listId
+                                  - nodeId
                 countOnly:
                   type: boolean
                   description: A flag. If set to true returns only the count of hits
@@ -3347,12 +3367,32 @@ paths:
                         additionalProperties: true
                 hlfilter:
                   type: array
-                  description: Hierarchical-list filters and logic operators
+                  description: Hierarchical-list filters and logic operators. Prefer structured node references with listId and nodeId; legacy "listId:nodeId" strings are still accepted.
                   items:
                     oneOf:
                       - type: string
                       - type: object
-                        additionalProperties: true
+                        additionalProperties: false
+                        properties:
+                          logic:
+                            type: string
+                          property:
+                            type: string
+                          prop:
+                            type: string
+                          node:
+                            oneOf:
+                              - type: string
+                              - type: object
+                                additionalProperties: false
+                                properties:
+                                  listId:
+                                    type: string
+                                  nodeId:
+                                    type: string
+                                required:
+                                  - listId
+                                  - nodeId
                 countOnly:
                   type: boolean
                   description: A flag. If set to true returns only the count of hits

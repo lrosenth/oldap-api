@@ -2,6 +2,10 @@
 import string
 import random
 
+from oldap_api.views.instance_views import parse_hlfilter_items
+from oldaplib.src.objectfactory import HLSearchFilter
+from oldaplib.src.xsd.listnode import HListNodeRef
+
 def test_instance_textsearch_A(client, token_headers, testemptydatamodeltest):
     header = token_headers[1]
 
@@ -99,6 +103,24 @@ def test_instance_text_post_filter_A(client, token_headers, testemptydatamodelte
     res = response.json
 
     assert len(res) == 3
+
+
+def test_parse_hlfilter_items_structured_node_ref():
+    res = parse_hlfilter_items([
+        {
+            "property": "test:category",
+            "node": {
+                "listId": "StoryKeywords",
+                "nodeId": "ObjekteUndSammlungen"
+            }
+        }
+    ])
+
+    assert len(res) == 1
+    assert isinstance(res[0], HLSearchFilter)
+    assert isinstance(res[0].node, HListNodeRef)
+    assert str(res[0].node.listId) == "StoryKeywords"
+    assert str(res[0].node.nodeId) == "ObjekteUndSammlungen"
 
 
 def test_instance_allofclass_A(client, token_headers, testemptydatamodeltest):
