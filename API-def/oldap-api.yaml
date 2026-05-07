@@ -4054,7 +4054,8 @@ components:
     InstanceData:
       description: >
         Instance data as a property-value map. Known OLDAP system keys are modeled explicitly.
-        Project-specific properties appear as additional keys with array-of-string values.
+        Project-specific properties appear as additional keys with primitive values,
+        arrays of primitive values, or permission maps.
       type: object
 
       required:
@@ -4113,11 +4114,18 @@ components:
             format: date-time
           minItems: 1
 
-      # This is the crucial part: any other key (hyha:mammalName etc.)
-      # is assumed to be string[].
+      # Project-specific keys can be scalar for maxCount=1 properties or arrays
+      # for multi-value properties.
       additionalProperties:
         oneOf:
           - $ref: "#/components/schemas/ValueArray"
+          - type: string
+          - type: number
+            format: integer
+          - type: number
+            format: float
+          - type: boolean
+          - type: "null"
           - $ref: "#/components/schemas/AttachedToRoleMap"
 
     user_get_body_200:

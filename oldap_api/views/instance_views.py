@@ -664,7 +664,8 @@ def read_instance(project, instiri):
     }
     for x, y in data.items():
         attr = Xsd_QName(str(x), validate=False)
-        datatype = instance_class.properties.get(attr).datatype if instance_class.properties.get(attr) else None
+        prop = instance_class.properties.get(attr)
+        datatype = prop.datatype if prop else None
         if isinstance(y, list):
             values = []
             for yy in y:
@@ -677,7 +678,10 @@ def read_instance(project, instiri):
                     values.append(sanitized)
             if datatype in ordered_datatypes:
                 values.sort()
-            res[str(x)] = values
+            if datatype == XsdDatatypes.boolean and prop.maxCount == 1:
+                res[str(x)] = values[0] if values else None
+            else:
+                res[str(x)] = values
         else:
             res[str(x)] = sanitize_datatype(y)
     return jsonify(res), 200
@@ -751,11 +755,7 @@ def update_instance(project, instiri):
                     for x in deleting:
                         instance[attr].discard(x)
             else:
-                # TODO: This else should never occur....
-                if isinstance(instance[attr], LangString):
-                    instance[attr] = attrval  # replace the complete LangString
-                else:
-                    instance[attr].replace([attrval])
+                instance[attr] = attrval
         instance.update()
         return jsonify({"message": "Instance successfully updated"}), 200
     except OldapError as error:

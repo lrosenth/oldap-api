@@ -71,6 +71,41 @@ def test_instance_modify_D(client, token_headers, testinstancetestersetter):
     obj = response.json
     assert obj['test:langStringSetter'] == ['WASELIWAS@de']
 
+
+def test_instance_modify_boolean_false(client, token_headers, testinstancetestersetter):
+    header = token_headers[1]
+    iri1, iri2 = testinstancetestersetter
+
+    response = client.post(f'/data/test/{iri1}', json={
+        'test:booleanSetter': False
+    }, headers=header)
+    assert response.status_code == 200
+
+    response = client.get(f'/data/test/{iri1}', headers=header)
+    assert response.status_code == 200
+    obj = response.json
+    assert obj['test:booleanSetter'] is False
+
+
+def test_instance_create_boolean_false(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.put('/data/test/SetterTester', json={
+        'test:stringSetter': 'This is a string',
+        'test:langStringSetter': ['In Deutsch@de'],
+        'test:langStringSetter2': ['In Deutsch2@de'],
+        'test:booleanSetter': False,
+        'test:decimalSetter': [3.14159],
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
+    }, headers=header)
+    assert response.status_code == 200
+    iri = response.json['iri']
+
+    response = client.get(f'/data/test/{iri}', headers=header)
+    assert response.status_code == 200
+    obj = response.json
+    assert obj['test:booleanSetter'] is False
+
 def test_instance_langstring_modify_del_A(client, token_headers, testinstancetestersetter):
     header = token_headers[1]
     iri1, iri2 = testinstancetestersetter
