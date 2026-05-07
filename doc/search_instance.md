@@ -19,13 +19,13 @@ Die Implementierung unterscheidet zwei Sucharten:
 | Suchart | Endpunkte | oldaplib-Aufruf | Zweck |
 | --- | --- | --- | --- |
 | Breite Volltextsuche | `GET /data/text/{project}`, `GET /data/text/{project}/class/{resclass}`, `GET /data/textsearch/{project}` | `ResourceInstance.search_fulltext(...)` | Suche nach einem Text in allen verfuegbaren Textfeldern. |
-| Strukturierte Suche | `GET/POST /data/search/{project}`, `GET/POST /data/search/{project}/class/{resclass}` | `ResourceInstance.search(...)` | Suche nach Klasse, Properties, Volltext auf einer bestimmten Property, hierarchischen Listen und Sortierung. |
+| Strukturierte Suche | `GET/POST /data/search/{project}`, `GET/POST /data/search/{project}/class/{resclass}` | `ResourceInstance.search(...)` | Suche nach Klasse, Properties, Volltext auf einem Lucene-Feld, hierarchischen Listen und Sortierung. |
 | Klassenliste | `GET /data/ofclass/{project}` | `ResourceInstance.search(...)` | Aelterer, einfacher Endpunkt fuer "alle Instanzen dieser Klasse". |
 
 Empfehlung:
 
 - Fuer eine einfache Volltextsuche ueber alle Textfelder: `GET /data/text/{project}?q=...`
-- Fuer Filter, `includeProperties`, `ftfilter`, `hlfilter` oder Property-spezifischen Volltext: `POST /data/search/{project}`
+- Fuer Filter, `includeProperties`, `ftfilter`, `hlfilter` oder feldspezifischen Volltext: `POST /data/search/{project}`
 - Fuer alte Clients, die schon existieren: `/data/textsearch/{project}` und `/data/ofclass/{project}` koennen weiter benutzt werden.
 
 ## Gemeinsame Begriffe
@@ -76,7 +76,7 @@ Erlaubte Query-Parameter:
 | `limit` | nein | Maximale Anzahl Resultate. |
 | `offset` | nein | Anzahl zu ueberspringender Resultate. |
 
-Nicht erlaubt sind strukturierte Suchoptionen wie `ftProperty`,
+Nicht erlaubt sind strukturierte Suchoptionen wie `ftField`/`ftProperty`,
 `includeProperties`, `filter`, `ftfilter` und `hlfilter`. Wenn sie bei
 `/data/text...` mitgeschickt werden, antwortet die API mit:
 
@@ -132,7 +132,7 @@ Eine strukturierte Suche braucht mindestens eines von:
 - `filter`
 - `ftfilter`
 - `hlfilter`
-- `q` zusammen mit `ftProperty`
+- `q` zusammen mit `ftField` oder dem Legacy-Namen `ftProperty`
 
 Ohne diese Einschraenkung liefert die API:
 
@@ -142,13 +142,13 @@ Ohne diese Einschraenkung liefert die API:
 }
 ```
 
-Wichtig: `q` ohne `ftProperty` ist bei `/data/search...` keine breite
+Wichtig: `q` ohne `ftField` ist bei `/data/search...` keine breite
 Volltextsuche. Dafuer muss `/data/text...` benutzt werden. Bei `/data/search...`
-fuehrt `q` ohne `ftProperty` zu:
+fuehrt `q` ohne `ftField` zu:
 
 ```json
 {
-  "message": "Fulltext search with \"q\" requires \"ftProperty\". Alternatively use \"ftfilter\"."
+  "message": "Fulltext search with \"q\" requires \"ftField\". Alternatively use \"ftfilter\"."
 }
 ```
 
@@ -158,13 +158,14 @@ Erlaubte Felder im JSON-Body:
 
 | Feld | Typ | Bedeutung |
 | --- | --- | --- |
-| `q` | String | Volltext-Suchstring fuer eine Property; nur zusammen mit `ftProperty`. |
+| `q` | String | Volltext-Suchstring fuer ein Lucene-Feld; nur zusammen mit `ftField` oder dem Legacy-Namen `ftProperty`. |
 | `searchString` | String | Alias fuer `q`. |
-| `ftProperty` | QName-String | Property, auf der `q` gesucht werden soll. |
+| `ftField` | NCName-String | Lucene-Feldname, auf dem `q` gesucht werden soll. |
+| `ftProperty` | NCName-String | Legacy-Name fuer `ftField`; erwartet ebenfalls einen Lucene-Feldnamen, keinen QName. |
 | `resClass` / `resclass` | QName-String | Einschraenkung auf eine Resource-Klasse. |
 | `includeProperties` | Array von QName-Strings | Properties, die im Resultat enthalten sein sollen. |
 | `filter` | Array | Normale Property-Filter und Logikoperatoren. |
-| `ftfilter` | Array | Volltextfilter auf bestimmten Properties und `AND`/`OR`. |
+| `ftfilter` | Array | Volltextfilter auf bestimmten Lucene-Feldern und `AND`/`OR`. |
 | `hlfilter` | Array | Filter fuer hierarchische Listen und Logikoperatoren. |
 | `countOnly` | Boolean/String | Nur Anzahl zurueckgeben. |
 | `sortBy` / `sortBy[]` | Array | Sortierung, siehe Abschnitt "Sortierung". |
@@ -195,7 +196,7 @@ Nutzbar sind vor allem:
 
 - Suche nach Klasse: `resClass` oder `/class/{resclass}`
 - `includeProperties` / `includeProperties[]`
-- Property-spezifischer Volltext mit `q` plus `ftProperty`
+- Feldspezifischer Volltext mit `q` plus `ftField`/`ftProperty`
 - `countOnly`, `sortBy`, `limit`, `offset`
 
 Die Parameter `filter`, `ftfilter` und `hlfilter` sind zwar als bekannte Namen
@@ -359,21 +360,23 @@ curl \
   "http://localhost:8000/data/search/test"
 ```
 
-## Property-spezifische Volltextsuche
+## Feldspezifische Volltextsuche
 
 Es gibt zwei Formen.
 
-Kurzform mit `q` und `ftProperty`:
+Kurzform mit `q` und `ftField`:
 
 ```json
 {
   "resClass": "test:Page",
-  "ftProperty": "test:pageContent",
+  "ftField": "pageContent",
   "q": "waseliwas"
 }
 ```
 
 Diese Form wird intern in einen `FTSearchFilter` umgewandelt.
+`ftProperty` ist als Legacy-Name weiterhin erlaubt, erwartet aber ebenfalls
+einen Lucene-Feldnamen/NCName und keinen QName.
 
 Explizite Form mit `ftfilter`:
 
@@ -381,13 +384,14 @@ Explizite Form mit `ftfilter`:
 {
   "resClass": "test:Page",
   "ftfilter": [
-    {"property": "test:pageContent", "query": "waseliwas"}
+    {"field": "pageContent", "query": "waseliwas"}
   ]
 }
 ```
 
-Auch hier ist `prop` als Alias fuer `property` erlaubt und `q` als Alias fuer
-`query`.
+Auch hier ist `fieldName` als Alias fuer `field` erlaubt und `q` als Alias fuer
+`query`. Die Legacy-Namen `property` und `prop` werden noch akzeptiert, muessen
+aber ebenfalls NCName-kompatible Lucene-Feldnamen enthalten.
 
 Mehrere Volltextfilter koennen mit `AND` oder `OR` verbunden werden:
 
@@ -395,9 +399,9 @@ Mehrere Volltextfilter koennen mit `AND` oder `OR` verbunden werden:
 {
   "resClass": "test:Page",
   "ftfilter": [
-    {"property": "test:title", "query": "Einleitung"},
+    {"field": "title", "query": "Einleitung"},
     "AND",
-    {"property": "test:pageContent", "query": "waseliwas"}
+    {"field": "pageContent", "query": "waseliwas"}
   ]
 }
 ```
@@ -629,7 +633,7 @@ Typische Fehler:
 | POST-JSON ist kein Objekt | `400` | `Invalid request format, JSON object required` |
 | Unbekannte Felder | `400` | `The Field/s {...} is/are not used to search for an instance...` |
 | `/data/text` ohne Suchstring | `400` | `No search string provided` |
-| `/data/search` mit `q` ohne `ftProperty` | `400` | `Fulltext search with "q" requires "ftProperty". Alternatively use "ftfilter".` |
+| `/data/search` mit `q` ohne `ftField` | `400` | `Fulltext search with "q" requires "ftField". Alternatively use "ftfilter".` |
 | Ungueltiger Operator, QName, Typ, Sortierwert | `400` | Die jeweilige oldaplib- oder Parser-Fehlermeldung. |
 
 ## Entscheidungsbaum fuer Clients
@@ -637,8 +641,8 @@ Typische Fehler:
 1. Soll ein Text ueber alle Textfelder gesucht werden?
    Verwende `GET /data/text/{project}?q=...`.
 
-2. Soll der Text nur in einer bestimmten Property gesucht werden?
-   Verwende `POST /data/search/{project}` mit `ftProperty` + `q` oder mit
+2. Soll der Text nur in einem bestimmten Lucene-Feld gesucht werden?
+   Verwende `POST /data/search/{project}` mit `ftField` + `q` oder mit
    `ftfilter`.
 
 3. Soll nur eine Klasse mit optionalen Rueckgabe-Properties geladen werden?

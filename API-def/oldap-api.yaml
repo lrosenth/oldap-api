@@ -3106,7 +3106,7 @@ paths:
   /data/search/{project}:
     post:
       summary: "Structured search for instances using a JSON body"
-      description: "Structured property-based instance search. Use this endpoint for filter, ftfilter and hlfilter searches where each criterion refers to a property."
+      description: "Structured instance search. Use this endpoint for property filters, Lucene ftfilter searches and hlfilter searches."
       security:
         - AccessToken: [ ]
       parameters:
@@ -3126,13 +3126,18 @@ paths:
               properties:
                 q:
                   type: string
-                  description: Full-text query. Without ftProperty, searches all available text fields via search_fulltext; with ftProperty, searches that property.
+                  description: Full-text query. Without ftField or ftProperty, searches all available text fields via search_fulltext; with ftField, searches that Lucene field.
                 searchString:
                   type: string
                   description: Legacy name for q
+                ftField:
+                  type: string
+                  description: Optional Lucene field name used together with q or searchString for field-specific full-text search
+                  pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
                 ftProperty:
                   type: string
-                  description: Optional property used together with q or searchString for property-specific full-text search
+                  description: Legacy name for ftField. Expects a Lucene field name/NCName, not a QName.
+                  pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
                 resClass:
                   type: string
                   description: Restrict the search to the given resource class
@@ -3152,12 +3157,31 @@ paths:
                         additionalProperties: true
                 ftfilter:
                   type: array
-                  description: Full-text filters and AND/OR operators
+                  description: Full-text filters on Lucene field names and AND/OR operators
                   items:
                     oneOf:
                       - type: string
                       - type: object
-                        additionalProperties: true
+                        additionalProperties: false
+                        properties:
+                          field:
+                            type: string
+                            pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
+                          fieldName:
+                            type: string
+                            pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
+                          property:
+                            type: string
+                            description: Legacy alias for field. Expects a Lucene field name/NCName, not a QName.
+                            pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
+                          prop:
+                            type: string
+                            description: Legacy alias for field. Expects a Lucene field name/NCName, not a QName.
+                            pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
+                          query:
+                            type: string
+                          q:
+                            type: string
                 hlfilter:
                   type: array
                   description: Hierarchical-list filters and logic operators. Prefer structured node references with listId and nodeId; legacy "listId:nodeId" strings are still accepted.
@@ -3310,7 +3334,7 @@ paths:
   /data/search/{project}/class/{resclass}:
     post:
       summary: "Structured search for instances by class using a JSON body"
-      description: "Structured property-based instance search restricted to the given resource class. Use this endpoint for filter, ftfilter and hlfilter searches where each criterion refers to a property."
+      description: "Structured instance search restricted to the given resource class. Use this endpoint for property filters, Lucene ftfilter searches and hlfilter searches."
       security:
         - AccessToken: [ ]
       parameters:
@@ -3337,13 +3361,18 @@ paths:
               properties:
                 q:
                   type: string
-                  description: Full-text query. Without ftProperty, searches all available text fields via search_fulltext; with ftProperty, searches that property.
+                  description: Full-text query. Without ftField or ftProperty, searches all available text fields via search_fulltext; with ftField, searches that Lucene field.
                 searchString:
                   type: string
                   description: Legacy name for q
+                ftField:
+                  type: string
+                  description: Optional Lucene field name used together with q or searchString for field-specific full-text search
+                  pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
                 ftProperty:
                   type: string
-                  description: Optional property used together with q or searchString for property-specific full-text search
+                  description: Legacy name for ftField. Expects a Lucene field name/NCName, not a QName.
+                  pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
                 includeProperties:
                   type: array
                   items:
@@ -3359,12 +3388,31 @@ paths:
                         additionalProperties: true
                 ftfilter:
                   type: array
-                  description: Full-text filters and AND/OR operators
+                  description: Full-text filters on Lucene field names and AND/OR operators
                   items:
                     oneOf:
                       - type: string
                       - type: object
-                        additionalProperties: true
+                        additionalProperties: false
+                        properties:
+                          field:
+                            type: string
+                            pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
+                          fieldName:
+                            type: string
+                            pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
+                          property:
+                            type: string
+                            description: Legacy alias for field. Expects a Lucene field name/NCName, not a QName.
+                            pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
+                          prop:
+                            type: string
+                            description: Legacy alias for field. Expects a Lucene field name/NCName, not a QName.
+                            pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
+                          query:
+                            type: string
+                          q:
+                            type: string
                 hlfilter:
                   type: array
                   description: Hierarchical-list filters and logic operators. Prefer structured node references with listId and nodeId; legacy "listId:nodeId" strings are still accepted.

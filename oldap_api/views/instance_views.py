@@ -163,11 +163,11 @@ def parse_ftfilter_items(items: list[Any]) -> list[FTSearchFilter | str]:
             continue
         if not isinstance(item, dict):
             raise OldapErrorValue("Fulltext filter entries must be objects or AND/OR strings.")
-        prop = item.get("property", item.get("prop", None))
+        field = item.get("field", item.get("fieldName", item.get("property", item.get("prop", None))))
         query = item.get("query", item.get("q", None))
-        if not prop or not query:
-            raise OldapErrorValue('Fulltext filter entries require "property" and "query".')
-        result.append(FTSearchFilter(prop=Xsd_QName(prop, validate=True), query=str(query)))
+        if not field or not query:
+            raise OldapErrorValue('Fulltext filter entries require "field" and "query".')
+        result.append(FTSearchFilter(field=Xsd_NCName(str(field), validate=True), query=str(query)))
     return result
 
 
@@ -234,7 +234,7 @@ def parse_text_search_sort_by(sort_by_values: list[str | dict[str, Any]]) -> lis
 def parse_text_search_request(resclass: str | None = None,
                               allow_search_fulltext: bool = False) -> tuple[dict[str, Any] | None, tuple[Any, int] | None]:
     known_fields = {
-        "q", "searchString", "ftProperty", "resClass", "resclass", "includeProperties", "filter", "ftfilter", "hlfilter",
+        "q", "searchString", "ftField", "ftProperty", "resClass", "resclass", "includeProperties", "filter", "ftfilter", "hlfilter",
         "countOnly", "sortBy", "sortBy[]", "limit", "offset",
     }
 
@@ -251,7 +251,7 @@ def parse_text_search_request(resclass: str | None = None,
         raw = {
             "search_string": data.get("q", data.get("searchString", None)),
             "count_only": parse_bool_query_param(data.get("countOnly", None)),
-            "ft_property": data.get("ftProperty", None),
+            "ft_field": data.get("ftField", data.get("ftProperty", None)),
             "res_class": resclass or data.get("resClass", data.get("resclass", None)),
             "include_properties": data.get("includeProperties", None),
             "filter": data.get("filter", None),
@@ -272,7 +272,7 @@ def parse_text_search_request(resclass: str | None = None,
         raw = {
             "search_string": request.args.get("q", request.args.get("searchString", None)),
             "count_only": parse_bool_query_param(request.args.get("countOnly", None)),
-            "ft_property": request.args.get("ftProperty", None),
+            "ft_field": request.args.get("ftField", request.args.get("ftProperty", None)),
             "res_class": resclass or request.args.get("resClass", request.args.get("resclass", None)),
             "include_properties": request.args.getlist("includeProperties[]") or request.args.getlist("includeProperties"),
             "filter": None,
@@ -286,7 +286,7 @@ def parse_text_search_request(resclass: str | None = None,
     if allow_search_fulltext:
         if not raw["search_string"]:
             return None, (jsonify({"message": "No search string provided"}), 400)
-        if any([raw["ft_property"], raw["include_properties"], raw["filter"], raw["ftfilter"], raw["hlfilter"]]):
+        if any([raw["ft_field"], raw["include_properties"], raw["filter"], raw["ftfilter"], raw["hlfilter"]]):
             return None, (jsonify({"message": "Structured search options require /data/search."}), 400)
 
     try:
@@ -311,13 +311,13 @@ def parse_text_search_request(resclass: str | None = None,
                 raise OldapErrorValue('"ftfilter" must be a list.')
             params['ftfilter'] = parse_ftfilter_items(raw["ftfilter"])
         elif raw["search_string"]:
-            if raw["ft_property"]:
-                params['ftfilter'] = [FTSearchFilter(prop=Xsd_QName(raw["ft_property"], validate=True),
-                                                    query=str(raw["search_string"]))]
+            if raw["ft_field"]:
+                params['ftfilter'] = [FTSearchFilter(field=Xsd_NCName(str(raw["ft_field"]), validate=True),
+                                                     query=str(raw["search_string"]))]
             elif allow_search_fulltext and not any([raw["include_properties"], raw["filter"], raw["hlfilter"]]):
                 params['use_search_fulltext'] = True
             else:
-                raise OldapErrorValue('Fulltext search with "q" requires "ftProperty". Alternatively use "ftfilter".')
+                raise OldapErrorValue('Fulltext search with "q" requires "ftField". Alternatively use "ftfilter".')
         if raw["hlfilter"]:
             if not isinstance(raw["hlfilter"], list):
                 raise OldapErrorValue('"hlfilter" must be a list.')
