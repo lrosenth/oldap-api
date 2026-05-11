@@ -3216,8 +3216,8 @@ paths:
                 sortBy:
                   type: array
                   items:
-                    type: string
-                  description: Sort according to PROPVAL, CREATED or LASTMOD, optionally with |asc or |desc
+                    $ref: "#/components/schemas/SearchSortBy"
+                  description: Sort according to PROPVAL, CREATED, LASTMOD or a property QName. String values may use |asc or |desc; POST bodies may also use objects with property/prop, direction/dir and kind.
                 limit:
                   type: integer
                   default: 100
@@ -3447,8 +3447,8 @@ paths:
                 sortBy:
                   type: array
                   items:
-                    type: string
-                  description: Sort according to PROPVAL, CREATED or LASTMOD, optionally with |asc or |desc
+                    $ref: "#/components/schemas/SearchSortBy"
+                  description: Sort according to PROPVAL, CREATED, LASTMOD or a property QName. String values may use |asc or |desc; POST bodies may also use objects with property/prop, direction/dir and kind.
                 limit:
                   type: integer
                   default: 100
@@ -4024,6 +4024,44 @@ components:
       type: string
       description: XML QName (prefix:localName)
       pattern: '^[A-Za-z_][A-Za-z0-9._-]*:[A-Za-z_][A-Za-z0-9._-]*$'
+
+    SearchSortBy:
+      description: >
+        Sort criterion for structured instance search POST bodies. String values use
+        a QName or PROPVAL, CREATED, LASTMOD, optionally followed by |asc or |desc.
+        Object values support property/prop, direction/dir and kind; at least one of
+        property or prop must be provided by the client.
+      oneOf:
+        - type: string
+          example: "fasnacht:archiveObjectTitle|asc"
+        - type: object
+          additionalProperties: false
+          properties:
+            property:
+              type: string
+              description: QName or special field name (PROPVAL, CREATED, LASTMOD).
+            prop:
+              type: string
+              description: Alias for property.
+            direction:
+              type: string
+              enum:
+                - asc
+                - desc
+              default: asc
+            dir:
+              type: string
+              enum:
+                - asc
+                - desc
+              description: Alias for direction.
+            kind:
+              type: string
+              enum:
+                - auto
+                - value
+                - dating
+              default: auto
 
     HasRoleMap:
       type: object
