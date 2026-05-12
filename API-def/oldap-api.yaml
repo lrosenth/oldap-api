@@ -99,8 +99,13 @@ paths:
                   minLength: 8
                 isActive:
                   type: boolean
-                userIri:
+                userclass:
                   type: string
+                  default: oldap:User
+                  description: QName of the user class. Must be oldap:User or a subclass.
+                  example: fasnacht:FasnachtUser
+                additionalProperties:
+                  $ref: '#/components/schemas/UserAdditionalProperties'
                 inProjects:
                   description: "The project field is the QName of the project, the permissions is a sets of admin permissions."
                   type: array
@@ -139,9 +144,9 @@ paths:
                   message:
                     type: string
                     example: "User {userid} created"
-                  userIri:
+                  userId:
                     type: string
-                    example: "{userIri}"
+                    example: "{userId}"
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -220,6 +225,9 @@ paths:
                     format: date-time
                   userIri:
                     type: string
+                  userclass:
+                    type: string
+                    default: oldap:User
                   userId:
                     type: string
                   familyName:
@@ -228,9 +236,9 @@ paths:
                     type: string
                   email:
                     type: string
-                  is_active:
+                  isActive:
                     type: boolean
-                  in_projects:
+                  inProjects:
                     type: array
                     items:
                       type: object
@@ -243,6 +251,8 @@ paths:
                             type: string
                   hasRole:
                     $ref: '#/components/schemas/HasRoleMap'
+                  additionalProperties:
+                    $ref: '#/components/schemas/UserAdditionalProperties'
 
 
         "400":
@@ -280,6 +290,18 @@ paths:
                   type: string
                 isActive:
                   type: boolean
+                additionalProperties:
+                  oneOf:
+                    - $ref: '#/components/schemas/UserAdditionalProperties'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/UserAdditionalProperties'
+                        del:
+                          type: array
+                          items:
+                            type: string
+                    - type: "null"
                 inProjects:
                   oneOf:
                     - type: object
@@ -346,7 +368,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "User {userid} created, 'userIri': '{userid}'"
+                    example: "User updated successfully"
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -450,6 +472,9 @@ paths:
                     format: date-time
                   userIri:
                     type: string
+                  userclass:
+                    type: string
+                    default: oldap:User
                   userId:
                     type: string
                   familyName:
@@ -458,9 +483,9 @@ paths:
                     type: string
                   email:
                     type: string
-                  is_active:
+                  isActive:
                     type: boolean
-                  in_projects:
+                  inProjects:
                     type: array
                     items:
                       type: object
@@ -473,6 +498,8 @@ paths:
                             type: string
                   hasRole:
                     $ref: '#/components/schemas/HasRoleMap'
+                  additionalProperties:
+                    $ref: '#/components/schemas/UserAdditionalProperties'
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -4071,6 +4098,30 @@ components:
           - $ref: '#/components/schemas/DataPermission'
           - type: "null"
 
+    UserAdditionalPropertyValue:
+      oneOf:
+        - type: string
+        - type: number
+          format: integer
+        - type: number
+          format: float
+        - type: boolean
+        - type: array
+          items:
+            oneOf:
+              - type: string
+              - type: number
+                format: integer
+              - type: number
+                format: float
+              - type: boolean
+
+    UserAdditionalProperties:
+      type: object
+      description: Mapping from user-class-specific property QName to scalar or array values.
+      additionalProperties:
+        $ref: '#/components/schemas/UserAdditionalPropertyValue'
+
     AttachedToRoleMap:
       description: Map of role IRI/QName to permission value.
       type: object
@@ -4171,6 +4222,12 @@ components:
       properties:
         userIri:
           type: string
+        userclass:
+          type: string
+          default: oldap:User
+          description: QName of the user class. Must be oldap:User or a subclass.
+        additionalProperties:
+          $ref: '#/components/schemas/UserAdditionalProperties'
         userId:
           type: string
         familyName:
@@ -4264,8 +4321,12 @@ components:
           minLength: 8
         isActive:
           type: boolean
-        userIri:
+        userclass:
           type: string
+          default: oldap:User
+          description: QName of the user class. Must be oldap:User or a subclass.
+        additionalProperties:
+          $ref: '#/components/schemas/UserAdditionalProperties'
         inProjects:
           description: "The project field is the QName of the project,
           the permissions is a sets of admin permissions."
@@ -4306,6 +4367,18 @@ components:
           type: string
         password:
           type: string
+        additionalProperties:
+          oneOf:
+            - $ref: '#/components/schemas/UserAdditionalProperties'
+            - type: object
+              properties:
+                add:
+                  $ref: '#/components/schemas/UserAdditionalProperties'
+                del:
+                  type: array
+                  items:
+                    type: string
+            - type: "null"
         inProjects:
           type: array
           items:

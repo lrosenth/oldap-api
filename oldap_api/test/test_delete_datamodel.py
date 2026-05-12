@@ -65,7 +65,7 @@ def test_delete_resource(client, token_headers, testfulldatamodelresource):
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
     print(res)
-    assert res['resources'] == []
+    assert all(resource['iri'] != 'hyha:Sheep' for resource in res['resources'])
 
 def test_delete_property_in_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]

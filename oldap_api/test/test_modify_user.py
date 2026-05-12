@@ -54,6 +54,58 @@ def test_modify_email(client, token_headers, testuser):
     assert readed["email"] == "manuel.rosenthaler@stud.unibas.ch"
 
 
+def test_modify_additional_properties(client, token_headers):
+    header = token_headers[1]
+
+    response = client.put('/admin/user/marvin', json={
+        "givenName": "Marvin",
+        "familyName": "Android",
+        "email": "marvin.android@sirius-cybernetics.example",
+        "password": "kappa1234",
+        "isActive": True,
+        "userclass": "hyha:HyhaUser",
+        "additionalProperties": {
+            "hyha:userExtension": "prototype extension"
+        },
+        "inProjects": [
+            {
+                "project": "oldap:HyperHamlet",
+                "permissions": [
+                    "ADMIN_USERS"
+                ]
+            }
+        ],
+        "hasRole": {"oldap:Unknown": "DATA_VIEW"},
+    }, headers=header)
+    assert response.status_code == 200
+
+    response = client.post('/admin/user/marvin', json={
+        "additionalProperties": {
+            "hyha:userExtension": "updated extension"
+        }
+    }, headers=header)
+    assert response.status_code == 200
+
+    read = client.get('/admin/user/marvin', headers=header)
+    readed = read.json
+    assert readed["additionalProperties"] == {
+        "hyha:userExtension": "updated extension"
+    }
+
+    response = client.post('/admin/user/marvin', json={
+        "additionalProperties": {
+            "del": ["hyha:userExtension"]
+        }
+    }, headers=header)
+    assert response.status_code == 200
+
+    read = client.get('/admin/user/marvin', headers=header)
+    readed = read.json
+    assert readed["additionalProperties"] == {}
+
+    client.delete('/admin/user/marvin', headers=header)
+
+
 def test_modify_credentials(client, token_headers, testuser):
     header = token_headers[1]
 

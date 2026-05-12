@@ -11,7 +11,7 @@ Available endpoints:
 
 The implementation includes error handling and validation for most operations.
 """
-from typing import Dict, Set
+from typing import Any, Dict, Set
 
 from flask import jsonify, request, Blueprint
 from oldaplib.src.connection import Connection
@@ -32,6 +32,16 @@ from oldaplib.src.xsd.xsd_string import Xsd_string
 user_bp = Blueprint('user', __name__, url_prefix='/admin')
 
 
+def _json_value(value: Any) -> Any:
+    if isinstance(value, (list, tuple, set, ObservableSet)):
+        return [str(item) for item in value]
+    return str(value)
+
+
+def _additional_properties_to_json(user: User) -> dict[str, Any]:
+    return {str(prop): _json_value(value) for prop, value in user.additionalProperties.items()} if user.additionalProperties else {}
+
+
 @user_bp.route('/user/<userid>', methods=['PUT'])
 def create_user(userid):
     """
@@ -47,13 +57,16 @@ def create_user(userid):
             "permissions": ['oldap:ADMIN_USERS', (...)],
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
             }, {...}],
-        "hasRole": {'oldap:Unknown': "DATA_RESTRICTED", (...)}
+        "hasRole": {'oldap:Unknown': "DATA_RESTRICTED", (...)},
+        "userclass": "oldap:User",
+        "additionalProperties": {"project:customProperty": "custom value"}
     }
     :param userid: The userid of the useraccount that should be created
-    :return: A JSON containing the userIri that has the following form:
-    json={"message": f"User {userid} created", "userIri": f"{userid}"}
+    :return: A JSON containing the userId that has the following form:
+    json={"message": f"User {userid} created", "userId": f"{userid}"}
     """
-    known_json_fields = {"givenName", "familyName", "email", "password","isActive", "inProjects", "hasRole"}
+    known_json_fields = {"givenName", "familyName", "email", "password", "isActive", "inProjects", "hasRole",
+                         "userclass", "additionalProperties"}
     mandatory_json_fields = {"givenName", "familyName", "email", "password"}
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
@@ -87,6 +100,16 @@ def create_user(userid):
 
         inprojects = data.get('inProjects', None)
         hasrole = data.get('hasRole', None)
+        userclass = data.get('userclass', None)
+        additional_properties = data.get('additionalProperties', None)
+
+        if userclass is not None:
+            try:
+                userclass = Xsd_QName(userclass, validate=True)
+            except OldapErrorValue as error:
+                return jsonify({'message': str(error)}), 400
+        if additional_properties is not None and not isinstance(additional_properties, dict):
+            return jsonify({'message': 'Invalid input for additionalProperties: must be a dict'}), 400
 
         # If "inproject" is given by the creation json, fill it...
         in_project_dict: Dict[str | Iri, Set[AdminPermission] | ObservableSet[AdminPermission]] = {}
@@ -129,6 +152,8 @@ def create_user(userid):
                         credentials=credentials,
                         inProject=in_project_dict,
                         hasRole=roles,
+                        **({"userclass": userclass} if userclass is not None else {}),
+                        **({"additionalProperties": additional_properties} if additional_properties is not None else {}),
                         isActive=isActive,
                         validate=True)
             user.create()
@@ -160,7 +185,9 @@ def read_users(userid):
         }, {...}],
     'isActive': True,
     'userId': 'Jodoe',
-    'userIri': 'urn:uuid:5a8fe5ef-90d7-4af8-9ea9-85173e5ee021'
+    'userIri': 'urn:uuid:5a8fe5ef-90d7-4af8-9ea9-85173e5ee021',
+    'userclass': 'oldap:User',
+    'additionalProperties': {}
     }
     """
     out = request.headers['Authorization']
@@ -186,13 +213,15 @@ def read_users(userid):
         "contributor": str(user.contributor),
         "modified": str(user.modified),
         "userIri": str(user.userIri),
+        "userclass": str(user.userclass),
         "userId": str(user.userId),
         "familyName": str(user.familyName),
         "isActive": bool(user.isActive),
         "email": str(user.email),
         "givenName": str(user.givenName),
         "inProjects": [],
-        "hasRole": {str(role): dperm.to_string() if dperm is not None else None for role, dperm in user.hasRole.items()} if user.hasRole else {}
+        "hasRole": {str(role): dperm.to_string() if dperm is not None else None for role, dperm in user.hasRole.items()} if user.hasRole else {},
+        "additionalProperties": _additional_properties_to_json(user)
     }
 
     if user.inProject is not None:
@@ -261,13 +290,19 @@ def modify_user(userid):
         {
            "add": {"oldap:Unknown": 'DATA_VIEW, (...)},
            "del": ["hyha:HyhaMember", (...)]
-        }
+        },
+        "additionalProperties": {"project:customProperty": "custom value"} or
+        {
+           "add": {"project:customProperty": "custom value"},
+           "del": ["project:customProperty", (...)]
+        } or null
     }
     :param userid: The userid of the user that should be modified.
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "User updated successfully"}
     """
-    known_json_fields = {"userId", "givenName", "familyName", "email", "password", "inProjects", "hasRole", "isActive"}
+    known_json_fields = {"userId", "givenName", "familyName", "email", "password", "inProjects", "hasRole",
+                         "isActive", "additionalProperties"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -285,6 +320,7 @@ def modify_user(userid):
         password = data.get("password", None)
         inprojects = data.get('inProjects', "NotSent")
         hasrole = data.get('hasRole', "NotSent")
+        additional_properties = data.get('additionalProperties', "NotSent")
         isactive = data.get('isActive', None)
 
         try:
@@ -388,6 +424,30 @@ def modify_user(userid):
         except OldapError as error:
             return jsonify({'message': f'The given hasRole {hasrole} is invalid'}), 400
 
+        try:
+            if additional_properties != "NotSent":
+                if additional_properties is not None and not isinstance(additional_properties, dict):
+                    return jsonify({"message": "For additionalProperties a dict or None is expected"}), 400
+                if not additional_properties:
+                    user.additionalProperties = None
+                elif "del" in additional_properties or "add" in additional_properties:
+                    if "del" in additional_properties:
+                        if not isinstance(additional_properties["del"], list):
+                            return jsonify({"message": "The del entry for additionalProperties needs to be a list."}), 400
+                        for prop in additional_properties["del"]:
+                            user.del_additional_property(prop)
+                    if "add" in additional_properties:
+                        if not isinstance(additional_properties["add"], dict):
+                            return jsonify({"message": "The add entry for additionalProperties needs to be a dict."}), 400
+                        for prop, value in additional_properties["add"].items():
+                            user.set_additional_property(prop, value)
+                else:
+                    user.additionalProperties = additional_properties
+        except KeyError as error:
+            return jsonify({"message": f'The additional property {str(error)} is not defined for the user'}), 404
+        except OldapErrorValue as error:
+            return jsonify({"message": str(error)}), 400
+
         if useridMOD:
             user.userId = Xsd_NCName(useridMOD)
         if firstname:
@@ -485,13 +545,15 @@ def user_get_by_iri():
         **({"contributor": str(user.contributor)} if user.contributor else {}),
         **({"modified": str(user.modified)} if user.modified else {}),
         **({"userIri": str(user.userIri)} if user.userIri else {}),
+        "userclass": str(user.userclass),
         **({"userId": str(user.userId)} if user.userId else {}),
         **({"familyName": str(user.familyName)} if user.familyName else {}),
         "isActive": bool(user.isActive),
         **({"email": str(user.email)} if user.email else {}),
         **({"givenName": str(user.givenName)} if user.givenName else {}),
         "inProjects": [],
-        "hasRole": {str(role): str(dperm) if dperm else None for role, dperm in user.hasRole.items()} if user.hasRole else {}
+        "hasRole": {str(role): str(dperm) if dperm else None for role, dperm in user.hasRole.items()} if user.hasRole else {},
+        "additionalProperties": _additional_properties_to_json(user)
     }
 
     if user.inProject is not None:
