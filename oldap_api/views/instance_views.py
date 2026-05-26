@@ -624,9 +624,13 @@ def read_instance(project, instiri):
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
     res = QueryProcessor(context, jsonres)
+    asserted_types = []
     resource = None
     for r in res:
         resource = r['resclass']
+        resource_type = str(resource)
+        if resource_type not in asserted_types:
+            asserted_types.append(resource_type)
     if resource is None:
         return jsonify({'message': f'Resource with iri <{iri}> not found.'}), 404
 
@@ -643,6 +647,8 @@ def read_instance(project, instiri):
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
     res = {}
+    asserted_type_set = set(asserted_types)
+    inferred_types = []
     ordered_datatypes = {
         XsdDatatypes.langString,
         XsdDatatypes.integer,
@@ -663,6 +669,12 @@ def read_instance(project, instiri):
         XsdDatatypes.double,
     }
     for x, y in data.items():
+        if str(x) == 'rdf:type':
+            all_types = y if isinstance(y, list) else [y]
+            visible_types = {sanitize_datatype(node_type) for node_type in all_types}
+            inferred_types = sorted(visible_types - asserted_type_set)
+            res['rdf:type'] = asserted_types
+            continue
         attr = Xsd_QName(str(x), validate=False)
         prop = instance_class.properties.get(attr)
         datatype = prop.datatype if prop else None
@@ -684,6 +696,8 @@ def read_instance(project, instiri):
                 res[str(x)] = values
         else:
             res[str(x)] = sanitize_datatype(y)
+    if inferred_types:
+        res['virtual:inferredTypes'] = inferred_types
     return jsonify(res), 200
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['POST'])

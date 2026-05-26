@@ -4166,10 +4166,23 @@ components:
 #          maxItems: 1
 
         "rdf:type":
+          description: >
+            Explicit resource type assertions from the project data graph. Reasoning-derived
+            types are returned separately in `virtual:inferredTypes`.
           type: array
           items:
             type: string
-            format: uri
+            description: QName or IRI of an asserted resource class.
+          minItems: 1
+
+        "virtual:inferredTypes":
+          description: >
+            Resource types visible through repository reasoning but not explicitly asserted
+            as `rdf:type` in the project data graph.
+          type: array
+          items:
+            type: string
+            description: QName or IRI of a reasoning-inferred resource class.
           minItems: 1
 
         "oldap:attachedToRole":

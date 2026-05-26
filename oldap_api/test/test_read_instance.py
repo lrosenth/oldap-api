@@ -12,6 +12,11 @@ def test_instance_read(client, token_headers, testfulldatamodelwithinstances):
     print("\n")
     pprint(res)
     assert res['rdf:type'] == ['hyha:Lion']
+    assert set(res['virtual:inferredTypes']) == {
+        'dcterms:Predator',
+        'hyha:Mammal',
+        'oldap:Thing',
+    }
     assert res['hyha:mammalName'] == ['Cat']
     assert res['hyha:preyScheme'] == ['Deer']
 
@@ -90,5 +95,3 @@ def test_retrieving_derived_mediaobject_by_iri(client, token_headers, testfullda
     assert res['shared:protocol'] == 'iiif'
     assert res['shared:serverUrl'] == 'https://iiif.oldap.org'
     assert res['hyha:hasCaption'] == ['This is a test caption']
-
-
