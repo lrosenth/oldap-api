@@ -732,6 +732,30 @@ def update_instance(project, instiri):
         instance = factory.read(iri)
         for attrname, attrval in data.items():
             attr = Xsd_QName(attrname)
+            if attr == Xsd_QName('oldap:attachedToRole'):
+                if attrval is None:
+                    del instance[attr]
+                    continue
+                if not isinstance(attrval, dict):
+                    return jsonify({"message": "oldap:attachedToRole expects a role-to-permission object"}), 400
+                if "add" in attrval or "del" in attrval:
+                    if "add" in attrval:
+                        if not isinstance(attrval["add"], dict):
+                            return jsonify({"message": "oldap:attachedToRole.add expects a role-to-permission object"}), 400
+                        for role, dperm in attrval["add"].items():
+                            instance.attachedToRoleAnnotation[Xsd_QName(role, validate=True)] = DataPermission.from_string(dperm)
+                    if "del" in attrval:
+                        deleting = attrval["del"] if isinstance(attrval["del"], list) else [attrval["del"]]
+                        for role in deleting:
+                            role_qname = Xsd_QName(role, validate=True)
+                            if role_qname in instance.attachedToRoleAnnotation:
+                                del instance.attachedToRoleAnnotation[role_qname]
+                    continue
+                instance[attr] = {
+                    Xsd_QName(role, validate=True): DataPermission.from_string(dperm)
+                    for role, dperm in attrval.items()
+                }
+                continue
             if attrval is None:
                 del instance[attr]
             elif isinstance(attrval, list):

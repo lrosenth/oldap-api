@@ -3624,7 +3624,15 @@ paths:
         content:
           application/json:
             schema:
-              type: object
+              $ref: "#/components/schemas/InstanceCreateData"
+            examples:
+              withAttachedRole:
+                summary: Create an instance with explicit instance permissions
+                value:
+                  schema:name:
+                    - Example instance
+                  attachedToRole:
+                    oldap:Unknown: DATA_VIEW
       responses:
         "200":
           description: "OK"
@@ -3702,7 +3710,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
+              $ref: "#/components/schemas/InstanceUpdateData"
+            examples:
+              updateAttachedRole:
+                summary: Grant a role view permission on an existing instance
+                value:
+                  oldap:attachedToRole:
+                    add:
+                      fasnacht:BMG-Archivist: DATA_VIEW
       responses:
         "200":
           description: "OK"
@@ -4128,6 +4143,33 @@ components:
       additionalProperties:
         $ref: "#/components/schemas/DataPermission"
 
+    AttachedToRoleDelete:
+      description: One role IRI/QName or a list of role IRIs/QNames to remove from an instance permission map.
+      oneOf:
+        - type: string
+          description: Role IRI/QName.
+        - type: array
+          items:
+            type: string
+            description: Role IRI/QName.
+
+    AttachedToRoleUpdate:
+      description: >
+        Update payload for `oldap:attachedToRole`. Clients may either send a full
+        replacement map of role IRI/QName to DataPermission, or a patch object
+        with `add` and/or `del`. `add` grants or changes permissions for the given
+        roles; `del` removes role attachments from the instance.
+      oneOf:
+        - $ref: "#/components/schemas/AttachedToRoleMap"
+        - type: object
+          additionalProperties: false
+          minProperties: 1
+          properties:
+            add:
+              $ref: "#/components/schemas/AttachedToRoleMap"
+            del:
+              $ref: "#/components/schemas/AttachedToRoleDelete"
+
     ValueArray:
       type: array
       items:
@@ -4139,6 +4181,33 @@ components:
             format: float
           - type: boolean
           - type: "null"
+
+    InstanceCreateData:
+      description: >
+        Create payload for an OLDAP resource instance. Project-specific properties
+        are ontology-driven and therefore accepted as additional JSON properties.
+        Instance permissions can be supplied as `attachedToRole` or
+        `oldap:attachedToRole`, mapping role IRI/QName to DataPermission.
+      type: object
+      properties:
+        attachedToRole:
+          $ref: "#/components/schemas/AttachedToRoleMap"
+        "oldap:attachedToRole":
+          $ref: "#/components/schemas/AttachedToRoleMap"
+      additionalProperties: true
+
+    InstanceUpdateData:
+      description: >
+        Modify payload for an OLDAP resource instance. Project-specific properties
+        are ontology-driven and therefore accepted as additional JSON properties.
+        Normal properties can be replaced directly, deleted with `null`, or patched
+        with property-specific `add`/`del` objects. `oldap:attachedToRole` uses a
+        role-to-permission map or an `add`/`del` patch object.
+      type: object
+      properties:
+        "oldap:attachedToRole":
+          $ref: "#/components/schemas/AttachedToRoleUpdate"
+      additionalProperties: true
 
     InstanceData:
       description: >

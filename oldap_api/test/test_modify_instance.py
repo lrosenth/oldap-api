@@ -106,6 +106,40 @@ def test_instance_create_boolean_false(client, token_headers, testemptydatamodel
     obj = response.json
     assert obj['test:booleanSetter'] is False
 
+def test_instance_modify_attached_to_role(client, token_headers, testemptydatamodeltest):
+    header = token_headers[1]
+
+    response = client.put('/data/test/SetterTester', json={
+        'test:stringSetter': 'This is a string',
+        'test:langStringSetter': ['In Deutsch@de'],
+        'test:langStringSetter2': ['In Deutsch2@de'],
+        'test:booleanSetter': False,
+        'test:decimalSetter': [3.14159],
+        'attachedToRole': {'oldap:Unknown': 'DATA_VIEW'}
+    }, headers=header)
+    assert response.status_code == 200
+    iri = response.json['iri']
+
+    response = client.post(f'/data/test/{iri}', json={
+        'oldap:attachedToRole': {'add': {'test:TestRole': 'DATA_VIEW'}}
+    }, headers=header)
+    assert response.status_code == 200
+
+    response = client.get(f'/data/test/{iri}', headers=header)
+    assert response.status_code == 200
+    obj = response.json
+    assert obj['oldap:attachedToRole'] == {'oldap:Unknown': 'DATA_VIEW', 'test:TestRole': 'DATA_VIEW'}
+
+    response = client.post(f'/data/test/{iri}', json={
+        'oldap:attachedToRole': {'del': ['test:TestRole']}
+    }, headers=header)
+    assert response.status_code == 200
+
+    response = client.get(f'/data/test/{iri}', headers=header)
+    assert response.status_code == 200
+    obj = response.json
+    assert obj['oldap:attachedToRole'] == {'oldap:Unknown': 'DATA_VIEW'}
+
 def test_instance_langstring_modify_del_A(client, token_headers, testinstancetestersetter):
     header = token_headers[1]
     iri1, iri2 = testinstancetestersetter

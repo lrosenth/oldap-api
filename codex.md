@@ -20,6 +20,10 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   blueprints from `oldap_api/views`.
 - View modules translate HTTP payloads and query parameters into `oldaplib`
   calls, then serialize OLDAP/XSD values into JSON.
+- Instance create/update payloads are documented in `API-def/oldap-api.yaml`
+  as ontology-driven maps; `oldap:attachedToRole` is the special instance
+  permission map and supports role-to-DataPermission replacement plus `add`/`del`
+  patches on update.
 - `oldaplib` owns GraphDB access, domain validation, resource instance classes,
   permissions, and data model interpretation.
 - The API should avoid duplicating domain logic from `oldaplib` unless it is
