@@ -611,6 +611,22 @@ def test_modify_hasrole(client, token_headers, testuser):
     assert readed["hasRole"] == {}
 
     response = client.post('/admin/user/rosman', json={
+        "hasRole": {"add": {"test:TestRole": "DATA_UPDATE"}}
+    }, headers=header)
+    assert response.status_code == 200
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed["hasRole"] == {'test:TestRole': 'DATA_UPDATE'}
+
+    response = client.post('/admin/user/rosman', json={
+        "hasRole": {"del": ["test:TestRole"]}
+    }, headers=header)
+    assert response.status_code == 200
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed["hasRole"] == {}
+
+    response = client.post('/admin/user/rosman', json={
         "hasRole": {"del": ["oldap:Unknown"]}
     }, headers=header)
     assert response.status_code == 404

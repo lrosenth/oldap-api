@@ -415,6 +415,8 @@ def modify_user(userid):
                     else:
                         del user.hasRole[Xsd_QName(hasrole["del"], validate=True)]
                 if hasrole and "add" in hasrole:
+                    if user.hasRole is None:
+                        user.hasRole = {}
                     for role, dperm in hasrole["add"].items():
                         user.hasRole[Xsd_QName(role, validate=True)] = DataPermission.from_string(dperm)
                 if hasrole and not "del" in hasrole and not "add" in hasrole: # replace all roles with given set of roles
