@@ -700,6 +700,76 @@ def read_instance(project, instiri):
         res['virtual:inferredTypes'] = inferred_types
     return jsonify(res), 200
 
+@instance_bp.route('/<path:project>/<path:instiri>/transform', methods=['POST'])
+def transform_instance(project, instiri):
+    current_app.logger.info(f"/data/{project}/{instiri}/transform with POST called")
+
+    project = unquote(project)
+    instiri = unquote(instiri)
+    out = request.headers['Authorization']
+    b, token = out.split()
+
+    if not request.is_json:
+        return jsonify({"message": "Invalid request format, JSON required"}), 400
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "No data provided"}), 400
+
+    target_class = data.get("targetClass")
+    preserve_class = data.get("preserveClass")
+    expected_source_class = data.get("expectedSourceClass")
+    if not target_class:
+        return jsonify({"message": "targetClass is required."}), 400
+    if not preserve_class:
+        return jsonify({"message": "preserveClass is required."}), 400
+
+    transform_properties = {}
+    for key in ("properties", "additionalProperties"):
+        if key not in data:
+            continue
+        if not isinstance(data[key], dict):
+            return jsonify({"message": f"{key} must be an object."}), 400
+        transform_properties.update(data[key])
+    attached_to_role = data.get("attachedToRole", data.get("oldap:attachedToRole"))
+    if attached_to_role is not None and not isinstance(attached_to_role, dict):
+        return jsonify({"message": "attachedToRole must be a role-to-permission object."}), 400
+
+    try:
+        con = Connection(token=token, context_name="DEFAULT")
+    except OldapError as error:
+        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+
+    try:
+        iri = Iri(instiri, validate=True)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    context = Context(name=con.context_name)
+    if not context.get(project):
+        return jsonify({"message": f'Project "{project}" not found'}), 404
+
+    try:
+        factory = ResourceInstanceFactory(con=con, project=project)
+        instance = factory.read(iri)
+        transformed = instance.transform_class(target_class,
+                                               preserve_class=preserve_class,
+                                               properties=transform_properties,
+                                               expected_source_class=expected_source_class,
+                                               attached_to_role=attached_to_role)
+        return jsonify({
+            "message": "Instance successfully transformed",
+            "iri": str(transformed.iri),
+            "resourceClass": str(transformed.name),
+        }), 200
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({"message": str(error)}), 404
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    except OldapError as error:
+        current_app.logger.exception("transform_instance failed")
+        return jsonify({"message": str(error)}), 500
+
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['POST'])
 def update_instance(project, instiri):
     current_app.logger.info(f"/data/{project}/{instiri} with POST called")

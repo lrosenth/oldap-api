@@ -3775,6 +3775,78 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+  /data/{project}/{instiri}/transform:
+    post:
+      summary: Atomically transform an instance to another resource class while keeping its IRI
+      description: >
+        Reclassifies an existing resource instance in one backend transaction.
+        Properties belonging to `preserveClass` are retained, source-class-specific
+        properties are removed, target-class properties from `properties` and
+        `additionalProperties` are inserted, optional role attachments are replaced,
+        and OLDAP modification metadata is updated.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: The name of the project where the datamodel is located
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: instiri
+          description: The IRI of the instance
+          in: path
+          required: true
+          schema:
+            type: string
+            format: iri
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InstanceTransformData"
+            examples:
+              stagingMediaToArchiveMedia:
+                summary: Transform a staged media object into an archive media object
+                value:
+                  expectedSourceClass: shared:StagingMediaObject
+                  preserveClass: shared:MediaObject
+                  targetClass: fasnacht:ArchiveMediaObject
+                  properties:
+                    schema:name:
+                      - "Example title@de"
+                    fasnacht:archiveMediaObjectOf:
+                      - "urn:uuid:00000000-0000-0000-0000-000000000001"
+                    fasnacht:contributingAgent:
+                      - "urn:uuid:00000000-0000-0000-0000-000000000002"
+                    dcterms:rights:
+                      - "fasnacht:RightsTaxonomy#Public"
+                  attachedToRole:
+                    fasnacht:BMG-Archivist: DATA_DELETE
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  iri:
+                    type: string
+                  resourceClass:
+                    type: string
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
     #  /data/{project}/{resclass}/{instance}:
 #    put:
 #      summary: Create a new instance of the given resource class with the given IRI
@@ -4208,6 +4280,42 @@ components:
         "oldap:attachedToRole":
           $ref: "#/components/schemas/AttachedToRoleUpdate"
       additionalProperties: true
+
+    InstanceTransformData:
+      description: >
+        Payload for an atomic resource-class transformation that keeps the same IRI.
+        `preserveClass` names the shared base class whose properties remain untouched.
+        `targetClass` is the class asserted after the transformation. Target-specific
+        ontology properties can be supplied under `properties` and/or
+        `additionalProperties`. When `attachedToRole` is present, role attachments are
+        replaced with the supplied role-to-DataPermission map.
+      type: object
+      required:
+        - targetClass
+        - preserveClass
+      properties:
+        targetClass:
+          type: string
+          description: QName of the target resource class.
+        preserveClass:
+          type: string
+          description: QName of the base resource class whose properties must be retained.
+        expectedSourceClass:
+          type: string
+          description: Optional QName guard for the current concrete resource class.
+        properties:
+          type: object
+          description: Target-class properties to add during the transformation.
+          additionalProperties: true
+        additionalProperties:
+          type: object
+          description: Alias for target-class properties, useful for media-server style payloads.
+          additionalProperties: true
+        attachedToRole:
+          $ref: "#/components/schemas/AttachedToRoleMap"
+        "oldap:attachedToRole":
+          $ref: "#/components/schemas/AttachedToRoleMap"
+      additionalProperties: false
 
     InstanceData:
       description: >

@@ -24,6 +24,9 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   as ontology-driven maps; `oldap:attachedToRole` is the special instance
   permission map and supports role-to-DataPermission replacement plus `add`/`del`
   patches on update.
+- `POST /data/{project}/{instiri}/transform` is the generic resource lifecycle
+  endpoint for atomic class transformations that keep the same IRI. It delegates
+  the ontology validation and GraphDB transaction to `oldaplib`.
 - `oldaplib` owns GraphDB access, domain validation, resource instance classes,
   permissions, and data model interpretation.
 - The API should avoid duplicating domain logic from `oldaplib` unless it is
