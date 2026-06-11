@@ -63,6 +63,23 @@ def to_json_compatible_value(val):
         return str(val) if val is not None else None
 
 
+def media_object_json_response(res: dict[str, Any]) -> tuple[Any, int]:
+    """Serialize a MediaObject lookup result returned by oldaplib.
+
+    MediaObject lookups contain a mix of scalar metadata values and optional
+    list-valued ontology properties. The API keeps that shape intact while
+    converting OLDAP/XSD value objects into JSON-compatible primitives.
+    """
+    return jsonify({
+        key: (
+            [to_json_compatible_value(x) for x in val]
+            if isinstance(val, list)
+            else to_json_compatible_value(val)
+        )
+        for key, val in res.items()
+    }), 200
+
+
 def parse_bool_query_param(value: str | bool | None) -> bool:
     if isinstance(value, bool):
         return value
@@ -419,7 +436,7 @@ def media_object_by_id(imageid):
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
     if not res:
         return jsonify({"message": "MediaObject not found"}), 404
-    return jsonify({key: [to_json_compatible_value(x) for x in val] if isinstance(val, list) else to_json_compatible_value(val) for key, val in res.items()}), 200
+    return media_object_json_response(res)
 
 @instance_bp.route('/mediaobject/iri/<path:imageiri>', methods=['GET'])
 def media_object_by_iri(imageiri):
@@ -444,7 +461,7 @@ def media_object_by_iri(imageiri):
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
     if not res:
         return jsonify({"message": "MediaObject not found"}), 404
-    return jsonify({key: [to_json_compatible_value(x) for x in val] if isinstance(val, list) else to_json_compatible_value(val) for key, val in res.items()}), 200
+    return media_object_json_response(res)
 
 @instance_bp.route('/text/<path:project>', methods=['GET'])
 @instance_bp.route('/text/<path:project>/class/<path:resclass>', methods=['GET'])

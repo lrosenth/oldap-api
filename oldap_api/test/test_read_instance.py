@@ -58,6 +58,7 @@ def test_retrieving_mediaobject(client, token_headers, testfulldatamodelwithmedi
     res = response.json
     assert res['graph'] == 'hyha:data'
     assert res['permval'] == 2
+    assert res['shared:mediaAccessMode'] == 'local'
     assert res['shared:originalMimeType'] == 'image/tiff'
     assert res['shared:originalName'] == 'test.tif'
     assert res['shared:path'] == 'britnet'
@@ -72,6 +73,7 @@ def test_retrieving_derived_mediaobject(client, token_headers, testfulldatamodel
     res = response.json
     assert res['graph'] == 'hyha:data'
     assert res['permval'] == 2
+    assert res['shared:mediaAccessMode'] == 'local'
     assert res['shared:originalMimeType'] == 'image/tiff'
     assert res['shared:originalName'] == 'shakespeare.tif'
     assert res['shared:path'] == 'britnet'
@@ -89,9 +91,40 @@ def test_retrieving_derived_mediaobject_by_iri(client, token_headers, testfullda
     res = response.json
     assert res['graph'] == 'hyha:data'
     assert res['permval'] == 6
+    assert res['shared:mediaAccessMode'] == 'local'
     assert res['shared:originalMimeType'] == 'image/tiff'
     assert res['shared:originalName'] == 'shakespeare.tif'
     assert res['shared:path'] == 'britnet'
     assert res['shared:protocol'] == 'iiif'
     assert res['shared:serverUrl'] == 'https://iiif.oldap.org'
     assert res['hyha:hasCaption'] == ['This is a test caption']
+
+def test_retrieving_external_http_mediaobject_by_iri(client, token_headers, testfulldatamodelresourcesuperclasses):
+    header = token_headers[1]
+
+    response = client.put('/data/hyha/shared:MediaObject', json={
+        'iri': 'EuropeanaExternalImage',
+        'dcterms:type': 'dcmitype:StillImage',
+        'shared:mediaAccessMode': 'external',
+        'shared:originalName': 'Europeana image',
+        'shared:originalMimeType': 'image/jpeg',
+        'shared:protocol': 'http',
+        'shared:mediaUrl': 'https://images.example.org/full.jpg',
+        'shared:thumbnailUrl': 'https://images.example.org/thumb.jpg',
+        'oldap:grantsPermission': 'oldap:GenericView',
+    }, headers=header)
+    assert response.status_code == 200
+
+    response = client.get('/data/mediaobject/iri/hyha:EuropeanaExternalImage', headers=header)
+    assert response.status_code == 200
+    res = response.json
+    assert res['graph'] == 'hyha:data'
+    assert res['permval'] == 6
+    assert res['shared:mediaAccessMode'] == 'external'
+    assert res['shared:originalMimeType'] == 'image/jpeg'
+    assert res['shared:originalName'] == 'Europeana image'
+    assert res['shared:protocol'] == 'http'
+    assert res['shared:mediaUrl'] == 'https://images.example.org/full.jpg'
+    assert res['shared:thumbnailUrl'] == 'https://images.example.org/thumb.jpg'
+    assert 'shared:assetId' not in res
+    assert 'shared:path' not in res

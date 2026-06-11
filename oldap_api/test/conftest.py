@@ -577,6 +577,7 @@ def testfulldatamodelwithmediaobject(client, token_headers, testfulldatamodelres
     header = token_headers[1]
     response = client.put('/data/hyha/shared:MediaObject', json={
         'dcterms:type': 'dcmitype:StillImage',
+        'shared:mediaAccessMode': 'local',
         'shared:originalName': 'test.tif',
         'shared:originalMimeType': 'image/tiff',
         'shared:serverUrl': 'https://iiif.oldap.org',
@@ -613,6 +614,7 @@ def testfulldatamodelwithderivedmediaobject(client, token_headers, testfulldatam
 
     response = client.put('/data/hyha/hyha:ImageObject', json={
         'dcterms:type': 'dcmitype:StillImage',
+        'shared:mediaAccessMode': 'local',
         'shared:originalName': 'shakespeare.tif',
         'shared:originalMimeType': 'image/tiff',
         'shared:serverUrl': 'https://iiif.oldap.org',
@@ -628,6 +630,7 @@ def testfulldatamodelwithderivedmediaobject(client, token_headers, testfulldatam
 
     response = client.put('/data/hyha/hyha:ImageObject', json={
         'dcterms:type': 'dcmitype:StillImage',
+        'shared:mediaAccessMode': 'local',
         'shared:originalName': 'hamlet.tif',
         'shared:originalMimeType': 'image/tiff',
         'shared:serverUrl': 'https://iiif.oldap.org',

@@ -31,6 +31,9 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   permissions, and data model interpretation.
 - The API should avoid duplicating domain logic from `oldaplib` unless it is
   specifically shaping HTTP response contracts.
+- MediaObject lookup endpoints expose the shared media access contract returned
+  by `oldaplib`, including `shared:mediaAccessMode` plus optional external
+  `shared:mediaUrl` and `shared:thumbnailUrl`.
 
 ## Current Conventions
 

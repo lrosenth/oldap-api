@@ -4012,10 +4012,16 @@ paths:
                         - dcmitype:Dataset
                         - dcmitype:StillImage
                         - dcmitype:Image
-                        - dcmitye:MovingImage
+                        - dcmitype:MovingImage
                         - dcmitype:Sound
                         - dcmitype:Text
                     description: The dcmitype
+                  "shared:mediaAccessMode":
+                    type: string
+                    enum:
+                      - local
+                      - external
+                    description: Whether the media object is managed locally or references external media.
                   "shared:originalMimeType":
                     type: string
                     description: original MIME type
@@ -4032,6 +4038,14 @@ paths:
                       - http
                       - custom
                     description: The protocol to be used to request the media file
+                  "shared:mediaUrl":
+                    type: string
+                    format: uri
+                    description: Direct URL for externally linked media objects.
+                  "shared:thumbnailUrl":
+                    type: string
+                    format: uri
+                    description: Thumbnail URL for externally linked media objects.
                 additionalProperties: true
         "400":
           $ref: '#/components/responses/BadRequest'
@@ -4076,7 +4090,7 @@ paths:
                     type: string
                     format: date-time
                     description: Date when the media object was last modified
-                  "shared:asssetId":
+                  "shared:assetId":
                     type: string
                     description: ID of the media object
                   "shared:originalName":
@@ -4093,6 +4107,12 @@ paths:
                       - dcmitype:MovingImage
                       - dcmitype:Sound
                       - dcmitype:Text
+                  "shared:mediaAccessMode":
+                    type: string
+                    enum:
+                      - local
+                      - external
+                    description: Whether the media object is managed locally or references external media.
                   "shared:originalMimeType":
                     type: string
                     description: original MIME type
@@ -4109,6 +4129,14 @@ paths:
                       - http
                       - custom
                     description: The protocol to be used to request the media file
+                  "shared:mediaUrl":
+                    type: string
+                    format: uri
+                    description: Direct URL for externally linked media objects.
+                  "shared:thumbnailUrl":
+                    type: string
+                    format: uri
+                    description: Thumbnail URL for externally linked media objects.
                 additionalProperties: true
         "400":
           $ref: '#/components/responses/BadRequest'
