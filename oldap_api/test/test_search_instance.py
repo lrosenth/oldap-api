@@ -2,9 +2,12 @@
 import string
 import random
 
-from oldap_api.views.instance_views import parse_hlfilter_items
-from oldaplib.src.objectfactory import HLSearchFilter
+import pytest
+
+from oldap_api.views.instance_views import parse_hlfilter_items, parse_search_filter_items
+from oldaplib.src.objectfactory import CompOp, HLSearchFilter, SearchFilter
 from oldaplib.src.xsd.listnode import HListNodeRef
+from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
 def test_instance_textsearch_A(client, token_headers, testemptydatamodeltest):
     header = token_headers[1]
@@ -121,6 +124,24 @@ def test_parse_hlfilter_items_structured_node_ref():
     assert isinstance(res[0].node, HListNodeRef)
     assert str(res[0].node.listId) == "StoryKeywords"
     assert str(res[0].node.nodeId) == "ObjekteUndSammlungen"
+
+
+def test_parse_search_filter_not_exists_defaults_value_to_property():
+    if not hasattr(CompOp, "NOT_EXISTS"):
+        pytest.skip("Requires oldaplib with CompOp.NOT_EXISTS.")
+
+    res = parse_search_filter_items([
+        {
+            "property": "test:optionalProperty",
+            "op": "NOT_EXISTS"
+        }
+    ])
+
+    assert len(res) == 1
+    assert isinstance(res[0], SearchFilter)
+    assert getattr(res[0].op, "name", res[0].op) == "NOT_EXISTS"
+    assert isinstance(res[0].value, Xsd_QName)
+    assert str(res[0].value) == "test:optionalProperty"
 
 
 def test_instance_allofclass_A(client, token_headers, testemptydatamodeltest):

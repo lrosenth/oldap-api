@@ -107,6 +107,11 @@ def parse_logic_op(value: str) -> LogicOp:
         raise OldapErrorValue(f'Invalid logic operator "{value}".') from err
 
 
+def is_not_exists_comp_op(op: Any) -> bool:
+    """Return whether a parsed comparison operator represents NOT_EXISTS."""
+    return getattr(op, "name", None) == "NOT_EXISTS" or str(op).upper() == "NOT_EXISTS"
+
+
 def parse_comp_op(value: str) -> CompOp:
     for op in CompOp:
         if str(value).upper() == op.name or str(value).lower() == op.value:
@@ -161,11 +166,20 @@ def parse_search_filter_items(items: list[Any]) -> list[SearchFilter | LogicOp]:
         op = item.get("op", None)
         if not prop or not op:
             raise OldapErrorValue('Filter entries require "property" and "op".')
-        result.append(SearchFilter(prop=Xsd_QName(prop, validate=True),
-                                   op=parse_comp_op(op),
-                                   value=parse_search_value(item.get("value", None),
-                                                            item.get("type", None),
-                                                            item.get("lang", None))))
+        prop_qname = Xsd_QName(prop, validate=True)
+        parsed_op = parse_comp_op(op)
+        if is_not_exists_comp_op(parsed_op):
+            value_type = item.get("type", None) or "qname"
+            if value_type.lower() != "qname":
+                raise OldapErrorValue('NOT_EXISTS filter entries require a QName value type.')
+            value = Xsd_QName(item.get("value", prop), validate=True)
+        else:
+            value = parse_search_value(item.get("value", None),
+                                       item.get("type", None),
+                                       item.get("lang", None))
+        result.append(SearchFilter(prop=prop_qname,
+                                   op=parsed_op,
+                                   value=value))
     return result
 
 

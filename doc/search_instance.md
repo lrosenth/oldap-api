@@ -297,6 +297,7 @@ Unterstuetzte Vergleichsoperatoren:
 | `overlaps` | `OVERLAPS` | Dating-Bereich ueberlappt |
 | `before` | `BEFORE` | Dating-Bereich liegt davor |
 | `after` | `AFTER` | Dating-Bereich liegt danach |
+| `not_exists` | `NOT_EXISTS` | Property ist fuer die Resource nicht vorhanden |
 
 Unterstuetzte Werttypen:
 
@@ -337,6 +338,16 @@ Ein `Dating`-Wert kann als Objekt uebergeben werden:
     "dateEnd": "1950-12-31",
     "verbatimDate": "erste Haelfte 20. Jh."
   }
+}
+```
+
+Fuer `NOT_EXISTS` kann `value` weggelassen werden. Die API verwendet dann den
+QName aus `property` als oldaplib-Wert:
+
+```json
+{
+  "property": "fasnacht:externalSource",
+  "op": "NOT_EXISTS"
 }
 ```
 

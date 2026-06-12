@@ -3178,10 +3178,7 @@ paths:
                   type: array
                   description: Normal property filters and logic operators
                   items:
-                    oneOf:
-                      - type: string
-                      - type: object
-                        additionalProperties: true
+                    $ref: "#/components/schemas/SearchFilterItem"
                 ftfilter:
                   type: array
                   description: Full-text filters on Lucene field names and AND/OR operators
@@ -3409,10 +3406,7 @@ paths:
                   type: array
                   description: Normal property filters and logic operators
                   items:
-                    oneOf:
-                      - type: string
-                      - type: object
-                        additionalProperties: true
+                    $ref: "#/components/schemas/SearchFilterItem"
                 ftfilter:
                   type: array
                   description: Full-text filters on Lucene field names and AND/OR operators
@@ -4204,6 +4198,128 @@ components:
                 - value
                 - dating
               default: auto
+
+    SearchFilterItem:
+      description: >
+        Structured instance-search filter item. String items are logic operators.
+        Object items either wrap a logic operator or describe a property comparison.
+        `NOT_EXISTS` / `not_exists` checks that the target resource has no value for
+        the given property; its `value` may be omitted and then defaults to `property`.
+      oneOf:
+        - type: string
+          description: Logic operator.
+          enum:
+            - AND
+            - "&&"
+            - OR
+            - "||"
+            - "("
+            - LEFT
+            - LEFT_
+            - ")"
+            - RIGHT
+            - _RIGHT
+        - type: object
+          additionalProperties: false
+          required:
+            - logic
+          properties:
+            logic:
+              type: string
+              description: Logic operator.
+              enum:
+                - AND
+                - "&&"
+                - OR
+                - "||"
+                - "("
+                - LEFT
+                - LEFT_
+                - ")"
+                - RIGHT
+                - _RIGHT
+        - type: object
+          additionalProperties: false
+          required:
+            - op
+          anyOf:
+            - required:
+                - property
+            - required:
+                - prop
+          properties:
+            property:
+              $ref: "#/components/schemas/QName"
+            prop:
+              allOf:
+                - $ref: "#/components/schemas/QName"
+              description: Alias for property.
+            op:
+              type: string
+              description: Comparison operator. Enum names and operator values are accepted.
+              enum:
+                - EQ
+                - "=="
+                - NE
+                - "!="
+                - LT
+                - "<"
+                - LE
+                - "<="
+                - GT
+                - ">"
+                - GE
+                - ">="
+                - CONTAINS
+                - contains
+                - STRSTARTS
+                - strstarts
+                - STRENDS
+                - strends
+                - REGEXP
+                - regexp
+                - FULLTEXT
+                - fulltext
+                - OVERLAPS
+                - overlaps
+                - BEFORE
+                - before
+                - AFTER
+                - after
+                - NOT_EXISTS
+                - not_exists
+            value:
+              description: >
+                Comparison value. Required for normal comparison operators. For
+                `NOT_EXISTS` / `not_exists`, omit this field or provide the same
+                QName as the checked property.
+              anyOf:
+                - type: string
+                - type: number
+                - type: integer
+                - type: boolean
+                - type: object
+            type:
+              type: string
+              description: Value type. `NOT_EXISTS` requires `qname` when supplied.
+              enum:
+                - string
+                - langstring
+                - int
+                - integer
+                - decimal
+                - float
+                - double
+                - bool
+                - boolean
+                - iri
+                - qname
+                - date
+                - datetime
+                - dating
+            lang:
+              type: string
+              description: Language tag for string/langstring values.
 
     HasRoleMap:
       type: object
