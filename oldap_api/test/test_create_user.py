@@ -10,6 +10,7 @@ def test_create_user(client, token_headers):
         "email": "manuel.rosenthaler@unibas.ch",
         "password": "kappa1234",
         "isActive": False,
+        "passwordResetRequestAt": "2026-06-15T12:34:56Z",
         "inProjects": [
             {
                 "project": "http://www.salsah.org/version/2.0/SwissBritNet",
@@ -26,6 +27,10 @@ def test_create_user(client, token_headers):
     assert res["message"] == "User rosman created"
     assert 'userId' in res
     assert res["userId"] == "rosman"
+
+    read = client.get('/admin/user/rosman', headers=header)
+    assert read.status_code == 200
+    assert read.json["passwordResetRequestAt"] == "2026-06-15T12:34:56+00:00"
 
 def test_create_user_2(client, token_headers):
     header = token_headers[1]

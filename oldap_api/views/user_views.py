@@ -25,6 +25,7 @@ from oldaplib.src.in_project import InProjectClass
 from oldaplib.src.user import User
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
+from oldaplib.src.xsd.xsd_datetimestamp import Xsd_dateTimeStamp
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
 from oldaplib.src.xsd.xsd_string import Xsd_string
@@ -53,6 +54,7 @@ def create_user(userid):
         "email": "john.doe@unknown.org",
         "password": "nicepw",
         "isActive": True,
+        "passwordResetRequestAt": "2026-06-15T12:34:56Z",
         "inProjects": [{
             "permissions": ['oldap:ADMIN_USERS', (...)],
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
@@ -66,7 +68,7 @@ def create_user(userid):
     json={"message": f"User {userid} created", "userId": f"{userid}"}
     """
     known_json_fields = {"givenName", "familyName", "email", "password", "isActive", "inProjects", "hasRole",
-                         "userclass", "additionalProperties"}
+                         "passwordResetRequestAt", "userclass", "additionalProperties"}
     mandatory_json_fields = {"givenName", "familyName", "email", "password"}
     # We get a html request with a header that contains a user token as well as a body with a json
     # that contains user information
@@ -100,6 +102,7 @@ def create_user(userid):
 
         inprojects = data.get('inProjects', None)
         hasrole = data.get('hasRole', None)
+        password_reset_request_at = data.get('passwordResetRequestAt', None)
         userclass = data.get('userclass', None)
         additional_properties = data.get('additionalProperties', None)
 
@@ -154,6 +157,8 @@ def create_user(userid):
                         hasRole=roles,
                         **({"userclass": userclass} if userclass is not None else {}),
                         **({"additionalProperties": additional_properties} if additional_properties is not None else {}),
+                        **({"passwordResetRequestAt": Xsd_dateTimeStamp(password_reset_request_at, validate=True)}
+                           if password_reset_request_at is not None else {}),
                         isActive=isActive,
                         validate=True)
             user.create()
@@ -219,6 +224,7 @@ def read_users(userid):
         "isActive": bool(user.isActive),
         "email": str(user.email),
         "givenName": str(user.givenName),
+        "passwordResetRequestAt": str(user.passwordResetRequestAt) if user.passwordResetRequestAt else None,
         "inProjects": [],
         "hasRole": {str(role): dperm.to_string() if dperm is not None else None for role, dperm in user.hasRole.items()} if user.hasRole else {},
         "additionalProperties": _additional_properties_to_json(user)
@@ -273,6 +279,7 @@ def modify_user(userid):
         "email": "john.doe@unkown.org",
         "password": "nicepw",
         "isActive": True/False
+        "passwordResetRequestAt": "2026-06-15T12:34:56Z" or null
         "inProjects": [
             {
             "project": 'http://www.salsah.org/version/2.0/SwissBritNet'
@@ -302,7 +309,7 @@ def modify_user(userid):
     json={"message": "User updated successfully"}
     """
     known_json_fields = {"userId", "givenName", "familyName", "email", "password", "inProjects", "hasRole",
-                         "isActive", "additionalProperties"}
+                         "isActive", "passwordResetRequestAt", "additionalProperties"}
     out = request.headers['Authorization']
     b, token = out.split()
 
@@ -318,6 +325,7 @@ def modify_user(userid):
         lastname = data.get("familyName", None)
         email = data.get("email", None)
         password = data.get("password", None)
+        password_reset_request_at = data.get("passwordResetRequestAt", "NotSent")
         inprojects = data.get('inProjects', "NotSent")
         hasrole = data.get('hasRole', "NotSent")
         additional_properties = data.get('additionalProperties', "NotSent")
@@ -415,10 +423,15 @@ def modify_user(userid):
                     else:
                         del user.hasRole[Xsd_QName(hasrole["del"], validate=True)]
                 if hasrole and "add" in hasrole:
-                    if user.hasRole is None:
-                        user.hasRole = {}
-                    for role, dperm in hasrole["add"].items():
-                        user.hasRole[Xsd_QName(role, validate=True)] = DataPermission.from_string(dperm)
+                    role_updates = {
+                        Xsd_QName(role, validate=True): DataPermission.from_string(dperm)
+                        for role, dperm in hasrole["add"].items()
+                    }
+                    if user.hasRole:
+                        for role, dperm in role_updates.items():
+                            user.hasRole[role] = dperm
+                    else:
+                        user.hasRole = role_updates
                 if hasrole and not "del" in hasrole and not "add" in hasrole: # replace all roles with given set of roles
                     user.hasRole = {Xsd_QName(role, validate=True): DataPermission.from_string(dperm) for role, dperm in hasrole.items()}
         except (ValueError, OldapErrorValue) as error:
@@ -460,6 +473,12 @@ def modify_user(userid):
             user.email = Xsd_string(email)
         if password:
             user.credentials = Xsd_string(password)
+        if password_reset_request_at != "NotSent":
+            user.passwordResetRequestAt = (
+                Xsd_dateTimeStamp(password_reset_request_at, validate=True)
+                if password_reset_request_at is not None
+                else None
+            )
         if isactive is not None:
             if not isinstance(isactive, bool):
                 return jsonify({'message': f'isActive needs to be a bool -- einter true or false'}), 400
@@ -486,7 +505,7 @@ def user_search():
     out = request.headers['Authorization']
     b, token = out.split()
 
-    known_query_fields = {"userId", "familyName", "givenName", "inProject"}
+    known_query_fields = {"userId", "email", "familyName", "givenName", "inProject"}
     if request.args:
         unknown_query_field = set(request.args.keys() - known_query_fields)
     else:
@@ -494,6 +513,7 @@ def user_search():
     if unknown_query_field:
         return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to search for a user. Usable are {known_query_fields}. Aborted operation"}), 400
     userId = request.args.get('userId', None)
+    email = request.args.get('email', None)
     familyName = request.args.get('familyName', None)
     givenName = request.args.get('givenName', None)
     inProject = request.args.get('inProject', None)
@@ -507,6 +527,7 @@ def user_search():
     try:
         users = User.search(con=con,
                            userId=userId,
+                           email=email,
                            familyName=familyName,
                            givenName=givenName,
                            inProject=inProject)
@@ -553,6 +574,7 @@ def user_get_by_iri():
         "isActive": bool(user.isActive),
         **({"email": str(user.email)} if user.email else {}),
         **({"givenName": str(user.givenName)} if user.givenName else {}),
+        **({"passwordResetRequestAt": str(user.passwordResetRequestAt)} if user.passwordResetRequestAt else {}),
         "inProjects": [],
         "hasRole": {str(role): str(dperm) if dperm else None for role, dperm in user.hasRole.items()} if user.hasRole else {},
         "additionalProperties": _additional_properties_to_json(user)

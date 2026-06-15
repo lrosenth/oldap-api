@@ -99,6 +99,12 @@ paths:
                   minLength: 8
                 isActive:
                   type: boolean
+                passwordResetRequestAt:
+                  type:
+                    - string
+                    - "null"
+                  format: date-time
+                  description: Timestamp when a password reset was requested.
                 userclass:
                   type: string
                   default: oldap:User
@@ -236,6 +242,12 @@ paths:
                     type: string
                   email:
                     type: string
+                  passwordResetRequestAt:
+                    type:
+                      - string
+                      - "null"
+                    format: date-time
+                    description: Timestamp when a password reset was requested.
                   isActive:
                     type: boolean
                   inProjects:
@@ -290,6 +302,12 @@ paths:
                   type: string
                 isActive:
                   type: boolean
+                passwordResetRequestAt:
+                  type:
+                    - string
+                    - "null"
+                  format: date-time
+                  description: Timestamp when a password reset was requested. Use null to clear it.
                 additionalProperties:
                   oneOf:
                     - $ref: '#/components/schemas/UserAdditionalProperties'
@@ -392,6 +410,12 @@ paths:
           description: "userId of user"
           required: false
         - in: query
+          name: email
+          schema:
+            type: string
+          description: "Email address of user"
+          required: false
+        - in: query
           name: familyName
           schema:
             type: string
@@ -483,6 +507,10 @@ paths:
                     type: string
                   email:
                     type: string
+                  passwordResetRequestAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when a password reset was requested.
                   isActive:
                     type: boolean
                   inProjects:
@@ -4568,6 +4596,14 @@ components:
           type: string
         givenName:
           type: string
+        email:
+          type: string
+        passwordResetRequestAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Timestamp when a password reset was requested.
         in_projects:
           type: array
           items:
@@ -4655,6 +4691,14 @@ components:
           minLength: 8
         isActive:
           type: boolean
+        email:
+          type: string
+        passwordResetRequestAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Timestamp when a password reset was requested.
         userclass:
           type: string
           default: oldap:User
@@ -4701,6 +4745,14 @@ components:
           type: string
         password:
           type: string
+        email:
+          type: string
+        passwordResetRequestAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Timestamp when a password reset was requested. Use null to clear it.
         additionalProperties:
           oneOf:
             - $ref: '#/components/schemas/UserAdditionalProperties'

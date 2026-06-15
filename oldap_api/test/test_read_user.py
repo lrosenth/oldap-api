@@ -10,6 +10,7 @@ def test_read_user(client, token_headers, testuser):
     assert res["familyName"] == "Rosenthaler"
     assert res["givenName"] == "Manuel"
     assert res["email"] == "manuel.rosenthaler@unibas.ch"
+    assert res["passwordResetRequestAt"] is None
     assert res["hasRole"] == {"oldap:Unknown": "DATA_VIEW"}
     assert res["inProjects"] == [{'permissions': ['oldap:ADMIN_USERS'], 'project': 'oldap:HyperHamlet'},
  {'permissions': ['oldap:ADMIN_USERS'],
@@ -130,4 +131,3 @@ def test_get_user_by_iri(client, token_headers):
         "kappa": "gugus"
     }, headers=header)
     assert response.status_code == 400
-

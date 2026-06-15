@@ -54,6 +54,31 @@ def test_modify_email(client, token_headers, testuser):
     assert readed["email"] == "manuel.rosenthaler@stud.unibas.ch"
 
 
+def test_modify_password_reset_request_at(client, token_headers, testuser):
+    header = token_headers[1]
+
+    response = client.post('/admin/user/rosman', json={
+        "passwordResetRequestAt": "2026-06-15T12:34:56Z"
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    assert res["message"] == "User updated successfully"
+
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed["passwordResetRequestAt"] == "2026-06-15T12:34:56+00:00"
+
+    response = client.post('/admin/user/rosman', json={
+        "passwordResetRequestAt": None
+    }, headers=header)
+
+    assert response.status_code == 200
+    read = client.get('/admin/user/rosman', headers=header)
+    readed = read.json
+    assert readed["passwordResetRequestAt"] is None
+
+
 def test_modify_additional_properties(client, token_headers):
     header = token_headers[1]
 

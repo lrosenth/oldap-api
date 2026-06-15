@@ -32,6 +32,17 @@ def test_search_user_by_givenName(client, token_headers, testproject):
     res = response.json
     assert res == ['https://orcid.org/0000-0003-1681-4036']
 
+def test_search_user_by_email(client, token_headers, testproject):
+    header = token_headers[1]
+
+    response = client.get('/admin/user/search', query_string={
+        "email": "peter.fornaro@unibas.ch"
+    }, headers=header)
+
+    assert response.status_code == 200
+    res = response.json
+    assert res == ['https://orcid.org/0000-0003-1485-4923']
+
 def test_search_user_by_projectId(client, token_headers, testproject):
     header = token_headers[1]
 
@@ -114,4 +125,3 @@ def test_json_with_unknown_fields(client, token_headers, testproject):
     assert response.status_code == 400
     res = response.json
     assert 'message' in res
-
