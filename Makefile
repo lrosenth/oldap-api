@@ -62,6 +62,11 @@ run:
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
+	OLDAP_PASSWORD_RESET_ADMIN_USER=rosenth \
+	OLDAP_PASSWORD_RESET_ADMIN_PASSWORD=RioGrande \
+	OLDAP_PASSWORD_RESET_FRONTEND_URL=http://localhost:5173 \
+	OLDAP_PASSWORD_RESET_JWT_SECRET=DenverAndRioGrandeWesternRailoadNarrowGauge \
+	OLDAP_PASSWORD_RESET_EMAIL_BACKEND=console \
 	APP_ENV="Dev" \
 	poetry run python oldap-api-app.py
 

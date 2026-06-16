@@ -68,6 +68,78 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+  /admin/auth/password-reset/request:
+    post:
+      summary: Request password reset
+      description: >
+        Request a password-reset link by User-ID or email. Exactly one identifier
+        must be supplied. If exactly one user is found, oldap:passwordResetRequestAt
+        is replaced, a two-hour JWT is created, and a reset link is sent by email.
+        If no unique user can be found, the API returns a conflict response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/password_reset_request_body'
+            examples:
+              byUserId:
+                value:
+                  userId: BMG-Archivar
+              byEmail:
+                value:
+                  email: archiv@example.org
+      responses:
+        "200":
+          description: Reset email accepted for delivery
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/password_reset_message_response'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "409":
+          description: No unique user could be identified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/password_reset_message_response'
+        "503":
+          $ref: '#/components/responses/ServiceUnavailable'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
+  /admin/auth/password-reset/confirm:
+    post:
+      summary: Confirm password reset
+      description: >
+        Set a new password using a password-reset JWT. The token is accepted only
+        if its resetRequestedAt claim equals the current oldap:passwordResetRequestAt
+        value stored on the user; the timestamp is deleted after a successful reset.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/password_reset_confirm_body'
+      responses:
+        "200":
+          description: Password was changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/password_reset_message_response'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "503":
+          $ref: '#/components/responses/ServiceUnavailable'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
   /admin/user/{userId}:
     put:
       summary: "Create a new user"
@@ -4679,6 +4751,52 @@ components:
         message:
           type: string
           example: "User {userId} not found"
+
+    password_reset_message_response:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    password_reset_request_body:
+      description: >
+        Request body for creating a password-reset link. Exactly one identifier
+        must be supplied: either the OLDAP User-ID or the user's email address.
+      type: object
+      additionalProperties: false
+      properties:
+        userId:
+          type: string
+          description: OLDAP User-ID.
+        email:
+          type: string
+          format: email
+          description: Email address stored on the user.
+      oneOf:
+        - required:
+            - userId
+        - required:
+            - email
+
+    password_reset_confirm_body:
+      description: Body for setting a new password with a password-reset JWT.
+      type: object
+      additionalProperties: false
+      required:
+        - token
+        - password
+      properties:
+        token:
+          type: string
+          description: Password-reset JWT received through the reset link.
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: New user password.
+
     new_user:
       type: object
       properties:
@@ -5207,6 +5325,13 @@ components:
             
     InternalServerError:
       description: "Error 500: Internal Server Error - Unexpected server error occurred"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    ServiceUnavailable:
+      description: "Error 503: Service Unavailable - Required backend service or configuration is missing"
       content:
         application/json:
           schema:

@@ -1,3 +1,9 @@
+### Update 2026-06-15 23:34
+- Decisions: Implement password reset in `oldap-api` as generic OLDAP user infrastructure with one-time JWT reset links bound to `oldap:passwordResetRequestAt`; keep mail delivery configurable and default it to console logging for development.
+- Implementation: Added `/admin/auth/password-reset/request` and `/admin/auth/password-reset/confirm`, SMTP/console reset-mail helpers, OpenAPI request/response schemas, and regression tests for request, email lookup, superseded token rejection, successful reset, non-unique lookup, and expired tokens.
+- Open: Wire the FasnachtsPage frontend dialogs to the new endpoints and configure production SMTP/frontend URL environment variables.
+- Risks/Assumptions: Requires deployed `oldaplib` support for `User.passwordResetRequestAt`, `UserAttr.PASSWORD_RESET_REQUEST_AT`, and `User.search(email=...)`; reset-mail sender identity and wording may need production tuning.
+
 ### Update 2026-06-15 12:41
 - Decisions: Treat `oldap:passwordResetRequestAt` as a built-in User API field, not an `additionalProperties` extension; expose `schema:email` as a first-class user search filter.
 - Implementation: Added create/read/update serialization for `passwordResetRequestAt`, including `null` clearing on update; passed `email` through `/admin/user/search`; documented the fields in `API-def/oldap-api.yaml`; added focused regression tests; made `hasRole` add robust after all roles were removed.

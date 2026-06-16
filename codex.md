@@ -12,7 +12,7 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 - Instance search documentation: `doc/search_instance.md`.
 - Tests live in `oldap_api/test` and rely on a local GraphDB repository plus
   OLDAP test data from the sibling `oldaplib` repository.
-- The lock file currently resolves `oldaplib` to version `0.6.11`.
+- The lock file currently resolves `oldaplib` to version `0.6.19`.
 
 ## Architecture
 
@@ -34,6 +34,17 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 - MediaObject lookup endpoints expose the shared media access contract returned
   by `oldaplib`, including `shared:mediaAccessMode` plus optional external
   `shared:mediaUrl` and `shared:thumbnailUrl`.
+- Password reset is handled by unauthenticated auth endpoints:
+  `POST /admin/auth/password-reset/request` accepts either `userId` or `email`,
+  records `oldap:passwordResetRequestAt`, creates a two-hour JWT reset link, and
+  sends it by the configured mail backend; `POST /admin/auth/password-reset/confirm`
+  validates the JWT against the current request timestamp, changes the password,
+  and clears the timestamp.
+- Password reset service configuration is environment-based:
+  `OLDAP_PASSWORD_RESET_ADMIN_USER`, `OLDAP_PASSWORD_RESET_ADMIN_PASSWORD`,
+  `OLDAP_PASSWORD_RESET_FRONTEND_URL` or `OLDAP_PUBLIC_APP_URL`, and
+  `OLDAP_PASSWORD_RESET_JWT_SECRET` or `OLDAP_JWT_SECRET`. Mail delivery defaults
+  to console logging and uses SMTP when `OLDAP_PASSWORD_RESET_EMAIL_BACKEND=smtp`.
 
 ## Current Conventions
 
