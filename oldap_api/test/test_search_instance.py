@@ -3,9 +3,14 @@ import string
 import random
 
 import pytest
+from flask import Flask
 
-from oldap_api.views.instance_views import parse_hlfilter_items, parse_search_filter_items
+from oldap_api.views.instance_views import parse_hlfilter_items, parse_search_filter_items, parse_text_search_request
 from oldaplib.src.objectfactory import CompOp, HLSearchFilter, SearchFilter
+try:
+    from oldaplib.src.objectfactory import LinkedResourceSearchFilter
+except ImportError:
+    LinkedResourceSearchFilter = None
 from oldaplib.src.xsd.listnode import HListNodeRef
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
 
@@ -142,6 +147,58 @@ def test_parse_search_filter_not_exists_defaults_value_to_property():
     assert getattr(res[0].op, "name", res[0].op) == "NOT_EXISTS"
     assert isinstance(res[0].value, Xsd_QName)
     assert str(res[0].value) == "test:optionalProperty"
+
+
+def test_parse_search_filter_linked_resource():
+    if LinkedResourceSearchFilter is None:
+        pytest.skip("Requires oldaplib with LinkedResourceSearchFilter.")
+
+    res = parse_search_filter_items([
+        {
+            "linkProperty": "fasnacht:associatedOrganisation",
+            "linkedClass": "fasnacht:Organisation",
+            "property": "fasnacht:organisationTaxonomy",
+            "op": "EQ",
+            "value": "L-xxxx:Guggenmusik",
+            "type": "qname",
+            "checkLinkedPermissions": True
+        }
+    ])
+
+    assert len(res) == 1
+    assert isinstance(res[0], LinkedResourceSearchFilter)
+    assert str(res[0].linkProp) == "fasnacht:associatedOrganisation"
+    assert str(res[0].linkedClass) == "fasnacht:Organisation"
+    assert str(res[0].prop) == "fasnacht:organisationTaxonomy"
+    assert res[0].op == CompOp.EQ
+    assert str(res[0].value) == "L-xxxx:Guggenmusik"
+    assert res[0].checkLinkedPermissions is True
+
+
+def test_parse_text_search_request_accepts_linked_resource_filter():
+    if LinkedResourceSearchFilter is None:
+        pytest.skip("Requires oldaplib with LinkedResourceSearchFilter.")
+
+    app = Flask(__name__)
+    with app.test_request_context("/data/search/fasnacht/class/fasnacht:CarnivalThing", method="POST", json={
+        "filter": [
+            {
+                "linkProperty": "fasnacht:associatedOrganisation",
+                "linkedClass": "fasnacht:Organisation",
+                "property": "fasnacht:organisationTaxonomy",
+                "op": "==",
+                "value": "L-xxxx:Guggenmusik",
+                "type": "qname",
+                "checkLinkedPermissions": "true"
+            }
+        ]
+    }):
+        params, error = parse_text_search_request(resclass="fasnacht:CarnivalThing")
+
+    assert error is None
+    assert params["resClass"] == Xsd_QName("fasnacht:CarnivalThing")
+    assert isinstance(params["filter"][0], LinkedResourceSearchFilter)
+    assert params["filter"][0].checkLinkedPermissions is True
 
 
 def test_instance_allofclass_A(client, token_headers, testemptydatamodeltest):

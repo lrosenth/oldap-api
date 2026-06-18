@@ -4,6 +4,11 @@ from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 
 
+def _resource_by_iri(datamodel: dict, iri: str) -> dict:
+    """Return the resource entry with the requested IRI from a datamodel response."""
+    return next(resource for resource in datamodel["resources"] if resource["iri"] == iri)
+
+
 def test_create_empty_datamodel(client, token_headers, testproject):
     header = token_headers[1]
 
@@ -287,31 +292,33 @@ def test_fill_empty_datamodel_with_resource(client, token_headers, testemptydata
     pprint(res)
 
     assert response.status_code == 200
-    assert res["resources"][0]["iri"] == "hyha:Sheep"
-    assert set(res["resources"][0]["label"]) == set(["Eine Buchseite@de", "A page of a book@en"])
-    assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "A page of a book@en"])
-    assert res["resources"][0]["closed"] == True
-    assert res["resources"][0]["properties"][0]["iri"] == "hyha:testProp2"
-    assert res["resources"][0]["properties"][0]["subPropertyOf"] == "hyha:testProp"
-    assert res["resources"][0]["properties"][0]["datatype"] == "rdf:langString"
-    assert set(res["resources"][0]["properties"][0]["name"]) == set(["Test Property@en", "Test Feld@de"])
-    assert res["resources"][0]["properties"][0]["description"] == ["Test Feld Beschreibung@de"]
-    assert sorted(res["resources"][0]["properties"][0]["languageIn"]) == sorted(["en", "fr", "it", "de"])
-    assert res["resources"][0]["properties"][0]["uniqueLang"] == True
-    assert sorted(res["resources"][0]["properties"][0]["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
-    assert res["resources"][0]["properties"][0]["minLength"] == 1
-    assert res["resources"][0]["properties"][0]["maxLength"] == 50
-    assert res["resources"][0]["properties"][0]["pattern"] == r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
-    assert res["resources"][0]["properties"][0]["minExclusive"] == 5.5
-    assert res["resources"][0]["properties"][0]["minInclusive"] == 5.5
-    assert res["resources"][0]["properties"][0]["maxExclusive"] == 5.5
-    assert res["resources"][0]["properties"][0]["maxInclusive"] == 5.5
-    assert res["resources"][0]["properties"][0]["lessThan"] == 'hyha:testProp'
-    assert res["resources"][0]["properties"][0]["lessThanOrEquals"] == "hyha:testProp"
-    assert res["resources"][0]["properties"][0]["maxCount"] == 3
-    assert res["resources"][0]["properties"][0]["minCount"] == 1
-    assert res["resources"][0]["properties"][0]["order"] == 1.0
-    assert res["resources"][0]["properties"][0]["editor"] == 'dash:TextAreaEditor'
+    resource = _resource_by_iri(res, "hyha:Sheep")
+    prop = resource["properties"][0]
+    assert resource["iri"] == "hyha:Sheep"
+    assert set(resource["label"]) == set(["Eine Buchseite@de", "A page of a book@en"])
+    assert set(resource["comment"]) == set(["Eine Buchseite@de", "A page of a book@en"])
+    assert resource["closed"] == True
+    assert prop["iri"] == "hyha:testProp2"
+    assert prop["subPropertyOf"] == "hyha:testProp"
+    assert prop["datatype"] == "rdf:langString"
+    assert set(prop["name"]) == set(["Test Property@en", "Test Feld@de"])
+    assert prop["description"] == ["Test Feld Beschreibung@de"]
+    assert sorted(prop["languageIn"]) == sorted(["en", "fr", "it", "de"])
+    assert prop["uniqueLang"] == True
+    assert sorted(prop["inSet"]) == sorted(["Kappa", "Gaga", "gugus"])
+    assert prop["minLength"] == 1
+    assert prop["maxLength"] == 50
+    assert prop["pattern"] == r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
+    assert prop["minExclusive"] == 5.5
+    assert prop["minInclusive"] == 5.5
+    assert prop["maxExclusive"] == 5.5
+    assert prop["maxInclusive"] == 5.5
+    assert prop["lessThan"] == 'hyha:testProp'
+    assert prop["lessThanOrEquals"] == "hyha:testProp"
+    assert prop["maxCount"] == 3
+    assert prop["minCount"] == 1
+    assert prop["order"] == 1.0
+    assert prop["editor"] == 'dash:TextAreaEditor'
 
 def test_resource_already_exists(client, token_headers, testemptydatamodel):
     header = token_headers[1]
@@ -787,4 +794,3 @@ def test_dm_to_add_property_to_not_found(client, token_headers):
     res = response.json
     print(res)
     assert response.status_code == 404
-

@@ -12,6 +12,10 @@ from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.query_processor import QueryProcessor
 from oldaplib.src.objectfactory import CompOp, FTSearchFilter, HLSearchFilter, LogicOp, ResourceInstance, \
     ResourceInstanceFactory, SearchFilter, SortBy, SortDir, SortKind, convert2datatype
+try:
+    from oldaplib.src.objectfactory import LinkedResourceSearchFilter
+except ImportError:
+    LinkedResourceSearchFilter = None
 from oldaplib.src.xsd.xsd import Xsd
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.listnode import HListNodeRef
@@ -151,8 +155,44 @@ def parse_search_value(value: Any, value_type: str | None = None, lang: str | No
             raise OldapErrorValue(f'Invalid search value type "{value_type}".')
 
 
-def parse_search_filter_items(items: list[Any]) -> list[SearchFilter | LogicOp]:
-    result: list[SearchFilter | LogicOp] = []
+def parse_search_filter_value(item: dict[str, Any], prop: str, parsed_op: CompOp):
+    """Parse the value part shared by direct and linked resource filters."""
+    if is_not_exists_comp_op(parsed_op):
+        value_type = item.get("type", None) or "qname"
+        if value_type.lower() != "qname":
+            raise OldapErrorValue('NOT_EXISTS filter entries require a QName value type.')
+        return Xsd_QName(item.get("value", prop), validate=True)
+    return parse_search_value(item.get("value", None),
+                              item.get("type", None),
+                              item.get("lang", None))
+
+
+def parse_linked_resource_search_filter_item(item: dict[str, Any]):
+    """Parse a one-hop linked-resource filter for ResourceInstance.search()."""
+    if LinkedResourceSearchFilter is None:
+        raise OldapErrorValue('Linked resource filters require an oldaplib version with LinkedResourceSearchFilter.')
+
+    link_prop = item.get("linkProperty", item.get("linkProp", None))
+    prop = item.get("property", item.get("prop", None))
+    op = item.get("op", None)
+    if not link_prop or not prop or not op:
+        raise OldapErrorValue('Linked filter entries require "linkProperty", "property" and "op".')
+
+    parsed_op = parse_comp_op(op)
+    value = parse_search_filter_value(item=item, prop=prop, parsed_op=parsed_op)
+    linked_class = item.get("linkedClass", item.get("linkClass", None))
+
+    return LinkedResourceSearchFilter(linkProp=Xsd_QName(link_prop, validate=True),
+                                      prop=Xsd_QName(prop, validate=True),
+                                      op=parsed_op,
+                                      value=value,
+                                      linkedClass=Xsd_QName(linked_class, validate=True) if linked_class else None,
+                                      checkLinkedPermissions=parse_bool_query_param(
+                                          item.get("checkLinkedPermissions", False)))
+
+
+def parse_search_filter_items(items: list[Any]) -> list[Any]:
+    result: list[Any] = []
     for item in items:
         if isinstance(item, str):
             result.append(parse_logic_op(item))
@@ -162,21 +202,16 @@ def parse_search_filter_items(items: list[Any]) -> list[SearchFilter | LogicOp]:
         if "logic" in item:
             result.append(parse_logic_op(item["logic"]))
             continue
+        if "linkProperty" in item or "linkProp" in item:
+            result.append(parse_linked_resource_search_filter_item(item))
+            continue
         prop = item.get("property", item.get("prop", None))
         op = item.get("op", None)
         if not prop or not op:
             raise OldapErrorValue('Filter entries require "property" and "op".')
         prop_qname = Xsd_QName(prop, validate=True)
         parsed_op = parse_comp_op(op)
-        if is_not_exists_comp_op(parsed_op):
-            value_type = item.get("type", None) or "qname"
-            if value_type.lower() != "qname":
-                raise OldapErrorValue('NOT_EXISTS filter entries require a QName value type.')
-            value = Xsd_QName(item.get("value", prop), validate=True)
-        else:
-            value = parse_search_value(item.get("value", None),
-                                       item.get("type", None),
-                                       item.get("lang", None))
+        value = parse_search_filter_value(item=item, prop=prop, parsed_op=parsed_op)
         result.append(SearchFilter(prop=prop_qname,
                                    op=parsed_op,
                                    value=value))

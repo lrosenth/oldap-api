@@ -3,6 +3,11 @@ from pprint import pprint
 from oldaplib.src.xsd.iri import Iri
 
 
+def _resource_by_iri(datamodel: dict, iri: str) -> dict:
+    """Return the resource entry with the requested IRI from a datamodel response."""
+    return next(resource for resource in datamodel["resources"] if resource["iri"] == iri)
+
+
 def test_modify_extonto1(client, token_headers, testdatamodelwithexternalontology):
     header = token_headers[1]
 
@@ -919,9 +924,10 @@ def test_modify_resource_01(client, token_headers, testfulldatamodelresource):
     response = client.get('/admin/datamodel/hyha', headers=header)
     assert response.status_code == 200
     res = response.json
-    assert res["resources"][0]["closed"] == False
-    assert set(res["resources"][0]["label"]) == set(['A page of a book@en', "Ein Test@zu"])
-    assert set(res["resources"][0]["comment"]) == set(["Eine Buchseite@de", "Ein Test@zu"])
+    resource = _resource_by_iri(res, "hyha:Sheep")
+    assert resource["closed"] == False
+    assert set(resource["label"]) == set(['A page of a book@en', "Ein Test@zu"])
+    assert set(resource["comment"]) == set(["Eine Buchseite@de", "Ein Test@zu"])
 
 def test_modify_resource_02(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
@@ -935,8 +941,9 @@ def test_modify_resource_02(client, token_headers, testfulldatamodelresource):
     assert response.status_code == 200
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    assert res["resources"][0]["label"] == ["Edeutsch kappa@de"]
-    assert res["resources"][0]["comment"] == ["english kappa@en"]
+    resource = _resource_by_iri(res, "hyha:Sheep")
+    assert resource["label"] == ["Edeutsch kappa@de"]
+    assert resource["comment"] == ["english kappa@en"]
 
 def test_modify_resource_03(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
@@ -949,7 +956,7 @@ def test_modify_resource_03(client, token_headers, testfulldatamodelresource):
     assert response.status_code == 200
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    assert res["resources"][0]["label"] == ["Edeutsch kappa@d@en"]
+    assert _resource_by_iri(res, "hyha:Sheep")["label"] == ["Edeutsch kappa@d@en"]
 
 
 def test_modify_resource_04(client, token_headers, testfulldatamodelresource):
@@ -982,7 +989,7 @@ def test_modify_resource_06(client, token_headers, testfulldatamodelresource):
     assert response.status_code == 200
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    assert res["resources"][0]["label"] == ["d@en"]
+    assert _resource_by_iri(res, "hyha:Sheep")["label"] == ["d@en"]
 
 
 def test_modify_resource_07(client, token_headers, testfulldatamodelresource):
@@ -996,7 +1003,7 @@ def test_modify_resource_07(client, token_headers, testfulldatamodelresource):
     assert response.status_code == 200
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    assert res["resources"][0]["label"] == ['Ein Test@z@en']
+    assert _resource_by_iri(res, "hyha:Sheep")["label"] == ['Ein Test@z@en']
 
 
 def test_modify_resource_08(client, token_headers, testfulldatamodelresource):
@@ -1010,7 +1017,7 @@ def test_modify_resource_08(client, token_headers, testfulldatamodelresource):
     assert response.status_code == 200
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    assert res["resources"][0]["label"] == ['Ein Test@z@en']
+    assert _resource_by_iri(res, "hyha:Sheep")["label"] == ['Ein Test@z@en']
 
 def test_modify_resource_09(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
@@ -1033,7 +1040,7 @@ def test_modify_resource_10(client, token_headers, testfulldatamodelresource):
     assert response.status_code == 200
     response = client.get('/admin/datamodel/hyha', headers=header)
     res = response.json
-    assert set(res["resources"][0]["label"]) == {'Eine Buchseite@de', 'Ei@en'}
+    assert set(_resource_by_iri(res, "hyha:Sheep")["label"]) == {'Eine Buchseite@de', 'Ei@en'}
 
 
 def test_modify_resource_11(client, token_headers, testfulldatamodelresource):
@@ -1527,7 +1534,7 @@ def test_modify_superclass_attribute_add(client, token_headers, testfulldatamode
     response = client.get('/admin/datamodel/hyha', headers=headers)
     assert response.status_code == 200
     dm = response.json
-    assert set(dm['resources'][0]['superclass']) == {'oldap:Thing', 'dcterms:Gaga'}
+    assert set(_resource_by_iri(dm, "hyha:Sheep")['superclass']) == {'oldap:Thing', 'dcterms:Gaga'}
 
 def test_modify_superclass_attribute_del(client, token_headers, testfulldatamodelresourcesuperclasses):
     headers = token_headers[1]

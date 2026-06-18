@@ -3276,7 +3276,7 @@ paths:
                   description: Properties to include in the result
                 filter:
                   type: array
-                  description: Normal property filters and logic operators
+                  description: Direct property filters, one-hop linked-resource filters and logic operators
                   items:
                     $ref: "#/components/schemas/SearchFilterItem"
                 ftfilter:
@@ -3504,7 +3504,7 @@ paths:
                   description: Properties to include in the result
                 filter:
                   type: array
-                  description: Normal property filters and logic operators
+                  description: Direct property filters, one-hop linked-resource filters and logic operators
                   items:
                     $ref: "#/components/schemas/SearchFilterItem"
                 ftfilter:
@@ -4302,7 +4302,8 @@ components:
     SearchFilterItem:
       description: >
         Structured instance-search filter item. String items are logic operators.
-        Object items either wrap a logic operator or describe a property comparison.
+        Object items either wrap a logic operator, describe a direct property
+        comparison, or describe a one-hop linked-resource property comparison.
         `NOT_EXISTS` / `not_exists` checks that the target resource has no value for
         the given property; its `value` may be omitted and then defaults to `property`.
       oneOf:
@@ -4338,6 +4339,114 @@ components:
                 - ")"
                 - RIGHT
                 - _RIGHT
+        - type: object
+          additionalProperties: false
+          required:
+            - op
+          allOf:
+            - anyOf:
+                - required:
+                    - linkProperty
+                - required:
+                    - linkProp
+            - anyOf:
+                - required:
+                    - property
+                - required:
+                    - prop
+          properties:
+            linkProperty:
+              $ref: "#/components/schemas/QName"
+              description: Property from the root result resource to the linked resource.
+            linkProp:
+              allOf:
+                - $ref: "#/components/schemas/QName"
+              description: Alias for linkProperty.
+            linkedClass:
+              $ref: "#/components/schemas/QName"
+              description: Optional class restriction for the linked resource.
+            linkClass:
+              allOf:
+                - $ref: "#/components/schemas/QName"
+              description: Alias for linkedClass.
+            property:
+              $ref: "#/components/schemas/QName"
+              description: Property on the linked resource.
+            prop:
+              allOf:
+                - $ref: "#/components/schemas/QName"
+              description: Alias for property.
+            op:
+              type: string
+              description: Comparison operator. Enum names and operator values are accepted.
+              enum:
+                - EQ
+                - "=="
+                - NE
+                - "!="
+                - LT
+                - "<"
+                - LE
+                - "<="
+                - GT
+                - ">"
+                - GE
+                - ">="
+                - CONTAINS
+                - contains
+                - STRSTARTS
+                - strstarts
+                - STRENDS
+                - strends
+                - REGEXP
+                - regexp
+                - FULLTEXT
+                - fulltext
+                - OVERLAPS
+                - overlaps
+                - BEFORE
+                - before
+                - AFTER
+                - after
+                - NOT_EXISTS
+                - not_exists
+            value:
+              description: >
+                Comparison value for the property on the linked resource.
+                Required for normal comparison operators. For `NOT_EXISTS` /
+                `not_exists`, omit this field or provide the same QName as the
+                checked linked property.
+              anyOf:
+                - type: string
+                - type: number
+                - type: integer
+                - type: boolean
+                - type: object
+            type:
+              type: string
+              description: Value type. `NOT_EXISTS` requires `qname` when supplied.
+              enum:
+                - string
+                - langstring
+                - int
+                - integer
+                - decimal
+                - float
+                - double
+                - bool
+                - boolean
+                - iri
+                - qname
+                - date
+                - datetime
+                - dating
+            lang:
+              type: string
+              description: Language tag for string/langstring values.
+            checkLinkedPermissions:
+              type: boolean
+              default: false
+              description: Require DATA_VIEW permission on the linked resource before it may satisfy the filter.
         - type: object
           additionalProperties: false
           required:

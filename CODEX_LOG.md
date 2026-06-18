@@ -1,3 +1,17 @@
+# CODEX_LOG
+
+### Update 2026-06-18 23:31
+- Decisions: Treat datamodel resource response order as non-contractual in tests because `hyha:HyhaUser` can coexist with `hyha:Sheep` in the same test datamodel.
+- Implementation: Updated create/delete/modify datamodel tests to select the asserted resource by IRI instead of assuming `resources[0]` is `hyha:Sheep`; tightened `testproject` fixtures so stale datamodel graphs are deleted before and after project tests.
+- Open: None.
+- Risks/Assumptions: API behavior was left unchanged; focused verification covered the ten reported failures and the three touched datamodel test modules.
+
+### Update 2026-06-18 23:05
+- Decisions: Expose oldaplib's one-hop `LinkedResourceSearchFilter` through the existing structured instance-search `filter` array instead of adding a new top-level request field.
+- Implementation: Added parser support for linked filters with `linkProperty`/`linkProp`, optional `linkedClass`/`linkClass`, direct comparison fields, and `checkLinkedPermissions`; updated OpenAPI `SearchFilterItem`, `doc/search_instance.md`, parser tests, and project context.
+- Open: Regenerate downstream clients from `API-def/oldap-api.yaml`; deploy with an oldaplib build that includes `LinkedResourceSearchFilter`.
+- Risks/Assumptions: Linked-resource filters intentionally support only one hop and only work in POST structured search requests, matching the existing behavior for complex filter arrays.
+
 ### Update 2026-06-15 23:34
 - Decisions: Implement password reset in `oldap-api` as generic OLDAP user infrastructure with one-time JWT reset links bound to `oldap:passwordResetRequestAt`; keep mail delivery configurable and default it to console logging for development.
 - Implementation: Added `/admin/auth/password-reset/request` and `/admin/auth/password-reset/confirm`, SMTP/console reset-mail helpers, OpenAPI request/response schemas, and regression tests for request, email lookup, superseded token rejection, successful reset, non-unique lookup, and expired tokens.

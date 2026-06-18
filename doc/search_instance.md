@@ -164,7 +164,7 @@ Erlaubte Felder im JSON-Body:
 | `ftProperty` | NCName-String | Legacy-Name fuer `ftField`; erwartet ebenfalls einen Lucene-Feldnamen, keinen QName. |
 | `resClass` / `resclass` | QName-String | Einschraenkung auf eine Resource-Klasse. |
 | `includeProperties` | Array von QName-Strings | Properties, die im Resultat enthalten sein sollen. |
-| `filter` | Array | Normale Property-Filter und Logikoperatoren. |
+| `filter` | Array | Direkte Property-Filter, ein Level tiefe Linked-Resource-Filter und Logikoperatoren. |
 | `ftfilter` | Array | Volltextfilter auf bestimmten Lucene-Feldern und `AND`/`OR`. |
 | `hlfilter` | Array | Filter fuer hierarchische Listen und Logikoperatoren. |
 | `countOnly` | Boolean/String | Nur Anzahl zurueckgeben. |
@@ -244,8 +244,9 @@ curl \
 
 ## Normale Property-Filter
 
-Normale Filter werden im Feld `filter` als Array angegeben. Ein Filtereintrag
-ist entweder ein Objekt oder ein Logikoperator.
+Filter werden im Feld `filter` als Array angegeben. Ein Filtereintrag ist
+entweder ein Objekt oder ein Logikoperator. Ohne `linkProperty` bezieht sich das
+Objekt direkt auf die Root-Resource des Suchresultats.
 
 Filterobjekt:
 
@@ -348,6 +349,68 @@ QName aus `property` als oldaplib-Wert:
 {
   "property": "fasnacht:externalSource",
   "op": "NOT_EXISTS"
+}
+```
+
+## Linked-Resource-Filter
+
+Ein Linked-Resource-Filter sucht weiterhin Root-Resources, vergleicht aber eine
+Property auf einer direkt verlinkten Resource. Die API unterstuetzt bewusst nur
+ein Level:
+
+```text
+RootResource -> linkProperty -> LinkedResource -> property
+```
+
+Ein solcher Filter wird ebenfalls im `filter`-Array angegeben und durch
+`linkProperty` oder den Alias `linkProp` erkannt:
+
+```json
+{
+  "linkProperty": "fasnacht:associatedOrganisation",
+  "linkedClass": "fasnacht:Organisation",
+  "property": "fasnacht:organisationTaxonomy",
+  "op": "==",
+  "value": "L-xxxx:Guggenmusik",
+  "type": "qname",
+  "checkLinkedPermissions": true
+}
+```
+
+Felder:
+
+| Feld | Pflicht | Bedeutung |
+| --- | --- | --- |
+| `linkProperty` / `linkProp` | ja | Property von der Root-Resource zur verlinkten Resource. |
+| `linkedClass` / `linkClass` | nein | Optionale Klasse der verlinkten Resource. |
+| `property` / `prop` | ja | Property auf der verlinkten Resource. |
+| `op`, `value`, `type`, `lang` | wie bei direkten Filtern | Vergleich auf der verlinkten Property. |
+| `checkLinkedPermissions` | nein | Wenn `true`, muss die verlinkte Resource fuer den aktuellen User `DATA_VIEW` erlauben. Default ist `false`. |
+
+Linked-Filter koennen mit normalen Filtern und Logikoperatoren kombiniert
+werden:
+
+```json
+{
+  "resClass": "fasnacht:CarnivalThing",
+  "filter": [
+    {
+      "linkProperty": "fasnacht:associatedOrganisation",
+      "linkedClass": "fasnacht:Organisation",
+      "property": "fasnacht:organisationTaxonomy",
+      "op": "==",
+      "value": "L-xxxx:Guggenmusik",
+      "type": "qname",
+      "checkLinkedPermissions": true
+    },
+    "AND",
+    {
+      "property": "fasnacht:carnivalThingStatus",
+      "op": "==",
+      "value": "fasnacht:Published",
+      "type": "qname"
+    }
+  ]
 }
 ```
 

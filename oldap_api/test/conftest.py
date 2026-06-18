@@ -146,6 +146,7 @@ def testuser(client, token_headers):
 
 @pytest.fixture()
 def testproject(client, token_headers):
+    """Create an isolated test project without a pre-existing datamodel."""
     header = token_headers[1]
 
     client.put('/admin/project/testproject', json={
@@ -156,13 +157,16 @@ def testproject(client, token_headers):
         "projectStart": "1993-04-05",
         "projectEnd": "2000-01-10"
     }, headers=header)
+    client.delete('/admin/datamodel/testproject', headers=header)
 
     yield
 
+    client.delete('/admin/datamodel/testproject', headers=header)
     client.delete('/admin/project/testproject', headers=header)
 
 @pytest.fixture()
 def testproject_with_external_ontologies(client, token_headers):
+    """Create an isolated test project for external ontology tests."""
     header = token_headers[1]
 
     client.put('/admin/project/testprojectB', json={
@@ -173,10 +177,12 @@ def testproject_with_external_ontologies(client, token_headers):
         "projectStart": "1993-04-05",
         "projectEnd": "2000-01-10"
     }, headers=header)
+    client.delete('/admin/datamodel/testprojectB', headers=header)
 
     yield
 
-    client.delete('/admin/project/testproject', headers=header)
+    client.delete('/admin/datamodel/testprojectB', headers=header)
+    client.delete('/admin/project/testprojectB', headers=header)
 
 
 

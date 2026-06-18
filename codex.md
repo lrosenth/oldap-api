@@ -24,6 +24,10 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   as ontology-driven maps; `oldap:attachedToRole` is the special instance
   permission map and supports role-to-DataPermission replacement plus `add`/`del`
   patches on update.
+- Structured instance search accepts direct property filters, hierarchical-list
+  filters, Lucene field filters, and one-hop linked-resource filters in the
+  `filter` array. Linked filters require an `oldaplib` version exposing
+  `LinkedResourceSearchFilter`.
 - `POST /data/{project}/{instiri}/transform` is the generic resource lifecycle
   endpoint for atomic class transformations that keep the same IRI. It delegates
   the ontology validation and GraphDB transaction to `oldaplib`.
