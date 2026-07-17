@@ -95,14 +95,14 @@ def test_bad_token(client, token_headers, testfulldatamodelstandaloneproplangstr
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.delete('/admin/datamodel/hyha', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
     response = client.delete('/admin/datamodel/hyha/hyha:Sheep', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_cantfind_dm_to_delete(client, token_headers):
@@ -184,9 +184,9 @@ def test_bad_token_hasprop(client, token_headers, testfulldatamodelresource):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.delete('/admin/datamodel/hyha/hyha:Sheep/hyha:testProp2', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 def test_bad_token_whole_dm(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
@@ -195,9 +195,9 @@ def test_bad_token_whole_dm(client, token_headers, testfulldatamodelresource):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.delete('/admin/datamodel/hyha', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 def test_bad_token_standaloneprop(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
@@ -206,9 +206,9 @@ def test_bad_token_standaloneprop(client, token_headers, testfulldatamodelresour
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.delete('/admin/datamodel/doesnotexist/property/hyha:testProp2', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 def test_cantfind_dm_where_whole_dm_should_be_deleted(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]

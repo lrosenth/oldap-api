@@ -10,19 +10,50 @@ from oldap_api.factory import factory
 
 
 class ConnectionManager:
-    _jwt_secret: str
+    _access_secret: str
+    _refresh_secret: str
+    _media_secret: str
+    _password_reset_secret: str
 
-    def __init__(self, jwt_secret: str):
-        self._jwt_secret = jwt_secret
-        os.environ['OLDAP_JWT_SECRET'] = jwt_secret
+    def __init__(self,
+                 access_secret: str,
+                 refresh_secret: str,
+                 media_secret: str,
+                 password_reset_secret: str):
+        self._access_secret = access_secret
+        self._refresh_secret = refresh_secret
+        self._media_secret = media_secret
+        self._password_reset_secret = password_reset_secret
 
     @property
     def jwt_secret(self) -> str:
-        return self._jwt_secret
+        """Compatibility alias for tests that inspect access tokens."""
+        return self._access_secret
+
+    @property
+    def access_secret(self) -> str:
+        return self._access_secret
+
+    @property
+    def refresh_secret(self) -> str:
+        return self._refresh_secret
+
+    @property
+    def media_secret(self) -> str:
+        return self._media_secret
+
+    @property
+    def password_reset_secret(self) -> str:
+        return self._password_reset_secret
 
 @pytest.fixture
 def connection_manager():
-    cmanager = ConnectionManager("ABCDEFGHIJKLMNOPQRESTUVWXYZ0123456")
+    cmanager = ConnectionManager(
+        os.environ["OLDAP_ACCESS_JWT_SECRET"],
+        os.environ["OLDAP_REFRESH_JWT_SECRET"],
+        os.environ["OLDAP_MEDIA_JWT_SECRET"],
+        os.environ["OLDAP_PASSWORD_RESET_JWT_SECRET"],
+    )
     return cmanager
 
 @pytest.fixture(scope="session", autouse=True)
@@ -31,6 +62,21 @@ def set_test_env():
     os.environ["OLDAP_TS_REPO"] = "oldap"
     os.environ["OLDAP_API_PORT"] = "8000"
     os.environ["OLDAP_REDIS_URL"] = "redis://localhost:6379"
+    os.environ["OLDAP_ACCESS_JWT_SECRET"] = (
+        "oldap-api-test-access-secret-at-least-32-bytes"
+    )
+    os.environ["OLDAP_REFRESH_JWT_SECRET"] = (
+        "oldap-api-test-refresh-secret-at-least-32-bytes"
+    )
+    os.environ["OLDAP_MEDIA_JWT_SECRET"] = (
+        "oldap-api-test-media-secret-at-least-32-bytes"
+    )
+    os.environ["OLDAP_PASSWORD_RESET_JWT_SECRET"] = (
+        "oldap-api-test-reset-secret-at-least-32-bytes"
+    )
+    os.environ["OLDAP_AUTH_ADMIN_USER"] = "rosenth"
+    os.environ["OLDAP_AUTH_ADMIN_PASSWORD"] = "RioGrande"
+    os.environ["OLDAP_REFRESH_COOKIE_SECURE"] = "false"
 
 
 @pytest.fixture

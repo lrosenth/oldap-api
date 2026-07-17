@@ -58,9 +58,9 @@ def test_bad_token(client, token_headers):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.delete('/admin/user/kappa', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_no_right_delete_user(client, token_headers):

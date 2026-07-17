@@ -2,7 +2,7 @@ from pprint import pprint
 from typing import Any
 from urllib.parse import unquote
 from flask import request, jsonify, Blueprint, current_app
-from oldaplib.src.connection import Connection
+from oldap_api.authentication import authenticated_connection, require_auth
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
@@ -35,17 +35,6 @@ from oldaplib.src.xsd.xsd_string import Xsd_string
 instance_bp = Blueprint('instance', __name__, url_prefix='/data')
 
 
-def get_authorization_token() -> tuple[str | None, tuple[Any, int] | None]:
-    out = request.headers.get('Authorization')
-    if out is None:
-        return None, (jsonify({"message": "No authorization token provided"}), 401)
-    parts = out.split()
-    if len(parts) != 2:
-        return None, (jsonify({"message": "Invalid authorization header"}), 401)
-    b, token = parts
-    if b.lower() != "bearer" or not token:
-        return None, (jsonify({"message": "Invalid authorization header"}), 401)
-    return token, None
 
 
 def to_json_compatible_value(val):
@@ -417,20 +406,13 @@ def text_search_response(project: str, resclass: str | None = None, allow_search
     project = unquote(project)
     resclass = unquote(resclass) if resclass else None
 
-    token, auth_error = get_authorization_token()
-    if auth_error:
-        return auth_error
 
     params, parse_error = parse_text_search_request(resclass=resclass,
                                                     allow_search_fulltext=allow_search_fulltext)
     if parse_error:
         return parse_error
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         searchstr = params.pop('searchstr')
@@ -458,26 +440,11 @@ def text_search_response(project: str, resclass: str | None = None, allow_search
 
 
 @instance_bp.route('/mediaobject/id/<imageid>', methods=['GET'])
+@require_auth
 def media_object_by_id(imageid):
     current_app.logger.info(f"/data/mediaobject/id/{imageid} with GET called")
 
-    out = request.headers.get('Authorization')
-    current_app.logger.info("mediaobject_by_id: auth header present=%s", bool(out))
-    if out is None:
-        return jsonify({"message": "No authorization token provided"}), 401
-
-
-    # Expected format: "Bearer <token>"
-    parts = out.split()
-    if len(parts) != 2:
-        return jsonify({"message": "Invalid authorization header"}), 401
-    b, token = parts
-    if b.lower() != "bearer" or not token:
-        return jsonify({"message": "Invalid authorization header"}), 401
-    try:
-        con = Connection(token=token, context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         res = ResourceInstance.get_media_object_by_id(con=con, mediaObjectId=imageid)
     except OldapError as error:
@@ -488,22 +455,11 @@ def media_object_by_id(imageid):
     return media_object_json_response(res)
 
 @instance_bp.route('/mediaobject/iri/<path:imageiri>', methods=['GET'])
+@require_auth
 def media_object_by_iri(imageiri):
     current_app.logger.info(f"/data/mediaobject/iri/{imageiri} with GET called")
     imageiri = unquote(imageiri)
-    out = request.headers.get('Authorization')
-    if out is None:
-        return jsonify({"message": "No authorization token provided"}), 401
-    parts = out.split()
-    if len(parts) != 2:
-        return jsonify({"message": "Invalid authorization header"}), 401
-    b, token = parts
-    if b.lower() != "bearer" or not token:
-        return jsonify({"message": "Invalid authorization header"}), 401
-    try:
-        con = Connection(token=token, context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         res = ResourceInstance.get_media_object_by_iri(con=con, mediaObjectIri=imageiri)
     except OldapError as error:
@@ -514,29 +470,31 @@ def media_object_by_iri(imageiri):
 
 @instance_bp.route('/text/<path:project>', methods=['GET'])
 @instance_bp.route('/text/<path:project>/class/<path:resclass>', methods=['GET'])
+@require_auth
 def text_instance(project, resclass=None):
     return text_search_response(project=project, resclass=resclass, allow_search_fulltext=True)
 
 
 @instance_bp.route('/search/<path:project>', methods=['GET', 'POST'])
 @instance_bp.route('/search/<path:project>/class/<path:resclass>', methods=['GET', 'POST'])
+@require_auth
 def search_instance(project, resclass=None):
     return text_search_response(project=project, resclass=resclass)
 
 
 @instance_bp.route('/textsearch/<path:project>', methods=['GET'])
+@require_auth
 def textsearch_instance(project):
     return text_search_response(project=project, allow_search_fulltext=True)
 
 
 @instance_bp.route('/ofclass/<path:project>', methods=['GET'])
+@require_auth
 def allofclass_instance(project):
     current_app.logger.info(f"/data/ofclass/{project} with GET called")
 
     project = unquote(project)
     known_json_fields = {"resClass", "includeProperties[]", "countOnly", "sortBy[]", "limit", "offset"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.args:
         unknown_json_field = set(request.args.keys()) - known_json_fields
@@ -583,11 +541,7 @@ def allofclass_instance(project):
             params['offset'] = int(offset)
     except (OldapErrorValue, OldapError) as error:
         return jsonify({"message": str(error)}), 400
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         res = ResourceInstance.search(con=con,
@@ -605,22 +559,18 @@ def allofclass_instance(project):
 
 
 @instance_bp.route('/<path:project>/<resource>', methods=['PUT'])
+@require_auth
 def add_instance(project, resource):
     current_app.logger.info(f"/data/{project}/{resource} with GET called")
 
     project = unquote(project)
     resource = unquote(resource)
     current_app.logger.info(f"Starting add_instance for project: {project}, resource: {resource}")
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if not request.is_json:
         return jsonify({"message": "Invalid request format, JSON required"}), 400
 
-    try:
-        con = Connection(token=token, context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     factory = ResourceInstanceFactory(con=con, project=project)
     instclass = factory.createObjectInstance(resource)
@@ -647,6 +597,7 @@ def add_instance(project, resource):
     return jsonify({"message": "Instance successfully created", "iri": str(instance.iri)}), 200
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['GET'])
+@require_auth
 def read_instance(project, instiri):
     current_app.logger.info(f"/data/{project}/{instiri} with GET called")
 
@@ -667,13 +618,8 @@ def read_instance(project, instiri):
 
     project = unquote(project)
     instiri = unquote(instiri)
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token, context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         iri = Iri(instiri, validate=True)
@@ -767,13 +713,12 @@ def read_instance(project, instiri):
     return jsonify(res), 200
 
 @instance_bp.route('/<path:project>/<path:instiri>/transform', methods=['POST'])
+@require_auth
 def transform_instance(project, instiri):
     current_app.logger.info(f"/data/{project}/{instiri}/transform with POST called")
 
     project = unquote(project)
     instiri = unquote(instiri)
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if not request.is_json:
         return jsonify({"message": "Invalid request format, JSON required"}), 400
@@ -800,10 +745,7 @@ def transform_instance(project, instiri):
     if attached_to_role is not None and not isinstance(attached_to_role, dict):
         return jsonify({"message": "attachedToRole must be a role-to-permission object."}), 400
 
-    try:
-        con = Connection(token=token, context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         iri = Iri(instiri, validate=True)
@@ -837,13 +779,12 @@ def transform_instance(project, instiri):
         return jsonify({"message": str(error)}), 500
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['POST'])
+@require_auth
 def update_instance(project, instiri):
     current_app.logger.info(f"/data/{project}/{instiri} with POST called")
 
     project = unquote(project)
     instiri = unquote(instiri)
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if not request.is_json:
         return jsonify({"message": "Invalid request format, JSON required"}), 400
@@ -851,10 +792,7 @@ def update_instance(project, instiri):
     if not data:
         return jsonify({"message": "No data provided"}), 400
 
-    try:
-        con = Connection(token=token, context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         iri = Iri(instiri, validate=True)
@@ -937,18 +875,14 @@ def update_instance(project, instiri):
         return jsonify({"message": str(error)}), 500
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['DELETE'])
+@require_auth
 def delete_instance(project, instiri):
     current_app.logger.info(f"/data/{project}/{instiri} with DELETE called")
 
     project = unquote(project)
     instiri = unquote(instiri)
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token, context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         iri = Iri(instiri, validate=True)

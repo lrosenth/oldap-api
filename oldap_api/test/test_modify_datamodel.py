@@ -1174,14 +1174,14 @@ def test_bad_token_standaloneprop(client, token_headers, testfulldatamodelstanda
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.post('/admin/datamodel/hyha/hyha:testProp/mod', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
     response = client.post('/admin/datamodel/hyha/property/hyha:testProp2', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 def test_bad_token_resource(client, token_headers, testfulldatamodelresource):
     header = token_headers[1]
@@ -1190,9 +1190,9 @@ def test_bad_token_resource(client, token_headers, testfulldatamodelresource):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.post('/admin/datamodel/hyha/hyha:testProp2', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 def test_cantfind_dm_to_modify(client, token_headers, testfulldatamodelstandaloneproplangstring):
     header = token_headers[1]

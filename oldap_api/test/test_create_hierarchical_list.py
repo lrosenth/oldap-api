@@ -274,27 +274,27 @@ def test_bad_token(client, token_headers):
         "prefLabel": ["testlabel@en"],
         "definition": ["testdefinition@en"]
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
     response = client.put('/admin/hlist/hyha/testhlist/testrootnode', json={
         "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
     response = client.put('/admin/hlist/hyha/testhlist/testrootnode', json={
         "prefLabel": ["testrootnodelabel@en"],
         "definition": ["testrootnodedefinition@en"],
         "position": "root"
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_no_permission(client, token_headers, testemptyhlist):
@@ -335,4 +335,3 @@ def test_no_permission(client, token_headers, testemptyhlist):
     res2 = response2.json
     print(res2)
     assert response2.status_code == 403
-

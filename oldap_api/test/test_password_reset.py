@@ -1,3 +1,4 @@
+from http.cookies import SimpleCookie
 from urllib.parse import parse_qs, urlparse
 
 import jwt
@@ -11,7 +12,10 @@ def _configure_password_reset(monkeypatch, connection_manager):
     monkeypatch.setenv("OLDAP_PASSWORD_RESET_ADMIN_USER", "rosenth")
     monkeypatch.setenv("OLDAP_PASSWORD_RESET_ADMIN_PASSWORD", "RioGrande")
     monkeypatch.setenv("OLDAP_PASSWORD_RESET_FRONTEND_URL", "https://app.example.org")
-    monkeypatch.setenv("OLDAP_PASSWORD_RESET_JWT_SECRET", connection_manager.jwt_secret)
+    monkeypatch.setenv(
+        "OLDAP_PASSWORD_RESET_JWT_SECRET",
+        connection_manager.password_reset_secret,
+    )
 
     def capture_email(user, link, identified_by_email):
         captured["user"] = user
@@ -24,6 +28,22 @@ def _configure_password_reset(monkeypatch, connection_manager):
 
 def _token_from_link(link):
     return parse_qs(urlparse(link).query)["token"][0]
+
+
+def _refresh_token(response):
+    cookies = SimpleCookie()
+    cookies.load(response.headers["Set-Cookie"])
+    return cookies["oldap_refresh"].value
+
+
+def _decode_reset_token(token, connection_manager):
+    return jwt.decode(
+        token,
+        connection_manager.password_reset_secret,
+        algorithms=["HS256"],
+        issuer="https://oldap.org",
+        audience="oldap-api-password-reset",
+    )
 
 
 def _create_user(client, header, user_id, email, password="oldPassword"):
@@ -51,8 +71,8 @@ def test_password_reset_request_and_confirm(client, connection_manager, token_he
         assert response.status_code == 200
         assert "Email" in response.json["message"]
         first_token = _token_from_link(captured["link"])
-        first_payload = jwt.decode(first_token, connection_manager.jwt_secret, algorithms=["HS256"])
-        assert first_payload["purpose"] == "password-reset"
+        first_payload = _decode_reset_token(first_token, connection_manager)
+        assert first_payload["typ"] == "password-reset"
         assert first_payload["sub"] == user_id
         assert not captured["identified_by_email"]
 
@@ -66,9 +86,15 @@ def test_password_reset_request_and_confirm(client, connection_manager, token_he
         assert response.status_code == 200
         assert captured["identified_by_email"]
         second_token = _token_from_link(captured["link"])
-        second_payload = jwt.decode(second_token, connection_manager.jwt_secret, algorithms=["HS256"])
+        second_payload = _decode_reset_token(second_token, connection_manager)
         assert second_payload["sub"] == user_id
         assert second_payload["resetRequestedAt"] != first_payload["resetRequestedAt"]
+
+        user_login = client.post(
+            f"/admin/auth/{user_id}", json={"password": "oldPassword"}
+        )
+        assert user_login.status_code == 200
+        old_refresh = _refresh_token(user_login)
 
         response = client.post("/admin/auth/password-reset/confirm", json={
             "token": first_token,
@@ -82,6 +108,10 @@ def test_password_reset_request_and_confirm(client, connection_manager, token_he
             "password": "newPassword",
         })
         assert response.status_code == 200
+
+        client.set_cookie("oldap_refresh", old_refresh, path="/admin/auth")
+        refresh = client.post("/admin/auth/refresh")
+        assert refresh.status_code == 401
 
         read_response = client.get(f"/admin/user/{user_id}", headers=header)
         assert read_response.status_code == 200
@@ -128,9 +158,13 @@ def test_password_reset_confirm_rejects_expired_token(client, connection_manager
             "userId": user_id,
         })
         assert response.status_code == 200
-        payload = jwt.decode(_token_from_link(captured["link"]), connection_manager.jwt_secret, algorithms=["HS256"])
+        payload = _decode_reset_token(
+            _token_from_link(captured["link"]), connection_manager
+        )
         payload["exp"] = 1
-        expired_token = jwt.encode(payload, connection_manager.jwt_secret, algorithm="HS256")
+        expired_token = jwt.encode(
+            payload, connection_manager.password_reset_secret, algorithm="HS256"
+        )
 
         response = client.post("/admin/auth/password-reset/confirm", json={
             "token": expired_token,

@@ -19,9 +19,9 @@ def test_bad_token(client, token_headers, testrole):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.delete('/admin/role/oldap/testrole', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_delete_nonexisting_permissionset(client, token_headers):

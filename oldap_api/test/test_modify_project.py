@@ -640,16 +640,16 @@ def test_bad_token(client, token_headers):
     response = client.post('/admin/project/testproject', json={
         "label": "Kappa@fr"
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
     response = client.get('/admin/project/getid', query_string={
         "iri": "kappa"
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_modify_immutable(client, token_headers):

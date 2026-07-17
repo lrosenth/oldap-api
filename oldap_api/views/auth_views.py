@@ -3,8 +3,10 @@ This script is part of a RESTful API for managing functionalities of oldaplib.
 It uses Flask and oldaplib to perform CRUD operations on user, project data, permissionsets and more.
 The API offers endpoints for creating, reading, updating, searching and deleting functions to interact with the database.
 
-- POST /admin/auth/<userid>: Logs in a user and returns a token.
-- DELETE /admin/auth/<userid>: Logs out a user.
+- POST /admin/auth/<userid>: Logs in a user and returns an access token.
+- POST /admin/auth/refresh: Exchanges the refresh cookie for an access token.
+- POST /admin/auth/logout: Globally revokes refresh tokens and clears the cookie.
+- DELETE /admin/auth/<userid>: Deprecated compatibility logout route.
 - POST /admin/auth/password-reset/request: Requests a password reset link.
 - POST /admin/auth/password-reset/confirm: Sets a new password with a reset token.
 
@@ -15,28 +17,161 @@ import os
 import smtplib
 from datetime import datetime, timedelta, UTC
 from email.message import EmailMessage
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 import jwt
-from flask import request, jsonify, Blueprint, current_app
+from flask import request, jsonify, Blueprint, current_app, make_response
+from oldaplib.src.authentication import AuthorizationContext, TokenCodec
 from oldaplib.src.connection import Connection
 from oldaplib.src.enums.userattr import UserAttr
-from oldaplib.src.helpers.oldaperror import OldapErrorNotFound, OldapError, OldapErrorValue, OldapErrorNoPermission, \
-    OldapErrorUpdateFailed
+from oldaplib.src.helpers.oldaperror import (
+    OldapErrorNotFound,
+    OldapError,
+    OldapErrorValue,
+    OldapErrorNoPermission,
+    OldapErrorUpdateFailed,
+    OldapErrorConfiguration,
+    OldapErrorToken,
+)
 from oldaplib.src.user import User
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_datetimestamp import Xsd_dateTimeStamp
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/admin')
+auth_bp = Blueprint("auth", __name__, url_prefix="/admin")
 
 PASSWORD_RESET_PURPOSE = "password-reset"
 PASSWORD_RESET_EXPIRATION_SECONDS = 2 * 60 * 60
+PASSWORD_RESET_AUDIENCE_SUFFIX = "-password-reset"
+REFRESH_COOKIE_PATH = "/admin/auth"
+
+
+def _token_codec() -> TokenCodec:
+    """Return a codec loaded from the current process environment."""
+    return TokenCodec.from_environment()
+
+
+def _authentication_connection() -> Connection:
+    """Create the privileged connection used for refresh and revocation."""
+    userid = os.getenv("OLDAP_AUTH_ADMIN_USER")
+    password = os.getenv("OLDAP_AUTH_ADMIN_PASSWORD")
+    if not userid or not password:
+        raise RuntimeError(
+            "OLDAP_AUTH_ADMIN_USER and OLDAP_AUTH_ADMIN_PASSWORD must be configured."
+        )
+    try:
+        return Connection(userId=userid, credentials=password, context_name="DEFAULT")
+    except OldapError as error:
+        raise RuntimeError("The authentication service connection failed.") from error
+
+
+def _boolean_environment(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise RuntimeError(f"{name} must be true or false.")
+
+
+def _refresh_cookie_settings() -> dict:
+    same_site = os.getenv("OLDAP_REFRESH_COOKIE_SAMESITE", "Lax").strip().capitalize()
+    if same_site not in {"Lax", "Strict", "None"}:
+        raise RuntimeError(
+            "OLDAP_REFRESH_COOKIE_SAMESITE must be Lax, Strict, or None."
+        )
+    secure = _boolean_environment("OLDAP_REFRESH_COOKIE_SECURE", True)
+    if same_site == "None" and not secure:
+        raise RuntimeError("SameSite=None requires OLDAP_REFRESH_COOKIE_SECURE=true.")
+    return {
+        "httponly": True,
+        "secure": secure,
+        "samesite": same_site,
+        "path": REFRESH_COOKIE_PATH,
+    }
+
+
+def _refresh_cookie_name() -> str:
+    return os.getenv("OLDAP_REFRESH_COOKIE_NAME", "oldap_refresh")
+
+
+def _set_refresh_cookie(response, token: str, codec: TokenCodec) -> None:
+    response.set_cookie(
+        _refresh_cookie_name(),
+        token,
+        max_age=codec.settings.refresh_ttl_seconds,
+        **_refresh_cookie_settings(),
+    )
+
+
+def _clear_refresh_cookie(response) -> None:
+    response.delete_cookie(_refresh_cookie_name(), **_refresh_cookie_settings())
+
+
+def _no_store(response):
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Pragma"] = "no-cache"
+    return response
+
+
+def _access_response(token: str, codec: TokenCodec, status: int = 200):
+    response = jsonify(
+        {
+            "message": "Login succeeded",
+            "accessToken": token,
+            "tokenType": "Bearer",
+            "expiresIn": codec.settings.access_ttl_seconds,
+            "token": token,
+        }
+    )
+    response.status_code = status
+    return _no_store(response)
+
+
+def _refresh_failure():
+    response = jsonify({"message": "Authentication failed."})
+    response.status_code = 401
+    try:
+        _clear_refresh_cookie(response)
+    except RuntimeError:
+        pass
+    return _no_store(response)
+
+
+def _normalized_origin(value: str) -> str | None:
+    parsed = urlsplit(value)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return None
+    return f"{parsed.scheme.lower()}://{parsed.netloc.lower()}"
+
+
+def _origin_is_allowed() -> bool:
+    """Accept absent/same-origin requests and exact configured origins."""
+    origin = request.headers.get("Origin")
+    if not origin:
+        return True
+    normalized = _normalized_origin(origin)
+    if normalized is None:
+        return False
+    if normalized == _normalized_origin(request.host_url):
+        return True
+    configured = os.getenv("OLDAP_AUTH_ALLOWED_ORIGINS", "")
+    allowed = {
+        _normalized_origin(item.strip())
+        for item in configured.split(",")
+        if item.strip()
+    }
+    return normalized in allowed
 
 
 def _password_reset_secret() -> str:
-    secret = os.getenv("OLDAP_PASSWORD_RESET_JWT_SECRET") or os.getenv("OLDAP_JWT_SECRET")
-    if not secret:
-        raise RuntimeError("OLDAP_PASSWORD_RESET_JWT_SECRET or OLDAP_JWT_SECRET must be configured.")
+    secret = os.getenv("OLDAP_PASSWORD_RESET_JWT_SECRET")
+    if not secret or len(secret.encode("utf-8")) < 32:
+        raise RuntimeError(
+            "OLDAP_PASSWORD_RESET_JWT_SECRET must contain at least 32 bytes."
+        )
     return secret
 
 
@@ -44,18 +179,29 @@ def _password_reset_connection() -> Connection:
     userid = os.getenv("OLDAP_PASSWORD_RESET_ADMIN_USER")
     password = os.getenv("OLDAP_PASSWORD_RESET_ADMIN_PASSWORD")
     if not userid or not password:
-        raise RuntimeError("OLDAP_PASSWORD_RESET_ADMIN_USER and OLDAP_PASSWORD_RESET_ADMIN_PASSWORD must be configured.")
-    return Connection(userId=userid, credentials=password, context_name="DEFAULT")
+        raise RuntimeError(
+            "OLDAP_PASSWORD_RESET_ADMIN_USER and OLDAP_PASSWORD_RESET_ADMIN_PASSWORD must be configured."
+        )
+    try:
+        return Connection(userId=userid, credentials=password, context_name="DEFAULT")
+    except OldapError as error:
+        raise RuntimeError("The password-reset service connection failed.") from error
 
 
 def _password_reset_frontend_url() -> str:
-    base_url = os.getenv("OLDAP_PASSWORD_RESET_FRONTEND_URL") or os.getenv("OLDAP_PUBLIC_APP_URL")
+    base_url = os.getenv("OLDAP_PASSWORD_RESET_FRONTEND_URL") or os.getenv(
+        "OLDAP_PUBLIC_APP_URL"
+    )
     if not base_url:
-        raise RuntimeError("OLDAP_PASSWORD_RESET_FRONTEND_URL or OLDAP_PUBLIC_APP_URL must be configured.")
+        raise RuntimeError(
+            "OLDAP_PASSWORD_RESET_FRONTEND_URL or OLDAP_PUBLIC_APP_URL must be configured."
+        )
     return base_url.rstrip("/")
 
 
-def _resolve_password_reset_user(con: Connection, data: dict) -> tuple[User | None, str | None]:
+def _resolve_password_reset_user(
+    con: Connection, data: dict
+) -> tuple[User | None, str | None]:
     user_id = (data.get("userId") or "").strip()
     email = (data.get("email") or "").strip()
     if bool(user_id) == bool(email):
@@ -73,27 +219,37 @@ def _resolve_password_reset_user(con: Connection, data: dict) -> tuple[User | No
     return User.read(con=con, userId=Iri(str(user_iris[0])), ignore_cache=True), None
 
 
-def _build_password_reset_token(user: User, reset_requested_at: Xsd_dateTimeStamp) -> str:
+def _build_password_reset_token(
+    user: User, reset_requested_at: Xsd_dateTimeStamp
+) -> str:
     now = datetime.now(UTC)
+    codec = _token_codec()
     payload = {
-        "purpose": PASSWORD_RESET_PURPOSE,
+        "typ": PASSWORD_RESET_PURPOSE,
         "sub": str(user.userId),
         "userIri": str(user.userIri),
         "resetRequestedAt": str(reset_requested_at),
         "iat": now,
         "exp": now + timedelta(seconds=PASSWORD_RESET_EXPIRATION_SECONDS),
-        "iss": "http://oldap.org",
+        "iss": codec.settings.issuer,
+        "aud": f"{codec.settings.audience}{PASSWORD_RESET_AUDIENCE_SUFFIX}",
     }
     return jwt.encode(payload, _password_reset_secret(), algorithm="HS256")
 
 
 def _password_reset_link(token: str) -> str:
-    return f"{_password_reset_frontend_url()}/password-reset?token={quote(token, safe='')}"
+    return (
+        f"{_password_reset_frontend_url()}/password-reset?token={quote(token, safe='')}"
+    )
 
 
-def _send_password_reset_email(user: User, link: str, identified_by_email: bool) -> None:
+def _send_password_reset_email(
+    user: User, link: str, identified_by_email: bool
+) -> None:
     subject = "Passwort zuruecksetzen"
-    user_id_line = f"\nIhre User-ID lautet: {user.userId}\n" if identified_by_email else ""
+    user_id_line = (
+        f"\nIhre User-ID lautet: {user.userId}\n" if identified_by_email else ""
+    )
     body = (
         f"Guten Tag {user.givenName} {user.familyName}\n\n"
         "Fuer Ihr OLDAP-/fasnacht.digital-Konto wurde ein Passwort-Reset angefordert."
@@ -115,9 +271,15 @@ def _send_password_reset_email(user: User, link: str, identified_by_email: bool)
     port = int(os.getenv("OLDAP_MAIL_PORT", "587"))
     username = os.getenv("OLDAP_MAIL_USERNAME")
     password = os.getenv("OLDAP_MAIL_PASSWORD")
-    use_tls = os.getenv("OLDAP_MAIL_USE_TLS", "true").lower() not in {"0", "false", "no"}
+    use_tls = os.getenv("OLDAP_MAIL_USE_TLS", "true").lower() not in {
+        "0",
+        "false",
+        "no",
+    }
     if not sender or not host:
-        raise RuntimeError("OLDAP_MAIL_FROM and OLDAP_MAIL_HOST must be configured for SMTP password reset mail.")
+        raise RuntimeError(
+            "OLDAP_MAIL_FROM and OLDAP_MAIL_HOST must be configured for SMTP password reset mail."
+        )
 
     message = EmailMessage()
     message["From"] = sender
@@ -133,7 +295,7 @@ def _send_password_reset_email(user: User, link: str, identified_by_email: bool)
         smtp.send_message(message)
 
 
-@auth_bp.route('/auth/<userid>', methods=['POST'])
+@auth_bp.route("/auth/<userid>", methods=["POST"])
 def login(userid):
     """
     Viewfunction to log into a user. A JSON is expected with the password. The userid is given via the URL parameter.
@@ -145,39 +307,61 @@ def login(userid):
     current_app.logger.info(f"/auth/{userid} with POST called")
     if request.is_json:
         data = request.get_json()
-        if userid == "unknown":  # we have a "pesudo-login" for the anonymous unknown user
+        if not isinstance(data, dict):
+            return jsonify({"message": "JSON object expected."}), 400
+        # The anonymous pseudo-user can always obtain a short access token but
+        # never receives a refresh session.
+        if userid == "unknown":
             current_app.logger.info(f"/auth/{userid}: Unknown pseudo-login requested")
             try:
                 con = Connection(context_name="DEFAULT")
-                current_app.logger.info(f"/auth/{userid}: Unknown pseudo-login succeeded")
-                resp = jsonify({'message': 'Login succeeded', 'token': con.token}), 200
-                return resp
+                current_app.logger.info(
+                    f"/auth/{userid}: Unknown pseudo-login succeeded"
+                )
+                codec = con.token_codec
+                response = _access_response(con.token, codec)
+                _clear_refresh_cookie(response)
+                return response
+            except (OldapErrorConfiguration, RuntimeError) as error:
+                current_app.logger.error("Authentication is not configured: %s", error)
+                return jsonify({"message": str(error)}), 503
             except OldapErrorNotFound as err:
-                return jsonify({'message': str(err)}), 404
+                return jsonify({"message": str(err)}), 404
             except OldapError as error:
                 return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
-        password = data.get('password')
+        password = data.get("password")
         if password is None:
             return jsonify({"message": "Invalid content type, JSON required"}), 400
         try:
-            con = Connection(userId=userid,
-                             credentials=password,
-                             context_name="DEFAULT")
+            con = Connection(
+                userId=userid, credentials=password, context_name="DEFAULT"
+            )
             current_app.logger.info(f"Login for {userid} succeeded.")
-            resp = jsonify({'message': 'Login succeeded', 'token': con.token}), 200
-            return resp
+            codec = con.token_codec
+            refresh_token = codec.issue_refresh_token(con.userid, con.auth_version)
+            response = _access_response(con.token, codec)
+            _set_refresh_cookie(response, refresh_token, codec)
+            return response
+        except (OldapErrorConfiguration, RuntimeError) as error:
+            current_app.logger.error("Authentication is not configured: %s", error)
+            return jsonify({"message": str(error)}), 503
         except OldapErrorNotFound as err:
             current_app.logger.info(f"Login for {userid} failed.")
-            return jsonify({'message': str(err)}), 404
+            return jsonify({"message": str(err)}), 404
         except OldapError as error:
             current_app.logger.info(f"Login for {userid} failed.")
             return jsonify({"message": f"Connection failed: {str(error)}"}), 403
     else:
-        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+        return (
+            jsonify(
+                {"message": f"JSON expected. Instead received {request.content_type}"}
+            ),
+            400,
+        )
 
 
-@auth_bp.route('/auth/password-reset/request', methods=['POST'])
+@auth_bp.route("/auth/password-reset/request", methods=["POST"])
 def request_password_reset():
     """
     Request a password reset link for exactly one user identifier.
@@ -193,14 +377,26 @@ def request_password_reset():
     """
     current_app.logger.info("/auth/password-reset/request with POST called")
     if not request.is_json:
-        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+        return (
+            jsonify(
+                {"message": f"JSON expected. Instead received {request.content_type}"}
+            ),
+            400,
+        )
 
     data = request.get_json()
     if not isinstance(data, dict):
         return jsonify({"message": "JSON object expected."}), 400
     unknown_json_field = set(data.keys()) - {"userId", "email"}
     if unknown_json_field:
-        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to request a password reset."}), 400
+        return (
+            jsonify(
+                {
+                    "message": f"The Field/s {unknown_json_field} is/are not used to request a password reset."
+                }
+            ),
+            400,
+        )
 
     try:
         con = _password_reset_connection()
@@ -209,7 +405,7 @@ def request_password_reset():
         return jsonify({"message": str(error)}), 400
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
-    except RuntimeError as error:
+    except (RuntimeError, OldapErrorConfiguration) as error:
         current_app.logger.error("Password reset is not configured: %s", error)
         return jsonify({"message": str(error)}), 503
     except OldapError as error:
@@ -217,7 +413,14 @@ def request_password_reset():
         return jsonify({"message": f"Connection failed: {str(error)}"}), 403
 
     if resolution_error or user is None:
-        return jsonify({"message": "Passwort reset unmöglich, kontaktieren sie info@fasnacht.digital"}), 409
+        return (
+            jsonify(
+                {
+                    "message": "Passwort reset unmöglich, kontaktieren sie info@fasnacht.digital"
+                }
+            ),
+            409,
+        )
 
     reset_requested_at = Xsd_dateTimeStamp(datetime.now(UTC))
     try:
@@ -225,9 +428,13 @@ def request_password_reset():
         user.update()
         token = _build_password_reset_token(user, reset_requested_at)
         link = _password_reset_link(token)
-        _send_password_reset_email(user, link, identified_by_email=bool((data.get("email") or "").strip()))
-    except RuntimeError as error:
-        current_app.logger.error("Password reset mail/token configuration failed: %s", error)
+        _send_password_reset_email(
+            user, link, identified_by_email=bool((data.get("email") or "").strip())
+        )
+    except (RuntimeError, OldapErrorConfiguration) as error:
+        current_app.logger.error(
+            "Password reset mail/token configuration failed: %s", error
+        )
         return jsonify({"message": str(error)}), 503
     except OldapErrorNoPermission as error:
         return jsonify({"message": str(error)}), 403
@@ -241,10 +448,17 @@ def request_password_reset():
         current_app.logger.error("Password reset mail failed: %s", error)
         return jsonify({"message": "Password reset mail could not be sent."}), 500
 
-    return jsonify({"message": "Sie werden eine Email erhalten mit einem Link, um das Passwort neu zu setzen."}), 200
+    return (
+        jsonify(
+            {
+                "message": "Sie werden eine Email erhalten mit einem Link, um das Passwort neu zu setzen."
+            }
+        ),
+        200,
+    )
 
 
-@auth_bp.route('/auth/password-reset/confirm', methods=['POST'])
+@auth_bp.route("/auth/password-reset/confirm", methods=["POST"])
 def confirm_password_reset():
     """
     Set a new password using a password reset JWT.
@@ -255,14 +469,26 @@ def confirm_password_reset():
     """
     current_app.logger.info("/auth/password-reset/confirm with POST called")
     if not request.is_json:
-        return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
+        return (
+            jsonify(
+                {"message": f"JSON expected. Instead received {request.content_type}"}
+            ),
+            400,
+        )
 
     data = request.get_json()
     if not isinstance(data, dict):
         return jsonify({"message": "JSON object expected."}), 400
     unknown_json_field = set(data.keys()) - {"token", "password"}
     if unknown_json_field:
-        return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to confirm a password reset."}), 400
+        return (
+            jsonify(
+                {
+                    "message": f"The Field/s {unknown_json_field} is/are not used to confirm a password reset."
+                }
+            ),
+            400,
+        )
 
     token = data.get("token")
     password = data.get("password")
@@ -270,16 +496,34 @@ def confirm_password_reset():
         return jsonify({"message": "token and password are required."}), 400
 
     try:
-        payload = jwt.decode(token, _password_reset_secret(), algorithms=["HS256"])
+        codec = _token_codec()
+        payload = jwt.decode(
+            token,
+            _password_reset_secret(),
+            algorithms=["HS256"],
+            issuer=codec.settings.issuer,
+            audience=f"{codec.settings.audience}{PASSWORD_RESET_AUDIENCE_SUFFIX}",
+            options={
+                "require": [
+                    "typ",
+                    "sub",
+                    "iss",
+                    "aud",
+                    "iat",
+                    "exp",
+                    "resetRequestedAt",
+                ]
+            },
+        )
     except jwt.ExpiredSignatureError:
         return jsonify({"message": "Password reset token has expired."}), 400
     except jwt.InvalidTokenError:
         return jsonify({"message": "Password reset token is invalid."}), 400
-    except RuntimeError as error:
+    except (RuntimeError, OldapErrorConfiguration) as error:
         current_app.logger.error("Password reset is not configured: %s", error)
         return jsonify({"message": str(error)}), 503
 
-    if payload.get("purpose") != PASSWORD_RESET_PURPOSE:
+    if payload.get("typ") != PASSWORD_RESET_PURPOSE:
         return jsonify({"message": "Password reset token is invalid."}), 400
     user_id = payload.get("sub")
     reset_requested_at = payload.get("resetRequestedAt")
@@ -290,11 +534,18 @@ def confirm_password_reset():
         con = _password_reset_connection()
         user = User.read(con=con, userId=user_id, ignore_cache=True)
         if str(user.passwordResetRequestAt) != reset_requested_at:
-            return jsonify({"message": "Password reset token is invalid or has already been used."}), 400
+            return (
+                jsonify(
+                    {
+                        "message": "Password reset token is invalid or has already been used."
+                    }
+                ),
+                400,
+            )
         user.credentials = password
         del user[UserAttr.PASSWORD_RESET_REQUEST_AT]
         user.update()
-    except RuntimeError as error:
+    except (RuntimeError, OldapErrorConfiguration) as error:
         current_app.logger.error("Password reset is not configured: %s", error)
         return jsonify({"message": str(error)}), 503
     except OldapErrorNotFound:
@@ -311,12 +562,78 @@ def confirm_password_reset():
     return jsonify({"message": "Password has been reset successfully."}), 200
 
 
-@auth_bp.route('/auth/<userid>', methods=['DELETE'])
-def logout(userid):
-    """
-    Viewfunction to log out of a user.
-    :param userid: The userid of the logout account.
-    :return:
-    """
-    # TODO: how to make a logout??? oldaplib does not yet have a solution! So we just return 200
-    return '', 200
+@auth_bp.route("/auth/refresh", methods=["POST"])
+def refresh_access_token():
+    """Issue an access token from a valid, non-revoked refresh cookie."""
+    if not _origin_is_allowed():
+        response = jsonify({"message": "Origin is not allowed."})
+        response.status_code = 403
+        return _no_store(response)
+
+    token = request.cookies.get(_refresh_cookie_name())
+    if not token:
+        return _refresh_failure()
+
+    try:
+        codec = _token_codec()
+        claims = codec.decode_refresh_token(token)
+        con = _authentication_connection()
+        user = User.read(con=con, userId=claims.userId, ignore_cache=True)
+        if not user.isActive or int(user.authVersion) != claims.authVersion:
+            return _refresh_failure()
+        context = AuthorizationContext.from_user(user)
+        return _access_response(codec.issue_access_token(context), codec)
+    except (OldapErrorConfiguration, RuntimeError) as error:
+        current_app.logger.error("Authentication is not configured: %s", error)
+        response = jsonify({"message": str(error)})
+        response.status_code = 503
+        return _no_store(response)
+    except OldapError:
+        return _refresh_failure()
+
+
+def _logout_response(status: int):
+    response = make_response("", status)
+    _clear_refresh_cookie(response)
+    return _no_store(response)
+
+
+def _perform_logout(status: int = 204):
+    """Globally revoke a valid current refresh token and always clear it."""
+    if not _origin_is_allowed():
+        response = jsonify({"message": "Origin is not allowed."})
+        response.status_code = 403
+        return _no_store(response)
+
+    token = request.cookies.get(_refresh_cookie_name())
+    if not token:
+        return _logout_response(status)
+
+    try:
+        codec = _token_codec()
+        claims = codec.decode_refresh_token(token)
+        con = _authentication_connection()
+        user = User.read(con=con, userId=claims.userId, ignore_cache=True)
+        if int(user.authVersion) == claims.authVersion:
+            user.revoke_authentication()
+    except (OldapErrorToken, OldapErrorNotFound, OldapErrorUpdateFailed):
+        pass
+    except (OldapErrorConfiguration, RuntimeError, OldapError) as error:
+        current_app.logger.error("Logout revocation failed: %s", error)
+        response = jsonify({"message": "Logout could not be completed."})
+        response.status_code = 503
+        _clear_refresh_cookie(response)
+        return _no_store(response)
+    return _logout_response(status)
+
+
+@auth_bp.route("/auth/logout", methods=["POST"])
+def logout():
+    """Preferred global logout endpoint using refresh-token identity."""
+    return _perform_logout()
+
+
+@auth_bp.route("/auth/<userid>", methods=["DELETE"])
+def legacy_logout(userid):
+    """Deprecated logout route; the path identity is intentionally ignored."""
+    return _perform_logout(status=200)

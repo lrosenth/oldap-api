@@ -13,7 +13,7 @@ Available endpoints:
 The implementation includes error handling and validation for most operations.
 """
 from flask import request, jsonify, Blueprint, current_app
-from oldaplib.src.connection import Connection
+from oldap_api.authentication import authenticated_connection, require_auth
 from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.enums.roleattr import RoleAttr
 from oldaplib.src.helpers.langstring import LangString
@@ -30,6 +30,7 @@ from oldaplib.src.helpers.context import Context
 role_bp = Blueprint('role', __name__, url_prefix='/admin')
 
 @role_bp.route('/role/get', methods=['GET'])
+@require_auth
 def role_get_by_iri():
     """
     Retrieve a role by its Internationalized Resource Identifier (IRI) via an HTTP GET request.
@@ -44,15 +45,10 @@ def role_get_by_iri():
 
     :return: A tuple containing the role metadata as a JSON object and the HTTP status code.
     :rtype: tuple
-    :raises KeyError: If the `Authorization` header is missing in the request.
-    :raises ValueError: If the `Authorization` token is malformed or improperly split.
-    :raises OldapError: If there is an issue establishing a connection to the backend.
     :raises OldapErrorValue: If an issue occurs while reading the role by its IRI.
     :raises OldapErrorNotFound: If the specified role IRI cannot be found.
     :raises Exception: If the conversion of IRI to QName fails.
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
     if not request.args:
         return jsonify({"message": f"Query parameter 'iri' expected – got none"}), 400
 
@@ -62,11 +58,7 @@ def role_get_by_iri():
         return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to get a permission set by iri. Use {known_query_fields}. Aborted operation"}), 400
     roleIri = request.args.get('iri', None)
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         roleQname = Xsd_QName(roleIri, validate=True)
@@ -100,6 +92,7 @@ def role_get_by_iri():
 
 
 @role_bp.route('/role/<path:definedByProject>/<roleId>', methods=['PUT'])
+@require_auth
 def create_role(definedByProject, roleId):
     """
     Creates a new role within a specified project. The role is defined based on the provided
@@ -120,8 +113,6 @@ def create_role(definedByProject, roleId):
     """
     known_json_fields = {"label", "comment"}
     mandatory_json_fields = set()
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
 
@@ -137,11 +128,7 @@ def create_role(definedByProject, roleId):
         if label == [] or comment == []:
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
 
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
         try:
             role = Role(con=con,
                         roleId=roleId,
@@ -165,6 +152,7 @@ def create_role(definedByProject, roleId):
 
 
 @role_bp.route('/role/<path:definedByProject>/<roleId>', methods=['GET'])
+@require_auth
 def read_role(definedByProject, roleId):
     """
     Handles the retrieval of a role from the system using the specified project
@@ -187,14 +175,8 @@ def read_role(definedByProject, roleId):
     :raises OldapErrorNotFound: When the specified role does not exist in the
         system.
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         role = Role.read(con=con, roleId=roleId, definedByProject=definedByProject)
@@ -219,6 +201,7 @@ def read_role(definedByProject, roleId):
 
 
 @role_bp.route('/role/search', methods=['GET'])
+@require_auth
 def search_role():
     """
     Handles the role search functionality in the permission set blueprint. This endpoint
@@ -238,8 +221,6 @@ def search_role():
         Raised when an invalid value is used in the search query parameters.
     """
     known_json_fields = {"definedByProject", "roledId", "label"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.args:
         unknown_json_field = set(request.args.keys()) - known_json_fields
@@ -252,11 +233,7 @@ def search_role():
     roleId = getattr(request, "args", {}).get("roleId", None)
     definedbyproject = getattr(request, "args", {}).get("definedByProject", None)
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         roles = Role.search(con=con, label=label, roleId=roleId, definedByProject=definedbyproject)
@@ -266,6 +243,7 @@ def search_role():
 
 
 @role_bp.route('/role/<path:definedByProject>/<roleId>', methods=['DELETE'])
+@require_auth
 def delete_role(definedByProject, roleId):
     """
     Deletes a role identified by `roleId` and `definedByProject`.
@@ -284,14 +262,8 @@ def delete_role(definedByProject, roleId):
              appropriate HTTP status codes.
     :rtype: tuple
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         role = Role.read(con=con, roleId=roleId, definedByProject=definedByProject)
@@ -313,6 +285,7 @@ def delete_role(definedByProject, roleId):
 
 
 @role_bp.route('/role/<path:definedByProject>/<roleId>', methods=['POST'])
+@require_auth
 def modify_permissionset(definedByProject, roleId):
     """
     Handles modification of a role's permissionset based on the provided parameters.
@@ -330,14 +303,11 @@ def modify_permissionset(definedByProject, roleId):
     :rtype: tuple
     :raises JsonValidationError: If the request body is not in proper JSON format
     :raises FieldValidationError: If unrecognized or missing fields are provided
-    :raises AuthorizationError: If connection fails due to an invalid token
     :raises RoleNotFoundError: If the specified role is not found
     :raises PermissionError: If permission to modify the role is denied
     :raises UpdateFailureError: If the update operation fails in unexpected ways
     """
     known_json_fields = {"label", "comment"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
@@ -349,11 +319,7 @@ def modify_permissionset(definedByProject, roleId):
         label = data.get("label", "NotSent")
         comment = data.get("comment", "NotSent")
 
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
         try:
             role = Role.read(con=con, roleId=roleId, definedByProject=definedByProject)
         except OldapErrorValue as error:
@@ -385,6 +351,7 @@ def modify_permissionset(definedByProject, roleId):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 @role_bp.route('/role/<path:definedByProject>/<roleId>/in_use', methods=['GET'])
+@require_auth
 def role_in_use(definedByProject, roleId):
     """
     Provides a REST endpoint to check if a specific role identified by
@@ -400,14 +367,8 @@ def role_in_use(definedByProject, roleId):
     :raises 404: If the specified role is not found.
     :raises 500: If there is a general connection or operational failure.
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         role = Role.read(con=con, roleId=roleId, definedByProject=definedByProject)

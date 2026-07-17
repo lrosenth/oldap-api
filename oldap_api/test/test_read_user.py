@@ -98,14 +98,14 @@ def test_bad_token(client, token_headers):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.get('/admin/user/rosman', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
     response = client.get('/admin/user/get', query_string={
         "iri": "https://orcid.org/0000-0003-1681-4036"
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 def test_get_user_by_iri(client, token_headers):
     header = token_headers[1]

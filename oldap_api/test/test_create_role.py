@@ -68,10 +68,10 @@ def test_bad_token(client, token_headers):
         "label": ["testPerm@en", "test@Perm@de"],
         "comment": ["For testing@en", "Für Tests@de"],
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
     print(res)
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_role_already_exists(client, token_headers, testrole):
@@ -156,5 +156,4 @@ def test_bad_langstring(client, token_headers):
     assert response.status_code == 400
     res = response.json
     print(res)
-
 

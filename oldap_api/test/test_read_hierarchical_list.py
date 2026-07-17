@@ -33,9 +33,9 @@ def test_bad_token(client, token_headers):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.get('/admin/hlist/hyha/testhlist', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 def test_dm_to_read_hlist_not_found(client, token_headers):
     header = token_headers[1]
@@ -137,6 +137,5 @@ def test_hlist_in_use(client, token_headers, testemptydatamodel, testfullhlist):
     res =  response.json
     #assert res['in_use']
     print(response.text)
-
 
 

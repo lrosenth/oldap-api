@@ -875,9 +875,9 @@ def test_bad_token(client, token_headers):
     response = client.post('/admin/user/nonexistinguser', json={
         "givenName": "Kappa"
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_no_permission_modify(client, token_headers, testuser):

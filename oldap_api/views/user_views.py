@@ -14,7 +14,7 @@ The implementation includes error handling and validation for most operations.
 from typing import Any, Dict, Set
 
 from flask import jsonify, request, Blueprint
-from oldaplib.src.connection import Connection
+from oldap_api.authentication import authenticated_connection, require_auth
 from oldaplib.src.enums.adminpermissions import AdminPermission
 from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.helpers.irincname import IriOrNCName
@@ -44,6 +44,7 @@ def _additional_properties_to_json(user: User) -> dict[str, Any]:
 
 
 @user_bp.route('/user/<userid>', methods=['PUT'])
+@require_auth
 def create_user(userid):
     """
     Viewfunction to create a new user. A JSON with the necessary credentials is expected.
@@ -77,8 +78,6 @@ def create_user(userid):
         Xsd_NCName(userid)
     except OldapErrorValue as err:
         return jsonify({"message": str(err)}), 400
-    out = request.headers['Authorization']
-    b, token = out.split()
     if request.is_json:
         data = request.get_json()
         unknown_json_field = set(data.keys()) - known_json_fields
@@ -141,11 +140,7 @@ def create_user(userid):
         else:
             roles = set()
 
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
         try:
             user = User(con=con,
                         userId=userid,
@@ -175,6 +170,7 @@ def create_user(userid):
 
 
 @user_bp.route('/user/<userid>', methods=['GET'])
+@require_auth
 def read_users(userid):
     """
     Viewfunction to retrieve the information about a user.
@@ -195,14 +191,8 @@ def read_users(userid):
     'additionalProperties': {}
     }
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         user = User.read(con=con, userId=userid)
@@ -239,6 +229,7 @@ def read_users(userid):
 
 
 @user_bp.route('/user/<userid>', methods=['DELETE'])
+@require_auth
 def delete_user(userid):
     """
     Viewfunction to delete a user.
@@ -246,14 +237,8 @@ def delete_user(userid):
     :return: A JSON that confirms the deletion of the user that has the following form:
     json={"message": "User {userid} deleted"}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         user = User.read(con=con, userId=userid)
@@ -269,6 +254,7 @@ def delete_user(userid):
 
 
 @user_bp.route('/user/<userid>', methods=['POST'])
+@require_auth
 def modify_user(userid):
     """
     Veiwfunction to modify a user. A JSON is expected with the information that should be modified. It has the following
@@ -310,8 +296,6 @@ def modify_user(userid):
     """
     known_json_fields = {"userId", "givenName", "familyName", "email", "password", "inProjects", "hasRole",
                          "isActive", "passwordResetRequestAt", "additionalProperties"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
@@ -331,11 +315,7 @@ def modify_user(userid):
         additional_properties = data.get('additionalProperties', "NotSent")
         isactive = data.get('isActive', None)
 
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
 
         try:
             user = User.read(con=con, userId=Xsd_NCName(userid))  # read the user from the triple store
@@ -501,9 +481,8 @@ def modify_user(userid):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 @user_bp.route('/user/search', methods=['GET'])
+@require_auth
 def user_search():
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     known_query_fields = {"userId", "email", "familyName", "givenName", "inProject"}
     if request.args:
@@ -518,11 +497,7 @@ def user_search():
     givenName = request.args.get('givenName', None)
     inProject = request.args.get('inProject', None)
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         users = User.search(con=con,
@@ -536,9 +511,8 @@ def user_search():
     return jsonify([str(x) for x in users]), 200
 
 @user_bp.route('/user/get', methods=['GET'])
+@require_auth
 def user_get_by_iri():
-    out = request.headers['Authorization']
-    b, token = out.split()
     if not request.args:
         return jsonify({"message": f"Query parameter 'iri' expected – got none"}), 400
 
@@ -548,11 +522,7 @@ def user_get_by_iri():
         return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to get a user by iri. Use {known_query_fields}. Aborted operation"}), 400
     userIri = request.args.get('iri', None)
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         user = User.read(con=con, userId=IriOrNCName(userIri))

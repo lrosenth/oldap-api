@@ -489,9 +489,9 @@ def test_bad_token(client, token_headers):
     response = client.post('/admin/role/oldap/testrole', json={
         "label": "Kappa@fr"
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_permissionset_to_modify_not_found(client, token_headers):
@@ -802,4 +802,3 @@ def test_modify_del_whole_comment(client, token_headers, testrole):
     res = response2.json
     print(res)
     assert res.get('comment') == None
-

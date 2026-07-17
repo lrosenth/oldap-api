@@ -14,7 +14,7 @@ The implementation includes error handling and validation for most operations.
 """
 
 from flask import request, jsonify, Blueprint, current_app
-from oldaplib.src.connection import Connection
+from oldap_api.authentication import authenticated_connection, require_auth
 from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
 from oldaplib.src.enums.projectattr import ProjectAttr
 from oldaplib.src.helpers.langstring import LangString
@@ -32,6 +32,7 @@ project_bp = Blueprint('project', __name__, url_prefix='/admin')
 
 
 @project_bp.route('/project/<projectid>', methods=['PUT'])
+@require_auth
 def create_project(projectid):
     """
     Viewfunction to create a new project. A JSON is expectet that contains the necessary information to create a new
@@ -54,8 +55,6 @@ def create_project(projectid):
     """
     known_json_fields = {"projectIri", "label", "comment", "namespaceIri", "projectStart", "projectEnd"}
     mandatory_json_fields = {"namespaceIri"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
@@ -74,11 +73,7 @@ def create_project(projectid):
             return jsonify({"message": f"The Fields {mandatory_json_fields} are required to create a user. Used where {set(data.keys())}. Usablable are {known_json_fields}"}), 400
         if label == [] or comment == []:
             return jsonify({"message": f"A meaningful label and comment need to be provided and can not be empty"}), 400
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
         try:
             project = Project(con=con,
                               projectShortName=Xsd_NCName(projectShortName),
@@ -107,6 +102,7 @@ def create_project(projectid):
 
 
 @project_bp.route('/project/<projectid>', methods=['DELETE'])
+@require_auth
 def delete_project(projectid):
     """
     Viewfunction to delete a project.
@@ -114,14 +110,8 @@ def delete_project(projectid):
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "Project successfully deleted"}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         project = Project.read(con=con, projectIri_SName=Xsd_NCName(projectid))
     except OldapErrorValue as error:
@@ -139,6 +129,7 @@ def delete_project(projectid):
 
 
 @project_bp.route('/project/<projectid>', methods=['GET'])
+@require_auth
 def read_project(projectid):
     """
     Viewfunction to retrieve information about the project given by the projectid.
@@ -155,14 +146,8 @@ def read_project(projectid):
     Project start: 1993-04-05,
     Project end: 2000-01-10
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         project = Project.read(con=con, projectIri_SName=projectid)
     except OldapErrorValue as error:
@@ -186,9 +171,8 @@ def read_project(projectid):
     return res, 200
 
 @project_bp.route('/project/get', methods=['GET'])
+@require_auth
 def get_project_by_iri():
-    out = request.headers['Authorization']
-    b, token = out.split()
     if not request.args:
         return jsonify({"message": f"Query parameter 'iri' expected – got none"}), 400
 
@@ -198,11 +182,7 @@ def get_project_by_iri():
         return jsonify({"message": f"The Field/s {unknown_query_field} is/are not used to get a user by iri. Use {known_query_fields}. Aborted operation"}), 400
     projectIri = request.args.get('iri', None)
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         project = Project.read(con=con, projectIri_SName=projectIri)
@@ -227,6 +207,7 @@ def get_project_by_iri():
 
 
 @project_bp.route('/project/search', methods=['GET'])
+@require_auth
 def search_project():
     """
     Viewfunction to search for a project. It is possible to search for label and comment.
@@ -239,8 +220,6 @@ def search_project():
     :return: A JSON containing the Iri's about the found projects. It has the following form:
     json={[Iri("http://unittest.org/project/testproject")]}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     known_query_fields = {"label", "comment"}
     if request.args:
@@ -253,11 +232,7 @@ def search_project():
         label = None
         comment = None
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         projects = Project.search(con=con, label=label, comment=comment)
@@ -268,6 +243,7 @@ def search_project():
 
 
 @project_bp.route('/project/<projectid>', methods=['POST'])
+@require_auth
 def modify_project(projectid):
     """
     Veiwfunction to modify a project given its projectid. The label, comment, projectstart and projectend can be modified this way.
@@ -287,8 +263,6 @@ def modify_project(projectid):
     json={"message": "Project updated successfully"}
     """
     known_json_fields = {"label", "comment", "projectStart", "projectEnd"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
@@ -302,11 +276,7 @@ def modify_project(projectid):
         projectStart = data.get("projectStart", "NotSent")
         projectEnd = data.get("projectEnd", "NotSent")
 
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
         try:
             project = Project.read(con=con, projectIri_SName=projectid)
         except OldapErrorValue as error:
@@ -352,6 +322,7 @@ def modify_project(projectid):
 
 
 @project_bp.route('/project/getid', methods=['GET'])
+@require_auth
 def get_projectid():
     """
     Veiwfunction to get the project id from the submitted project iri.
@@ -359,8 +330,6 @@ def get_projectid():
     :return: A JSON containing the project id that has the following form:
     json={"id": str(proj_id)}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.args:
         iri = request.args.get('iri')
@@ -368,11 +337,7 @@ def get_projectid():
         return jsonify({"message": "Please provide a project iri in the arguments"}), 400
 
     if iri:
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
 
         try:
             proj_id = Project.get_shortname_from_iri(con=con, iri=Iri(iri))
@@ -388,4 +353,3 @@ def get_projectid():
 
     else:
         return jsonify({"message": f"iri query parameter expected"}), 400
-

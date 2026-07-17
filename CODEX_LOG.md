@@ -1,5 +1,35 @@
 # CODEX_LOG
 
+### Update 2026-07-15 22:32
+- Decisions: Document local authentication setup around the ignored `.env.local` workflow without publishing reusable credentials or signing keys.
+- Implementation: Added `README.md` guidance under `Testing with "make run"` for generating four distinct JWT secrets, configuring OLDAP service credentials, retaining HTTP-only development cookie settings, checking local dependencies, and starting the API.
+- Open: Developers must supply credentials for an active administrator in their own local OLDAP dataset; no credential value is distributed by the repository.
+- Risks/Assumptions: The documented `Secure=false` cookie setting is strictly for local HTTP development, and changing generated secrets invalidates previously issued local tokens.
+
+### Update 2026-07-15 17:56
+- Decisions: Issue asset/IIIF query capabilities with a dedicated media-token purpose and signing key instead of reusing the API access-token key.
+- Implementation: Added `OLDAP_MEDIA_JWT_SECRET` to local/test configuration, raised the declared `oldaplib` minimum to 0.6.20, updated MediaObject lookup verification and OpenAPI descriptions, and documented that the corresponding media deployment key must match while remaining distinct from the upload access key.
+- Open: Production must deploy the same newly generated media key to the API and media stack before media capability URLs are exercised.
+- Risks/Assumptions: Media capability tokens are short-lived bearer URLs and therefore authorize anyone who obtains the complete URL until expiry.
+
+### Update 2026-07-15 17:34
+- Decisions: Keep production authentication values outside Git and let Flask remain the sole exact-origin credentialed CORS authority; retain the documented `Secure`, `HttpOnly`, `SameSite=Lax`, `/admin/auth` refresh-cookie contract.
+- Implementation: Extended OpenAPI cookie lifecycle documentation, removed local Makefile credential/signing-key literals, added ignored `.env.local` loading with a non-secret example, and aligned local Docker Redis addressing. Coordinated full environment propagation and deployment validation in `oldap-setup`.
+- Open: Browser integration is work package 6; production password-reset mail still requires an explicit SMTP backend/configuration if console delivery is not intended.
+- Risks/Assumptions: Local run targets now require a populated `.env.local`; test fixtures continue to use explicit non-production credentials and keys under test isolation.
+
+### Update 2026-07-15 17:18
+- Decisions: Complete authentication work package 4 with one explicit decorator rather than a global request hook; preserve domain-level `403` permission responses while making all Bearer credential failures a uniform `401`.
+- Implementation: Added `oldap_api.authentication.require_auth`, strict Bearer parsing, one request-scoped authenticated `Connection`, cache-safe challenges, and operational `503` handling. Migrated all protected user, project, role, resource, hierarchical-list, datamodel, and instance routes; removed their local header splitting; updated invalid-token regressions and the OpenAPI unauthorized response; added a route-registry enforcement test.
+- Open: Work package 5 must complete production environment/deployment wiring and operational validation; browser integration remains work package 6.
+- Risks/Assumptions: `401` intentionally replaces legacy invalid-token `403` behavior; authorization failures after successful authentication remain endpoint-specific `403` responses.
+
+### Update 2026-07-14 23:41
+- Decisions: Implement stateless normal requests with an absolute-lifetime HttpOnly refresh cookie and one persisted per-user `authVersion`; use explicit authentication service credentials for fresh user lookup/revocation, exact optional origin allowlisting, and retain the legacy DELETE logout route only as a delegating compatibility path.
+- Implementation: Login now returns `accessToken`, Bearer metadata, expiry, and the transitional `token` alias while setting a purpose-specific refresh cookie. Added refresh and global logout endpoints, cookie/no-store helpers, fresh permission loading, version checks, origin validation, credential-aware CORS, strict password-reset JWT purpose/audience validation, OpenAPI contracts, new environment wiring examples, and GraphDB-backed endpoint tests.
+- Open: Work package 4 must replace duplicated bearer parsing in protected views with one authentication boundary; production deployment still needs the new access/refresh/reset secrets and `OLDAP_AUTH_ADMIN_USER/PASSWORD` wiring.
+- Risks/Assumptions: Logout is intentionally global across devices, access tokens remain usable for at most their configured short lifetime, refresh tokens are not rotated, and cross-origin cookies require an exact `OLDAP_AUTH_ALLOWED_ORIGINS` list.
+
 ### Update 2026-06-18 23:31
 - Decisions: Treat datamodel resource response order as non-contractual in tests because `hyha:HyhaUser` can coexist with `hyha:Sheep` in the same test datamodel.
 - Implementation: Updated create/delete/modify datamodel tests to select the asserted resource by IRI instead of assuming `resources[0]` is `hyha:Sheep`; tightened `testproject` fixtures so stale datamodel graphs are deleted before and after project tests.

@@ -16,3 +16,4 @@
 /oldap_api/test/tmp
 /tmp
 /dist
+/.env.local

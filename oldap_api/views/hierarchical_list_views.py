@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 
 from flask import Blueprint, request, jsonify, Response, current_app
-from oldaplib.src.connection import Connection
+from oldap_api.authentication import authenticated_connection, require_auth
 from oldaplib.src.enums.oldaplistattr import OldapListAttr
 from oldaplib.src.enums.oldaplistnodeattr import OldapListNodeAttr
 from oldaplib.src.helpers.json_encoder import SpecialEncoder
@@ -23,6 +23,7 @@ hierarchical_list_bp = Blueprint('hlist', __name__, url_prefix='/admin')
 
 
 @hierarchical_list_bp.route('/hlist/<project>/upload', methods=['POST'])
+@require_auth
 def upload_yaml_hlist(project):
     """
     Viewfunction to upload a hierarchical list from a YAML file.
@@ -30,8 +31,6 @@ def upload_yaml_hlist(project):
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "File successfully uploaded"}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     file = request.files.get("yamlfile")
     if file is None or file.filename == "":
@@ -39,11 +38,7 @@ def upload_yaml_hlist(project):
     if not file.filename.endswith(".yaml"):
         return jsonify({"message": "Only YAML files (ending with \".yaml\" are allowed"}), 400
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     tmpfile = tempfile.mktemp(prefix="OLDAP_", dir=current_app.config['TMP_FOLDER'])
     file.save(tmpfile)
     try:
@@ -63,6 +58,7 @@ def upload_yaml_hlist(project):
 
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['PUT'])
+@require_auth
 def create_empty_hlist(project, hlistid):
     """
     Viewfunction to create an empty hierarchical list. A JSON is expected that has the following form.
@@ -78,8 +74,6 @@ def create_empty_hlist(project, hlistid):
     known_json_fields = {"prefLabel", "definition"}
     mandatory_json_fields = {"prefLabel"}
 
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
@@ -94,11 +88,7 @@ def create_empty_hlist(project, hlistid):
         if prefLabel == [] or definition == []:
             return jsonify({"message": f"A meaningful label and definition need to be provided and can not be empty"}), 400
 
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
 
         try:
             hlist = OldapList(con=con,
@@ -123,6 +113,7 @@ def create_empty_hlist(project, hlistid):
 
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['GET'])
+@require_auth
 def read_hlist(project, hlistid):
     """
     Viewfunction to read an existing hierarchical list.
@@ -152,14 +143,8 @@ def read_hlist(project, hlistid):
                         'prefLabel': ['testrootnodelabel@en']},
     ]
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         oldaplist = OldapList.read(con=con, project=project, oldapListId=hlistid)
         hlist = oldaplist.get_nodes_from_list()
@@ -175,6 +160,7 @@ def read_hlist(project, hlistid):
     return Response(json.dumps(oldaplist, cls=SpecialEncoder), mimetype="application/json"), 200
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['POST'])
+@require_auth
 def modify_hlist(project, hlistid):
     """
 
@@ -183,8 +169,6 @@ def modify_hlist(project, hlistid):
     :return:
     """
     known_json_fields = {"prefLabel", "definition"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
@@ -194,11 +178,7 @@ def modify_hlist(project, hlistid):
         if not set(data.keys()):
             return jsonify({"message": f"At least one field must be given to move a node. Usable for the move-viewfunction are {known_json_fields}"}), 400
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
@@ -243,15 +223,10 @@ def modify_hlist(project, hlistid):
 
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>', methods=['DELETE'])
+@require_auth
 def delete_hlist(project, hlistid):
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         oldaplist = OldapList.read(con=con, project=project, oldapListId=hlistid)
         oldaplist.delete()
@@ -269,9 +244,8 @@ def delete_hlist(project, hlistid):
 
 
 @hierarchical_list_bp.route('/hlist/search', methods=['GET'])
+@require_auth
 def hlist_search():
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     known_query_fields = {"project", "hlist", "prefLabel", "definition", "exactMatch"}
 
@@ -287,11 +261,7 @@ def hlist_search():
     definition = request.args.get('definition', None)
     exactMatch = request.args.get('exactMatch', False)
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         hlists = OldapList.search(con=con,
@@ -308,9 +278,8 @@ def hlist_search():
 
 
 @hierarchical_list_bp.route('/hlist/get', methods=['GET'])
+@require_auth
 def hlist_get_by_iri():
-    out = request.headers['Authorization']
-    b, token = out.split()
     if not request.args:
         return jsonify({"message": f"Query parameter 'iri' expected – got none"}), 400
 
@@ -321,11 +290,7 @@ def hlist_get_by_iri():
     hlistIri = request.args.get('iri', None)
     [projectId, hlistId] = hlistIri.split(":")
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         hlist = OldapList.read(con=con, project=projectId, oldapListId=hlistId)
@@ -353,9 +318,8 @@ def hlist_get_by_iri():
     return jsonify(answer), 200
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/download', methods=['GET'])
+@require_auth
 def hlist_download(project, hlistid):
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     format = ListFormat.YAML
     mimetype = "application/x-yaml"
@@ -370,11 +334,7 @@ def hlist_download(project, hlistid):
             extension = "json"
         else:
             raise OldapErrorNotImplemented(f"Format {formatstr} not implemented! Must be YAML or JSON.")
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
         hlist_str = dump_list_to(con=con, project=project,oldapListId=hlistid,listformat=ListFormat.YAML)
@@ -395,15 +355,10 @@ def hlist_download(project, hlistid):
 
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/in_use', methods=['GET'])
+@require_auth
 def hlist_is_in_use(project, hlistid):
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         oldaplist = OldapList.read(con=con, project=project, oldapListId=Xsd_NCName(hlistid))
     except OldapErrorValue as error:
@@ -421,6 +376,7 @@ def hlist_is_in_use(project, hlistid):
     return jsonify({"in_use": in_use}), 200
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['GET'])
+@require_auth
 def get_node(project, hlistid, nodeid):
     """
     Get a node with a given node ID
@@ -437,14 +393,8 @@ def get_node(project, hlistid, nodeid):
         'prefLabel': ['testrootnodelabel@en', ...],
         'definition': ['testrootnodedefinition@en', ...]
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
@@ -470,6 +420,7 @@ def get_node(project, hlistid, nodeid):
 
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['PUT'])
+@require_auth
 def add_node(project, hlistid, nodeid):
     """
     Viewfunction to add a new node to an existing hierarchical list. A JSON is expected that has the following form.
@@ -489,8 +440,6 @@ def add_node(project, hlistid, nodeid):
     known_json_fields = {"prefLabel", "definition", "position", "refnode"}
     mandatory_json_fields = {"prefLabel", "position"}
 
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
@@ -513,11 +462,7 @@ def add_node(project, hlistid, nodeid):
         if prefLabel == [] or definition == []:
             return jsonify({"message": f"A meaningful prefLabel and definition need to be provided and can not be empty"}), 400
 
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
 
         try:
             oldaplist = OldapList.read(con=con, project=project, oldapListId=hlistid)
@@ -565,6 +510,7 @@ def add_node(project, hlistid, nodeid):
 
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['DELETE'])
+@require_auth
 def del_node(project, hlistid, nodeid):
     """
     Viewfunction that deletes a node from the hierarchical list
@@ -575,8 +521,6 @@ def del_node(project, hlistid, nodeid):
     json={"message": "Node successfully deleted"}
     """
     known_querry_fields = {"recursive"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.args:
         unknown_json_field = set(request.args.keys()) - known_querry_fields
@@ -589,11 +533,7 @@ def del_node(project, hlistid, nodeid):
     truthvalues = {"true", "1", "yes", "on"}
     recursive = getattr(request, "args", {}).get("recursive", "false").lower() in truthvalues
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     if recursive is False:
         try:
@@ -634,6 +574,7 @@ def del_node(project, hlistid, nodeid):
 
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>/move', methods=['POST'])
+@require_auth
 def move_node(project, hlistid, nodeid):
     """
     Viewfunction that moves a node inside the hierarchical list from one place to another.
@@ -649,8 +590,6 @@ def move_node(project, hlistid, nodeid):
     json={"message": "Node successfully moved"}
     """
     known_json_fields = {"leftOf", "belowOf", "rightOf"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
@@ -662,11 +601,7 @@ def move_node(project, hlistid, nodeid):
         if len(data.keys()) > 1:
             return jsonify({"message": f"Only one field can be given to move a node. Used where {set(data.keys())}. Usablable for the move-viewfunction is only one of {known_json_fields}"}), 400
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     leftOf = data.get("leftOf", None)
     belowOf = data.get("belowOf", None)
@@ -705,6 +640,7 @@ def move_node(project, hlistid, nodeid):
 
 
 @hierarchical_list_bp.route('/hlist/<project>/<hlistid>/<nodeid>', methods=['POST'])
+@require_auth
 def modify_node(project, hlistid, nodeid):
     """
 
@@ -714,8 +650,6 @@ def modify_node(project, hlistid, nodeid):
     :return:
     """
     known_json_fields = {"prefLabel", "definition"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
         data = request.get_json()
@@ -727,11 +661,7 @@ def modify_node(project, hlistid, nodeid):
 
         prefLabel = data.get("prefLabel", "NotSent")
         definition = data.get("definition", "NotSent")
-        try:
-            con = Connection(token=token,
-                             context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
 
         try:
             hlist = OldapList.read(con=con, project=project, oldapListId=hlistid)
@@ -769,7 +699,6 @@ def modify_node(project, hlistid, nodeid):
         return jsonify({"message": "Node successfully modified"}), 200
     else:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
-
 
 
 

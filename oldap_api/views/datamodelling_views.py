@@ -17,7 +17,7 @@ from csv import excel
 from pprint import pprint
 
 from flask import Blueprint, request, jsonify, Response, current_app
-from oldaplib.src.connection import Connection
+from oldap_api.authentication import authenticated_connection, require_auth
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.dtypes.languagein import LanguageIn
 from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
@@ -52,6 +52,7 @@ datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
 
 
 @datamodel_bp.route('/datamodel/<project>', methods=['GET'])
+@require_auth
 def read_datamodel(project):
     """
     Viewfunction to read a specific datamodel.
@@ -64,14 +65,8 @@ def read_datamodel(project):
     }
     For a more detailed fiew look into the .yaml file.
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project)
@@ -211,6 +206,7 @@ def read_datamodel(project):
     return res, 200
 
 @datamodel_bp.route('/datamodel/<project>', methods=['PUT'])
+@require_auth
 def create_empty_datamodel(project):
     """
     Viewfunction to create a new and empty datamodel. If a new datamodel is to be created, first it needs
@@ -219,14 +215,8 @@ def create_empty_datamodel(project):
     :return: A JSON to denote the success of the operation that has the following form:
     json={"message": "Empty datamodel successfully created"}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     dm = DataModel(con=con, project=project)
 
@@ -245,6 +235,7 @@ def create_empty_datamodel(project):
 
 
 @datamodel_bp.route('/datamodel/<project>', methods=['DELETE'])
+@require_auth
 def delete_whole_datamodel(project):
     """
     Viewfunction that deletes an entire datamodel
@@ -252,14 +243,8 @@ def delete_whole_datamodel(project):
     :return: A JSON to denote the success of the operation that has the following form:
     json={'message': 'Data model successfully deleted'}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -277,15 +262,10 @@ def delete_whole_datamodel(project):
 #================================================================================
 
 @datamodel_bp.route('/datamodel/<project>/download', methods=['GET'])
+@require_auth
 def download_datamodel(project):
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         dm = DataModel.read(con, project)
     except OldapErrorNotFound as error:
@@ -299,6 +279,7 @@ def download_datamodel(project):
         headers={ 'Content-Disposition': f'attachment; filename="{dm._project.projectShortName}.trig"' })
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['POST'])
+@require_auth
 def modify_resource(project, resource):
     """
     Viewfunction to modify a resource. A JSON is expected that has the following form. All fields are optional -- at least one needs to be given
@@ -314,16 +295,10 @@ def modify_resource(project, resource):
     json={'message': 'Data model successfully modified'}
     """
     known_json_fields = {"superclass", "label", "comment", "closed"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     resourceIri = Xsd_QName(resource, validate=True)
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -502,6 +477,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     return prop
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['PUT'])
+@require_auth
 def add_resource_to_datamodel(project, resource):
     known_json_fields = {"superclass", "label", "comment", "closed", "properties"}
     known_property_fields = {"type", "iri", "subPropertyOf", "appliesToProperty", "class", "datatype", "name",
@@ -510,14 +486,9 @@ def add_resource_to_datamodel(project, resource):
                              "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty",
                              "maxCount", "minCount", "order", "group", "editor"}
     mandatory_property_fields = {"iri"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
-        try:
-            con = Connection(token=token, context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
 
         data = request.get_json()
 
@@ -596,6 +567,7 @@ def add_resource_to_datamodel(project, resource):
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
 @datamodel_bp.route('/datamodel/<project>/<resource>', methods=['DELETE'])
+@require_auth
 def delete_whole_resource(project, resource):
     """
     Viewfunction that deletes an entire resource inside the projects datamodel
@@ -604,14 +576,8 @@ def delete_whole_resource(project, resource):
     :return: A JSON to denote the success of the operation that has the following form:
     json={'message': 'Data model successfully deleted'}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -629,6 +595,7 @@ def delete_whole_resource(project, resource):
 
 
 @datamodel_bp.route('/datamodel/<project>/extonto/<prefix>', methods=['PUT'])
+@require_auth
 def add_external_ontology_to_datamodel(project, prefix):
     """
     Adds an external ontology reference to a specified data model in a project. This operation validates the provided
@@ -647,17 +614,11 @@ def add_external_ontology_to_datamodel(project, prefix):
     """
     known_json_fields = {"namespaceIri", "label", "comment", "proposedResourceClass", "proposedDatatypePropertyClass",
                          "proposedObjectPropertyClass"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if not request.is_json:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     data = request.get_json()
     unknown_json_field = set(data.keys()) - known_json_fields
@@ -707,15 +668,10 @@ def add_external_ontology_to_datamodel(project, prefix):
 
 
 @datamodel_bp.route('/datamodel/<project>/extonto/<prefix>', methods=['DELETE'])
+@require_auth
 def delete_external_ontology_to_datamodel(project, prefix):
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -735,11 +691,10 @@ def delete_external_ontology_to_datamodel(project, prefix):
 
 
 @datamodel_bp.route('/datamodel/<project>/extonto/<prefix>', methods=['POST'])
+@require_auth
 def modify_external_ontology_in_datamodel(project, prefix):
     known_json_fields = {"namespaceIri", "label", "comment", "proposedResourceClass",
                          "proposedDatatypePropertyClass", "proposedObjectPropertyClass"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if not request.is_json:
         return jsonify({"message": f"JSON expected. Instead received {request.content_type}"}), 400
@@ -756,11 +711,7 @@ def modify_external_ontology_in_datamodel(project, prefix):
     proposedDatatypePropertyClass = data.get("proposedDatatypePropertyClass", "NotSent")
     proposedObjectPropertyClass = data.get("proposedObjectPropertyClass", "NotSent")
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -790,6 +741,7 @@ def modify_external_ontology_in_datamodel(project, prefix):
 
 
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['PUT'])
+@require_auth
 def add_standalone_property_to_datamodel(project, property):
     """
     Viewfunction to add a standalone property to an existing datamodel. A JSON is expectet that has the following form.
@@ -827,14 +779,9 @@ def add_standalone_property_to_datamodel(project, property):
                              "maxCount", "minCount", "order", "group", "editor"}
     mandatory_property_fields = {'iri', 'appliesToProperty'}
 
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
-        try:
-            con = Connection(token=token, context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
 
         data = request.get_json()
         try:
@@ -863,6 +810,7 @@ def add_standalone_property_to_datamodel(project, property):
 
 
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['PUT'])
+@require_auth
 def add_property_to_resource(project, resource, property):
     """
     Viewfunction to add a property to a resource. A JSON is expected that has the following form. Note that the same fields
@@ -900,14 +848,9 @@ def add_property_to_resource(project, resource, property):
                          "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
                          "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty",
                          "maxCount", "minCount", "order", "group", "editor"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
     if request.is_json:
-        try:
-            con = Connection(token=token, context_name="DEFAULT")
-        except OldapError as error:
-            return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+        con = authenticated_connection()
 
         try:
             project = Project.read(con, project)
@@ -962,6 +905,7 @@ def add_property_to_resource(project, resource, property):
 
 
 @datamodel_bp.route('/datamodel/<project>/property/<standaloneprop>', methods=['DELETE'])
+@require_auth
 def delete_whole_assertion_property(project, standaloneprop):
     """
     Viewfunction that deletes an entire standalone property inside the projects datamodel
@@ -970,14 +914,8 @@ def delete_whole_assertion_property(project, standaloneprop):
     :return: A JSON to denote the success of the operation that has the following form:
     json={'message': 'Data model successfully deleted'}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -998,6 +936,7 @@ def delete_whole_assertion_property(project, standaloneprop):
 
 
 @datamodel_bp.route('/datamodel/<project>/<resource>/<property>', methods=['DELETE'])
+@require_auth
 def delete_prop_in_resource(project, resource, property):
     """
     Viewfunction that deletes an entire property inside a resource that is located in the projects datamodel
@@ -1007,14 +946,8 @@ def delete_prop_in_resource(project, resource, property):
     :return: A JSON to denote the success of the operation that has the following form:
     json={'message': 'Property successfully deleted'}
     """
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -1246,6 +1179,7 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     return jsonify({"message": "Property in resource successfully updated"}), 200
 
 @datamodel_bp.route('/datamodel/<project>/property/<property>', methods=['POST'])
+@require_auth
 def modify_assertion_property(project, property):
     """
     Viewfunction to modify a standalone property. A JSON is expected that has the following form. At least one field
@@ -1272,14 +1206,8 @@ def modify_assertion_property(project, property):
                          "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive",
                          "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals",
                          "inverseOf", "equivalentProperty"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -1311,19 +1239,14 @@ def modify_assertion_property(project, property):
 
 
 @datamodel_bp.route('/datamodel/<project>/<resiri>/<propiri>', methods=['POST'])
+@require_auth
 def modify_attribute_in_prop(project, resiri, propiri):
     known_json_fields = {"maxCount", "minCount", "order", "group", "editor","iri", "subPropertyOf", "type", "class",
                          "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength",
                          "maxLength", "pattern", "minExclusive", "minInclusive","maxExclusive", "maxInclusive",
                          "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty"}
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         dm = DataModel.read(con, project, ignore_cache=True)
@@ -1353,7 +1276,6 @@ def modify_attribute_in_prop(project, resiri, propiri):
     except OldapError as error:
         return jsonify({'message': str(error)}), 500  # Should not be reachable
     return jsonify({'message': 'Data model successfully modified'}), 200
-
 
 
 

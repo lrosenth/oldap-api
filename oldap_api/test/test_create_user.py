@@ -404,9 +404,9 @@ def test_bad_token(client, token_headers):
         ],
         "hasRole": {"oldap:Unknown": "DATA_VIEW"},
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_json_with_unknown_fields(client, token_headers):

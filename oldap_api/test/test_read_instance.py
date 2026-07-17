@@ -1,6 +1,8 @@
 import pytest
 from pprint import pprint
 
+from oldaplib.src.authentication import TokenCodec
+
 
 def test_instance_read(client, token_headers, testfulldatamodelwithinstances):
     header = token_headers[1]
@@ -64,6 +66,9 @@ def test_retrieving_mediaobject(client, token_headers, testfulldatamodelwithmedi
     assert res['shared:path'] == 'britnet'
     assert res['shared:protocol'] == 'iiif'
     assert res['shared:serverUrl'] == 'https://iiif.oldap.org'
+    media_claims = TokenCodec.from_environment().decode_media_token(res['token'])
+    assert media_claims['typ'] == 'media'
+    assert media_claims['assetId'] == 'xayb01.tif'
 
 def test_retrieving_derived_mediaobject(client, token_headers, testfulldatamodelwithderivedmediaobject):
     header = token_headers[1]

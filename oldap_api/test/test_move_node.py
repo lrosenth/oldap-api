@@ -151,9 +151,9 @@ def test_bad_token(client, token_headers):
     response = client.post('/admin/hlist/hyha/testfullhlist/nodeBB/move', json={
         "leftOf": "nodeA"
     }, headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 def test_no_permission(client, token_headers, testfullhlist):
     header = token_headers[1]
@@ -193,6 +193,5 @@ def test_move_node_to_itself(client, token_headers, testfullhlist):
     assert response.status_code == 409
     res = response.get_json()
     print(res)
-
 
 

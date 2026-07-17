@@ -51,10 +51,10 @@ def test_bad_token(client, token_headers):
     header['Authorization'] = 'Bearer ' + modified_token
 
     response = client.get('/admin/role/oldap/testrole', headers=header)
-    assert response.status_code == 403
+    assert response.status_code == 401
     res = response.json
     print(res)
-    assert res["message"] == "Connection failed: Wrong credentials"
+    assert res["message"] == "Authentication required."
 
 
 def test_read_nonexisting_permissionset(client, token_headers, testrole):

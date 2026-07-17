@@ -43,10 +43,14 @@ def create_app():
     app.logger.info(f"Upload folder: {uploaddir}")
     app.logger.info(f"Tmp folder: {tmpdir}")
 
-    #CORS(app, origins="*", expose_headers=["Content-Disposition"])
+    allowed_origins = [
+        origin.strip()
+        for origin in os.getenv("OLDAP_AUTH_ALLOWED_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
     CORS(app,
-         resources={r"/*": {"origins": "*"}},
-         supports_credentials=False,
+         resources={r"/*": {"origins": allowed_origins or "*"}},
+         supports_credentials=bool(allowed_origins),
          expose_headers=["Content-Disposition"])
 
     cache = CacheSingletonRedis()

@@ -13,7 +13,11 @@ paths:
   /admin/auth/{userId}:
     post:
       summary: Authentication/login
-      description: Perform login/logout with userid/password. Returns a JWT token.
+      description: >
+        Authenticate with user ID and password. Returns a short-lived access
+        token and sets an absolute-lifetime refresh JWT in the secure HttpOnly
+        refresh cookie. The deprecated token field aliases accessToken for one
+        transition release. The unknown pseudo-user receives no refresh token.
       parameters:
         - name: userId
           in: path
@@ -32,6 +36,19 @@ paths:
       responses:
         "200":
           description: OK
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Set-Cookie:
+              description: >
+                Secure HttpOnly refresh cookie for authenticated users, scoped
+                to /admin/auth with the configured absolute Max-Age and
+                SameSite policy; an anonymous pseudo-login clears any existing
+                refresh cookie.
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -42,18 +59,32 @@ paths:
                     example: "Login succeeded"
                   token:
                     type: string
+                    description: Deprecated alias of accessToken.
                     example: "exampletoken"
+                  accessToken:
+                    type: string
+                    example: "exampletoken"
+                  tokenType:
+                    type: string
+                    const: Bearer
+                  expiresIn:
+                    type: integer
+                    example: 900
+                required: [message, accessToken, tokenType, expiresIn, token]
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/Forbidden'
         "404":
           $ref: '#/components/responses/NotFound'
+        "503":
+          $ref: '#/components/responses/ServiceUnavailable'
     delete:
       summary: "Logout"
-      description: "Logout from system"
-      security:
-        - AccessToken: []
+      deprecated: true
+      description: >
+        Deprecated compatibility route. Delegates to refresh-cookie logout;
+        the path user ID is ignored and token identity is authoritative.
       parameters:
         - name: userId
           in: path
@@ -67,6 +98,65 @@ paths:
           description: "Several Errors that involve bad requests"
         "500":
           $ref: '#/components/responses/InternalServerError'
+
+  /admin/auth/refresh:
+    post:
+      summary: Refresh the access token
+      description: >
+        Validate the HttpOnly refresh cookie, load the user and current
+        permissions from GraphDB, compare authVersion, and return a new
+        short-lived access token. The refresh cookie keeps its original
+        absolute expiry and is not rotated.
+      security:
+        - RefreshCookie: []
+      responses:
+        "200":
+          description: A new access token was issued
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessTokenResponse'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "503":
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /admin/auth/logout:
+    post:
+      summary: Globally revoke refresh tokens
+      description: >
+        Atomically increment the refresh token user's authVersion and clear
+        the refresh cookie. The cookie is also cleared when it is absent,
+        malformed, expired, or already revoked. Existing access tokens remain
+        valid until their short expiry.
+      security:
+        - RefreshCookie: []
+      responses:
+        "204":
+          description: Refresh cookie cleared and current token revoked when valid
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Set-Cookie:
+              description: >
+                Clears the configured refresh cookie at /admin/auth by setting
+                an immediate expiry while preserving Secure, HttpOnly, and
+                SameSite attributes.
+              schema:
+                type: string
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "503":
+          $ref: '#/components/responses/ServiceUnavailable'
 
   /admin/auth/password-reset/request:
     post:
@@ -4140,6 +4230,9 @@ paths:
                     type: string
                     format: uri
                     description: Thumbnail URL for externally linked media objects.
+                  token:
+                    type: string
+                    description: Short-lived typ=media capability JWT for this local asset, signed independently from API access tokens.
                 additionalProperties: true
         "400":
           $ref: '#/components/responses/BadRequest'
@@ -4231,6 +4324,9 @@ paths:
                     type: string
                     format: uri
                     description: Thumbnail URL for externally linked media objects.
+                  token:
+                    type: string
+                    description: Short-lived typ=media capability JWT for this local asset, signed independently from API access tokens.
                 additionalProperties: true
         "400":
           $ref: '#/components/responses/BadRequest'
@@ -4244,6 +4340,25 @@ paths:
 
 components:
   schemas:
+
+    AccessTokenResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Login succeeded
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          const: Bearer
+        expiresIn:
+          type: integer
+          example: 900
+        token:
+          type: string
+          description: Deprecated alias of accessToken.
+      required: [message, accessToken, tokenType, expiresIn, token]
 
     DataPermission:
       type: string
@@ -5406,10 +5521,23 @@ components:
 
     Unauthorized:
       description: "Error 401: Unauthorized - Authentication failed, invalid token, or missing credentials"
+      headers:
+        WWW-Authenticate:
+          description: Bearer authentication challenge
+          schema:
+            type: string
+          example: Bearer
+        Cache-Control:
+          description: Prevent authentication failures from being cached
+          schema:
+            type: string
+          example: no-store
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+          example:
+            message: "Authentication required."
 
     Forbidden:
       description: "Error 403: Forbidden - Insufficient permissions to perform the requested operation"
@@ -5451,3 +5579,8 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    RefreshCookie:
+      type: apiKey
+      in: cookie
+      name: oldap_refresh
+      description: Secure HttpOnly refresh JWT; the cookie name is deployment-configurable.

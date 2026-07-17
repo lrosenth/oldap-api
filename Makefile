@@ -1,10 +1,11 @@
-.PHONY: help repo-init repo-minimal-datainit-multiarch test run run-prod \
+.PHONY: help repo-init repo-minimal-data init-multiarch test run run-prod check-local-env \
 bump-patch-level bump-minor-level bump-major-level \
 docker-build docker-run docker-push
 
 VERSION = $(shell git describe --tags --abbrev=0)
 UNAME_S := $(shell uname -s)
 OBJC_FORK_SAFETY := $(if $(filter Darwin,$(UNAME_S)),YES,)
+LOCAL_ENV_FILE ?= .env.local
 
 help:
 	@echo "Usage: make [target] ..."
@@ -44,7 +45,6 @@ init-multiarch:
 	docker buildx inspect --bootstrap
 
 test:
-	OLDAP_JWT_SECRET="56cbaa67af5bc403f1de9b7035e7c88239a853e4b40d6fc659ab4e4679b42785" \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
@@ -54,26 +54,28 @@ test:
 	APP_ENV="Dev" \
 	poetry run pytest -W always -v $(TESTS)
 
-run:
-	OLDAP_JWT_SECRET="56cbaa67af5bc403f1de9b7035e7c88239a853e4b40d6fc659ab4e4679b42785" \
+
+check-local-env:
+	@test -f "$(LOCAL_ENV_FILE)" || { \
+		echo "Missing $(LOCAL_ENV_FILE). Copy .env.local.example and provide local secrets."; \
+		exit 1; \
+	}
+
+run: check-local-env
+	set -a; . ./$(LOCAL_ENV_FILE); set +a; \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
 	OLDAP_REDIS_URL="redis://localhost:6379" \
-	OLDAP_PASSWORD_RESET_ADMIN_USER=rosenth \
-	OLDAP_PASSWORD_RESET_ADMIN_PASSWORD=RioGrande \
-	OLDAP_PASSWORD_RESET_FRONTEND_URL=http://localhost:5173 \
-	OLDAP_PASSWORD_RESET_JWT_SECRET=DenverAndRioGrandeWesternRailoadNarrowGauge \
-	OLDAP_PASSWORD_RESET_EMAIL_BACKEND=console \
 	APP_ENV="Dev" \
 	poetry run python oldap-api-app.py
 
-run-prod:
+run-prod: check-local-env
 	# Avoid macOS objc fork() crashes in gunicorn worker startup.
+	set -a; . ./$(LOCAL_ENV_FILE); set +a; \
 	OBJC_DISABLE_INITIALIZE_FORK_SAFETY="$(OBJC_FORK_SAFETY)" \
-	OLDAP_JWT_SECRET="56cbaa67af5bc403f1de9b7035e7c88239a853e4b40d6fc659ab4e4679b42785" \
 	OLDAP_TS_SERVER=http://localhost:7200 \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
@@ -105,21 +107,19 @@ docker-build:
 		-t lrosenth/oldap-api:latest \
 		--push .
 
-docker-run:
+docker-run: check-local-env
 	docker pull lrosenth/oldap-api:latest
 	docker run --rm -it \
+	--env-file "$(LOCAL_ENV_FILE)" \
 	-p 8000:8000 \
 	--add-host=host.docker.internal:host-gateway \
 	-e APP_ENV=Dev \
 	-e UPLOAD_FOLDER=/data/upload \
 	-e TMP_FOLDER=/data/tmp \
-	-e OLDAP_JWT_SECRET="56cbaa67af5bc403f1de9b7035e7c88239a853e4b40d6fc659ab4e4679b42785" \
 	-e OLDAP_API_PORT=8000 \
 	-e OLDAP_TS_SERVER=http://host.docker.internal:7200 \
 	-e OLDAP_TS_REPO=oldap \
-	-e OLDAP_API_PORT=8000 \
-	-e OLDAP_REDIS_URL="redis://localhost:6379" \
-	-e APP_ENV="Dev" \
+	-e OLDAP_REDIS_URL="redis://host.docker.internal:6379" \
 	-v "$(PWD)/../data:/data" \
 	lrosenth/oldap-api:latest
 

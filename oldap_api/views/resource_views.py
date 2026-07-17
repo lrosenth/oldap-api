@@ -1,7 +1,7 @@
 import json
 
 from flask import Blueprint, request, jsonify, Response
-from oldaplib.src.connection import Connection
+from oldap_api.authentication import authenticated_connection, require_auth
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.project import Project
 from oldaplib.src.objectfactory import ResourceInstanceFactory
@@ -12,15 +12,10 @@ from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, 
 resource_bp = Blueprint('resource', __name__, url_prefix='/admin')
 
 @resource_bp.route('/<project>/get/<iri>', methods=['GET'])
+@require_auth
 def get_resource(project, iri):
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
     try:
         project = Project.read(con, projectIri_SName=project)
     except OldapErrorNotFound as error:
@@ -45,15 +40,10 @@ def get_resource(project, iri):
 
 
 @resource_bp.route('/<project>/<resclass>', methods=['PUT'])
+@require_auth
 def create_resource(project, resclass):
-    out = request.headers['Authorization']
-    b, token = out.split()
 
-    try:
-        con = Connection(token=token,
-                         context_name="DEFAULT")
-    except OldapError as error:
-        return jsonify({"message": f"Connection failed: {str(error)}"}), 403
+    con = authenticated_connection()
 
     try:
         project = Project.read(con=con, projectIri_SName=project)
@@ -88,5 +78,4 @@ def create_resource(project, resclass):
         return jsonify({'message': str(error)}), 500
 
     return jsonify({'message': 'OK', 'iri': str(instance.iri)}), 200
-
 
