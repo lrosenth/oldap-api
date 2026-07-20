@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-07-20 17:39
+- Decisions: Let `bump-my-version` own all version-file updates so package metadata and the unprefixed runtime SemVer are changed atomically in the generated release commit; reserve the `v` prefix for Git tags and formatted API output.
+- Implementation: Registered `oldap_api/version.py` in the bump configuration, made `make-version` read Poetry's package version, and removed the stale post-bump Makefile writes from all patch, minor, and major bump targets.
+- Open: Manually align the currently stale runtime version from `v0.2.8` to `0.2.9` before the next bump.
+- Risks/Assumptions: Future bump commands require `version.py` to match the configured current version; the health endpoint already adds the `v` display prefix itself.
+
 ### Update 2026-07-15 22:32
 - Decisions: Document local authentication setup around the ignored `.env.local` workflow without publishing reusable credentials or signing keys.
 - Implementation: Added `README.md` guidance under `Testing with "make run"` for generating four distinct JWT secrets, configuring OLDAP service credentials, retaining HTTP-only development cookie settings, checking local dependencies, and starting the API.
