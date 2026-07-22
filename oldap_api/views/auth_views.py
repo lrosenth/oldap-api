@@ -7,6 +7,8 @@ The API offers endpoints for creating, reading, updating, searching and deleting
 - POST /admin/auth/refresh: Exchanges the refresh cookie for an access token.
 - POST /admin/auth/logout: Globally revokes refresh tokens and clears the cookie.
 - DELETE /admin/auth/<userid>: Deprecated compatibility logout route.
+- POST /mobile/v1/auth/login: Returns access and refresh tokens in JSON for native clients.
+- POST /mobile/v1/auth/refresh: Exchanges a JSON refresh token for an access token.
 - POST /admin/auth/password-reset/request: Requests a password reset link.
 - POST /admin/auth/password-reset/confirm: Sets a new password with a reset token.
 
@@ -20,6 +22,7 @@ from email.message import EmailMessage
 from urllib.parse import quote, urlsplit
 
 import jwt
+import requests
 from flask import request, jsonify, Blueprint, current_app, make_response
 from oldaplib.src.authentication import AuthorizationContext, TokenCodec
 from oldaplib.src.connection import Connection
@@ -38,11 +41,13 @@ from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_datetimestamp import Xsd_dateTimeStamp
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/admin")
+mobile_auth_bp = Blueprint("mobile_auth", __name__, url_prefix="/mobile/v1/auth")
 
 PASSWORD_RESET_PURPOSE = "password-reset"
 PASSWORD_RESET_EXPIRATION_SECONDS = 2 * 60 * 60
 PASSWORD_RESET_AUDIENCE_SUFFIX = "-password-reset"
 REFRESH_COOKIE_PATH = "/admin/auth"
+PASSWORD_MAX_BYTES = 72
 
 
 def _token_codec() -> TokenCodec:
@@ -130,6 +135,52 @@ def _access_response(token: str, codec: TokenCodec, status: int = 200):
     return _no_store(response)
 
 
+def _mobile_token_response(
+    access_token: str,
+    codec: TokenCodec,
+    *,
+    refresh_token: str | None = None,
+):
+    """Return native-client tokens without creating an authentication cookie."""
+    payload = {
+        "accessToken": access_token,
+        "tokenType": "Bearer",
+        "expiresIn": codec.settings.access_ttl_seconds,
+    }
+    if refresh_token is not None:
+        payload["refreshToken"] = refresh_token
+        payload["refreshTokenExpiresIn"] = codec.settings.refresh_ttl_seconds
+    return _no_store(jsonify(payload))
+
+
+def _mobile_auth_error(status: int, code: str, message: str):
+    """Return a cache-safe error with a stable native-client code."""
+    response = jsonify({"code": code, "message": message})
+    response.status_code = status
+    if status == 401:
+        response.headers["WWW-Authenticate"] = "Bearer"
+    return _no_store(response)
+
+
+def _mobile_auth_unavailable(operation: str, error: Exception):
+    """Return the uniform mobile response for configuration or backend failures."""
+    current_app.logger.error("Mobile %s is unavailable: %s", operation, error)
+    return _mobile_auth_error(
+        503,
+        "authentication_unavailable",
+        "Authentication is unavailable.",
+    )
+
+
+def _oldap_error_has_http_status(error: OldapError) -> bool:
+    """Identify oldaplib transport errors that retain an HTTP status argument."""
+    return (
+        bool(error.args)
+        and isinstance(error.args[0], int)
+        and not isinstance(error.args[0], bool)
+    )
+
+
 def _refresh_failure():
     response = jsonify({"message": "Authentication failed."})
     response.status_code = 401
@@ -171,6 +222,15 @@ def _password_reset_secret() -> str:
     if not secret or len(secret.encode("utf-8")) < 32:
         raise RuntimeError(
             "OLDAP_PASSWORD_RESET_JWT_SECRET must contain at least 32 bytes."
+        )
+    other_secrets = (
+        os.getenv("OLDAP_ACCESS_JWT_SECRET"),
+        os.getenv("OLDAP_REFRESH_JWT_SECRET"),
+        os.getenv("OLDAP_MEDIA_JWT_SECRET"),
+    )
+    if secret in {value for value in other_secrets if value}:
+        raise RuntimeError(
+            "OLDAP_PASSWORD_RESET_JWT_SECRET must differ from access, refresh, and media JWT secrets."
         )
     return secret
 
@@ -359,6 +419,132 @@ def login(userid):
             ),
             400,
         )
+
+
+@mobile_auth_bp.route("/login", methods=["POST"])
+def mobile_login():
+    """Issue existing Variant D tokens in JSON for native secure storage."""
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return _mobile_auth_error(400, "validation_failed", "JSON object expected.")
+    if set(data) != {"userId", "password"}:
+        return _mobile_auth_error(
+            400,
+            "validation_failed",
+            "Exactly userId and password are required.",
+        )
+
+    user_id = data.get("userId")
+    password = data.get("password")
+    if not isinstance(user_id, str) or not user_id or not isinstance(password, str):
+        return _mobile_auth_error(
+            400,
+            "validation_failed",
+            "userId and password are required.",
+        )
+    try:
+        user_id.encode("utf-8")
+        password_bytes = password.encode("utf-8")
+    except UnicodeEncodeError:
+        return _mobile_auth_error(
+            400,
+            "validation_failed",
+            "userId and password must be valid UTF-8 text.",
+        )
+    if len(password_bytes) > PASSWORD_MAX_BYTES:
+        return _mobile_auth_error(
+            400,
+            "validation_failed",
+            "password must not exceed 72 UTF-8 bytes.",
+        )
+    if user_id == "unknown":
+        return _mobile_auth_error(401, "invalid_credentials", "Authentication failed.")
+
+    try:
+        con = Connection(userId=user_id, credentials=password, context_name="DEFAULT")
+    except (
+        OldapErrorConfiguration,
+        RuntimeError,
+        requests.RequestException,
+        TypeError,
+        ValueError,
+    ) as error:
+        return _mobile_auth_unavailable("authentication", error)
+    except OldapError as error:
+        if _oldap_error_has_http_status(error):
+            return _mobile_auth_unavailable("authentication", error)
+        return _mobile_auth_error(401, "invalid_credentials", "Authentication failed.")
+
+    try:
+        codec = con.token_codec
+        refresh_token = codec.issue_refresh_token(con.userid, con.auth_version)
+        return _mobile_token_response(
+            con.token,
+            codec,
+            refresh_token=refresh_token,
+        )
+    except (OldapErrorConfiguration, RuntimeError, OldapError) as error:
+        return _mobile_auth_unavailable("authentication", error)
+
+
+@mobile_auth_bp.route("/refresh", methods=["POST"])
+def mobile_refresh_access_token():
+    """Issue a new access token from a stateless refresh JWT in JSON."""
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return _mobile_auth_error(400, "validation_failed", "JSON object expected.")
+    if set(data) != {"refreshToken"}:
+        return _mobile_auth_error(
+            400,
+            "validation_failed",
+            "Exactly refreshToken is required.",
+        )
+    token = data.get("refreshToken")
+    if not isinstance(token, str) or not token:
+        return _mobile_auth_error(
+            400,
+            "validation_failed",
+            "refreshToken is required.",
+        )
+
+    try:
+        codec = _token_codec()
+        claims = codec.decode_refresh_token(token)
+    except (OldapErrorConfiguration, RuntimeError) as error:
+        return _mobile_auth_unavailable("refresh", error)
+    except OldapError:
+        return _mobile_auth_error(
+            401,
+            "refresh_token_invalid",
+            "Authentication failed.",
+        )
+
+    try:
+        con = _authentication_connection()
+        user = User.read(con=con, userId=claims.userId, ignore_cache=True)
+        if not user.isActive or int(user.authVersion) != claims.authVersion:
+            return _mobile_auth_error(
+                401,
+                "refresh_token_invalid",
+                "Authentication failed.",
+            )
+        context = AuthorizationContext.from_user(user)
+        return _mobile_token_response(codec.issue_access_token(context), codec)
+    except OldapErrorNotFound:
+        return _mobile_auth_error(
+            401,
+            "refresh_token_invalid",
+            "Authentication failed.",
+        )
+    except (
+        OldapErrorConfiguration,
+        RuntimeError,
+        requests.RequestException,
+        OldapError,
+        TypeError,
+        ValueError,
+    ) as error:
+        return _mobile_auth_unavailable("refresh", error)
 
 
 @auth_bp.route("/auth/password-reset/request", methods=["POST"])

@@ -1,8 +1,14 @@
 """Integration tests for login, refresh, and global logout."""
 
+from datetime import UTC, datetime, timedelta
 from http.cookies import SimpleCookie
 
 import jwt
+import requests
+from oldaplib.src.authentication import TokenCodec
+from oldaplib.src.helpers.oldaperror import OldapError
+
+from oldap_api.views import auth_views
 
 
 def _refresh_token(response) -> str:
@@ -89,6 +95,270 @@ def test_refresh_rejects_invalid_cookie_and_origin(client):
         "/admin/auth/refresh", headers={"Origin": "https://evil.example"}
     )
     assert forbidden.status_code == 403
+
+
+def test_mobile_login_returns_tokens_without_cookie(client, connection_manager):
+    response = client.post(
+        "/mobile/v1/auth/login",
+        json={"userId": "rosenth", "password": "RioGrande"},
+    )
+    assert response.status_code == 200
+    assert response.headers["Cache-Control"] == "no-store"
+    assert "Set-Cookie" not in response.headers
+    assert response.json["tokenType"] == "Bearer"
+    assert response.json["expiresIn"] == 900
+    assert response.json["refreshTokenExpiresIn"] == 1_209_600
+    assert "token" not in response.json
+
+    access_payload = _decode_access(
+        response.json["accessToken"], connection_manager.access_secret
+    )
+    assert access_payload["typ"] == "access"
+    assert access_payload["sub"] == "rosenth"
+
+    refresh_payload = jwt.decode(
+        response.json["refreshToken"],
+        connection_manager.refresh_secret,
+        algorithms=["HS256"],
+        issuer="https://oldap.org",
+        audience="oldap-api-refresh",
+    )
+    assert refresh_payload["typ"] == "refresh"
+    assert refresh_payload["sub"] == "rosenth"
+
+
+def test_mobile_refresh_is_stateless_and_cookie_free(client, connection_manager):
+    login = client.post(
+        "/mobile/v1/auth/login",
+        json={"userId": "rosenth", "password": "RioGrande"},
+    )
+    refresh_token = login.json["refreshToken"]
+
+    first = client.post(
+        "/mobile/v1/auth/refresh",
+        json={"refreshToken": refresh_token},
+    )
+    second = client.post(
+        "/mobile/v1/auth/refresh",
+        json={"refreshToken": refresh_token},
+    )
+
+    for response in (first, second):
+        assert response.status_code == 200
+        assert response.headers["Cache-Control"] == "no-store"
+        assert "Set-Cookie" not in response.headers
+        assert "refreshToken" not in response.json
+        payload = _decode_access(
+            response.json["accessToken"], connection_manager.access_secret
+        )
+        assert payload["sub"] == "rosenth"
+
+    assert first.json["accessToken"] != second.json["accessToken"]
+
+
+def test_mobile_refresh_rejects_wrong_token_purpose(client):
+    login = client.post(
+        "/mobile/v1/auth/login",
+        json={"userId": "rosenth", "password": "RioGrande"},
+    )
+    media_token = TokenCodec.from_environment().issue_media_token(
+        "rosenth", {"assetId": "review-asset"}
+    )
+
+    for token in (login.json["accessToken"], media_token):
+        response = client.post(
+            "/mobile/v1/auth/refresh",
+            json={"refreshToken": token},
+        )
+        assert response.status_code == 401
+        assert response.headers["Cache-Control"] == "no-store"
+        assert response.headers["WWW-Authenticate"] == "Bearer"
+        assert response.json == {
+            "code": "refresh_token_invalid",
+            "message": "Authentication failed.",
+        }
+
+
+def test_mobile_login_rejects_invalid_credentials_and_oversized_password(client):
+    invalid = client.post(
+        "/mobile/v1/auth/login",
+        json={"userId": "rosenth", "password": "wrong-password"},
+    )
+    oversized = client.post(
+        "/mobile/v1/auth/login",
+        json={"userId": "rosenth", "password": "x" * 73},
+    )
+    invalid_unicode = client.post(
+        "/mobile/v1/auth/login",
+        json={"userId": "rosenth", "password": "\ud800"},
+    )
+
+    assert invalid.status_code == 401
+    assert invalid.headers["WWW-Authenticate"] == "Bearer"
+    assert invalid.headers["Cache-Control"] == "no-store"
+    assert invalid.json["code"] == "invalid_credentials"
+    assert oversized.status_code == 400
+    assert oversized.headers["Cache-Control"] == "no-store"
+    assert oversized.json["code"] == "validation_failed"
+    assert invalid_unicode.status_code == 400
+    assert invalid_unicode.headers["Cache-Control"] == "no-store"
+    assert invalid_unicode.json["code"] == "validation_failed"
+
+
+def test_mobile_refresh_rejects_expired_and_inactive_credentials(client):
+    codec = TokenCodec.from_environment()
+    expired = codec.issue_refresh_token(
+        "rosenth",
+        0,
+        now=datetime.now(UTC)
+        - timedelta(seconds=codec.settings.refresh_ttl_seconds + 1),
+    )
+    inactive = codec.issue_refresh_token("bugsbunny", 0)
+
+    for token in (expired, inactive):
+        response = client.post(
+            "/mobile/v1/auth/refresh",
+            json={"refreshToken": token},
+        )
+        assert response.status_code == 401
+        assert response.headers["WWW-Authenticate"] == "Bearer"
+        assert response.headers["Cache-Control"] == "no-store"
+        assert response.json["code"] == "refresh_token_invalid"
+
+
+def test_mobile_auth_maps_backend_outage_to_service_unavailable(client, monkeypatch):
+    login = client.post(
+        "/mobile/v1/auth/login",
+        json={"userId": "rosenth", "password": "RioGrande"},
+    )
+    refresh_token = login.json["refreshToken"]
+
+    def unavailable_connection(*args, **kwargs):
+        raise requests.ConnectionError("GraphDB unavailable")
+
+    monkeypatch.setattr(auth_views, "Connection", unavailable_connection)
+    responses = (
+        client.post(
+            "/mobile/v1/auth/login",
+            json={"userId": "rosenth", "password": "RioGrande"},
+        ),
+        client.post(
+            "/mobile/v1/auth/refresh",
+            json={"refreshToken": refresh_token},
+        ),
+    )
+
+    for response in responses:
+        assert response.status_code == 503
+        assert response.content_type == "application/json"
+        assert response.headers["Cache-Control"] == "no-store"
+        assert response.json == {
+            "code": "authentication_unavailable",
+            "message": "Authentication is unavailable.",
+        }
+
+    def graphdb_http_error(*args, **kwargs):
+        raise OldapError(503, "GraphDB unavailable")
+
+    monkeypatch.setattr(auth_views, "Connection", graphdb_http_error)
+    http_error = client.post(
+        "/mobile/v1/auth/login",
+        json={"userId": "rosenth", "password": "RioGrande"},
+    )
+    assert http_error.status_code == 503
+    assert http_error.headers["Cache-Control"] == "no-store"
+    assert http_error.json["code"] == "authentication_unavailable"
+
+    def graphdb_query_error(*args, **kwargs):
+        raise OldapError("GraphDB query failed")
+
+    monkeypatch.setattr(auth_views, "_authentication_connection", lambda: object())
+    monkeypatch.setattr(auth_views.User, "read", staticmethod(graphdb_query_error))
+    query_error = client.post(
+        "/mobile/v1/auth/refresh",
+        json={"refreshToken": refresh_token},
+    )
+    assert query_error.status_code == 503
+    assert query_error.headers["Cache-Control"] == "no-store"
+    assert query_error.json["code"] == "authentication_unavailable"
+
+
+def test_mobile_refresh_rejects_token_after_permission_change(client):
+    root_login = client.post("/admin/auth/rosenth", json={"password": "RioGrande"})
+    root_header = {"Authorization": f"Bearer {root_login.json['accessToken']}"}
+    user_id = "mobilepermissions"
+    created = client.put(
+        f"/admin/user/{user_id}",
+        json={
+            "givenName": "Mobile",
+            "familyName": "Permissions",
+            "email": "mobile.permissions@example.org",
+            "password": "mobilePassword",
+            "hasRole": {"oldap:Unknown": "DATA_VIEW"},
+        },
+        headers=root_header,
+    )
+    assert created.status_code == 200
+
+    try:
+        login = client.post(
+            "/mobile/v1/auth/login",
+            json={"userId": user_id, "password": "mobilePassword"},
+        )
+        assert login.status_code == 200
+
+        changed = client.post(
+            f"/admin/user/{user_id}",
+            json={"hasRole": {"del": ["oldap:Unknown"]}},
+            headers=root_header,
+        )
+        assert changed.status_code == 200
+
+        rejected = client.post(
+            "/mobile/v1/auth/refresh",
+            json={"refreshToken": login.json["refreshToken"]},
+        )
+        assert rejected.status_code == 401
+        assert rejected.json["code"] == "refresh_token_invalid"
+    finally:
+        client.delete(f"/admin/user/{user_id}", headers=root_header)
+
+
+def test_mobile_refresh_honors_global_auth_version_revocation(client):
+    login = client.post(
+        "/mobile/v1/auth/login",
+        json={"userId": "rosenth", "password": "RioGrande"},
+    )
+    refresh_token = login.json["refreshToken"]
+    client.set_cookie("oldap_refresh", refresh_token, path="/admin/auth")
+
+    logout = client.post("/admin/auth/logout")
+    assert logout.status_code == 204
+
+    rejected = client.post(
+        "/mobile/v1/auth/refresh",
+        json={"refreshToken": refresh_token},
+    )
+    assert rejected.status_code == 401
+    assert rejected.json["code"] == "refresh_token_invalid"
+
+
+def test_mobile_auth_validates_json_without_setting_cookie(client):
+    login = client.post("/mobile/v1/auth/login", json={"userId": "rosenth"})
+    refresh = client.post("/mobile/v1/auth/refresh", json={})
+    extra = client.post(
+        "/mobile/v1/auth/refresh",
+        json={"refreshToken": "token", "unexpected": True},
+    )
+
+    assert login.status_code == 400
+    assert login.json["code"] == "validation_failed"
+    assert "Set-Cookie" not in login.headers
+    assert refresh.status_code == 400
+    assert refresh.json["code"] == "validation_failed"
+    assert "Set-Cookie" not in refresh.headers
+    assert extra.status_code == 400
+    assert extra.json["code"] == "validation_failed"
 
 
 def test_unknown_login_has_no_refresh_session(client):

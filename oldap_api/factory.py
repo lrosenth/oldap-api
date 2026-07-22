@@ -55,6 +55,7 @@ def factory():
     from oldap_api.views import instance_views
 
     app.register_blueprint(auth_views.auth_bp)
+    app.register_blueprint(auth_views.mobile_auth_bp)
     app.register_blueprint(user_views.user_bp)
     app.register_blueprint(project_views.project_bp)
     app.register_blueprint(role_views.role_bp)

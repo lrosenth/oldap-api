@@ -158,6 +158,74 @@ paths:
         "503":
           $ref: '#/components/responses/ServiceUnavailable'
 
+  /mobile/v1/auth/login:
+    post:
+      summary: Native mobile authentication
+      description: >
+        Authenticate a named OLDAP user and return the existing Variant D
+        access and refresh JWTs in JSON for native Keychain/Keystore storage.
+        This additive route never creates an authentication cookie and does not
+        change token claims, signing, lifetimes, or the browser login contract.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileLoginRequest'
+      responses:
+        "200":
+          description: Access and refresh tokens were issued
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileTokenResponse'
+        "400":
+          $ref: '#/components/responses/MobileAuthError'
+        "401":
+          $ref: '#/components/responses/MobileAuthUnauthorized'
+        "503":
+          $ref: '#/components/responses/MobileAuthError'
+
+  /mobile/v1/auth/refresh:
+    post:
+      summary: Refresh a native mobile access token
+      description: >
+        Validate a fixed-lifetime stateless refresh JWT supplied in JSON, load
+        current user permissions, compare authVersion, and return a new access
+        JWT. The refresh JWT is not rotated and no authentication cookie is read
+        or written.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileRefreshRequest'
+      responses:
+        "200":
+          description: A new access token was issued
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileAccessTokenResponse'
+        "400":
+          $ref: '#/components/responses/MobileAuthError'
+        "401":
+          $ref: '#/components/responses/MobileAuthUnauthorized'
+        "503":
+          $ref: '#/components/responses/MobileAuthError'
+
   /admin/auth/password-reset/request:
     post:
       summary: Request password reset
@@ -4341,6 +4409,77 @@ paths:
 components:
   schemas:
 
+    MobileLoginRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        userId:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          format: password
+          description: UTF-8 encoding must not exceed 72 bytes.
+      required: [userId, password]
+
+    MobileRefreshRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        refreshToken:
+          type: string
+          minLength: 1
+      required: [refreshToken]
+
+    MobileAccessTokenResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          const: Bearer
+        expiresIn:
+          type: integer
+          minimum: 1
+      required: [accessToken, tokenType, expiresIn]
+
+    MobileTokenResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          const: Bearer
+        expiresIn:
+          type: integer
+          minimum: 1
+        refreshToken:
+          type: string
+        refreshTokenExpiresIn:
+          type: integer
+          minimum: 1
+      required:
+        - accessToken
+        - tokenType
+        - expiresIn
+        - refreshToken
+        - refreshTokenExpiresIn
+
+    MobileAuthError:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          description: Stable machine-readable mobile authentication error code.
+        message:
+          type: string
+      required: [code, message]
+
     AccessTokenResponse:
       type: object
       properties:
@@ -5512,6 +5651,34 @@ components:
         error: "ERROR_CODE"
 
   responses:
+    MobileAuthError:
+      description: Stable native authentication error
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            const: no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MobileAuthError'
+
+    MobileAuthUnauthorized:
+      description: Stable native authentication failure
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            const: no-store
+        WWW-Authenticate:
+          schema:
+            type: string
+            const: Bearer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MobileAuthError'
+
     BadRequest:
       description: "Error 400: Bad Request - Invalid input parameters, malformed request, or validation errors"
       content:

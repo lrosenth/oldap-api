@@ -2,6 +2,7 @@ from http.cookies import SimpleCookie
 from urllib.parse import parse_qs, urlparse
 
 import jwt
+import pytest
 
 from oldap_api.views import auth_views
 
@@ -44,6 +45,22 @@ def _decode_reset_token(token, connection_manager):
         issuer="https://oldap.org",
         audience="oldap-api-password-reset",
     )
+
+
+@pytest.mark.parametrize(
+    "other_secret_attribute",
+    ["access_secret", "refresh_secret", "media_secret"],
+)
+def test_password_reset_secret_must_be_distinct(
+    monkeypatch, connection_manager, other_secret_attribute
+):
+    monkeypatch.setenv(
+        "OLDAP_PASSWORD_RESET_JWT_SECRET",
+        getattr(connection_manager, other_secret_attribute),
+    )
+
+    with pytest.raises(RuntimeError, match="must differ"):
+        auth_views._password_reset_secret()
 
 
 def _create_user(client, header, user_id, email, password="oldPassword"):

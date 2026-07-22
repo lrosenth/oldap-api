@@ -6,7 +6,7 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 
 ## Repository State
 
-- Authentication uses 15-minute access JWTs plus absolute-lifetime refresh JWTs in a secure HttpOnly cookie. Login returns `accessToken` and the transitional `token` alias; `/admin/auth/refresh` reloads current user permissions and checks `authVersion`, while `/admin/auth/logout` performs global refresh revocation.
+- Authentication uses 15-minute access JWTs plus absolute-lifetime refresh JWTs. Existing browser routes retain the secure HttpOnly refresh-cookie contract. Additive `/mobile/v1/auth/login` and `/mobile/v1/auth/refresh` routes expose the same Variant D tokens in JSON for native Keychain/Keystore storage without setting or reading authentication cookies. Refresh reloads current user permissions and checks `authVersion`; `/admin/auth/logout` performs global refresh revocation.
 - All protected user, project, role, resource, hierarchical-list, datamodel, and instance routes authenticate through `oldap_api.authentication.require_auth`. The boundary strictly parses Bearer credentials, creates the request-scoped `Connection`, and emits one cache-safe `401` response for missing, malformed, expired, wrong-purpose, or invalid access tokens.
 - Python project managed by Poetry.
 - Main package: `oldap_api`.
@@ -14,8 +14,8 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 - Instance search documentation: `doc/search_instance.md`.
 - Tests live in `oldap_api/test` and rely on a local GraphDB repository plus
   OLDAP test data from the sibling `oldaplib` repository.
-- The API requires and currently locks `oldaplib` 0.6.20 or newer within the
-  0.6 release line so media capability-token support is always available.
+- The API requires `oldaplib` 0.7.x and currently locks 0.7.2, which includes
+  the shared Variant D and media capability-token support.
 
 ## Architecture
 
@@ -56,6 +56,10 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   `OLDAP_REFRESH_JWT_SECRET`, optional TTL/issuer/audience settings,
   `OLDAP_AUTH_ADMIN_USER/PASSWORD`, refresh-cookie settings, and optional exact
   `OLDAP_AUTH_ALLOWED_ORIGINS`. The retired `OLDAP_JWT_SECRET` is not accepted.
+- Native mobile authentication is a transport-only addition. It reuses
+  `TokenCodec`, access/refresh claims, lifetimes, signing keys, and `authVersion`
+  semantics unchanged; it adds no server session, refresh rotation, or replay
+  persistence and never returns the deprecated browser `token` alias.
 - Local MediaObject lookup responses use `oldaplib` to issue one-hour
   `typ=media` capability tokens with audience `oldap-api-media` and
   `OLDAP_MEDIA_JWT_SECRET`. The media deployment must validate those tokens with
@@ -74,6 +78,8 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 
 ## Roadmap / Next Steps
 
+- Expose `/mobile/v1/auth/*` through the deployment proxy over TLS and align the
+  exact CORS allowlist with the HTTP transport selected by Fasnacht Capture.
 - Complete authentication roadmap work package 6 in the browser clients.
 - Keep instance read responses stable while exposing reasoning-derived metadata
   explicitly.

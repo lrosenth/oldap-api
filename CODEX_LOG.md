@@ -1,5 +1,17 @@
 # CODEX_LOG
 
+### Update 2026-07-22 16:16
+- Decisions: Harden only the additive mobile authentication transport and existing password-reset key validation; preserve browser routes, Variant D token semantics, oldaplib, media/IIIF capabilities, and stateless refresh behaviour.
+- Implementation: Mobile login now rejects passwords above bcrypt's 72-byte UTF-8 limit, mobile `401` responses emit a Bearer challenge, and GraphDB transport failures return stable cache-safe JSON `503` responses. Added dedicated OpenAPI mobile-error responses, enforced password-reset signing-key separation, corrected repository guidance, and expanded regressions for invalid and oversized credentials, expired/inactive/permission-revoked refresh tokens, media/access token confusion, backend outage, and key reuse. All 30 focused authentication, boundary, and password-reset tests pass; Black, OpenAPI, lock, dependency, and diff checks pass.
+- Open: Deployment must expose `/mobile/v1/auth/*` over TLS, configure exact CORS origins when WebView fetch is used, and provide login/refresh abuse controls.
+- Risks/Assumptions: Variant D intentionally retains fixed-lifetime bearer refresh tokens, local-only normal logout, global `authVersion` revocation, and access-token validity until short expiry; the full repository test suite was not rerun because this review was limited to the authorized authentication scope.
+
+### Update 2026-07-21 17:52
+- Decisions: Add a cookie-free native transport for the existing Variant D token model without changing oldaplib, browser authentication, token claims, media/IIIF capabilities, refresh rotation semantics, or logout behaviour.
+- Implementation: Added `/mobile/v1/auth/login` and `/mobile/v1/auth/refresh`, strict JSON token responses with no-store caching, stable mobile error codes, OpenAPI schemas, and regression tests for cookie absence, stateless refresh reuse, validation, token-purpose confusion, and global `authVersion` revocation. The 15 focused authentication tests, 5 authentication-boundary tests, Black checks for changed auth/test modules, and OpenAPI validation pass.
+- Open: Fasnacht Capture must integrate the response-body contract with native Keychain/Keystore storage and client-side single-flight refresh; deployment must expose `/mobile/v1/auth/*` and align its CORS policy with the selected client transport.
+- Risks/Assumptions: Refresh JWTs remain bearer credentials with a fixed absolute lifetime and global per-user `authVersion` revocation; the mobile endpoints must be protected by TLS and deployment-level login/refresh abuse controls.
+
 ### Update 2026-07-20 17:39
 - Decisions: Let `bump-my-version` own all version-file updates so package metadata and the unprefixed runtime SemVer are changed atomically in the generated release commit; reserve the `v` prefix for Git tags and formatted API output.
 - Implementation: Registered `oldap_api/version.py` in the bump configuration, made `make-version` read Poetry's package version, and removed the stale post-bump Makefile writes from all patch, minor, and major bump targets.
