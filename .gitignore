@@ -17,3 +17,4 @@
 /tmp
 /dist
 /.env.local
+/root.crt
