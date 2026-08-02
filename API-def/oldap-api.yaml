@@ -4099,6 +4099,80 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+  /data/{project}/{instiri}/archive-move:
+    post:
+      summary: Move a shared archive unit to another parent or to the tree root
+      description: >
+        Changes `shared:parentArchiveUnit` and optionally `schema:position` in
+        one resource update. The backend rejects self-parenting and moves below
+        descendants so clients cannot create archive hierarchy cycles.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: Project containing the archive-unit instance.
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: instiri
+          description: IRI of the `shared:ArchiveUnit` to move.
+          in: path
+          required: true
+          schema:
+            type: string
+            format: iri
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArchiveUnitMoveData"
+            examples:
+              moveBelowParent:
+                value:
+                  shared:parentArchiveUnit: urn:uuid:00000000-0000-0000-0000-000000000001
+                  schema:position: 2
+              makeRoot:
+                value:
+                  shared:parentArchiveUnit: null
+                  schema:position: null
+      responses:
+        "200":
+          description: Archive unit successfully moved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                  - iri
+                  - shared:parentArchiveUnit
+                  - schema:position
+                properties:
+                  message:
+                    type: string
+                  iri:
+                    type: string
+                    format: iri
+                  shared:parentArchiveUnit:
+                    type: [string, "null"]
+                    format: iri
+                  schema:position:
+                    type: [integer, "null"]
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+        "503":
+          $ref: '#/components/responses/ServiceUnavailable'
+
     #  /data/{project}/{resclass}/{instance}:
 #    put:
 #      summary: Create a new instance of the given resource class with the given IRI
@@ -4923,6 +4997,22 @@ components:
         "oldap:attachedToRole":
           $ref: "#/components/schemas/AttachedToRoleMap"
       additionalProperties: false
+
+    ArchiveUnitMoveData:
+      description: >
+        Move one `shared:ArchiveUnit`. Set `shared:parentArchiveUnit` to null to
+        make the node a root. Omit `schema:position` to preserve its current
+        value or send null to remove it.
+      type: object
+      additionalProperties: false
+      required:
+        - shared:parentArchiveUnit
+      properties:
+        shared:parentArchiveUnit:
+          type: [string, "null"]
+          format: iri
+        schema:position:
+          type: [integer, "null"]
 
     InstanceData:
       description: >

@@ -1,9 +1,11 @@
 """Unit tests for the centralized bearer-authentication boundary."""
 
+import requests
 from flask import Flask, jsonify
 
 from oldap_api.authentication import authenticated_connection, require_auth
 from oldap_api.factory import factory
+from oldap_api.views import auth_views
 from oldaplib.src.authentication import AuthorizationContext, TokenCodec, TokenSettings
 from oldaplib.src.helpers.observable_dict import ObservableDict
 from oldaplib.src.in_project import InProjectClass
@@ -117,3 +119,64 @@ def test_every_protected_route_uses_shared_authentication_boundary():
     )
 
     assert unprotected_endpoints == []
+
+
+def test_browser_login_maps_backend_transport_failure_to_cache_safe_503(monkeypatch):
+    """Browser login must not turn a GraphDB outage into a cacheable 500."""
+
+    def unavailable_connection(*args, **kwargs):
+        raise requests.ConnectionError("GraphDB unavailable")
+
+    monkeypatch.setattr(auth_views, "Connection", unavailable_connection)
+    response = (
+        factory().test_client().post("/admin/auth/rosenth", json={"password": "secret"})
+    )
+
+    assert response.status_code == 503
+    assert response.json == {"message": "Authentication is unavailable."}
+    assert response.headers["Cache-Control"] == "no-store"
+
+
+def test_browser_refresh_maps_backend_transport_failure_to_cache_safe_503(monkeypatch):
+    """Refresh must report a backend outage while clearing no valid token state."""
+
+    def unavailable_authentication_connection(*args, **kwargs):
+        raise requests.ConnectionError("GraphDB unavailable")
+
+    monkeypatch.setenv("OLDAP_REFRESH_JWT_SECRET", REFRESH_SECRET)
+    monkeypatch.setattr(
+        auth_views,
+        "_authentication_connection",
+        unavailable_authentication_connection,
+    )
+    refresh = _codec().issue_refresh_token("tester", 0)
+    client = factory().test_client()
+    client.set_cookie("oldap_refresh", refresh, path="/admin/auth")
+
+    response = client.post("/admin/auth/refresh")
+
+    assert response.status_code == 503
+    assert response.json == {"message": "Authentication is unavailable."}
+    assert response.headers["Cache-Control"] == "no-store"
+
+
+def test_browser_logout_maps_backend_transport_failure_to_cache_safe_503(monkeypatch):
+    """Logout must clear the cookie even when revocation cannot reach GraphDB."""
+
+    def unavailable_authentication_connection(*args, **kwargs):
+        raise requests.ConnectionError("GraphDB unavailable")
+
+    monkeypatch.setenv("OLDAP_REFRESH_JWT_SECRET", REFRESH_SECRET)
+    monkeypatch.setattr(
+        auth_views, "_authentication_connection", unavailable_authentication_connection
+    )
+    refresh = _codec().issue_refresh_token("tester", 0)
+    client = factory().test_client()
+    client.set_cookie("oldap_refresh", refresh, path="/admin/auth")
+
+    response = client.post("/admin/auth/logout")
+
+    assert response.status_code == 503
+    assert response.json == {"message": "Authentication is unavailable."}
+    assert response.headers["Cache-Control"] == "no-store"
+    assert "Max-Age=0" in response.headers["Set-Cookie"]

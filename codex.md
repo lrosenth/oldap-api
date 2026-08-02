@@ -34,6 +34,12 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 - `POST /data/{project}/{instiri}/transform` is the generic resource lifecycle
   endpoint for atomic class transformations that keep the same IRI. It delegates
   the ontology validation and GraphDB transaction to `oldaplib`.
+- `POST /data/{project}/{instiri}/archive-move` is the narrow mutation boundary
+  for `shared:ArchiveUnit` hierarchy changes. It delegates cycle detection plus
+  the parent/optional-position update to `oldaplib.ArchiveTree`; the generic
+  instance-update route rejects these structure fields on archive units so HTTP
+  clients cannot bypass the check. Deployment requires an `oldaplib` release
+  that exposes `oldaplib.src.archive_tree`.
 - `oldaplib` owns GraphDB access, domain validation, resource instance classes,
   permissions, and data model interpretation.
 - The API should avoid duplicating domain logic from `oldaplib` unless it is
@@ -80,6 +86,9 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 
 - Expose `/mobile/v1/auth/*` through the deployment proxy over TLS and align the
   exact CORS allowlist with the HTTP transport selected by Fasnacht Capture.
+- Release and deploy the `oldaplib` archive-tree service before enabling the
+  archive move endpoint in FasnachtsPage; the route returns `503` when an older
+  library build is installed.
 - Complete authentication roadmap work package 6 in the browser clients.
 - Keep instance read responses stable while exposing reasoning-derived metadata
   explicitly.

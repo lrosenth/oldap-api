@@ -7,7 +7,7 @@ from oldaplib.src.datamodel import DataModel
 from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapErrorKey, OldapErrorNoPermission, \
-    OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse
+    OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse, OldapErrorInconsistency
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.query_processor import QueryProcessor
 from oldaplib.src.objectfactory import CompOp, FTSearchFilter, HLSearchFilter, LogicOp, ResourceInstance, \
@@ -16,6 +16,11 @@ try:
     from oldaplib.src.objectfactory import LinkedResourceSearchFilter
 except ImportError:
     LinkedResourceSearchFilter = None
+try:
+    from oldaplib.src.archive_tree import ArchiveTree, POSITION_UNSET
+except ImportError:
+    ArchiveTree = None
+    POSITION_UNSET = object()
 from oldaplib.src.xsd.xsd import Xsd
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.listnode import HListNodeRef
@@ -778,6 +783,72 @@ def transform_instance(project, instiri):
         current_app.logger.exception("transform_instance failed")
         return jsonify({"message": str(error)}), 500
 
+
+@instance_bp.route('/<path:project>/<path:instiri>/archive-move', methods=['POST'])
+@require_auth
+def move_archive_unit(project, instiri):
+    """Move one shared archive unit without allowing a hierarchy cycle."""
+    current_app.logger.info(f"/data/{project}/{instiri}/archive-move with POST called")
+
+    project = unquote(project)
+    instiri = unquote(instiri)
+    if not request.is_json:
+        return jsonify({"message": "Invalid request format, JSON required"}), 400
+    data = request.get_json()
+    if not isinstance(data, dict):
+        return jsonify({"message": "Request body must be an object."}), 400
+
+    parent_property = "shared:parentArchiveUnit"
+    position_property = "schema:position"
+    known_fields = {parent_property, position_property}
+    unknown_fields = set(data) - known_fields
+    if unknown_fields:
+        return jsonify({"message": f"Unknown archive move field/s: {sorted(unknown_fields)}"}), 400
+    if parent_property not in data:
+        return jsonify({"message": f'Field "{parent_property}" is required.'}), 400
+
+    parent_iri = data[parent_property]
+    if parent_iri is not None and not isinstance(parent_iri, str):
+        return jsonify({"message": f'Field "{parent_property}" must be an IRI string or null.'}), 400
+    position = data.get(position_property, POSITION_UNSET)
+    if position is not POSITION_UNSET and position is not None:
+        if isinstance(position, bool) or not isinstance(position, int):
+            return jsonify({"message": f'Field "{position_property}" must be an integer or null.'}), 400
+
+    try:
+        iri = Iri(instiri, validate=True)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    con = authenticated_connection()
+    context = Context(name=con.context_name)
+    if not context.get(project):
+        return jsonify({"message": f'Project "{project}" not found'}), 404
+    if ArchiveTree is None:
+        return jsonify({"message": "Archive tree operations require a newer oldaplib version."}), 503
+
+    try:
+        tree = ArchiveTree(con=con, project=project)
+        moved = tree.move(iri, parent_iri, position=position)
+        moved_parent = moved.get(Xsd_QName(parent_property, validate=False))
+        moved_position = moved.get(Xsd_QName(position_property, validate=False))
+        return jsonify({
+            "message": "Archive unit successfully moved",
+            "iri": str(moved.iri),
+            parent_property: str(next(iter(moved_parent))) if moved_parent else None,
+            position_property: int(next(iter(moved_position))) if moved_position else None,
+        }), 200
+    except OldapErrorInconsistency as error:
+        return jsonify({"message": str(error)}), 409
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({"message": str(error)}), 404
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    except OldapError as error:
+        current_app.logger.exception("move_archive_unit failed")
+        return jsonify({"message": str(error)}), 500
+
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['POST'])
 @require_auth
 def update_instance(project, instiri):
@@ -804,6 +875,20 @@ def update_instance(project, instiri):
     try:
         factory = ResourceInstanceFactory(con=con, project=project)
         instance = factory.read(iri)
+        archive_structure_fields = {
+            "shared:parentArchiveUnit",
+            "schema:position",
+        }
+        if (
+            instance.name == Xsd_QName("shared:ArchiveUnit", validate=False)
+            and archive_structure_fields.intersection(data)
+        ):
+            return jsonify({
+                "message": (
+                    "Archive structure fields must be changed through the "
+                    "archive-move endpoint."
+                )
+            }), 400
         for attrname, attrval in data.items():
             attr = Xsd_QName(attrname)
             if attr == Xsd_QName('oldap:attachedToRole'):

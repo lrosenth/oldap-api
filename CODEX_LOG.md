@@ -1,5 +1,17 @@
 # CODEX_LOG
 
+### Update 2026-08-01 00:29
+- Decisions: Expose one dedicated archive move command instead of duplicating tree reads or hierarchy logic in Flask; require archive parent/position changes to pass through this command.
+- Implementation: Added `POST /data/{project}/{instiri}/archive-move`, explicit payload/response OpenAPI schemas, cycle-conflict mapping, and a generic-update guard for `shared:ArchiveUnit` structure fields; added four focused endpoint tests and regenerated-client-compatible contract metadata.
+- Open: Publish and deploy the `oldaplib` build containing `ArchiveTree`, then raise the API dependency floor in the release that consumes it.
+- Risks/Assumptions: The optional import keeps the API bootable with the currently locked `oldaplib` 0.7.2 but returns `503` for archive moves until that dependency is upgraded. Focused tests pass with the sibling library on `PYTHONPATH`; the pre-existing broad formatting baseline in `instance_views.py` was not rewritten.
+
+### Update 2026-07-23 18:07
+- Decisions: Keep browser and native authentication failure semantics aligned for backend transport outages without changing token, cookie, or media capability contracts.
+- Implementation: Browser login, refresh, and logout now map `requests.RequestException` to cache-safe `503` responses; logout still clears the refresh cookie. Added focused regressions for all three paths.
+- Open: Production deployment still requires a refresh-capable `oldap-app` image (`v0.2.4+`) and coordinated API/media cutover; login/refresh abuse controls remain operational work.
+- Risks/Assumptions: Transport exceptions are treated as service unavailability, while invalid credentials and token failures retain their existing status codes.
+
 ### Update 2026-07-22 16:16
 - Decisions: Harden only the additive mobile authentication transport and existing password-reset key validation; preserve browser routes, Variant D token semantics, oldaplib, media/IIIF capabilities, and stateless refresh behaviour.
 - Implementation: Mobile login now rejects passwords above bcrypt's 72-byte UTF-8 limit, mobile `401` responses emit a Bearer challenge, and GraphDB transport failures return stable cache-safe JSON `503` responses. Added dedicated OpenAPI mobile-error responses, enforced password-reset signing-key separation, corrected repository guidance, and expanded regressions for invalid and oversized credentials, expired/inactive/permission-revoked refresh tokens, media/access token confusion, backend outage, and key reuse. All 30 focused authentication, boundary, and password-reset tests pass; Black, OpenAPI, lock, dependency, and diff checks pass.

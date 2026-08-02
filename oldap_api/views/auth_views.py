@@ -172,6 +172,13 @@ def _mobile_auth_unavailable(operation: str, error: Exception):
     )
 
 
+def _authentication_unavailable():
+    """Return a cache-safe 503 for browser authentication backend outages."""
+    response = jsonify({"message": "Authentication is unavailable."})
+    response.status_code = 503
+    return _no_store(response)
+
+
 def _oldap_error_has_http_status(error: OldapError) -> bool:
     """Identify oldaplib transport errors that retain an HTTP status argument."""
     return (
@@ -385,6 +392,11 @@ def login(userid):
             except (OldapErrorConfiguration, RuntimeError) as error:
                 current_app.logger.error("Authentication is not configured: %s", error)
                 return jsonify({"message": str(error)}), 503
+            except requests.RequestException as error:
+                current_app.logger.error(
+                    "Anonymous authentication backend failed: %s", error
+                )
+                return _authentication_unavailable()
             except OldapErrorNotFound as err:
                 return jsonify({"message": str(err)}), 404
             except OldapError as error:
@@ -406,6 +418,9 @@ def login(userid):
         except (OldapErrorConfiguration, RuntimeError) as error:
             current_app.logger.error("Authentication is not configured: %s", error)
             return jsonify({"message": str(error)}), 503
+        except requests.RequestException as error:
+            current_app.logger.error("Authentication backend failed: %s", error)
+            return _authentication_unavailable()
         except OldapErrorNotFound as err:
             current_app.logger.info(f"Login for {userid} failed.")
             return jsonify({"message": str(err)}), 404
@@ -774,6 +789,9 @@ def refresh_access_token():
         response = jsonify({"message": str(error)})
         response.status_code = 503
         return _no_store(response)
+    except requests.RequestException as error:
+        current_app.logger.error("Authentication refresh backend failed: %s", error)
+        return _authentication_unavailable()
     except OldapError:
         return _refresh_failure()
 
@@ -810,6 +828,11 @@ def _perform_logout(status: int = 204):
         response.status_code = 503
         _clear_refresh_cookie(response)
         return _no_store(response)
+    except requests.RequestException as error:
+        current_app.logger.error("Logout revocation backend failed: %s", error)
+        response = _authentication_unavailable()
+        _clear_refresh_cookie(response)
+        return response
     return _logout_response(status)
 
 
