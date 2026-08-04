@@ -19,6 +19,7 @@ import os
 import smtplib
 from datetime import datetime, timedelta, UTC
 from email.message import EmailMessage
+from html import escape
 from urllib.parse import quote, urlsplit
 
 import jwt
@@ -305,30 +306,89 @@ def _build_password_reset_token(
 
 
 def _password_reset_link(token: str) -> str:
-    return (
-        f"{_password_reset_frontend_url()}/password-reset?token={quote(token, safe='')}"
+    """Build a reset URL that remains clickable in plain-text mail clients.
+
+    JWT segment separators are valid URL characters, but some mail clients stop
+    automatic link detection at the first dot. Percent-encoding the separators
+    preserves the token after query parsing and keeps the complete URL linked.
+
+    Args:
+        token: Three-segment password-reset JWT.
+
+    Returns:
+        Absolute frontend reset URL with an encoded token query parameter.
+    """
+    encoded_token = quote(token, safe="").replace(".", "%2E")
+    return f"{_password_reset_frontend_url()}/password-reset?token={encoded_token}"
+
+
+def _password_reset_email_content(
+    user: User, link: str, identified_by_email: bool
+) -> tuple[str, str]:
+    """Create UTF-8 plain-text and HTML password-reset mail bodies.
+
+    Args:
+        user: Reset recipient whose display name and optional User-ID are shown.
+        link: Complete, percent-encoded reset URL.
+        identified_by_email: Whether to include the resolved OLDAP User-ID.
+
+    Returns:
+        Plain-text and HTML representations of the same reset message.
+    """
+    user_id_line = (
+        f"\nIhre User-ID lautet: {user.userId}\n" if identified_by_email else ""
     )
+    plain_body = (
+        f"Guten Tag {user.givenName} {user.familyName}\n\n"
+        "Für Ihr OLDAP-/fasnacht.digital-Konto wurde ein Passwort-Reset angefordert."
+        f"{user_id_line}\n"
+        "Bitte verwenden Sie den folgenden Link, um ein neues Passwort zu setzen:\n\n"
+        f"{link}\n\n"
+        "Der Link ist 2 Stunden gültig. Falls Sie den Reset nicht angefordert haben, "
+        "können Sie diese E-Mail ignorieren.\n"
+    )
+
+    display_name = escape(f"{user.givenName} {user.familyName}")
+    escaped_link = escape(link, quote=True)
+    html_user_id = (
+        f"<p>Ihre User-ID lautet: <strong>{escape(str(user.userId))}</strong></p>"
+        if identified_by_email
+        else ""
+    )
+    html_body = f"""\
+<!doctype html>
+<html lang="de">
+  <body style="font-family: Arial, sans-serif; color: #172033; line-height: 1.5;">
+    <p>Guten Tag {display_name}</p>
+    <p>Für Ihr OLDAP-/fasnacht.digital-Konto wurde ein Passwort-Reset angefordert.</p>
+    {html_user_id}
+    <p>Bitte verwenden Sie den folgenden Link, um ein neues Passwort zu setzen:</p>
+    <p style="margin: 24px 0;">
+      <a href="{escaped_link}" style="background: #1f5eff; color: #ffffff; padding: 12px 18px; text-decoration: none; border-radius: 6px; display: inline-block;">Passwort neu setzen</a>
+    </p>
+    <p style="font-size: 13px; color: #526079;">Falls der Button nicht funktioniert, kopieren Sie diesen vollständigen Link in den Browser:</p>
+    <p style="font-size: 13px; overflow-wrap: anywhere;"><a href="{escaped_link}">{escaped_link}</a></p>
+    <p>Der Link ist 2 Stunden gültig. Falls Sie den Reset nicht angefordert haben, können Sie diese E-Mail ignorieren.</p>
+  </body>
+</html>
+"""
+    return plain_body, html_body
 
 
 def _send_password_reset_email(
     user: User, link: str, identified_by_email: bool
 ) -> None:
-    subject = "Passwort zuruecksetzen"
-    user_id_line = (
-        f"\nIhre User-ID lautet: {user.userId}\n" if identified_by_email else ""
-    )
-    body = (
-        f"Guten Tag {user.givenName} {user.familyName}\n\n"
-        "Fuer Ihr OLDAP-/fasnacht.digital-Konto wurde ein Passwort-Reset angefordert."
-        f"{user_id_line}\n"
-        "Bitte verwenden Sie den folgenden Link, um ein neues Passwort zu setzen:\n\n"
-        f"{link}\n\n"
-        "Der Link ist 2 Stunden gueltig. Falls Sie den Reset nicht angefordert haben, koennen Sie diese E-Mail ignorieren.\n"
+    """Deliver a multipart password-reset message through console or SMTP."""
+    subject = "Passwort zurücksetzen"
+    plain_body, html_body = _password_reset_email_content(
+        user, link, identified_by_email
     )
 
     backend = os.getenv("OLDAP_PASSWORD_RESET_EMAIL_BACKEND", "console").lower()
     if backend == "console":
-        current_app.logger.info("Password reset mail for %s:\n%s", user.email, body)
+        current_app.logger.info(
+            "Password reset mail for %s:\n%s", user.email, plain_body
+        )
         return
     if backend != "smtp":
         raise RuntimeError(f'Unknown OLDAP_PASSWORD_RESET_EMAIL_BACKEND "{backend}".')
@@ -352,7 +412,8 @@ def _send_password_reset_email(
     message["From"] = sender
     message["To"] = str(user.email)
     message["Subject"] = subject
-    message.set_content(body)
+    message.set_content(plain_body)
+    message.add_alternative(html_body, subtype="html")
 
     with smtplib.SMTP(host, port) as smtp:
         if use_tls:

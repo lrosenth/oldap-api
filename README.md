@@ -88,3 +88,43 @@ The API listens on `http://localhost:8000`. A missing `.env.local` is reported
 before startup. Configuration errors for missing, too-short, or reused JWT
 secrets are reported when the corresponding authentication or media operation
 is used.
+
+## Testing production SMTP delivery
+
+The SMTP diagnostic uses the same `OLDAP_MAIL_*` variables as password-reset
+delivery and sends one plain-text test message. Run it interactively inside the
+deployed API container so that the container's DNS, firewall, TLS trust store,
+and environment are tested as well:
+
+```bash
+docker exec -it oldap-api python -m oldap_api.smtp_test
+```
+
+Existing environment values are offered as defaults. The password is read with
+terminal echo disabled and is never accepted as a command-line argument. Use
+`starttls` to exercise the transport currently implemented by the API (normally
+port 587). The diagnostic also supports `ssl` for providers that require
+implicit TLS (normally port 465), but the password-reset mailer itself does not
+currently implement that mode.
+
+To test an existing container before rebuilding the image, copy only the
+standalone module from a checkout on the production host and execute it from
+the container's temporary directory:
+
+```bash
+docker cp oldap_api/smtp_test.py oldap-api:/tmp/oldap_smtp_test.py
+docker exec -it oldap-api python /tmp/oldap_smtp_test.py
+```
+
+For a non-interactive check, provide the recipient through the environment and
+use the deployed mail settings:
+
+```bash
+docker exec \
+  -e OLDAP_SMTP_TEST_RECIPIENT=recipient@example.org \
+  oldap-api python -m oldap_api.smtp_test --non-interactive
+```
+
+A successful result means the SMTP server accepted the message for delivery;
+confirm final delivery in the recipient inbox or spam folder. Avoid shell debug
+tracing while handling mail credentials.

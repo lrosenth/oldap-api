@@ -58,6 +58,13 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   `OLDAP_PASSWORD_RESET_FRONTEND_URL` or `OLDAP_PUBLIC_APP_URL`, and
   `OLDAP_PASSWORD_RESET_JWT_SECRET`. Mail delivery defaults
   to console logging and uses SMTP when `OLDAP_PASSWORD_RESET_EMAIL_BACKEND=smtp`.
+- Reset messages are UTF-8 multipart mail with plain-text and HTML alternatives.
+  JWT separators are percent-encoded in the query parameter so mail-client link
+  detection cannot truncate the token; the HTML alternative provides an
+  explicit reset button and a complete copyable fallback URL.
+- `python -m oldap_api.smtp_test` provides an interactive, credential-safe SMTP
+  deployment diagnostic using the same mail environment variables. It tests
+  STARTTLS, implicit TLS, or plain SMTP independently of OLDAP user data.
 - Access/refresh configuration uses `OLDAP_ACCESS_JWT_SECRET`,
   `OLDAP_REFRESH_JWT_SECRET`, optional TTL/issuer/audience settings,
   `OLDAP_AUTH_ADMIN_USER/PASSWORD`, refresh-cookie settings, and optional exact

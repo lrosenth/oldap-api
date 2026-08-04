@@ -1,5 +1,17 @@
 # CODEX_LOG
 
+### Update 2026-08-04 15:23
+- Decisions: Make password-reset links independent of mail-client plain-text URL detection while retaining a readable fallback for non-HTML clients.
+- Implementation: Percent-encoded JWT segment separators in reset URLs and changed SMTP delivery to UTF-8 multipart mail with a complete plain-text link, HTML reset button, copyable fallback URL, proper German characters, and focused MIME/link round-trip tests.
+- Open: Build and deploy the updated API image, request a fresh reset message, click the HTML button, and complete one password change without manually copying the URL.
+- Risks/Assumptions: The frontend continues to use standard URL query decoding, which restores `%2E` to JWT dots before submitting the token; previously issued tokens and links are unaffected.
+
+### Update 2026-08-04 14:56
+- Decisions: Diagnose production SMTP from inside the API container using the same mail environment variables, while keeping passwords out of command arguments, process listings, and terminal output.
+- Implementation: Added the interactive/non-interactive `python -m oldap_api.smtp_test` utility with STARTTLS, implicit TLS, plain SMTP, authentication, certificate validation, timeout, and delivery-submission diagnostics; documented container usage and added focused unit tests.
+- Open: Run the diagnostic on the production host, configure the confirmed SMTP values, and set `OLDAP_PASSWORD_RESET_FRONTEND_URL=https://fasnacht.digital`; implicit TLS findings would require extending the API mailer before deployment.
+- Risks/Assumptions: SMTP acceptance does not guarantee inbox placement; final delivery and spam handling must be checked at the recipient mailbox.
+
 ### Update 2026-08-01 00:29
 - Decisions: Expose one dedicated archive move command instead of duplicating tree reads or hierarchy logic in Flask; require archive parent/position changes to pass through this command.
 - Implementation: Added `POST /data/{project}/{instiri}/archive-move`, explicit payload/response OpenAPI schemas, cycle-conflict mapping, and a generic-update guard for `shared:ArchiveUnit` structure fields; added four focused endpoint tests and regenerated-client-compatible contract metadata.
