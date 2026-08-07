@@ -16,15 +16,21 @@ The implementation includes error handling and validation for most operations.
 """
 
 import os
-import smtplib
+import logging
 from datetime import datetime, timedelta, UTC
-from email.message import EmailMessage
 from html import escape
 from urllib.parse import quote, urlsplit
 
 import jwt
 import requests
-from flask import request, jsonify, Blueprint, current_app, make_response
+from flask import (
+    request,
+    jsonify,
+    Blueprint,
+    current_app,
+    has_app_context,
+    make_response,
+)
 from oldaplib.src.authentication import AuthorizationContext, TokenCodec
 from oldaplib.src.connection import Connection
 from oldaplib.src.enums.userattr import UserAttr
@@ -40,6 +46,8 @@ from oldaplib.src.helpers.oldaperror import (
 from oldaplib.src.user import User
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_datetimestamp import Xsd_dateTimeStamp
+
+from oldap_api.mail import deliver_multipart_email
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/admin")
 mobile_auth_bp = Blueprint("mobile_auth", __name__, url_prefix="/mobile/v1/auth")
@@ -384,43 +392,16 @@ def _send_password_reset_email(
         user, link, identified_by_email
     )
 
-    backend = os.getenv("OLDAP_PASSWORD_RESET_EMAIL_BACKEND", "console").lower()
-    if backend == "console":
-        current_app.logger.info(
-            "Password reset mail for %s:\n%s", user.email, plain_body
-        )
-        return
-    if backend != "smtp":
-        raise RuntimeError(f'Unknown OLDAP_PASSWORD_RESET_EMAIL_BACKEND "{backend}".')
-
-    sender = os.getenv("OLDAP_MAIL_FROM")
-    host = os.getenv("OLDAP_MAIL_HOST")
-    port = int(os.getenv("OLDAP_MAIL_PORT", "587"))
-    username = os.getenv("OLDAP_MAIL_USERNAME")
-    password = os.getenv("OLDAP_MAIL_PASSWORD")
-    use_tls = os.getenv("OLDAP_MAIL_USE_TLS", "true").lower() not in {
-        "0",
-        "false",
-        "no",
-    }
-    if not sender or not host:
-        raise RuntimeError(
-            "OLDAP_MAIL_FROM and OLDAP_MAIL_HOST must be configured for SMTP password reset mail."
-        )
-
-    message = EmailMessage()
-    message["From"] = sender
-    message["To"] = str(user.email)
-    message["Subject"] = subject
-    message.set_content(plain_body)
-    message.add_alternative(html_body, subtype="html")
-
-    with smtplib.SMTP(host, port) as smtp:
-        if use_tls:
-            smtp.starttls()
-        if username:
-            smtp.login(username, password or "")
-        smtp.send_message(message)
+    deliver_multipart_email(
+        recipient=str(user.email),
+        subject=subject,
+        plain_body=plain_body,
+        html_body=html_body,
+        backend=os.getenv("OLDAP_PASSWORD_RESET_EMAIL_BACKEND", "console"),
+        logger=(
+            current_app.logger if has_app_context() else logging.getLogger(__name__)
+        ),
+    )
 
 
 @auth_bp.route("/auth/<userid>", methods=["POST"])

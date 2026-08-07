@@ -29,21 +29,24 @@ def factory():
                 graphdb_status = "up, repository oldap not found"
                 repositories = r.json()
                 for repo in repositories:
-                    if repo['id'] == 'oldap':
+                    if repo["id"] == "oldap":
                         graphdb_status = "reachable"
             else:
                 graphdb_status = "error"
         except Exception:
             graphdb_status = "unreachable"
 
-        return jsonify({
-            "status": "ok" if graphdb_status == "reachable" else "degraded",
-            "version": f'v{__version__}',
-            "services": {
-                "graphdb": graphdb_status
-            },
-            "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z")
-        }), 200
+        return (
+            jsonify(
+                {
+                    "status": "ok" if graphdb_status == "reachable" else "degraded",
+                    "version": f"v{__version__}",
+                    "services": {"graphdb": graphdb_status},
+                    "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+                }
+            ),
+            200,
+        )
 
     from oldap_api.views import auth_views
     from oldap_api.views import user_views
@@ -53,6 +56,7 @@ def factory():
     from oldap_api.views import hierarchical_list_views
     from oldap_api.views import resource_views
     from oldap_api.views import instance_views
+    from oldap_api.views import import_views
 
     app.register_blueprint(auth_views.auth_bp)
     app.register_blueprint(auth_views.mobile_auth_bp)
@@ -63,6 +67,9 @@ def factory():
     app.register_blueprint(hierarchical_list_views.hierarchical_list_bp)
     app.register_blueprint(resource_views.resource_bp)
     app.register_blueprint(instance_views.instance_bp)
+    app.register_blueprint(import_views.import_bp)
+    app.register_blueprint(import_views.internal_import_bp)
+    app.register_blueprint(import_views.internal_claim_bp)
 
     @app.get("/_routes")
     def _routes():
@@ -72,4 +79,5 @@ def factory():
                 for r in app.url_map.iter_rules()
             ]
         }
+
     return app

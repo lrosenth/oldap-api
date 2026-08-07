@@ -4480,8 +4480,706 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
 
+  /imports:
+    post:
+      summary: Create a ZIP import job
+      description: Requires ADMIN_CREATE and effective DATA_UPDATE on the selected staging area.
+      security: [{AccessToken: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CreateImportJobRequest'}
+      responses:
+        "201":
+          description: Import job and short-lived direct-upload capability created.
+          headers:
+            Cache-Control: {schema: {type: string, const: no-store}}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CreateImportJobResponse'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "403": {$ref: '#/components/responses/Forbidden'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "413": {$ref: '#/components/responses/PayloadTooLarge'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+    get:
+      summary: List caller-owned ZIP import jobs
+      security: [{AccessToken: []}]
+      parameters:
+        - {name: state, in: query, schema: {$ref: '#/components/schemas/ImportState'}}
+        - {name: cursor, in: query, schema: {type: string, maxLength: 512}, description: Opaque cursor returned by the preceding page.}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}
+      responses:
+        "200":
+          description: Jobs ordered newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  items: {type: array, items: {$ref: '#/components/schemas/ImportJob'}}
+                  nextCursor: {type: string, maxLength: 512}
+                required: [items]
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+
+  /imports/{importId}:
+    get:
+      summary: Read one caller-owned ZIP import job
+      security: [{AccessToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      responses:
+        "200":
+          description: Current authoritative job state.
+          headers:
+            ETag: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportJob'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+
+  /imports/{importId}/upload-capability:
+    post:
+      summary: Reissue upload capability for an unchanged UPLOADING job
+      security: [{AccessToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VersionedImportAction'}
+      responses:
+        "200":
+          description: Short-lived direct-upload capability.
+          headers:
+            Cache-Control: {schema: {type: string, const: no-store}}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportUploadAuthorization'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+
+  /imports/{importId}/report:
+    get:
+      summary: Read the protected checksum-verified validation report
+      description: The API authorizes ownership and retrieves the immutable record with a purpose-specific internal token that is never returned to the browser.
+      security: [{AccessToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      responses:
+        "200":
+          description: ZIP import report version 1.
+          headers:
+            Cache-Control: {schema: {type: string, const: 'private, no-store'}}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportReport'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /imports/{importId}/cancel:
+    post:
+      summary: Cancel an UPLOADING or READY import job
+      security: [{AccessToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VersionedImportAction'}
+      responses:
+        "202":
+          description: Cancellation and cleanup accepted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportJob'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+
+  /imports/{importId}/confirm:
+    post:
+      summary: Confirm an unchanged and unexpired READY import job
+      security: [{AccessToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VersionedImportAction'}
+      responses:
+        "202":
+          description: Import accepted and moved to IMPORTING.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportJob'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "403": {$ref: '#/components/responses/Forbidden'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/imports/{importId}/sip-stored:
+    post:
+      summary: Idempotently record a durably finalized ZIP SIP
+      description: Internal-only route. It performs UPLOADING to VALIDATING; identical event replay returns the accepted job and conflicting replay returns 409.
+      security: [{ImportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SipStoredEvent'}
+      responses:
+        "200":
+          description: Event accepted or identical replay recognized.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportJob'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/import-claims:
+    post:
+      summary: Atomically claim at most one queued import task
+      description: Internal-only single-worker queue. No second task is returned while any unexpired lease exists.
+      security: [{ImportServiceToken: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImportClaimRequest'}
+      responses:
+        "200":
+          description: One task claimed.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportClaim'}
+        "204": {description: No eligible task or another lease is active.}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/import-claims/{claimId}/heartbeat:
+    post:
+      summary: Renew an active import worker lease
+      security: [{ImportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ClaimId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImportClaimHeartbeat'}
+      responses:
+        "200":
+          description: Lease renewed without changing lifecycle stateVersion.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportLease'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/import-claims/{claimId}/target-preflight:
+    post:
+      summary: Compare ZIP-root names with the current selected target
+      description: Internal claim-bound operation. The API reads and normalizes current direct children; the worker receives only collision findings.
+      security: [{ImportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ClaimId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImportTargetPreflightRequest'}
+      responses:
+        "200":
+          description: Current target identity and collision findings.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportTargetPreflightResponse'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/imports/{importId}/validation-result:
+    post:
+      summary: Idempotently publish READY, INVALID, or validation FAILED
+      security: [{ImportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImportValidationResult'}
+      responses:
+        "200":
+          description: Result accepted or identical replay recognized.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportJob'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/imports/{importId}/commit:
+    post:
+      summary: Atomically create staging resources and mark the job IMPORTED
+      description: Rechecks the original user's current authorization, target identity, default role, direct-child collisions, deterministic resource IRIs, and asset IDs in the same GraphDB transaction as the complete resource/job write.
+      security: [{ImportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImportCommitRequest'}
+      responses:
+        "200":
+          description: Complete batch committed or identical event replay recognized.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportCommitResponse'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "403": {$ref: '#/components/responses/Forbidden'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/imports/{importId}/failed:
+    post:
+      summary: Record a compensated terminal IMPORT failure
+      security: [{ImportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImportTaskFailure'}
+      responses:
+        "200":
+          description: Failure accepted or identical replay recognized.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportJob'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/imports/{importId}/cleanup-result:
+    post:
+      summary: Finalize one API-selected temporary-payload cleanup
+      description: Internal-only idempotent result. EXPIRED becomes authoritative only after deletion proof; IMPORTED keeps its staging quota reservation.
+      security: [{ImportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ImportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImportCleanupResult'}
+      responses:
+        "200":
+          description: Cleanup accepted or identical replay recognized.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImportJob'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
 components:
+  parameters:
+    ImportId:
+      name: importId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    ClaimId:
+      name: claimId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
   schemas:
+
+    ImportState:
+      type: string
+      enum: [UPLOADING, VALIDATING, READY, IMPORTING, IMPORTED, INVALID, FAILED, CANCELLED, EXPIRED]
+
+    ImportTargetSnapshot:
+      type: object
+      additionalProperties: false
+      properties:
+        projectShortName: {type: string, pattern: '^[A-Za-z][A-Za-z0-9_-]{0,63}$'}
+        stagingAreaIri: {type: string, format: uri, maxLength: 2048}
+        stagingAreaName: {type: string, minLength: 1, maxLength: 255}
+        targetRootFolderIri: {type: string, format: uri, maxLength: 2048}
+        targetRootFolderName: {type: string, minLength: 1, maxLength: 255}
+      required: [projectShortName, stagingAreaIri, stagingAreaName, targetRootFolderIri, targetRootFolderName]
+
+    CreateImportJobRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        projectShortName: {type: string, pattern: '^[A-Za-z][A-Za-z0-9_-]{0,63}$'}
+        stagingAreaIri: {type: string, format: uri, maxLength: 2048}
+        targetRootFolderIri: {type: string, format: uri, maxLength: 2048}
+        originalFileName: {type: string, minLength: 1, maxLength: 255}
+        compressedSizeBytes: {type: integer, minimum: 1, maximum: 500000000}
+      required: [projectShortName, stagingAreaIri, targetRootFolderIri, originalFileName, compressedSizeBytes]
+
+    VersionedImportAction:
+      type: object
+      additionalProperties: false
+      properties:
+        expectedStateVersion: {type: integer, minimum: 0}
+      required: [expectedStateVersion]
+
+    ImportUploadAuthorization:
+      type: object
+      additionalProperties: false
+      properties:
+        url: {type: string, format: uri}
+        method: {type: string, const: PUT}
+        contentType: {type: string, const: application/zip}
+        bearerToken: {type: string, minLength: 1}
+        expiresAt: {type: string, format: date-time}
+        maxBytes: {type: integer, const: 500000000}
+      required: [url, method, contentType, bearerToken, expiresAt, maxBytes]
+
+    ImportJob:
+      type: object
+      additionalProperties: false
+      properties:
+        importId: {type: string, format: uuid}
+        state: {$ref: '#/components/schemas/ImportState'}
+        stateVersion: {type: integer, minimum: 0}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+        uploadedAt: {type: string, format: date-time}
+        validationCompletedAt: {type: string, format: date-time}
+        importedAt: {type: string, format: date-time}
+        expiresAt: {type: string, format: date-time}
+        requestedByIri: {type: string, format: uri}
+        target: {$ref: '#/components/schemas/ImportTargetSnapshot'}
+        originalFileName: {type: string, minLength: 1, maxLength: 255}
+        declaredCompressedSizeBytes: {type: integer, minimum: 1, maximum: 500000000}
+        actualCompressedSizeBytes: {type: integer, minimum: 0, maximum: 500000000}
+        extractedSizeBytes: {type: integer, minimum: 0, maximum: 3000000000}
+        quotaReservedBytes: {type: integer, minimum: 0, maximum: 3000000000}
+        reportAvailable: {type: boolean}
+        canConfirm: {type: boolean}
+        cleanupPending: {type: boolean}
+        summary: {type: object}
+        failureCode: {type: string, pattern: '^[A-Z][A-Z0-9_]{2,63}$'}
+        notification: {$ref: '#/components/schemas/ImportNotificationStatus'}
+      required: [importId, state, stateVersion, createdAt, updatedAt, requestedByIri, target, originalFileName, declaredCompressedSizeBytes, quotaReservedBytes, reportAvailable, canConfirm, cleanupPending]
+
+    ImportNotificationStatus:
+      type: object
+      additionalProperties: false
+      properties:
+        status: {type: string, enum: [PENDING, SENT, FAILED]}
+        forState: {type: string, enum: [READY, INVALID, FAILED, IMPORTED]}
+        attempts: {type: integer, minimum: 0, maximum: 3}
+        sentAt: {type: string, format: date-time}
+      required: [status, forState, attempts]
+
+    ImportReport:
+      type: object
+      description: Version 1 oldap.zip-import.report; the detailed closed schema is maintained with the ZIP import record contracts.
+      properties:
+        documentType: {type: string, const: oldap.zip-import.report}
+        schemaVersion: {type: string, const: 1.0.0}
+        importId: {type: string, format: uuid}
+        generatedAt: {type: string, format: date-time}
+        status: {type: string, enum: [READY, INVALID, FAILED]}
+        canConfirm: {type: boolean}
+      required: [documentType, schemaVersion, importId, generatedAt, status, canConfirm]
+      additionalProperties: true
+
+    CreateImportJobResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        job: {$ref: '#/components/schemas/ImportJob'}
+        upload: {$ref: '#/components/schemas/ImportUploadAuthorization'}
+      required: [job, upload]
+
+    SipStoredEvent:
+      type: object
+      additionalProperties: false
+      properties:
+        eventId: {type: string, format: uuid}
+        storedAt: {type: string, format: date-time}
+        sizeBytes: {type: integer, minimum: 1, maximum: 500000000}
+        sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        uploadRequestId: {type: string, format: uuid}
+      required: [eventId, storedAt, sizeBytes, sha256, uploadRequestId]
+
+    ImportClaimRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        workerId: {type: string, pattern: '^[A-Za-z0-9._-]{1,128}$'}
+        supportedTasks:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: {type: string, enum: [VALIDATE, IMPORT, CLEANUP]}
+        requestedLeaseSeconds: {type: integer, minimum: 60, maximum: 900, default: 300}
+      required: [workerId, supportedTasks]
+
+    ImportClaim:
+      type: object
+      additionalProperties: false
+      properties:
+        claimId: {type: string, format: uuid}
+        importId: {type: string, format: uuid}
+        task: {type: string, enum: [VALIDATE, IMPORT, CLEANUP]}
+        stateVersion: {type: integer, minimum: 0}
+        claimedAt: {type: string, format: date-time}
+        leaseExpiresAt: {type: string, format: date-time}
+        target: {$ref: '#/components/schemas/ImportTargetSnapshot'}
+        jobCreatedAt: {type: string, format: date-time}
+        requestedByIri: {type: string, format: uri, maxLength: 2048}
+        originalFileName: {type: string, minLength: 1, maxLength: 255}
+        compressedSizeBytes: {type: integer, minimum: 1, maximum: 500000000}
+        sipSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        manifestSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        cleanupReason: {type: string, enum: [CANCELLED, EXPIRED, IMPORTED, FAILED]}
+      required: [claimId, importId, task, stateVersion, claimedAt, leaseExpiresAt, target, jobCreatedAt, requestedByIri, originalFileName, compressedSizeBytes]
+
+    ImportClaimHeartbeat:
+      type: object
+      additionalProperties: false
+      properties:
+        workerId: {type: string, pattern: '^[A-Za-z0-9._-]{1,128}$'}
+        expectedStateVersion: {type: integer, minimum: 0}
+      required: [workerId, expectedStateVersion]
+
+    ImportLease:
+      type: object
+      additionalProperties: false
+      properties:
+        claimId: {type: string, format: uuid}
+        leaseExpiresAt: {type: string, format: date-time}
+      required: [claimId, leaseExpiresAt]
+
+    ImportTargetPreflightEntry:
+      type: object
+      additionalProperties: false
+      properties:
+        entryIndex: {type: integer, minimum: 0, maximum: 9999}
+        name: {type: string, minLength: 1, maxLength: 255}
+        entryType: {type: string, enum: [file, directory]}
+      required: [entryIndex, name, entryType]
+
+    ImportTargetPreflightRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        workerId: {type: string, pattern: '^[A-Za-z0-9._-]{1,128}$'}
+        expectedStateVersion: {type: integer, minimum: 0}
+        topLevelEntries:
+          type: array
+          minItems: 1
+          maxItems: 10000
+          items: {$ref: '#/components/schemas/ImportTargetPreflightEntry'}
+      required: [workerId, expectedStateVersion, topLevelEntries]
+
+    ImportTargetPreflightFinding:
+      type: object
+      additionalProperties: false
+      properties:
+        entryIndex: {type: integer, minimum: 0, maximum: 9999}
+        code: {type: string, enum: [TARGET_CHANGED, TARGET_FOLDER_COLLISION, TARGET_MEDIA_NAME_COLLISION]}
+        blocking: {type: boolean}
+        existingKind: {type: string, enum: [folder, media]}
+        existingName: {type: string, minLength: 1, maxLength: 255}
+      required: [code, blocking]
+
+    ImportTargetPreflightResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        claimId: {type: string, format: uuid}
+        targetRootFolderIri: {type: string, format: uri, maxLength: 2048}
+        findings:
+          type: array
+          maxItems: 10001
+          items: {$ref: '#/components/schemas/ImportTargetPreflightFinding'}
+      required: [claimId, targetRootFolderIri, findings]
+
+    ImportValidationSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        entriesObserved: {type: integer, minimum: 0}
+        entriesDeclared: {type: integer, minimum: 0}
+        inventoryComplete: {type: boolean}
+        files: {type: integer, minimum: 0}
+        directories: {type: integer, minimum: 0}
+        importableFiles: {type: integer, minimum: 0}
+        importableDirectories: {type: integer, minimum: 0}
+        ignoredEntries: {type: integer, minimum: 0}
+        rejectedEntries: {type: integer, minimum: 0}
+        warningCount: {type: integer, minimum: 0}
+        errorCount: {type: integer, minimum: 0}
+        compressedBytes: {type: integer, minimum: 0}
+        extractedBytes: {type: integer, minimum: 0, maximum: 3000000000}
+        maxDepth: {type: integer, minimum: 0}
+      required: [entriesObserved, inventoryComplete, files, directories, importableFiles, importableDirectories, ignoredEntries, rejectedEntries, warningCount, errorCount, compressedBytes, extractedBytes, maxDepth]
+
+    ImportValidationResult:
+      type: object
+      additionalProperties: false
+      properties:
+        eventId: {type: string, format: uuid}
+        claimId: {type: string, format: uuid}
+        expectedStateVersion: {type: integer, minimum: 0}
+        outcome: {type: string, enum: [READY, INVALID, FAILED]}
+        completedAt: {type: string, format: date-time}
+        temporaryPayloadDeleted: {type: boolean}
+        manifestSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        reportSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        summary: {$ref: '#/components/schemas/ImportValidationSummary'}
+        failureCode: {type: string, pattern: '^[A-Z][A-Z0-9_]{2,63}$'}
+      required: [eventId, claimId, expectedStateVersion, outcome, completedAt, temporaryPayloadDeleted, reportSha256, summary]
+      allOf:
+        - if: {properties: {outcome: {const: READY}}, required: [outcome]}
+          then: {required: [manifestSha256], properties: {temporaryPayloadDeleted: {const: false}}}
+        - if: {properties: {outcome: {enum: [INVALID, FAILED]}}, required: [outcome]}
+          then: {properties: {temporaryPayloadDeleted: {const: true}}}
+        - if: {properties: {outcome: {const: FAILED}}, required: [outcome]}
+          then: {required: [failureCode], not: {required: [manifestSha256]}}
+          else: {required: [manifestSha256]}
+
+    ImportFolderCommitItem:
+      type: object
+      additionalProperties: false
+      properties:
+        entryIndex: {type: integer, minimum: 0, maximum: 9999}
+        relativePath: {type: string, minLength: 1, maxLength: 1024}
+        parentRelativePath: {type: string, maxLength: 1024}
+        name: {type: string, minLength: 1, maxLength: 255}
+      required: [entryIndex, relativePath, parentRelativePath, name]
+
+    ImportMediaCommitItem:
+      type: object
+      additionalProperties: false
+      properties:
+        entryIndex: {type: integer, minimum: 0, maximum: 9999}
+        relativePath: {type: string, minLength: 1, maxLength: 1024}
+        parentRelativePath: {type: string, maxLength: 1024}
+        assetId: {type: string, pattern: '^[A-Za-z0-9._~-]{1,128}$'}
+        checksumSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        originalName: {type: string, minLength: 1, maxLength: 255}
+        originalMimeType: {type: string, enum: [image/jpeg, image/tiff, image/png, audio/wav, audio/flac, audio/mpeg, video/mp4, application/pdf, text/plain]}
+        dctermsType: {type: string, enum: ['dcmitype:StillImage', 'dcmitype:MovingImage', 'dcmitype:Sound', 'dcmitype:Text']}
+        protocol: {type: string, enum: [iiif, http]}
+        derivativeName: {type: string, enum: [master.tif, web.mp3, web.mp4, document.pdf, document.txt]}
+        storagePath: {type: string, minLength: 1, maxLength: 1024}
+      required: [entryIndex, relativePath, parentRelativePath, assetId, checksumSha256, originalName, originalMimeType, dctermsType, protocol, derivativeName, storagePath]
+
+    ImportCommitRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        eventId: {type: string, format: uuid}
+        claimId: {type: string, format: uuid}
+        expectedStateVersion: {type: integer, minimum: 0}
+        manifestSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        folders:
+          type: array
+          maxItems: 10000
+          items: {$ref: '#/components/schemas/ImportFolderCommitItem'}
+        media:
+          type: array
+          minItems: 1
+          maxItems: 10000
+          items: {$ref: '#/components/schemas/ImportMediaCommitItem'}
+      required: [eventId, claimId, expectedStateVersion, manifestSha256, folders, media]
+
+    ImportResourceMapping:
+      type: object
+      additionalProperties: false
+      properties:
+        entryIndex: {type: integer, minimum: 0, maximum: 9999}
+        relativePath: {type: string, minLength: 1, maxLength: 1024}
+        resourceIri: {type: string, format: uri}
+        assetId: {type: string, pattern: '^[A-Za-z0-9._~-]{1,128}$'}
+      required: [entryIndex, relativePath, resourceIri]
+
+    ImportCommitResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        eventId: {type: string, format: uuid}
+        job: {$ref: '#/components/schemas/ImportJob'}
+        resources:
+          type: array
+          maxItems: 10000
+          items: {$ref: '#/components/schemas/ImportResourceMapping'}
+      required: [eventId, job, resources]
+
+    ImportTaskFailure:
+      type: object
+      additionalProperties: false
+      properties:
+        eventId: {type: string, format: uuid}
+        claimId: {type: string, format: uuid}
+        expectedStateVersion: {type: integer, minimum: 0}
+        task: {type: string, const: IMPORT}
+        failureCode: {type: string, pattern: '^[A-Z][A-Z0-9_]{2,63}$'}
+        compensated: {type: boolean, const: true}
+        temporaryPayloadDeleted: {type: boolean, const: true}
+      required: [eventId, claimId, expectedStateVersion, task, failureCode, compensated, temporaryPayloadDeleted]
+
+    ImportCleanupResult:
+      type: object
+      additionalProperties: false
+      properties:
+        eventId: {type: string, format: uuid}
+        claimId: {type: string, format: uuid}
+        expectedStateVersion: {type: integer, minimum: 0}
+        reason: {type: string, enum: [CANCELLED, EXPIRED, IMPORTED, FAILED]}
+        temporaryPayloadDeleted: {type: boolean, const: true}
+        completedAt: {type: string, format: date-time}
+      required: [eventId, claimId, expectedStateVersion, reason, temporaryPayloadDeleted, completedAt]
 
     MobileLoginRequest:
       type: object
@@ -5816,6 +6514,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+
+    PayloadTooLarge:
+      description: "Error 413: Payload Too Large - Declared ZIP size exceeds the import limit"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
             
     InternalServerError:
       description: "Error 500: Internal Server Error - Unexpected server error occurred"
@@ -5836,6 +6541,11 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    ImportServiceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Internal typ=import-service JWT with audience oldap-api-import-service; excluded from public proxy routing.
     RefreshCookie:
       type: apiKey
       in: cookie

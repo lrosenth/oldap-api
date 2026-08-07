@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from urllib.parse import parse_qs, urlparse
 
 from oldap_api.views import auth_views
+from oldap_api import mail
 
 RESET_TOKEN = "header.payload.signature"
 
@@ -57,7 +58,7 @@ def test_smtp_mail_contains_complete_token_in_plain_and_html_parts(monkeypatch):
     monkeypatch.setenv("OLDAP_MAIL_USE_TLS", "true")
     monkeypatch.delenv("OLDAP_MAIL_USERNAME", raising=False)
     monkeypatch.delenv("OLDAP_MAIL_PASSWORD", raising=False)
-    monkeypatch.setattr(auth_views.smtplib, "SMTP", FakeSmtp)
+    monkeypatch.setattr(mail.smtplib, "SMTP", FakeSmtp)
 
     link = "https://fasnacht.digital/password-reset?token=header%2Epayload%2Esignature"
     auth_views._send_password_reset_email(_user(), link, identified_by_email=True)

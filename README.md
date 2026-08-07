@@ -8,6 +8,43 @@
 - OLDAP_TS_REPO (e.g. "oldap") 
 - OLDAP_API_PORT (e.g. "8000")
 - OLDAP_REDIS_URL (e.g. "redis://localhost:6379")
+- OLDAP_IMPORT_UPLOAD_JWT_SECRET (a dedicated random value of at least 32 bytes)
+- OLDAP_IMPORT_SERVICE_JWT_SECRET (a second dedicated random value of at least 32 bytes)
+- OLDAP_IMPORT_RECORDS_JWT_SECRET (dedicated API-to-media retained-record key)
+- OLDAP_MEDIA_INGEST_URL (e.g. "https://media.oldap.org")
+- OLDAP_IMPORT_SERVICE_USER and OLDAP_IMPORT_SERVICE_PASSWORD (dedicated GraphDB-facing OLDAP service identity)
+
+ZIP import jobs additionally require every participating
+`shared:StagingArea` to define a positive `shared:stagingQuotaBytes` value.
+The upload JWT secret is accepted only for short-lived direct SIP-upload
+capabilities and must differ from access, refresh, media, and password-reset
+keys.
+
+Import reports are retrieved internally from `OLDAP_MEDIA_INGEST_URL` with
+`OLDAP_IMPORT_RECORDS_JWT_SECRET`; this key must also be configured on the media
+records service and is never returned to clients. Import notification delivery
+uses `OLDAP_IMPORT_EMAIL_BACKEND=console|smtp` and the same `OLDAP_MAIL_*` SMTP
+settings as password reset. `OLDAP_PUBLIC_APP_URL` supplies the authenticated,
+token-free job link included in those messages.
+
+Import list responses use an opaque `nextCursor`; clients must return it
+unchanged with the same state filter. Accepted lifecycle mutations emit a
+privacy-preserving operational audit line containing only event, import ID,
+state/version, and sanitized request ID. Filenames, tokens, claims, checksums,
+and report contents are intentionally excluded from logs.
+
+The internal sequential queue supports `VALIDATE`, `IMPORT`, and `CLEANUP`.
+Cleanup eligibility is API-owned: stale `UPLOADING` jobs after 24 hours,
+persisted-expiry `READY` jobs, and `cleanupPending` terminal jobs may be leased;
+`IMPORTING` is never eligible. `POST /internal/imports/{importId}/cleanup-result`
+accepts deletion proof idempotently. Only that accepted proof can mark expiry
+and release an expired reservation; an `IMPORTED` job retains its extracted-byte
+quota because its staged originals remain stored.
+Pending or failed import email is reconciled only by the API during an idle
+ingest-worker poll. At most one due notification is attempted per poll, no more
+than three times total, and failed attempts are spaced by at least five minutes.
+This keeps SMTP credentials and recipient resolution out of the media worker
+and prevents mail delivery from consuming an active task lease.
 
 To run, issue the command
 
@@ -27,7 +64,7 @@ committed.
    cp .env.local.example .env.local
    ```
 
-2. Generate four independent random secrets. Run the following command four
+2. Generate seven independent random secrets. Run the following command seven
    times and copy one different result into each JWT variable in `.env.local`:
 
    ```bash
@@ -39,10 +76,13 @@ committed.
    OLDAP_REFRESH_JWT_SECRET=<second generated value>
    OLDAP_MEDIA_JWT_SECRET=<third generated value>
    OLDAP_PASSWORD_RESET_JWT_SECRET=<fourth generated value>
+   OLDAP_IMPORT_UPLOAD_JWT_SECRET=<fifth generated value>
+   OLDAP_IMPORT_SERVICE_JWT_SECRET=<sixth generated value>
+   OLDAP_IMPORT_RECORDS_JWT_SECRET=<seventh generated value>
    ```
 
-   Each value must contain at least 32 bytes. Access, refresh, and media secrets
-   must be different; keeping the password-reset secret separate as well limits
+   Each value must contain at least 32 bytes. All seven secrets must be different;
+   keeping every token purpose cryptographically separate limits
    the impact of a leaked key. Keep these values stable between local restarts,
    because replacing them invalidates tokens signed with the previous values.
 

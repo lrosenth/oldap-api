@@ -108,6 +108,7 @@ def test_every_protected_route_uses_shared_authentication_boundary():
         "hlist",
         "datamodel",
         "instance",
+        "imports",
     }
     unprotected_endpoints = sorted(
         rule.endpoint

@@ -74,6 +74,15 @@ def set_test_env():
     os.environ["OLDAP_PASSWORD_RESET_JWT_SECRET"] = (
         "oldap-api-test-reset-secret-at-least-32-bytes"
     )
+    os.environ["OLDAP_IMPORT_UPLOAD_JWT_SECRET"] = (
+        "oldap-api-test-import-upload-secret-at-least-32-bytes"
+    )
+    os.environ["OLDAP_IMPORT_SERVICE_JWT_SECRET"] = (
+        "oldap-api-test-import-service-secret-at-least-32-bytes"
+    )
+    os.environ["OLDAP_IMPORT_RECORDS_JWT_SECRET"] = (
+        "oldap-api-test-import-records-secret-at-least-32-bytes"
+    )
     os.environ["OLDAP_AUTH_ADMIN_USER"] = "rosenth"
     os.environ["OLDAP_AUTH_ADMIN_PASSWORD"] = "RioGrande"
     os.environ["OLDAP_REFRESH_COOKIE_SECURE"] = "false"
