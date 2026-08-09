@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-08-09 23:35
+- Decisions: Separate the browser-facing media ingest/delivery origin from the optional API-to-media retained-record route; preserve the public URL as a backward-compatible fallback and keep production on verified HTTPS.
+- Implementation: `ImportRecordClient` now prefers `OLDAP_MEDIA_INTERNAL_URL`; added home/internal and production/fallback regression tests, local configuration examples, synchronized runtime/project documentation, and prepared patch release 0.2.15.
+- Open: Deploy a new API image and the matching `oldap-setup` environment contract, then refresh the retained READY report on `api.home.org`.
+- Risks/Assumptions: The home-only internal route uses HTTP between the two trusted test VMs because Caddy's private CA is not installed in the API container. Browser uploads and public media URLs remain HTTPS; production uses HTTPS for both routes.
+
 ### Update 2026-08-09 10:30
 - Decisions: Distinguish a restored legacy StagingArea without `shared:stagingQuotaBytes` from a missing or unauthorized target; retain fail-closed target and permission checks.
 - Implementation: Made quota projection optional in the target authorization query so the existing domain check returns `503 IMPORT_QUOTA_NOT_CONFIGURED`. Added query and behavior regression coverage for a valid target with no quota.

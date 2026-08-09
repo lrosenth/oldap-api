@@ -56,18 +56,21 @@ class FakeSession:
     def __init__(self, content: bytes) -> None:
         self.content = content
         self.headers = None
+        self.url = None
 
     def get(self, url, *, headers, timeout):
         assert url.endswith(
             "/internal/imports/11111111-1111-4111-8111-111111111111/records/report"
         )
         assert timeout == (3.05, 15)
+        self.url = url
         self.headers = headers
         return FakeResponse(self.content)
 
 
-def test_report_bytes_are_verified_and_records_token_is_purpose_specific():
-    content = json.dumps(
+def _ready_report() -> bytes:
+    """Return one canonical report body accepted by the record client."""
+    return json.dumps(
         {
             "documentType": "oldap.zip-import.report",
             "schemaVersion": "1.0.0",
@@ -76,6 +79,10 @@ def test_report_bytes_are_verified_and_records_token_is_purpose_specific():
         },
         separators=(",", ":"),
     ).encode()
+
+
+def test_report_bytes_are_verified_and_records_token_is_purpose_specific():
+    content = _ready_report()
     session = FakeSession(content)
     client = ImportRecordClient(
         base_url="https://media.example.org",
@@ -97,6 +104,28 @@ def test_report_bytes_are_verified_and_records_token_is_purpose_specific():
     )
     assert claims["typ"] == "import-records"
     assert claims["importId"] == "11111111-1111-4111-8111-111111111111"
+
+
+def test_internal_media_url_is_used_for_server_to_server_report_fetch(monkeypatch):
+    content = _ready_report()
+    session = FakeSession(content)
+    monkeypatch.setenv("OLDAP_MEDIA_INGEST_URL", "https://media.home.org")
+    monkeypatch.setenv("OLDAP_MEDIA_INTERNAL_URL", "http://media.home.org")
+
+    ImportRecordClient(secret=SECRET, session=session).get_report(_job(content))
+
+    assert session.url.startswith("http://media.home.org/internal/imports/")
+
+
+def test_public_media_url_remains_the_compatible_internal_fallback(monkeypatch):
+    content = _ready_report()
+    session = FakeSession(content)
+    monkeypatch.setenv("OLDAP_MEDIA_INGEST_URL", "https://media.oldap.org")
+    monkeypatch.delenv("OLDAP_MEDIA_INTERNAL_URL", raising=False)
+
+    ImportRecordClient(secret=SECRET, session=session).get_report(_job(content))
+
+    assert session.url.startswith("https://media.oldap.org/internal/imports/")
 
 
 def test_report_checksum_mismatch_is_never_proxied():

@@ -12,6 +12,7 @@
 - OLDAP_IMPORT_SERVICE_JWT_SECRET (a second dedicated random value of at least 32 bytes)
 - OLDAP_IMPORT_RECORDS_JWT_SECRET (dedicated API-to-media retained-record key)
 - OLDAP_MEDIA_INGEST_URL (e.g. "https://media.oldap.org")
+- OLDAP_MEDIA_INTERNAL_URL (optional API-to-media URL; defaults to `OLDAP_MEDIA_INGEST_URL`)
 - OLDAP_IMPORT_SERVICE_USER and OLDAP_IMPORT_SERVICE_PASSWORD (dedicated GraphDB-facing OLDAP service identity)
 
 ZIP import jobs additionally require every participating
@@ -23,9 +24,11 @@ The upload JWT secret is accepted only for short-lived direct SIP-upload
 capabilities and must differ from access, refresh, media, and password-reset
 keys.
 
-Import reports are retrieved internally from `OLDAP_MEDIA_INGEST_URL` with
-`OLDAP_IMPORT_RECORDS_JWT_SECRET`; this key must also be configured on the media
-records service and is never returned to clients. Import notification delivery
+Import reports are retrieved from `OLDAP_MEDIA_INTERNAL_URL` with
+`OLDAP_IMPORT_RECORDS_JWT_SECRET`; the internal URL defaults to the public
+`OLDAP_MEDIA_INGEST_URL` when no separate server-to-server route is required.
+The records key must also be configured on the media records service and is
+never returned to clients. Import notification delivery
 uses `OLDAP_IMPORT_EMAIL_BACKEND=console|smtp` and the same `OLDAP_MAIL_*` SMTP
 settings as password reset. `OLDAP_PUBLIC_APP_URL` supplies the authenticated,
 token-free job link included in those messages.

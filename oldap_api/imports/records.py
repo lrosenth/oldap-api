@@ -41,7 +41,9 @@ class ImportRecordClient:
         session: Any = requests,
     ) -> None:
         self._base_url = (
-            base_url or os.getenv("OLDAP_MEDIA_INGEST_URL", "https://media.oldap.org")
+            base_url
+            or os.getenv("OLDAP_MEDIA_INTERNAL_URL")
+            or os.getenv("OLDAP_MEDIA_INGEST_URL", "https://media.oldap.org")
         ).rstrip("/")
         self._secret = secret or os.getenv("OLDAP_IMPORT_RECORDS_JWT_SECRET", "")
         self._issuer = issuer or os.getenv("OLDAP_JWT_ISSUER", "https://oldap.org")

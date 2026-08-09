@@ -67,6 +67,11 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   operations runbook is maintained in oldap-mediaserver under
   `docs/zip-import/v1/OPERATIONS_RUNBOOK.md`; safe paired 30-/90-day record
   pruning, feature activation, and deployed pilots remain.
+- Retained ZIP-import reports use the optional server-to-server
+  `OLDAP_MEDIA_INTERNAL_URL`, falling back to the public
+  `OLDAP_MEDIA_INGEST_URL`. Browser upload capabilities and persisted public
+  media delivery URLs always remain on `OLDAP_MEDIA_INGEST_URL`; this permits
+  the home deployment to use internal HTTP without weakening production HTTPS.
 
 ## Architecture
 
