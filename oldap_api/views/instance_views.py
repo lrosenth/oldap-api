@@ -749,6 +749,23 @@ def transform_instance(project, instiri):
     attached_to_role = data.get("attachedToRole", data.get("oldap:attachedToRole"))
     if attached_to_role is not None and not isinstance(attached_to_role, dict):
         return jsonify({"message": "attachedToRole must be a role-to-permission object."}), 400
+    link_from = data.get("linkFrom")
+    link_from_iri = None
+    link_from_property = None
+    if link_from is not None:
+        if not isinstance(link_from, dict):
+            return jsonify({"message": "linkFrom must be an object."}), 400
+        unknown_link_fields = set(link_from) - {"resourceIri", "property"}
+        if unknown_link_fields:
+            return jsonify({"message": f"Unknown linkFrom field/s: {sorted(unknown_link_fields)}"}), 400
+        link_from_iri = link_from.get("resourceIri")
+        link_from_property = link_from.get("property")
+        if not isinstance(link_from_iri, str) or not link_from_iri.strip():
+            return jsonify({"message": "linkFrom.resourceIri is required."}), 400
+        if not isinstance(link_from_property, str) or not link_from_property.strip():
+            return jsonify({"message": "linkFrom.property is required."}), 400
+        link_from_iri = link_from_iri.strip()
+        link_from_property = link_from_property.strip()
 
     con = authenticated_connection()
 
@@ -767,7 +784,9 @@ def transform_instance(project, instiri):
                                                preserve_class=preserve_class,
                                                properties=transform_properties,
                                                expected_source_class=expected_source_class,
-                                               attached_to_role=attached_to_role)
+                                               attached_to_role=attached_to_role,
+                                               link_from_iri=link_from_iri,
+                                               link_from_property=link_from_property)
         return jsonify({
             "message": "Instance successfully transformed",
             "iri": str(transformed.iri),

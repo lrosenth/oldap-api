@@ -4035,7 +4035,9 @@ paths:
         Properties belonging to `preserveClass` are retained, source-class-specific
         properties are removed, target-class properties from `properties` and
         `additionalProperties` are inserted, optional role attachments are replaced,
-        and OLDAP modification metadata is updated.
+        an optional shape-valid `linkFrom` relation is added after a fresh
+        DATA_UPDATE check on its source resource, and OLDAP modification metadata
+        is updated. All mutations commit or roll back together.
       security:
         - AccessToken: [ ]
       parameters:
@@ -4076,6 +4078,9 @@ paths:
                       - "fasnacht:RightsTaxonomy#Public"
                   attachedToRole:
                     fasnacht:BMG-Archivist: DATA_DELETE
+                  linkFrom:
+                    resourceIri: "urn:uuid:00000000-0000-0000-0000-000000000003"
+                    property: shared:hasMediaObject
       responses:
         "200":
           description: "OK"
@@ -5667,7 +5672,9 @@ components:
         `targetClass` is the class asserted after the transformation. Target-specific
         ontology properties can be supplied under `properties` and/or
         `additionalProperties`. When `attachedToRole` is present, role attachments are
-        replaced with the supplied role-to-DataPermission map.
+        replaced with the supplied role-to-DataPermission map. `linkFrom` can
+        atomically add a shape-valid object-property link from another resource;
+        the caller must have DATA_UPDATE on that resource at commit time.
       type: object
       required:
         - targetClass
@@ -5694,6 +5701,20 @@ components:
           $ref: "#/components/schemas/AttachedToRoleMap"
         "oldap:attachedToRole":
           $ref: "#/components/schemas/AttachedToRoleMap"
+        linkFrom:
+          type: object
+          additionalProperties: false
+          required:
+            - resourceIri
+            - property
+          properties:
+            resourceIri:
+              type: string
+              format: iri
+              description: Resource that will link to the transformed instance.
+            property:
+              type: string
+              description: QName of the source resource's object property.
       additionalProperties: false
 
     ArchiveUnitMoveData:

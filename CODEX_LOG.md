@@ -1,5 +1,17 @@
 # CODEX_LOG
 
+### Update 2026-08-09 10:30
+- Decisions: Distinguish a restored legacy StagingArea without `shared:stagingQuotaBytes` from a missing or unauthorized target; retain fail-closed target and permission checks.
+- Implementation: Made quota projection optional in the target authorization query so the existing domain check returns `503 IMPORT_QUOTA_NOT_CONFIGURED`. Added query and behavior regression coverage for a valid target with no quota.
+- Open: None for this diagnostic correction.
+- Risks/Assumptions: A missing/invalid target or insufficient effective DATA_UPDATE remains intentionally indistinguishable as `IMPORT_TARGET_NOT_FOUND`; only a target that otherwise passes authorization can disclose its missing quota.
+
+### Update 2026-08-09 00:00
+- Decisions: Extend the generic class-transform contract with one optional source relation instead of adding a Fasnacht-specific endpoint. Require shape/range validation and a transaction-time `DATA_UPDATE` check on the source.
+- Implementation: Added the closed `linkFrom { resourceIri, property }` HTTP payload, strict validation, oldaplib forwarding, OpenAPI/Zod contract support, and focused endpoint tests. The relation and class transformation now commit or roll back together in oldaplib.
+- Open: Publish the accompanying oldaplib release, update this repository's Poetry lock to that version, and run the authenticated Staging-to-Archive browser workflow before deployment.
+- Risks/Assumptions: The source and transformed resource belong to the same OLDAP project data graph. Existing callers that omit `linkFrom` retain unchanged behavior.
+
 ### Update 2026-08-07 12:53
 - Decisions: Persist imported `oldap:Thing` audit timestamps with the ontology-required `xsd:dateTimeStamp`; do not loosen oldaplib conversion or add a special Staging update path to tolerate incorrectly typed RDF.
 - Implementation: Corrected the atomic ZIP-import resource insert from `xsd:dateTime` to `xsd:dateTimeStamp` and added transaction-query regression assertions. Repaired the local pilot's 226 affected creation/modification triples across 113 imported Staging folders/media without changing their lexical timestamps or other metadata.

@@ -256,8 +256,8 @@ WHERE {{
   GRAPH {data_graph} {{
     {area} a ?areaClass ;
       schema:name ?areaName ;
-      shared:stagingQuotaBytes ?quota ;
       oldap:attachedToRole ?role .
+    OPTIONAL {{ {area} shared:stagingQuotaBytes ?quota . }}
     << {area} oldap:attachedToRole ?role >>
       oldap:hasDataPermission ?dataPermission .
     {folder} a shared:StagingFolder ;

@@ -1,11 +1,18 @@
 """GraphDB target-child inspection tests for ZIP import preflight."""
 
+from types import SimpleNamespace
+
 import pytest
+from oldaplib.src.enums.adminpermissions import AdminPermission
+from oldaplib.src.xsd.iri import Iri
 from rdflib import URIRef
 
 from oldap_api.imports.authorization import (
+    ImportQuotaNotConfiguredError,
     ImportTargetNotFoundError,
+    OldapImportAuthorizer,
     OldapImportTargetInspector,
+    Project,
     _target_query,
 )
 from oldap_api.imports.domain import TargetSnapshot
@@ -47,6 +54,47 @@ def test_public_target_query_is_self_contained_for_real_oldap_identifiers() -> N
     assert "fasnacht:data" not in query
     assert "PREFIX schema: <https://schema.org/>" in query
     assert "rdfs:subClassOf+ shared:StagingArea" in query
+    assert (
+        "OPTIONAL { <urn:uuid:e1c03947-4f53-465f-85c5-0296e12bd0cc> shared:stagingQuotaBytes ?quota . }"
+        in query
+    )
+
+
+def test_authorizer_reports_a_missing_quota_after_finding_the_target(
+    monkeypatch,
+) -> None:
+    """A restored pre-quota StagingArea must not be misreported as missing."""
+
+    project_iri = Iri("https://example.org/project")
+    project = SimpleNamespace(
+        projectIri=project_iri,
+        namespaceIri="https://example.org/project/",
+    )
+    monkeypatch.setattr(Project, "read", staticmethod(lambda **_kwargs: project))
+
+    connection = FakeConnection(
+        [
+            {
+                "areaName": {"value": "Restored area"},
+                "folderName": {"value": "Root"},
+            }
+        ]
+    )
+    connection.userIri = Iri("https://example.org/users/alice")
+    connection.userdata = SimpleNamespace(
+        inProject={project_iri: {AdminPermission.ADMIN_CREATE}}
+    )
+
+    with pytest.raises(
+        ImportQuotaNotConfiguredError,
+        match="no shared:stagingQuotaBytes value",
+    ):
+        OldapImportAuthorizer().authorize_target(
+            connection,
+            project_short_name="fasnacht",
+            staging_area_iri="https://example.org/staging/area",
+            target_root_folder_iri="https://example.org/staging/root",
+        )
 
 
 def test_inspector_returns_current_snapshot_and_named_direct_children() -> None:

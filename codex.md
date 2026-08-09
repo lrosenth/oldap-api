@@ -84,7 +84,10 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   `LinkedResourceSearchFilter`.
 - `POST /data/{project}/{instiri}/transform` is the generic resource lifecycle
   endpoint for atomic class transformations that keep the same IRI. It delegates
-  the ontology validation and GraphDB transaction to `oldaplib`.
+  the ontology validation and GraphDB transaction to `oldaplib`. Its optional
+  `linkFrom` object can add one validated source-resource object-property link
+  in the same transaction; the source requires a fresh `DATA_UPDATE` check and
+  any link failure rolls back the class transformation.
 - `POST /data/{project}/{instiri}/archive-move` is the narrow mutation boundary
   for `shared:ArchiveUnit` hierarchy changes. It delegates cycle detection plus
   the parent/optional-position update to `oldaplib.ArchiveTree`; the generic

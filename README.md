@@ -16,6 +16,9 @@
 
 ZIP import jobs additionally require every participating
 `shared:StagingArea` to define a positive `shared:stagingQuotaBytes` value.
+If a restored legacy StagingArea has no quota, job creation returns
+`503 IMPORT_QUOTA_NOT_CONFIGURED` rather than reporting the otherwise valid
+staging target as missing.
 The upload JWT secret is accepted only for short-lived direct SIP-upload
 capabilities and must differ from access, refresh, media, and password-reset
 keys.
@@ -45,6 +48,13 @@ ingest-worker poll. At most one due notification is attempted per poll, no more
 than three times total, and failed attempts are spaced by at least five minutes.
 This keeps SMTP credentials and recipient resolution out of the media worker
 and prevents mail delivery from consuming an active task lease.
+
+The generic instance transformation endpoint accepts an optional `linkFrom`
+object with `resourceIri` and an object-property QName. OLDAP validates the
+source shape and target range, requires `DATA_UPDATE` on the source resource,
+and commits the relation and class transformation atomically. This is used by
+Staging-to-Archive publishing to add `shared:ArchiveUnit` →
+`shared:hasMediaObject` without exposing a partial transform state.
 
 To run, issue the command
 
