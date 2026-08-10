@@ -99,6 +99,7 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   instance-update route rejects these structure fields on archive units so HTTP
   clients cannot bypass the check. Deployment requires an `oldaplib` release
   that exposes `oldaplib.src.archive_tree`.
+- Archive YAML HTTP workflow lives under `/archive/{project}` and delegates all schema, parsing, proposal, preflight, and create-only apply semantics to `oldaplib`. Staging proposal download uses only caller-visible folders/media and never writes. Import is a 2 MB/5,000-unit bounded preflight followed by explicit SHA-256-bound apply; it uses `DATA_VIEW`, `ADMIN_CREATE`, and `DATA_UPDATE` on external ArchiveUnit attachment points, with no `ADMIN_ARCHIVE`, model, or list administration permission.
 - `oldaplib` owns GraphDB access, domain validation, resource instance classes,
   permissions, and data model interpretation.
 - The API should avoid duplicating domain logic from `oldaplib` unless it is

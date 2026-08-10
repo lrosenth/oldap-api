@@ -1,5 +1,17 @@
 # CODEX_LOG
 
+### Update 2026-08-10 23:01
+- Decisions: Keep credentialed CORS environment-specific and exact-origin based. Local development accepts HTTPS and optional HTTP Vite origins on ports 5173/5174; home and production retain their separate deployed-origin allowlists.
+- Implementation: Added `https://localhost:5173` and `https://localhost:5174` to the local API environment, synchronized the README example and secure-cookie guidance, restarted the development API, and verified credentialed POST preflights for both HTTPS origins.
+- Open: Retry the Staging media drop in the already authenticated FasnachtsPage browser session.
+- Risks/Assumptions: The local `.env.local` remains untracked secret-bearing runtime configuration. Home already allows `https://fasnacht.home.org`; production already allows `https://fasnacht.digital`. No broad wildcard CORS policy was introduced.
+
+### Update 2026-08-10 21:57
+- Decisions: Expose archive YAML through authenticated request identities only; keep Staging export read-only and import create-only, two-step, exact-hash-bound, and independent of media transformation.
+- Implementation: Added proposal download plus preflight/apply blueprints, central oldaplib service integration, 2 MB/5,000-unit limits, safe attachment headers, current-state/permission rechecks, structured plans/results/errors, success/failure audit logging, OpenAPI and operations documentation, and nine focused service/HTTP tests.
+- Open: Install the future oldaplib release, run GraphDB-backed authenticated export/preflight/apply, and regenerate downstream clients if they adopt the JSON endpoints directly.
+- Risks/Assumptions: GraphDB-backed archive-tree tests could not run because localhost:7200 is unavailable; route contract tests are isolated and pass. Best-effort rollback failures surface as HTTP 500 details for the authorized caller.
+
 ### Update 2026-08-09 23:35
 - Decisions: Separate the browser-facing media ingest/delivery origin from the optional API-to-media retained-record route; preserve the public URL as a backward-compatible fallback and keep production on verified HTTPS.
 - Implementation: `ImportRecordClient` now prefers `OLDAP_MEDIA_INTERNAL_URL`; added home/internal and production/fallback regression tests, local configuration examples, synchronized runtime/project documentation, and prepared patch release 0.2.15.

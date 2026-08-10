@@ -114,20 +114,23 @@ committed.
    password-reset credentials are used by the reset endpoints. They are not JWT
    secrets and must match a user in the loaded local OLDAP data.
 
-4. Keep the template's development cookie and frontend settings when the local
-   frontend runs at `http://localhost:5173`:
+4. Keep the template's development cookie and frontend settings aligned with
+   every exact local frontend origin. FasnachtsPage normally uses local HTTPS
+   on ports 5173 or 5174; the HTTP variants are retained for optional plain-HTTP
+   Vite sessions:
 
    ```dotenv
-   OLDAP_AUTH_ALLOWED_ORIGINS=http://localhost:5173
+   OLDAP_AUTH_ALLOWED_ORIGINS=https://localhost:5173,https://localhost:5174,http://localhost:5173,http://localhost:5174
    OLDAP_REFRESH_COOKIE_SECURE=false
    OLDAP_REFRESH_COOKIE_SAMESITE=Lax
-   OLDAP_PASSWORD_RESET_FRONTEND_URL=http://localhost:5173
+   OLDAP_PASSWORD_RESET_FRONTEND_URL=https://localhost:5173
    OLDAP_PASSWORD_RESET_EMAIL_BACKEND=console
    ```
 
-   `OLDAP_REFRESH_COOKIE_SECURE=false` is only appropriate for local HTTP
-   development. With the console email backend, password-reset links are written
-   to the API log instead of being sent by email.
+   Set `OLDAP_REFRESH_COOKIE_SECURE=true` when testing refresh cookies through
+   local HTTPS. `false` is only appropriate for an explicitly selected local
+   HTTP session. With the console email backend, password-reset links are
+   written to the API log instead of being sent by email.
 
 5. Ensure GraphDB is available at `http://localhost:7200`, the `oldap`
    repository contains the required OLDAP data, and Redis is available at

@@ -4485,6 +4485,149 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
 
+  /archive/{project}/staging-proposal:
+    get:
+      summary: Download a visible StagingArea as an archive YAML proposal
+      description: >
+        Generates a read-only, editable archive YAML version 1 proposal from
+        StagingFolder resources visible to the authenticated user. Technical
+        folders are omitted, archive levels remain editorial suggestions, and
+        media are never transformed into ArchiveUnits.
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stagingAreaIri
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uri
+      responses:
+        "200":
+          description: Canonical editable archive YAML proposal
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+            X-Archive-Proposal-Warnings:
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/yaml:
+              schema:
+                type: string
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /archive/{project}/imports/preflight:
+    post:
+      summary: Preflight an archive YAML import without writes
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [yaml]
+              properties:
+                yaml:
+                  type: string
+                  maxLength: 2000000
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Ordered create-only import plan bound to the exact YAML hash
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveImportPlan'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "413":
+          description: YAML exceeds the upload limit
+
+  /archive/{project}/imports/apply:
+    post:
+      summary: Confirm and apply the exact preflighted archive YAML
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [yaml, documentHash, confirm]
+              properties:
+                yaml:
+                  type: string
+                  maxLength: 2000000
+                documentHash:
+                  type: string
+                  pattern: '^[0-9a-f]{64}$'
+                confirm:
+                  type: boolean
+                  const: true
+      responses:
+        "201":
+          description: Archive units created in parent-first order
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [documentHash, createdCount, createdIris]
+                properties:
+                  documentHash:
+                    type: string
+                  createdCount:
+                    type: integer
+                  createdIris:
+                    type: array
+                    items:
+                      type: string
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "409":
+          $ref: '#/components/responses/Conflict'
+
   /imports:
     post:
       summary: Create a ZIP import job
@@ -4839,6 +4982,31 @@ components:
       required: true
       schema: {type: string, format: uuid}
   schemas:
+
+    ArchiveImportPlan:
+      type: object
+      required: [documentHash, project, unitCount, externalParents, units, warnings]
+      properties:
+        documentHash: {type: string, pattern: '^[0-9a-f]{64}$'}
+        project: {type: string}
+        unitCount: {type: integer, minimum: 1, maximum: 5000}
+        externalParents:
+          type: array
+          items: {type: string}
+        warnings:
+          type: array
+          items: {type: string}
+        units:
+          type: array
+          items:
+            type: object
+            required: [order, id, iri, level, parentIri]
+            properties:
+              order: {type: integer, minimum: 1}
+              id: {type: string}
+              iri: {type: string}
+              level: {type: string}
+              parentIri: {type: [string, 'null']}
 
     ImportState:
       type: string
