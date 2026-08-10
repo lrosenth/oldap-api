@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "oldap-api"
 packages = [{ include = "oldap_api" }]
-version = "0.2.16"
+version = "0.2.17"
 description = "Flask API for OLDAP"
 authors = ["ManuelRosenthaler <rosenthalermanuel@gmail.com>", "Lukas Rosenthaler <lukas.rosenthaler@pm.me>"]
 readme = "README.md"
@@ -18,7 +18,7 @@ coverage = "==7.14.0"
 black = "==26.3.1"
 pytest = "^9.0.2"
 #oldaplib = {path = "../oldaplib", develop = true}
-oldaplib = "^0.7.0"
+oldaplib = "^0.7.9"
 bump-my-version = "^1.2.7"
 
 

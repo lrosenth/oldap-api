@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-08-11 00:04
+- Decisions: Require published oldaplib 0.7.9 for the production fix and prepare oldap-api 0.2.17; do not rely on the local editable checkout used during diagnosis.
+- Implementation: Raised the API dependency floor from `^0.7.0` to `^0.7.9`, updated package/runtime versions to 0.2.17, resolved the local environment to the published 0.7.9 wheel, verified the exact `Xsd_string` to `Xsd_anyURI` regression through site-packages, passed all seven instance-update tests and Python compilation, and built the 0.2.17 sdist/wheel.
+- Open: Build and publish the oldap-api 0.2.17 container, update the deployment tag, deploy, and repeat the production Staging move.
+- Risks/Assumptions: `poetry.lock` is intentionally ignored in this repository, so the Docker build resolves from the explicit `^0.7.9` constraint. No production service or image was changed by this preparation.
+
 ### Update 2026-08-10 23:01
 - Decisions: Keep credentialed CORS environment-specific and exact-origin based. Local development accepts HTTPS and optional HTTP Vite origins on ports 5173/5174; home and production retain their separate deployed-origin allowlists.
 - Implementation: Added `https://localhost:5173` and `https://localhost:5174` to the local API environment, synchronized the README example and secure-cookie guidance, restarted the development API, and verified credentialed POST preflights for both HTTPS origins.
