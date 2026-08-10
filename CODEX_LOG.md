@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-08-11 00:18
+- Decisions: Reconcile all version sources to the last valid tag `v0.2.16` before creating the intended 0.2.17 release; retain the functional oldaplib `^0.7.9` dependency change. Require a non-mutating validation pass before every Makefile-managed version bump.
+- Implementation: Restored `tool.poetry.version`, `tool.bumpversion.current_version`, and `oldap_api.__version__` to 0.2.16 after partial bump attempts; added dry-run guards to patch/minor/major Make targets; verified that the next patch bump would consistently update both files, create the bump commit, and tag `v0.2.17`.
+- Open: Commit this corrective baseline, then run `make bump-patch-level`; that command will create/tag 0.2.17 and push it after the dry-run succeeds.
+- Risks/Assumptions: Existing pushed commits contain inconsistent intermediate 0.2.17/0.2.18 metadata but no corresponding tags. A forward corrective commit preserves history and avoids destructive rewriting of `main`.
+
 ### Update 2026-08-11 00:04
 - Decisions: Require published oldaplib 0.7.9 for the production fix and prepare oldap-api 0.2.17; do not rely on the local editable checkout used during diagnosis.
 - Implementation: Raised the API dependency floor from `^0.7.0` to `^0.7.9`, updated package/runtime versions to 0.2.17, resolved the local environment to the published 0.7.9 wheel, verified the exact `Xsd_string` to `Xsd_anyURI` regression through site-packages, passed all seven instance-update tests and Python compilation, and built the 0.2.17 sdist/wheel.

@@ -86,14 +86,17 @@ run-prod: check-local-env
 	poetry run gunicorn oldap_api.wsgi:app -b 127.0.0.1:8000 --workers 1 --threads 4 --timeout 60 --access-logfile - --error-logfile -
 
 bump-patch-level:
+	poetry run bump-my-version bump patch --dry-run
 	poetry run bump-my-version bump patch
 	git push --follow-tags
 
 bump-minor-level:
+	poetry run bump-my-version bump minor --dry-run
 	poetry run bump-my-version bump minor
 	git push --follow-tags
 
 bump-major-level:
+	poetry run bump-my-version bump major --dry-run
 	poetry run bump-my-version bump major
 	git push --follow-tags
 
