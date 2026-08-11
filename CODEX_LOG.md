@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-08-12 00:04
+- Decisions: Keep generic instance GET responses bounded by the concrete OLDAP resource model rather than exposing or failing on GraphDB-inferred external predicates.
+- Implementation: Pass the generated instance class's resolved direct/inherited property map into `ResourceInstance.read_data()`; oldaplib now filters both unknown-IRI and known-QName predicates outside that model.
+- Open: Consume the forthcoming oldaplib patch release, restart the API, and retry the affected Fasnacht ArchiveMediaObject GET.
+- Risks/Assumptions: All nine GraphDB-backed instance-read tests pass with the local oldaplib checkout; production still requires a published dependency update.
+
 ### Update 2026-08-11 00:18
 - Decisions: Reconcile all version sources to the last valid tag `v0.2.16` before creating the intended 0.2.17 release; retain the functional oldaplib `^0.7.9` dependency change. Require a non-mutating validation pass before every Makefile-managed version bump.
 - Implementation: Restored `tool.poetry.version`, `tool.bumpversion.current_version`, and `oldap_api.__version__` to 0.2.16 after partial bump attempts; added dry-run guards to patch/minor/major Make targets; verified that the next patch bump would consistently update both files, create the bump commit, and tag `v0.2.17`.

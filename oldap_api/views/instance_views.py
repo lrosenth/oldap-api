@@ -656,7 +656,8 @@ def read_instance(project, instiri):
         instance_class = factory.createObjectInstance(resource)
         data = ResourceInstance.read_data(con=con,
                                           iri=Iri(instiri, validate=True),
-                                          projectShortName=Xsd_NCName(project, validate=True))
+                                          projectShortName=Xsd_NCName(project, validate=True),
+                                          allowed_properties=instance_class.resolved_properties())
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:

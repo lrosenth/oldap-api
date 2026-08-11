@@ -77,6 +77,7 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 
 - `oldap_api.factory.factory()` creates the Flask app and registers all
   blueprints from `oldap_api/views`.
+- Generic instance GET resolves the concrete class's complete OLDAP property model and passes it to oldaplib, preventing GraphDB-inferred predicates from external ontology equivalences from appearing in the REST representation.
 - View modules translate HTTP payloads and query parameters into `oldaplib`
   calls, then serialize OLDAP/XSD values into JSON.
 - Instance create/update payloads are documented in `API-def/oldap-api.yaml`
