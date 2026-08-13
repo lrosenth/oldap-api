@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-08-13 23:58
+- Decisions: Expose Staging subtree movement through a dedicated endpoint and prevent hierarchy changes through generic instance update, mirroring the existing ArchiveUnit integrity boundary.
+- Implementation: Added `POST /data/{project}/{instiri}/staging-folder-move`, OpenAPI request/response schemas, stable 400/403/404/409/503 mappings, and four HTTP contract tests.
+- Open: Release/install the corresponding oldaplib version before deploying this API revision.
+- Risks/Assumptions: The endpoint deliberately cannot move a folder to the tree root; user folders must remain below a valid parent. Eight focused Staging/archive move contract tests pass against the local GraphDB, and the OpenAPI YAML plus Python modules validate.
+
 ### Update 2026-08-12 00:04
 - Decisions: Keep generic instance GET responses bounded by the concrete OLDAP resource model rather than exposing or failing on GraphDB-inferred external predicates.
 - Implementation: Pass the generated instance class's resolved direct/inherited property map into `ResourceInstance.read_data()`; oldaplib now filters both unknown-IRI and known-QName predicates outside that model.

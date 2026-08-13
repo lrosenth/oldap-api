@@ -4178,6 +4178,72 @@ paths:
         "503":
           $ref: '#/components/responses/ServiceUnavailable'
 
+  /data/{project}/{instiri}/staging-folder-move:
+    post:
+      summary: Move a shared Staging folder and its logical subtree
+      description: >
+        Changes only the folder's `shared:inStagingFolder` relation. Descendant
+        folders and media retain their existing parent relations and therefore
+        move with the subtree. The backend rejects system-folder moves, targets
+        in another Staging area, self/descendant targets, and portable sibling
+        name collisions.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: Project containing the Staging folder instance.
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: instiri
+          description: IRI of the `shared:StagingFolder` to move.
+          in: path
+          required: true
+          schema:
+            type: string
+            format: iri
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StagingFolderMoveData"
+            example:
+              shared:inStagingFolder: urn:uuid:00000000-0000-0000-0000-000000000001
+      responses:
+        "200":
+          description: Staging folder successfully moved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                  - iri
+                  - shared:inStagingFolder
+                properties:
+                  message:
+                    type: string
+                  iri:
+                    type: string
+                    format: iri
+                  shared:inStagingFolder:
+                    type: string
+                    format: iri
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+        "503":
+          $ref: '#/components/responses/ServiceUnavailable'
+
     #  /data/{project}/{resclass}/{instance}:
 #    put:
 #      summary: Create a new instance of the given resource class with the given IRI
@@ -5900,6 +5966,17 @@ components:
           format: iri
         schema:position:
           type: [integer, "null"]
+
+    StagingFolderMoveData:
+      description: Move one user-managed `shared:StagingFolder` below a new parent.
+      type: object
+      additionalProperties: false
+      required:
+        - shared:inStagingFolder
+      properties:
+        shared:inStagingFolder:
+          type: string
+          format: iri
 
     InstanceData:
       description: >

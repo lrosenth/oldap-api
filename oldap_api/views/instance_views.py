@@ -21,6 +21,10 @@ try:
 except ImportError:
     ArchiveTree = None
     POSITION_UNSET = object()
+try:
+    from oldaplib.src.staging_folder_tree import StagingFolderTree
+except ImportError:
+    StagingFolderTree = None
 from oldaplib.src.xsd.xsd import Xsd
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.listnode import HListNodeRef
@@ -869,6 +873,69 @@ def move_archive_unit(project, instiri):
         current_app.logger.exception("move_archive_unit failed")
         return jsonify({"message": str(error)}), 500
 
+
+@instance_bp.route('/<path:project>/<path:instiri>/staging-folder-move', methods=['POST'])
+@require_auth
+def move_staging_folder(project, instiri):
+    """Move one shared Staging folder with subtree integrity checks."""
+    current_app.logger.info(
+        f"/data/{project}/{instiri}/staging-folder-move with POST called"
+    )
+
+    project = unquote(project)
+    instiri = unquote(instiri)
+    if not request.is_json:
+        return jsonify({"message": "Invalid request format, JSON required"}), 400
+    data = request.get_json()
+    if not isinstance(data, dict):
+        return jsonify({"message": "Request body must be an object."}), 400
+
+    parent_property = "shared:inStagingFolder"
+    unknown_fields = set(data) - {parent_property}
+    if unknown_fields:
+        return jsonify({
+            "message": f"Unknown Staging folder move field/s: {sorted(unknown_fields)}"
+        }), 400
+    parent_iri = data.get(parent_property)
+    if not isinstance(parent_iri, str) or not parent_iri.strip():
+        return jsonify({
+            "message": f'Field "{parent_property}" must be a non-empty IRI string.'
+        }), 400
+
+    try:
+        iri = Iri(instiri, validate=True)
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    con = authenticated_connection()
+    context = Context(name=con.context_name)
+    if not context.get(project):
+        return jsonify({"message": f'Project "{project}" not found'}), 404
+    if StagingFolderTree is None:
+        return jsonify({
+            "message": "Staging folder operations require a newer oldaplib version."
+        }), 503
+
+    try:
+        tree = StagingFolderTree(con=con, project=project)
+        moved = tree.move(iri, parent_iri)
+        moved_parent = moved.get(Xsd_QName(parent_property, validate=False))
+        return jsonify({
+            "message": "Staging folder successfully moved",
+            "iri": str(moved.iri),
+            parent_property: str(next(iter(moved_parent))),
+        }), 200
+    except (OldapErrorAlreadyExists, OldapErrorInconsistency) as error:
+        return jsonify({"message": str(error)}), 409
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({"message": str(error)}), 404
+    except OldapErrorValue as error:
+        return jsonify({"message": str(error)}), 400
+    except OldapError as error:
+        current_app.logger.exception("move_staging_folder failed")
+        return jsonify({"message": str(error)}), 500
+
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['POST'])
 @require_auth
 def update_instance(project, instiri):
@@ -907,6 +974,16 @@ def update_instance(project, instiri):
                 "message": (
                     "Archive structure fields must be changed through the "
                     "archive-move endpoint."
+                )
+            }), 400
+        if (
+            instance.name == Xsd_QName("shared:StagingFolder", validate=False)
+            and "shared:inStagingFolder" in data
+        ):
+            return jsonify({
+                "message": (
+                    "Staging folder hierarchy must be changed through the "
+                    "staging-folder-move endpoint."
                 )
             }), 400
         for attrname, attrval in data.items():
