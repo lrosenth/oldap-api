@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oldap.org/schemas/zip-export/v1/export-profile.schema.json",
+  "title": "OLDAP project ZIP export profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profileId",
+    "profileVersion",
+    "projectShortName",
+    "allowedArchiveMediaClasses",
+    "metadata"
+  ],
+  "properties": {
+    "profileId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,62}-v[1-9][0-9]*$"
+    },
+    "profileVersion": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$"
+    },
+    "projectShortName": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+    },
+    "allowedArchiveMediaClasses": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/resourceIdentifier"}
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["archiveMedia", "archiveUnits", "stagingMedia"],
+      "properties": {
+        "archiveMedia": {"$ref": "#/$defs/projections"},
+        "archiveUnits": {"$ref": "#/$defs/projections"},
+        "stagingMedia": {"$ref": "#/$defs/projections"}
+      }
+    }
+  },
+  "$defs": {
+    "resourceIdentifier": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 2048,
+      "pattern": "^(?:[A-Za-z_][A-Za-z0-9_.-]*:[A-Za-z_][A-Za-z0-9_.-]*|https?://.+)$"
+    },
+    "projections": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"$ref": "#/$defs/projection"}
+    },
+    "projection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columnName", "propertyIri", "valueShape", "resolveLabels"],
+      "properties": {
+        "columnName": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$"
+        },
+        "propertyIri": {"$ref": "#/$defs/resourceIdentifier"},
+        "valueShape": {
+          "type": "string",
+          "enum": ["scalar", "lang-map", "iri", "iri-list", "value-list"]
+        },
+        "resolveLabels": {"type": "boolean"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"resolveLabels": {"const": true}}},
+          "then": {
+            "properties": {"valueShape": {"enum": ["iri", "iri-list"]}}
+          }
+        }
+      ]
+    }
+  }
+}

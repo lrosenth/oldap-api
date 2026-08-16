@@ -1,5 +1,101 @@
 # CODEX_LOG
 
+### Update 2026-08-16 23:44
+- Decisions: Separate environment-selected export policy from the immutable 50 GB v1 safety ceiling; freeze the selected size limit in each manifest and retain reservations until physical cleanup is proven.
+- Implementation: Added strict archive/READY/audit and per-user/system active-job/retained-byte configuration, atomic GraphDB quota checks, dynamic estimate/manifest limits, stable HTTP 429 quota errors, and removed the unsafe production download-origin fallback. OpenAPI and concurrency/retention/limit coverage are synchronized; all 118 focused export tests pass.
+- Open: Measure a representative large production inventory and complete deployed SMTP plus Windows/macOS and spreadsheet acceptance.
+- Risks/Assumptions: Default quotas are 3/20 active jobs and 100/500 GB retained source bytes (user/system); operators may lower them within validated bounds. Source bytes are deliberately conservative until `DELETED`.
+
+### Update 2026-08-16 00:07
+- Decisions: Close Archive export Phase 2 after the user-approved source-data correction and a complete live ARCHIVE_ALL lifecycle; retain production credentials/SMTP and capacity measurements as Phase-3 work.
+- Implementation: The normal authenticated ArchiveUnit CRUD path changed `fasnacht:bmg-undatiert` to the portable label `Undatierte Dokumente und Medien`. A live ARCHIVE_ALL request then reached READY with 20 unit directories, one original, zero warnings, exact CSV hierarchy evidence, matching archive SHA-256, protected GET/HEAD/Range delivery, and DELETED cleanup with no remaining artifact or usable capability.
+- Open: Production credentials/SMTP and representative capacity/performance measurements.
+- Risks/Assumptions: The persistent label edit was explicitly authorized. The current live inventory contains no external or unreadable warning example; focused projector/reauthorization tests cover those cases.
+
+### Update 2026-08-15 23:58
+- Decisions: Accept canonical OLDAP QNames at the generic export request boundary because generic search returns them, while retaining strict absolute HTTP(S)/UUID URN support and rejecting traversal-like values. Validate archive names only when they participate in the selected export path; never let an unrelated invalid root block a selected subtree.
+- Implementation: Added QName request validation and OpenAPI descriptions, contextual unsafe ArchiveUnit errors, lexical extraction for OLDAP language-aware scalar values, and regression coverage for unrelated invalid roots and language suffixes. Accepted live `fasnacht:bmg-stamm-1908` through GraphDB, the HTTP job/claim lifecycle, worker recovery, capability issuance, exact ZIP/checksum inspection, and DELETED cleanup. All 98 export tests and changed-file Black checks pass.
+- Open: Deliberately correct the live ArchiveUnit name `Undatierte Dokumente/Medien`, then rerun successful ARCHIVE_ALL. Production credentials/SMTP and representative capacity measurements remain deployment/hardening work.
+- Risks/Assumptions: QName validation proves syntax, while project context and requester permissions remain authoritative in the OLDAP reader. The whole-archive rejection is intentional portable-path safety, not a transport failure.
+
+### Update 2026-08-15 23:24
+- Decisions: Extend the existing cross-system physical acceptance rather than creating a second Archive-only harness; keep the worker project- and ontology-neutral by driving it exclusively from the closed Archive manifest.
+- Implementation: Added an `ARCHIVE_UNIT` acceptance case that passes a real API job/manifest through claim, manifest delivery, `SequentialExportWorker`, and `ExportArtifactStore`, then verifies READY state, the original bitstream, standard support files, BOM/RFC-4180 `archive-units.csv`, common unit fields, and profile metadata. All 96 export tests and Black check pass.
+- Open: Run authenticated browser and HTTP acceptance against a representative live ArchiveUnit/whole archive, including external/unreadable warnings, capability download, and deletion.
+- Risks/Assumptions: The deterministic acceptance uses in-memory API persistence and a temporary filesystem while exercising the production lifecycle/worker implementations; GraphDB, HTTP, projection, and reauthorization remain covered by their focused tests.
+
+### Update 2026-08-15 23:18
+- Decisions: Enable Archive kinds only through the same requester identity used for snapshot reads and only after adding profile-, hierarchy-, resource-, and relationship-aware download reauthorization. Treat a linked but unreadable medium as an opaque warning, never as guessed source metadata.
+- Implementation: Added `OldapArchiveInventoryReader`, permission-bound profile label resolution, unavailable-link projection, Archive download authorization, and closed Staging/Archive projector/authorizer routers. Removed the Archive-kind runtime rejection and wired ARCHIVE_UNIT/ARCHIVE_ALL into the public estimate/create services. Updated runtime documentation and HTTP contracts; all 95 export tests, Black, and OpenAPI validation pass.
+- Open: Implement ArchiveTree unit/all export actions, then execute a physical Archive ZIP acceptance including `archive-units.csv`, external/unreadable warnings, download, expiry, and manual deletion.
+- Risks/Assumptions: Missing labels remain empty while stable IRIs are retained. Bounded class searches plus per-IRI label reads favor authorization correctness; latency must be measured against representative holdings before production capacity tuning.
+
+### Update 2026-08-15 23:02
+- Decisions: Put archive hierarchy, shared archival description, and project-profile values in the immutable API snapshot; keep the media worker ontology-blind. Add `archiveUnits` only to Archive manifests so accepted Staging canonical payloads remain unchanged.
+- Implementation: Added `ArchiveSnapshotProjector` with closed records/protocols, ARCHIVE_UNIT/ARCHIVE_ALL hierarchy paths, empty-unit retention, multi-unit media deduplication and relationship metadata, external exclusions, size/source checks, and cycle/portable-collision rejection. Extracted shared safe snapshot path/source primitives, then extended runtime and JSON Schema validation to bind archive units, directories, parent references, and media containers. All 90 focused export tests pass and Draft 2020-12 schema validation succeeds.
+- Open: Implement `OldapArchiveInventoryReader`, label resolution and Archive download reauthorization; compose the runtime projector/authorizer and enable the public Archive kinds.
+- Risks/Assumptions: The projector currently consumes an already requester-authorized inventory; unreadable-subtree behavior therefore remains unproven until the concrete OLDAP reader is integrated. Shared binary/path primitives now have one documented `snapshot_common.py` source instead of cross-module private reuse.
+
+### Update 2026-08-15 22:26
+- Decisions: Treat wall-clock time as input to expiry tests and close export Phase 1 on an isolated physical cross-system acceptance; production credentials, provider SMTP, and 50 GB capacity remain separate deployment/hardening gates.
+- Implementation: Added a bridge acceptance suite using the real API worker service, media `SequentialExportWorker`, and artifact store for small, 32 MiB, changed-source failure, console notification, expiry, manual cleanup, ZIP content/digest, and physical deletion. Hardened the JWT expiry assertion against calendar drift while retaining the exact claim check. All 86 export tests pass and the three changed test modules pass Black.
+- Open: Provision production purpose-specific credentials and SMTP/public URL settings, measure representative holdings, and implement the Archive projector in Phase 2.
+- Risks/Assumptions: The acceptance suite isolates persistence in memory while exercising the real lifecycle and media filesystem implementations; GraphDB repository/HTTP boundaries retain their dedicated tests. Console mail verifies composition and transport invocation, not an external SMTP provider.
+
+### Update 2026-08-15 00:20
+- Decisions: Reuse the proven import notification policy without coupling import/export types. Persist READY/FAILED outbox state in the same lifecycle write, keep mail evidence version-neutral, expire READY before cleanup claims, and remove only already content-free audit hulls after 60 days.
+- Implementation: Added the closed export notification state, token-free German status messages, console/SMTP delivery, three-attempt five-minute retry/reconciliation, stale READY-mail suppression after deletion, explicit READY -> EXPIRED -> DELETING progression, audit pruning, GraphDB/in-memory persistence operations, OpenAPI exposure, environment documentation, and regenerated frontend types. All 88 focused export/authentication tests and OpenAPI validation pass; the FasnachtsPage production build succeeds.
+- Open: Provision export service/download credentials and SMTP/public-app settings, activate the media worker, run deployed expiry/mail/download smoke tests, then implement Archive projection and the Staging UI.
+- Risks/Assumptions: SMTP submission is bounded at-least-once; if the provider accepts a message but persistence of SENT fails, a retry can duplicate it. No secret value or live job was changed.
+
+### Update 2026-08-15 00:02
+- Decisions: Bind the immutable manifest to the requester IRI as well as the existing job/scope/profile/inventory identity so the project-neutral worker can produce an auditable `export.csv` without a user token or a second API lookup.
+- Implementation: Added required `requestedByIri` to the runtime manifest, JSON Schema, Staging projection, service calls, job identity validation, and fixtures. The paired media worker consumes the field as opaque export metadata; all 78 focused export/authentication tests pass.
+- Open: Add READY/FAILED outbox and expiry reconciliation, Archive projection, and deployed purpose-specific secrets.
+- Risks/Assumptions: Requester IRI is intentionally included in the downloadable support CSV; it is already known to the export owner and never used by the worker for authorization.
+
+### Update 2026-08-14 23:31
+- Decisions: Make worker leases and result identity durable in the export job; prioritize cleanup before builds, invalidate active BUILD claims on user cancellation, and require an unexpired exact claim for every manifest/result operation. Treat cleanup proof as the atomic boundary that deletes the frozen manifest and redacts selection path/IRI from the retained audit record.
+- Implementation: Added atomic BUILD/CLEANUP claim and reclaim, fixed-duration heartbeat renewal, active-claim manifest reads, digest-bound idempotent READY/FAILED and cleanup results, 24-hour READY/60-day audit timestamps, GraphDB active-claim indexing and manifest purge, dedicated export-service JWT authentication, non-token-issuing service credentials, and all five internal Flask routes. Added failure, replay, cancellation, stale-worker, HTTP-auth, and GraphDB transaction coverage; all 78 focused export/authentication tests pass.
+- Open: Implement the media-local ZIP builder, private partial/final artifact storage, download/cleanup routes, READY/FAILED notification outbox, Archive projection, expiry reconciliation, and deployed credentials/secrets.
+- Risks/Assumptions: GraphDB transaction isolation remains the concurrency authority for queue claims. No deployed secret or service credential was populated, and no live GraphDB or media artifact was mutated.
+
+### Update 2026-08-14 23:12
+- Decisions: Expose only the fully authorized Staging export scopes; fail Archive kinds explicitly until their projector exists. Keep runtime profiles server-owned and project-neutral, and reauthorize every frozen included Staging source before issuing a READY download capability.
+- Implementation: Added the validated file profile registry with bundled `fasnacht-v1`, public estimate/create/list/read/delete/download-capability services and Flask routes, atomic job-plus-manifest creation, owner/cursor/version enforcement, current-visibility download authorization, OpenAPI response alignment, package data, environment documentation, and regenerated frontend schemas. All 67 focused export/authentication tests, Python compilation/format checks, OpenAPI validation, and the FasnachtsPage production build pass.
+- Open: Implement internal worker claim/manifest/result/cleanup routes, the media-local builder and private artifact lifecycle, READY/FAILED outbox transitions, Archive projection, and deployed secret configuration.
+- Risks/Assumptions: The public routes require distinct export service/download secrets in each deployed environment; no secret value was created or changed. Generated `zod.ts` retains its existing generator-wide ESLint baseline, while the production build succeeds.
+
+### Update 2026-08-14 22:47
+- Decisions: Keep the export source credential isolated from the import-record key as well as every other API/media trust domain.
+- Implementation: Documented the required `OLDAP_EXPORT_SERVICE_JWT_SECRET` in the local environment example, extended API-side key separation, and made SHA-256 mandatory in resolver responses. The paired media route is implemented; all 50 focused API export tests and 17 focused media checks pass.
+- Open: Add the export-service secret to the deployed oldap-api environment and activate the public export endpoints.
+- Risks/Assumptions: The media resolver performs synchronous streaming digests; production-scale request timing remains to be measured.
+
+### Update 2026-08-14 22:31
+- Decisions: Project Staging exports exclusively through the requester's permission-filtered OLDAP connection; never trust browser sizes or RDF paths as filesystem authority. Resolve local originals in batches of at most 1,000 through a dedicated one-minute `export-source-resolver` service JWT. Exclude Trash and descendants and preserve external records as explicit non-file manifest rows.
+- Implementation: Added `OldapStagingInventoryReader`, project-neutral folder/media DTOs, `StagingSnapshotProjector` for `STAGING_FOLDER`/`STAGING_ALL`, profile metadata projection, safe NFC/portable path construction, cycle/collision/inventory/size validation, estimate output, and immutable manifest generation. Added `MediaBinarySourceResolver` with strict response reconciliation and key separation. Added 13 tests; all 49 focused export tests pass. The paired media OpenAPI contract is validated.
+- Open: Implement the MediaServer resolver route and wire public estimate/create/read/list plus internal manifest endpoints; then add permission-aware IRI label resolution, Archive projection, worker claims/results, and READY/FAILED outbox events.
+- Risks/Assumptions: RDF has no original byte-size fact, so runtime snapshot creation depends on the not-yet-implemented internal media resolver. Staging profile projections with `resolveLabels` fail closed until a permission-aware shared label resolver exists. No public route or live GraphDB/filesystem mutation was added.
+
+### Update 2026-08-14 16:21
+- Decisions: Publish each export job and its separate immutable worker manifest in one GraphDB transaction. Use RFC 8785 and SHA-256 for cross-service identity, require expected original sizes for all included media, and bind manifest scope/profile/selection/inventory/time exactly to the job. Add notification outbox records later with the concrete READY/FAILED transition rather than as unused scaffolding.
+- Implementation: Added `ExportManifest` canonicalization, closed-envelope and inventory validation, job binding, atomic `create_with_manifest`, immutable digest-verified manifest reads, and the `rfc8785` runtime dependency. Updated the v1 JSON Schema and added canonicalization, mismatch, corruption, duplicate, atomicity, and negative tests; all 36 focused export tests pass.
+- Open: Implement the authorized profile-backed GraphDB snapshot projector and wire estimate/create/read/list plus internal manifest routes; add outbox events with worker-result transitions.
+- Risks/Assumptions: Manifests are separate resources in the export named graph, avoiding job-payload inflation but still sharing its transaction. A manifest byte ceiling awaits representative dataset measurements. No live GraphDB or filesystem state was mutated.
+
+### Update 2026-08-14 14:19
+- Decisions: Persist export jobs as canonical internal JSON plus minimal owner/state/version/time indexes in the dedicated `urn:oldap:export-jobs` graph. Keep potentially large immutable manifests outside the job literal and require atomic existence/version checks for every write.
+- Implementation: Added full `ExportJob`, selection, progress, and timezone-aware timestamp deserialization. Added `GraphDbExportJobRepository` create/get/list/save operations with transactional duplicate prevention, exact +1 optimistic locking, owner/state SPARQL filtering, and canonical payload writes. Added six focused persistence tests; all 29 export domain/repository tests pass.
+- Open: Implement the profile-backed authorized GraphDB snapshot projector, register public/internal Flask routes, and add READY/FAILED outbox events.
+- Risks/Assumptions: The durable repository is not yet wired to HTTP because job and manifest publication must become one atomic application operation. No live GraphDB or filesystem state was mutated.
+
+### Update 2026-08-14 12:36
+- Decisions: Start ZIP-export Phase 0 contract-first with a project-neutral security/lifecycle core and strictly declarative, versioned project metadata profiles. Fix the approved 50 GB, 24-hour, `DATA_VIEW`, and 60-day values in the shared domain rather than in FasnachtsPage.
+- Implementation: Added immutable optimistic export jobs, strict build/cleanup claim invariants, a repository protocol with an in-memory reference implementation, purpose-specific short-lived download capabilities, and a `ProjectExportProfile` parser that rejects binary/security overrides and executable behavior. Added canonical profile/manifest/CSV fixtures and 23 focused tests. Defined public estimate/job/capability and internal worker claim/manifest/result/cleanup operations in the validated main OpenAPI; FasnachtsPage regenerated its typed client from this contract.
+- Open: Implement manifest/outbox persistence, profile-backed GraphDB snapshot projection, Flask routes, and media-worker integration; then measure representative datasets.
+- Risks/Assumptions: OpenAPI defines the frozen Phase-0 interface, but this slice exposes no runtime HTTP endpoint and performs no GraphDB or filesystem mutation. The Python profile boundary remains authoritative for cross-field and reserved-property rules.
+
 ### Update 2026-08-13 23:58
 - Decisions: Expose Staging subtree movement through a dedicated endpoint and prevent hierarchy changes through generic instance update, mirroring the existing ArchiveUnit integrity boundary.
 - Implementation: Added `POST /data/{project}/{instiri}/staging-folder-move`, OpenAPI request/response schemas, stable 400/403/404/409/503 mappings, and four HTTP contract tests.

@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oldap.org/schemas/zip-export/v1/manifest.schema.json",
+  "title": "OLDAP ZIP export worker manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "documentType",
+    "schemaVersion",
+    "exportId",
+    "generatedAt",
+    "kind",
+    "projectShortName",
+    "requestedByIri",
+    "profile",
+    "selection",
+    "limits",
+    "directories",
+    "media"
+  ],
+  "properties": {
+    "documentType": {"const": "oldap.zip-export.manifest"},
+    "schemaVersion": {"const": "1.0.0"},
+    "exportId": {"type": "string", "format": "uuid"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "kind": {
+      "enum": ["STAGING_FOLDER", "STAGING_ALL", "ARCHIVE_UNIT", "ARCHIVE_ALL"]
+    },
+    "projectShortName": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+    },
+    "requestedByIri": {"type": "string", "format": "uri", "maxLength": 2048},
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileId", "profileVersion", "profileSha256", "metadataSchemaVersion"],
+      "properties": {
+        "profileId": {"type": "string", "minLength": 1, "maxLength": 72},
+        "profileVersion": {"type": "string", "pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$"},
+        "profileSha256": {"$ref": "#/$defs/sha256"},
+        "metadataSchemaVersion": {"const": "1.0.0"}
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["displayName", "displayPath"],
+      "properties": {
+        "iri": {"type": "string", "format": "uri", "maxLength": 2048},
+        "displayName": {"type": "string", "minLength": 1, "maxLength": 255},
+        "displayPath": {"type": "string", "minLength": 1, "maxLength": 4096}
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxArchiveBytes"],
+      "properties": {
+        "maxArchiveBytes": {"const": 50000000000}
+      }
+    },
+    "directories": {
+      "type": "array",
+      "maxItems": 1000000,
+      "items": {"$ref": "#/$defs/directory"}
+    },
+    "media": {
+      "type": "array",
+      "maxItems": 1000000,
+      "items": {"$ref": "#/$defs/media"}
+    },
+    "archiveUnits": {
+      "type": "array",
+      "maxItems": 1000000,
+      "items": {"$ref": "#/$defs/archiveUnit"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {"enum": ["ARCHIVE_UNIT", "ARCHIVE_ALL"]}
+        },
+        "required": ["kind"]
+      },
+      "then": {"required": ["archiveUnits"]},
+      "else": {"not": {"required": ["archiveUnits"]}}
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\).+$"
+    },
+    "directory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relativePath", "containerIri"],
+      "properties": {
+        "relativePath": {"$ref": "#/$defs/relativePath"},
+        "containerIri": {"type": "string", "format": "uri", "maxLength": 2048}
+      }
+    },
+    "binarySource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assetId", "storagePath", "originalName", "originalMimeType", "expectedSizeBytes"],
+      "properties": {
+        "assetId": {"type": "string", "pattern": "^[A-Za-z0-9._~-]{1,128}$"},
+        "storagePath": {"$ref": "#/$defs/relativePath"},
+        "originalName": {"type": "string", "minLength": 1, "maxLength": 255},
+        "originalMimeType": {"type": "string", "minLength": 1, "maxLength": 255},
+        "recordedChecksum": {"$ref": "#/$defs/sha256"},
+        "expectedSizeBytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "metadataValue": {
+      "oneOf": [
+        {"type": "string", "maxLength": 1000000},
+        {"type": "number"},
+        {"type": "boolean"},
+        {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {"type": "string", "maxLength": 10000}
+        },
+        {
+          "type": "object",
+          "maxProperties": 256,
+          "additionalProperties": {"type": "string", "maxLength": 100000}
+        }
+      ]
+    },
+    "archiveUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relativePath",
+        "unitIri",
+        "archiveLevelIri",
+        "title",
+        "identifier",
+        "description",
+        "temporal",
+        "materialExtent",
+        "creatorIris",
+        "provenance",
+        "conditionsOfAccess",
+        "metadata"
+      ],
+      "properties": {
+        "relativePath": {"$ref": "#/$defs/relativePath"},
+        "unitIri": {"type": "string", "format": "uri", "maxLength": 2048},
+        "parentUnitIri": {"type": "string", "format": "uri", "maxLength": 2048},
+        "archiveLevelIri": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "title": {"$ref": "#/$defs/metadataValue"},
+        "identifier": {"type": "string", "maxLength": 1000000},
+        "description": {"$ref": "#/$defs/metadataValue"},
+        "temporal": {"type": "string", "maxLength": 1000000},
+        "materialExtent": {"$ref": "#/$defs/metadataValue"},
+        "creatorIris": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {"type": "string", "maxLength": 10000}
+        },
+        "provenance": {"$ref": "#/$defs/metadataValue"},
+        "conditionsOfAccess": {"$ref": "#/$defs/metadataValue"},
+        "metadata": {
+          "type": "object",
+          "maxProperties": 256,
+          "propertyNames": {"pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "additionalProperties": {"$ref": "#/$defs/metadataValue"}
+        }
+      }
+    },
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entryIndex", "relativePath", "mediaIri", "containerIri", "included", "metadata"],
+      "properties": {
+        "entryIndex": {"type": "integer", "minimum": 0, "maximum": 999999},
+        "relativePath": {"$ref": "#/$defs/relativePath"},
+        "mediaIri": {"type": "string", "format": "uri", "maxLength": 2048},
+        "containerIri": {"type": "string", "format": "uri", "maxLength": 2048},
+        "included": {"type": "boolean"},
+        "exclusionReason": {
+          "type": "string",
+          "enum": ["EXTERNAL_ORIGINAL_UNAVAILABLE", "ORIGINAL_NOT_EXPORTABLE"]
+        },
+        "externalSourceUrl": {"type": "string", "format": "uri", "maxLength": 4096},
+        "binarySource": {"$ref": "#/$defs/binarySource"},
+        "metadata": {
+          "type": "object",
+          "maxProperties": 256,
+          "propertyNames": {"pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "additionalProperties": {"$ref": "#/$defs/metadataValue"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"included": {"const": true}}, "required": ["included"]},
+          "then": {"required": ["binarySource"], "not": {"required": ["exclusionReason"]}},
+          "else": {"required": ["exclusionReason"], "not": {"required": ["binarySource"]}}
+        }
+      ]
+    }
+  }
+}

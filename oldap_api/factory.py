@@ -58,6 +58,7 @@ def factory():
     from oldap_api.views import instance_views
     from oldap_api.views import import_views
     from oldap_api.views import archive_views
+    from oldap_api.views import export_views
 
     app.register_blueprint(auth_views.auth_bp)
     app.register_blueprint(auth_views.mobile_auth_bp)
@@ -72,6 +73,9 @@ def factory():
     app.register_blueprint(import_views.internal_import_bp)
     app.register_blueprint(import_views.internal_claim_bp)
     app.register_blueprint(archive_views.archive_workflow_bp)
+    app.register_blueprint(export_views.export_bp)
+    app.register_blueprint(export_views.internal_export_bp)
+    app.register_blueprint(export_views.internal_export_claim_bp)
 
     @app.get("/_routes")
     def _routes():

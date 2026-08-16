@@ -4694,6 +4694,249 @@ paths:
         "409":
           $ref: '#/components/responses/Conflict'
 
+  /exports/estimate:
+    post:
+      summary: Estimate one caller-visible project ZIP export
+      description: Read-only estimate. The later authorized manifest snapshot remains authoritative.
+      security: [{AccessToken: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CreateExportJobRequest'}
+      responses:
+        "200":
+          description: Current bounded selection estimate.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportEstimate'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "403": {$ref: '#/components/responses/Forbidden'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /exports:
+    post:
+      summary: Create an asynchronous project ZIP export
+      description: Requires DATA_VIEW on every included resource and freezes a versioned project-profile manifest.
+      security: [{AccessToken: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CreateExportJobRequest'}
+      responses:
+        "202":
+          description: Export queued.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportJob'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "403": {$ref: '#/components/responses/Forbidden'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "413": {$ref: '#/components/responses/PayloadTooLarge'}
+        "429": {$ref: '#/components/responses/TooManyRequests'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+    get:
+      summary: List caller-owned ZIP export jobs
+      security: [{AccessToken: []}]
+      parameters:
+        - {name: state, in: query, schema: {$ref: '#/components/schemas/ExportState'}}
+        - {name: cursor, in: query, schema: {type: string, maxLength: 512}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 25}}
+      responses:
+        "200":
+          description: Jobs ordered newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items: {type: array, items: {$ref: '#/components/schemas/ExportJob'}}
+                  nextCursor: {type: string, maxLength: 512}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /exports/{exportId}:
+    get:
+      summary: Read one caller-owned ZIP export job
+      security: [{AccessToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ExportId'}
+      responses:
+        "200":
+          description: Current authoritative job state.
+          headers:
+            ETag: {schema: {type: string}}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportJob'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+    delete:
+      summary: Cancel or delete one caller-owned ZIP export
+      security: [{AccessToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ExportId'}
+        - name: expectedStateVersion
+          in: query
+          required: true
+          schema: {type: integer, minimum: 0}
+      responses:
+        "200":
+          description: Cancellation or deletion cleanup queued.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportJob'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /exports/{exportId}/download-capability:
+    post:
+      summary: Issue a short-lived exact-export download capability
+      security: [{AccessToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ExportId'}
+      responses:
+        "200":
+          description: Five-minute capability that never outlives the READY job.
+          headers:
+            Cache-Control: {schema: {type: string, const: no-store}}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportDownloadAuthorization'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "403": {$ref: '#/components/responses/Forbidden'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/export-claims:
+    post:
+      summary: Claim the next BUILD or CLEANUP task
+      security: [{ExportServiceToken: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExportClaimRequest'}
+      responses:
+        "200":
+          description: Claimed task or null when the queue is empty.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - {$ref: '#/components/schemas/ExportClaim'}
+                  - {type: 'null'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/export-claims/{claimId}/heartbeat:
+    post:
+      summary: Renew one active export-worker lease
+      security: [{ExportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ExportClaimId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExportClaimHeartbeat'}
+      responses:
+        "200":
+          description: Lease renewed without changing lifecycle stateVersion.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportLease'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/exports/{exportId}/manifest:
+    get:
+      summary: Read the immutable manifest for an active BUILD claim
+      security: [{ExportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ExportId'}
+        - name: claimId
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: RFC 8785 canonical manifest bound to its stored digest.
+          headers:
+            Digest: {schema: {type: string, pattern: '^sha-256=.+$'}}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportManifest'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/exports/{exportId}/result:
+    post:
+      summary: Publish an idempotent BUILD result
+      security: [{ExportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ExportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExportBuildResult'}
+      responses:
+        "200":
+          description: Result accepted or identical replay recognized.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportJob'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
+  /internal/exports/{exportId}/cleanup-result:
+    post:
+      summary: Publish idempotent deletion proof for one CLEANUP claim
+      security: [{ExportServiceToken: []}]
+      parameters:
+        - {$ref: '#/components/parameters/ExportId'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ExportCleanupResult'}
+      responses:
+        "200":
+          description: Deletion proof accepted or identical replay recognized.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExportJob'}
+        "400": {$ref: '#/components/responses/BadRequest'}
+        "401": {$ref: '#/components/responses/Unauthorized'}
+        "404": {$ref: '#/components/responses/NotFound'}
+        "409": {$ref: '#/components/responses/Conflict'}
+        "503": {$ref: '#/components/responses/ServiceUnavailable'}
+
   /imports:
     post:
       summary: Create a ZIP import job
@@ -5037,6 +5280,16 @@ paths:
 
 components:
   parameters:
+    ExportId:
+      name: exportId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    ExportClaimId:
+      name: claimId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
     ImportId:
       name: importId
       in: path
@@ -5048,6 +5301,232 @@ components:
       required: true
       schema: {type: string, format: uuid}
   schemas:
+
+    ExportKind:
+      type: string
+      enum: [STAGING_FOLDER, STAGING_ALL, ARCHIVE_UNIT, ARCHIVE_ALL]
+
+    ExportState:
+      type: string
+      enum: [QUEUED, BUILDING, READY, FAILED, CANCELLED, EXPIRED, DELETING, DELETED]
+
+    CreateExportJobRequest:
+      type: object
+      description: selectionIri is required for STAGING_FOLDER, STAGING_ALL, and ARCHIVE_UNIT and forbidden for ARCHIVE_ALL; the server enforces this cross-field rule.
+      additionalProperties: false
+      required: [projectShortName, kind]
+      properties:
+        projectShortName: {type: string, pattern: '^[A-Za-z][A-Za-z0-9_-]{0,63}$'}
+        kind: {$ref: '#/components/schemas/ExportKind'}
+        selectionIri: {type: string, maxLength: 2048, description: Absolute HTTP(S) IRI, canonical UUID URN, or OLDAP QName as returned by OLDAP search APIs.}
+        includeTrash: {type: boolean, const: false, default: false}
+
+    ExportEstimate:
+      type: object
+      additionalProperties: false
+      required: [projectShortName, kind, displayName, displayPath, filesTotal, sourceBytes, warningCount, exceedsLimit, maxArchiveBytes]
+      properties:
+        projectShortName: {type: string}
+        kind: {$ref: '#/components/schemas/ExportKind'}
+        selectionIri: {type: string, description: Absolute IRI/URN or OLDAP QName identifying the frozen selection.}
+        displayName: {type: string, minLength: 1, maxLength: 255}
+        displayPath: {type: string, minLength: 1, maxLength: 4096}
+        filesTotal: {type: integer, minimum: 0}
+        sourceBytes: {type: integer, minimum: 0}
+        warningCount: {type: integer, minimum: 0}
+        exceedsLimit: {type: boolean}
+        maxArchiveBytes:
+          type: integer
+          minimum: 1
+          maximum: 50000000000
+          description: Deployment-selected limit within the ZIP-export v1 hard ceiling.
+
+    ExportSelectionSnapshot:
+      type: object
+      additionalProperties: false
+      required: [projectShortName, kind, displayName, displayPath, profileId, profileVersion, profileSha256, metadataSchemaVersion]
+      properties:
+        projectShortName: {type: string}
+        kind: {$ref: '#/components/schemas/ExportKind'}
+        selectionIri: {type: string, description: Absolute IRI/URN or OLDAP QName identifying the frozen selection.}
+        displayName: {type: string, minLength: 1, maxLength: 255}
+        displayPath: {type: string, minLength: 1, maxLength: 4096}
+        profileId: {type: string, pattern: '^[a-z][a-z0-9-]{0,62}-v[1-9][0-9]*$'}
+        profileVersion: {type: string, pattern: '^[1-9][0-9]*\.[0-9]+\.[0-9]+$'}
+        profileSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        metadataSchemaVersion: {type: string, const: 1.0.0}
+
+    ExportProgress:
+      type: object
+      additionalProperties: false
+      required: [filesDone, filesTotal, bytesDone, bytesTotal]
+      properties:
+        filesDone: {type: integer, minimum: 0}
+        filesTotal: {type: integer, minimum: 0}
+        bytesDone: {type: integer, minimum: 0}
+        bytesTotal: {type: integer, minimum: 0}
+
+    ExportJob:
+      type: object
+      additionalProperties: false
+      required: [exportId, state, stateVersion, createdAt, updatedAt, requestedByIri, selection, estimatedSourceBytes, warningCount, progress, canDownload, canDelete]
+      properties:
+        exportId: {type: string, format: uuid}
+        state: {$ref: '#/components/schemas/ExportState'}
+        stateVersion: {type: integer, minimum: 0}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+        snapshotAt: {type: string, format: date-time}
+        readyAt: {type: string, format: date-time}
+        expiresAt: {type: string, format: date-time}
+        deletedAt: {type: string, format: date-time}
+        auditDeleteAt: {type: string, format: date-time}
+        requestedByIri: {type: string, format: uri}
+        selection: {$ref: '#/components/schemas/ExportSelectionSnapshot'}
+        estimatedSourceBytes: {type: integer, minimum: 0, maximum: 50000000000}
+        progress: {$ref: '#/components/schemas/ExportProgress'}
+        archiveSizeBytes: {type: integer, minimum: 1, maximum: 50000000000}
+        archiveSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        failureCode: {type: string, pattern: '^[A-Z][A-Z0-9_]{2,63}$'}
+        warningCount: {type: integer, minimum: 0}
+        canDownload: {type: boolean}
+        canDelete: {type: boolean}
+        notification: {$ref: '#/components/schemas/ExportNotificationStatus'}
+
+    ExportNotificationStatus:
+      type: object
+      additionalProperties: false
+      required: [status, forState, attempts]
+      properties:
+        status: {type: string, enum: [PENDING, SENT, FAILED]}
+        forState: {type: string, enum: [READY, FAILED]}
+        attempts: {type: integer, minimum: 0, maximum: 3}
+        sentAt: {type: string, format: date-time}
+
+    ExportDownloadAuthorization:
+      type: object
+      additionalProperties: false
+      required: [url, method, expiresAt]
+      properties:
+        url: {type: string, format: uri}
+        method: {type: string, const: GET}
+        expiresAt: {type: string, format: date-time}
+
+    ExportClaimRequest:
+      type: object
+      additionalProperties: false
+      required: [workerId, supportedTasks]
+      properties:
+        workerId: {type: string, pattern: '^[A-Za-z0-9._-]{1,128}$'}
+        supportedTasks:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: {type: string, enum: [BUILD, CLEANUP]}
+        requestedLeaseSeconds: {type: integer, minimum: 60, maximum: 900, default: 300}
+
+    ExportClaim:
+      oneOf:
+        - $ref: '#/components/schemas/ExportBuildClaim'
+        - $ref: '#/components/schemas/ExportCleanupClaim'
+
+    ExportBuildClaim:
+      type: object
+      additionalProperties: false
+      required: [claimId, exportId, task, stateVersion, claimedAt, leaseExpiresAt, manifestSha256]
+      properties:
+        claimId: {type: string, format: uuid}
+        exportId: {type: string, format: uuid}
+        task: {type: string, const: BUILD}
+        stateVersion: {type: integer, minimum: 0}
+        claimedAt: {type: string, format: date-time}
+        leaseExpiresAt: {type: string, format: date-time}
+        manifestSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+
+    ExportCleanupClaim:
+      type: object
+      additionalProperties: false
+      required: [claimId, exportId, task, stateVersion, claimedAt, leaseExpiresAt, cleanupReason]
+      properties:
+        claimId: {type: string, format: uuid}
+        exportId: {type: string, format: uuid}
+        task: {type: string, const: CLEANUP}
+        stateVersion: {type: integer, minimum: 0}
+        claimedAt: {type: string, format: date-time}
+        leaseExpiresAt: {type: string, format: date-time}
+        cleanupReason: {type: string, enum: [READY_DELETE, FAILED, CANCELLED, EXPIRED]}
+
+    ExportClaimHeartbeat:
+      type: object
+      additionalProperties: false
+      required: [workerId, expectedStateVersion]
+      properties:
+        workerId: {type: string, pattern: '^[A-Za-z0-9._-]{1,128}$'}
+        expectedStateVersion: {type: integer, minimum: 0}
+
+    ExportLease:
+      type: object
+      additionalProperties: false
+      required: [claimId, leaseExpiresAt]
+      properties:
+        claimId: {type: string, format: uuid}
+        leaseExpiresAt: {type: string, format: date-time}
+
+    ExportManifest:
+      type: object
+      description: Detailed closed schema is maintained in doc/zip-export/v1/manifest.schema.json.
+      required: [documentType, schemaVersion, exportId]
+      properties:
+        documentType: {type: string, const: oldap.zip-export.manifest}
+        schemaVersion: {type: string, const: 1.0.0}
+        exportId: {type: string, format: uuid}
+      additionalProperties: true
+
+    ExportBuildResult:
+      oneOf:
+        - $ref: '#/components/schemas/ExportBuildReadyResult'
+        - $ref: '#/components/schemas/ExportBuildFailedResult'
+
+    ExportBuildReadyResult:
+      type: object
+      additionalProperties: false
+      required: [eventId, claimId, expectedStateVersion, manifestSha256, outcome, completedAt, archiveSizeBytes, archiveSha256, artifactFinalized, partialArtifactsDeleted]
+      properties:
+        eventId: {type: string, format: uuid}
+        claimId: {type: string, format: uuid}
+        expectedStateVersion: {type: integer, minimum: 0}
+        manifestSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        outcome: {type: string, const: READY}
+        completedAt: {type: string, format: date-time}
+        archiveSizeBytes: {type: integer, minimum: 1, maximum: 50000000000}
+        archiveSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        artifactFinalized: {type: boolean, const: true}
+        partialArtifactsDeleted: {type: boolean, const: true}
+
+    ExportBuildFailedResult:
+      type: object
+      additionalProperties: false
+      required: [eventId, claimId, expectedStateVersion, manifestSha256, outcome, completedAt, failureCode, partialArtifactsDeleted]
+      properties:
+        eventId: {type: string, format: uuid}
+        claimId: {type: string, format: uuid}
+        expectedStateVersion: {type: integer, minimum: 0}
+        manifestSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        outcome: {type: string, const: FAILED}
+        completedAt: {type: string, format: date-time}
+        failureCode: {type: string, pattern: '^[A-Z][A-Z0-9_]{2,63}$'}
+        partialArtifactsDeleted: {type: boolean, const: true}
+
+    ExportCleanupResult:
+      type: object
+      additionalProperties: false
+      required: [eventId, claimId, expectedStateVersion, completedAt, artifactDeleted]
+      properties:
+        eventId: {type: string, format: uuid}
+        claimId: {type: string, format: uuid}
+        expectedStateVersion: {type: integer, minimum: 0}
+        completedAt: {type: string, format: date-time}
+        artifactDeleted: {type: boolean, const: true}
 
     ArchiveImportPlan:
       type: object
@@ -6782,7 +7261,14 @@ components:
             $ref: '#/components/schemas/Error'
 
     PayloadTooLarge:
-      description: "Error 413: Payload Too Large - Declared ZIP size exceeds the import limit"
+      description: "Error 413: Payload Too Large - Declared ZIP or export size exceeds its limit"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    TooManyRequests:
+      description: "Error 429: Too Many Requests - Export job or retained-byte quota is exhausted"
       content:
         application/json:
           schema:
@@ -6812,6 +7298,11 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Internal typ=import-service JWT with audience oldap-api-import-service; excluded from public proxy routing.
+    ExportServiceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Internal typ=export-service JWT with audience oldap-api-export-service; excluded from public proxy routing.
     RefreshCookie:
       type: apiKey
       in: cookie

@@ -72,6 +72,87 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   `OLDAP_MEDIA_INGEST_URL`. Browser upload capabilities and persisted public
   media delivery URLs always remain on `OLDAP_MEDIA_INGEST_URL`; this permits
   the home deployment to use internal HTTP without weakening production HTTPS.
+- Project-neutral ZIP export Phase 0 lives under `oldap_api/exports` and
+  `doc/zip-export/v1`. The initial closed domain fixes the four shared Staging/
+  Archive scopes, lifecycle transitions, 50 GB archive limit, 24-hour READY
+  retention, and 60-day content-free audit retention. `ProjectExportProfile`
+  accepts only declarative media subclasses and metadata projections; it cannot
+  override shared authorization, binary-path, checksum, lifecycle, or worker
+  rules. Both `fasnacht-v1` and a synthetic `museum-v1` profile pass the same
+  runtime boundary. The main OpenAPI now defines the public estimate/job/
+  capability operations and internal worker claim/manifest/result/cleanup
+  operations. Immutable optimistic jobs, a repository boundary, strict worker
+  claims, and purpose-specific short-lived capability issuance form the tested
+  application-neutral core. Export jobs now round-trip through a transactional
+  `GraphDbExportJobRepository` in the dedicated `urn:oldap:export-jobs` graph;
+  canonical internal JSON is authoritative and only owner, state, version, and
+  creation time are indexed. Each job and its separate RFC-8785-canonical
+  manifest are published in one transaction and bound by SHA-256, immutable
+  requester/selection/profile identity, inventory totals, and snapshot time;
+  manifest reads verify the stored digest. `OldapStagingInventoryReader` uses the
+  requester's permission-filtered connection; `StagingSnapshotProjector`
+  supports recursive `STAGING_FOLDER` and `STAGING_ALL`, excludes Trash,
+  applies declarative Staging projections, validates portable paths, and
+  represents external originals as exclusions. Because RDF contains no source
+  byte size, `MediaBinarySourceResolver` uses bounded internal batches and a
+  dedicated one-minute service JWT to obtain media-confirmed path, MIME, size,
+  and digest facts. The public Flask routes now implement Staging estimate,
+  atomic job creation, owner-filtered cursor listing/read, optimistic
+  cancellation/deletion, and READY download-capability issuance. Download
+  issuance re-reads the frozen Staging selection through the current user and
+  fails closed if any included source is no longer visible. Runtime profiles
+  come from a validated server-owned file registry, with bundled `fasnacht-v1`
+  and an optional `OLDAP_EXPORT_PROFILE_DIR`. JWT-protected internal routes now
+  atomically claim and renew BUILD/CLEANUP leases, expose canonical manifests
+  only to their active BUILD claim, and accept digest-bound idempotent worker
+  results. READY evidence fixes 24-hour retention; cleanup proof transitions to
+  DELETED, purges the manifest in the same transaction, clears artifact facts,
+  and redacts source path/IRI from the 60-day audit record. The paired media
+  service now implements the builder/storage/delivery worker boundary.
+  READY/FAILED results also create an atomic notification outbox marker;
+  token-free status mail is retried at most three times with five-minute
+  backoff. Worker polling explicitly expires elapsed READY jobs before cleanup
+  and prunes only content-free DELETED audit hulls after 60 days. Phase 1 was
+  accepted locally on 2026-08-15 through the actual paired media worker and
+  artifact store: small and 32 MiB success, changed-source failure, console
+  notification, expiry, manual cleanup, and physical artifact evidence all
+  pass. Production secrets/SMTP and real-inventory capacity measurement remain
+  deployment/hardening work. Phase 2 now has a deterministic project-neutral
+  archive projection kernel:
+  it selects one visible subtree or all visible roots, preserves empty units,
+  deduplicates media linked from multiple units while retaining every
+  relationship, represents external originals as exclusions, and adds a
+  closed Archive-kind-only `archiveUnits` manifest inventory. The concrete
+  `OldapArchiveInventoryReader` is now wired into the shared public estimate
+  and create routes for `ARCHIVE_UNIT` and `ARCHIVE_ALL`: it uses only the
+  requester connection, searches profile-permitted media classes, resolves
+  profile IRI labels through the same identity, and turns linked but unreadable
+  media into opaque metadata warnings. Download capability issuance requires
+  the exact active profile digest and rechecks current subtree membership,
+  every frozen unit, included medium, and frozen unit/media relationship.
+  The paired cross-system acceptance now also runs an `ARCHIVE_UNIT` manifest
+  through the real API worker lifecycle and media worker, then verifies the
+  physical original plus `README.txt`, `export.csv`, `metadata.csv`, and
+  `archive-units.csv`. The FasnachtsPage ArchiveTree actions use the same
+  estimate/create/status contract. An authenticated live selection now passes
+  from QName-based generic search inventory through GraphDB snapshotting,
+  worker recovery, ZIP download, checksum verification, and physical cleanup.
+  Archive path validation is contextual to the selected subtree, and OLDAP
+  language scalars contribute lexical values rather than serialization suffixes.
+  After the explicitly approved source-label correction to
+  `Undatierte Dokumente und Medien`, whole-archive acceptance also passes with
+  20 retained unit directories, one original, support CSV evidence, exact
+  capability delivery, and physical cleanup. Phase 2 is locally complete.
+  Phase 3 now separates the immutable 50 GB v1 safety ceiling from a validated
+  per-environment operating policy. New manifests freeze the configured
+  archive limit; READY/audit retention and active-job/retained-byte quotas are
+  configurable. Per-user and system quotas are checked atomically inside the
+  same GraphDB transaction that publishes job and manifest, and reservations
+  remain until the content-free `DELETED` state. The deployment defaults are
+  50 GB, 24 hours, 60 days, 3/20 active jobs and 100/500 GB retained source
+  bytes (user/system).
+  `OLDAP_MEDIA_EXPORT_URL` is mandatory for download issuance and has no
+  production-host fallback, preventing environment-misrouted capabilities.
 
 ## Architecture
 
@@ -182,6 +263,10 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 
 ## Roadmap / Next Steps
 
+- Implement ZIP-export internal worker claim/manifest/result/cleanup routes,
+  the media-local archive builder/storage lifecycle, and READY/FAILED outbox
+  transitions. Keep Archive export kinds unavailable until their authorized
+  snapshot projector exists.
 - Start ZIP import Phase 3 in `oldap-mediaserver`: direct immutable SIP ingress,
   quarantine storage, upload-capability enforcement, and the durable SIP-stored
   callback. Migrate existing staging areas with `shared:stagingQuotaBytes`

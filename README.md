@@ -33,6 +33,26 @@ uses `OLDAP_IMPORT_EMAIL_BACKEND=console|smtp` and the same `OLDAP_MAIL_*` SMTP
 settings as password reset. `OLDAP_PUBLIC_APP_URL` supplies the authenticated,
 token-free job link included in those messages.
 
+ZIP-export completion notifications use the parallel
+`OLDAP_EXPORT_EMAIL_BACKEND=console|smtp` switch and the same mail transport.
+New export jobs use the bounded deployment policy from
+`OLDAP_EXPORT_MAX_ARCHIVE_BYTES` (default and hard ceiling 50 GB),
+`OLDAP_EXPORT_READY_RETENTION_HOURS` (default 24, maximum 744), and
+`OLDAP_EXPORT_AUDIT_RETENTION_DAYS` (default 60, maximum 3650). Invalid values
+fail closed when an export endpoint or worker claim is handled. A frozen
+manifest retains the limit selected when its job was created.
+Creation also reserves project-neutral capacity atomically. The defaults are
+three active jobs and 100 GB retained source bytes per user, plus twenty active
+jobs and 500 GB retained source bytes system-wide. Override them with
+`OLDAP_EXPORT_MAX_ACTIVE_JOBS_PER_USER`, `OLDAP_EXPORT_MAX_ACTIVE_JOBS_TOTAL`,
+`OLDAP_EXPORT_MAX_RESERVED_BYTES_PER_USER`, and
+`OLDAP_EXPORT_MAX_RESERVED_BYTES_TOTAL`. Reservations remain until physical
+cleanup reaches `DELETED`.
+READY and FAILED transitions persist their notification outbox state atomically;
+delivery failures are retried at most three times with five-minute backoff.
+`OLDAP_PUBLIC_APP_URL` produces `/exports/{exportId}` links without embedding a
+download capability.
+
 Import list responses use an opaque `nextCursor`; clients must return it
 unchanged with the same state filter. Accepted lifecycle mutations emit a
 privacy-preserving operational audit line containing only event, import ID,

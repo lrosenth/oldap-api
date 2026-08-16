@@ -1,0 +1,24 @@
+{
+  "profileId": "fasnacht-v1",
+  "profileVersion": "1.0.0",
+  "projectShortName": "fasnacht",
+  "allowedArchiveMediaClasses": ["fasnacht:ArchiveMediaObject"],
+  "metadata": {
+    "archiveMedia": [
+      {
+        "columnName": "publication_status",
+        "propertyIri": "fasnacht:publicationStatus",
+        "valueShape": "iri",
+        "resolveLabels": true
+      },
+      {
+        "columnName": "archive_targets",
+        "propertyIri": "fasnacht:archiveMediaObjectOf",
+        "valueShape": "iri-list",
+        "resolveLabels": true
+      }
+    ],
+    "archiveUnits": [],
+    "stagingMedia": []
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "profileId": "museum-v1",
+  "profileVersion": "1.0.0",
+  "projectShortName": "museum",
+  "allowedArchiveMediaClasses": ["museum:DigitalSurrogate"],
+  "metadata": {
+    "archiveMedia": [
+      {
+        "columnName": "digitization_method",
+        "propertyIri": "museum:digitizationMethod",
+        "valueShape": "scalar",
+        "resolveLabels": false
+      }
+    ],
+    "archiveUnits": [],
+    "stagingMedia": []
+  }
+}
