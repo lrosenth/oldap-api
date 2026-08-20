@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-08-19 22:33
+- Decisions: Treat validated HEIC and HEIF originals as the same closed still-image delivery family as JPEG, TIFF, and PNG.
+- Implementation: Extended the import commit validator and OpenAPI enum with `image/heic` and `image/heif`, regenerated the FasnachtsPage Zod contract, and added commit regression coverage.
+- Open: Deploy in lockstep with the HEIF-capable mediahelper image and run one test-system ZIP import through commit.
+- Risks/Assumptions: The API trusts only the media-owned manifest facts; actual HEIF decoding remains outside the API process.
+
 ### Update 2026-08-16 23:44
 - Decisions: Separate environment-selected export policy from the immutable 50 GB v1 safety ceiling; freeze the selected size limit in each manifest and retain reservations until physical cleanup is proven.
 - Implementation: Added strict archive/READY/audit and per-user/system active-job/retained-byte configuration, atomic GraphDB quota checks, dynamic estimate/manifest limits, stable HTTP 429 quota errors, and removed the unsafe production download-origin fallback. OpenAPI and concurrency/retention/limit coverage are synchronized; all 118 focused export tests pass.

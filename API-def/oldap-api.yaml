@@ -5826,7 +5826,7 @@ components:
         assetId: {type: string, pattern: '^[A-Za-z0-9._~-]{1,128}$'}
         checksumSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
         originalName: {type: string, minLength: 1, maxLength: 255}
-        originalMimeType: {type: string, enum: [image/jpeg, image/tiff, image/png, audio/wav, audio/flac, audio/mpeg, video/mp4, application/pdf, text/plain]}
+        originalMimeType: {type: string, enum: [image/jpeg, image/tiff, image/png, image/heic, image/heif, audio/wav, audio/flac, audio/mpeg, video/mp4, application/pdf, text/plain]}
         dctermsType: {type: string, enum: ['dcmitype:StillImage', 'dcmitype:MovingImage', 'dcmitype:Sound', 'dcmitype:Text']}
         protocol: {type: string, enum: [iiif, http]}
         derivativeName: {type: string, enum: [master.tif, web.mp3, web.mp4, document.pdf, document.txt]}

@@ -197,6 +197,8 @@ def _media(namespace: UUID, value: Any, project: str) -> MediaCommitItem:
         "image/jpeg": ("dcmitype:StillImage", "iiif", "master.tif", "image"),
         "image/tiff": ("dcmitype:StillImage", "iiif", "master.tif", "image"),
         "image/png": ("dcmitype:StillImage", "iiif", "master.tif", "image"),
+        "image/heic": ("dcmitype:StillImage", "iiif", "master.tif", "image"),
+        "image/heif": ("dcmitype:StillImage", "iiif", "master.tif", "image"),
         "audio/wav": ("dcmitype:Sound", "http", "web.mp3", "audio"),
         "audio/flac": ("dcmitype:Sound", "http", "web.mp3", "audio"),
         "audio/mpeg": ("dcmitype:Sound", "http", "web.mp3", "audio"),

@@ -46,7 +46,10 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   resource audit dates are emitted as `xsd:dateTimeStamp`, matching inherited
   `oldap:Thing` properties and oldaplib's read/update expectations. Exact
   event replay returns the retained relative-path/resource
-  mapping; no resource write can survive a rejected job update.
+  mapping; no resource write can survive a rejected job update. The closed
+  image commit mapping accepts JPEG, TIFF, PNG, HEIC, and HEIF originals and
+  maps all of them to the canonical IIIF `master.tif` derivative; content
+  validation remains media-owned.
   A companion `POST /internal/imports/{id}/failed` accepts only an active IMPORT
   claim plus proof that promoted assets were compensated and temporary payload
   deleted, then atomically records terminal FAILED and releases its reservation.

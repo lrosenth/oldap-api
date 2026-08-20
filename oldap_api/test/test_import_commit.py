@@ -152,6 +152,20 @@ def test_commit_rejects_stale_claim_and_untrusted_asset_mapping() -> None:
         service.commit_import(IMPORT_ID, bad)
 
 
+@pytest.mark.parametrize("mime_type", ["image/heic", "image/heif"])
+def test_commit_accepts_closed_heif_image_mime_types(mime_type: str) -> None:
+    """Validated HEIF originals retain the standard image delivery mapping."""
+
+    payload = _payload()
+    payload["media"][0]["originalMimeType"] = mime_type
+
+    commit = validate_import_commit(IMPORT_ID, payload, "fasnacht")
+
+    assert commit.media[0].original_mime_type == mime_type
+    assert commit.media[0].protocol == "iiif"
+    assert commit.media[0].derivative_name == "master.tif"
+
+
 def test_compensated_import_failure_is_terminal_and_exactly_replayable() -> None:
     repository = InMemoryImportJobRepository()
     repository.create(_job(), quota_limit_bytes=3_000_000_000)
