@@ -5278,6 +5278,44 @@ paths:
         "409": {$ref: '#/components/responses/Conflict'}
         "503": {$ref: '#/components/responses/ServiceUnavailable'}
 
+  /internal/mobile-media/v1/uploads/{uploadId}/commit:
+    post:
+      summary: Atomically register one durably published mobile image
+      description: >
+        Internal-only exact-replay operation. The media service asserts
+        upload-owned durable publication, while OLDAP independently revalidates
+        the active Fasnacht account, organisation, role, StagingArea,
+        ADMIN_CREATE permission, and exact protected top/Mobile inbox. The API
+        derives all resource, storage, staging-status, and role facts and writes
+        exactly one StagingMediaObject plus its permanent receipt in one GraphDB
+        transaction.
+      security: [{MobileMediaServiceToken: []}]
+      parameters:
+        - name: uploadId
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MobileMediaCommitRequest'}
+      responses:
+        "200":
+          description: New atomic commit or exact permanent-receipt replay.
+          headers:
+            Cache-Control:
+              schema: {type: string, const: no-store}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MobileMediaCommitResult'}
+        "400": {$ref: '#/components/responses/MobileMediaProblem'}
+        "401": {$ref: '#/components/responses/MobileMediaProblem'}
+        "403": {$ref: '#/components/responses/MobileMediaProblem'}
+        "404": {$ref: '#/components/responses/MobileMediaProblem'}
+        "409": {$ref: '#/components/responses/MobileMediaProblem'}
+        "503": {$ref: '#/components/responses/MobileMediaProblem'}
+
 components:
   parameters:
     ExportId:
@@ -5301,6 +5339,89 @@ components:
       required: true
       schema: {type: string, format: uuid}
   schemas:
+
+    MobileMediaCommitRequest:
+      type: object
+      additionalProperties: false
+      required: [eventId, uploadId, clientAssetId, ownerUserIri, stagingAreaId, originalName, originalMimeType, byteLength, checksum, publication]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          description: Stable event identity; exact replay requires the same canonical payload.
+        uploadId: {type: string, format: uuid}
+        clientAssetId: {type: string, format: uuid}
+        ownerUserIri: {type: string, format: uri}
+        stagingAreaId:
+          type: string
+          format: uri
+          description: Immutable untrusted scope; no folder IRI is accepted.
+        originalName:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: NFC-normalized, path-free name limited to 255 UTF-8 bytes.
+        originalMimeType:
+          type: string
+          enum: [image/jpeg, image/png, image/heic, image/heif]
+        byteLength:
+          type: integer
+          minimum: 1
+          maximum: 104857600
+        checksum:
+          type: string
+          pattern: '^sha256:[0-9a-f]{64}$'
+        comment: {type: string, maxLength: 2000}
+        publication:
+          $ref: '#/components/schemas/MobileMediaPublicationEvidence'
+
+    MobileMediaPublicationEvidence:
+      type: object
+      additionalProperties: false
+      required: [ownerUploadId, assetId, byteLength, checksum, derivativeNames, storagePath]
+      properties:
+        ownerUploadId: {type: string, format: uuid}
+        assetId: {type: string, format: uuid}
+        byteLength: {type: integer, minimum: 1, maximum: 104857600}
+        checksum: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        derivativeNames:
+          type: array
+          minItems: 1
+          maxItems: 1
+          prefixItems: [{type: string, const: master.tif}]
+          items: false
+        storagePath:
+          type: string
+          minLength: 1
+          description: Exact media-owned published base path; OLDAP requires it to equal the current server-derived path.
+
+    MobileMediaCommitResult:
+      type: object
+      additionalProperties: false
+      required: [eventId, uploadId, clientAssetId, stagingAreaId, assetId, resourceIri, checksum, committedAt]
+      properties:
+        eventId: {type: string, format: uuid}
+        uploadId: {type: string, format: uuid}
+        clientAssetId: {type: string, format: uuid}
+        stagingAreaId: {type: string, format: uri}
+        assetId: {type: string, format: uuid}
+        resourceIri: {type: string, format: uri}
+        checksum: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        committedAt: {type: string, format: date-time}
+
+    MobileMediaProblem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, code, traceId, retryable]
+      properties:
+        type: {type: string, format: uri}
+        title: {type: string}
+        status: {type: integer}
+        code:
+          type: string
+          enum: [validation_failed, invalid_credentials, authentication_unavailable, staging_area_not_permitted, staging_upload_not_permitted, staging_folder_not_found, staging_folder_not_protected, staging_destination_changed, client_asset_conflict, upstream_unavailable]
+        traceId: {type: string}
+        retryable: {type: boolean}
 
     ExportKind:
       type: string
@@ -7184,6 +7305,15 @@ components:
         error: "ERROR_CODE"
 
   responses:
+    MobileMediaProblem:
+      description: Stable privacy-preserving internal mobile-media failure.
+      headers:
+        Cache-Control:
+          schema: {type: string, const: no-store}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/MobileMediaProblem'}
+
     MobileAuthError:
       description: Stable native authentication error
       headers:
@@ -7303,6 +7433,11 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Internal typ=export-service JWT with audience oldap-api-export-service; excluded from public proxy routing.
+    MobileMediaServiceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Internal maximum-five-minute typ=mobile-media-service JWT with purpose mobile-media-commit, subject oldap-mediaserver, and audience oldap-api-mobile-media; accepted only by the exact mobile commit route.
     RefreshCookie:
       type: apiKey
       in: cookie

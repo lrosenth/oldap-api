@@ -14,8 +14,24 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 - Instance search documentation: `doc/search_instance.md`.
 - Tests live in `oldap_api/test` and rely on a local GraphDB repository plus
   OLDAP test data from the sibling `oldaplib` repository.
-- The API requires `oldaplib` 0.7.x and currently locks 0.7.2, which includes
-  the shared Variant D and media capability-token support.
+- The API requires `oldaplib` 0.7.9 or newer within the 0.7 series. The current
+  Poetry resolution uses 0.7.11, including the shared Variant D and media
+  capability-token support.
+- Fasnacht Capture Step 11A is implemented as the additive internal
+  `POST /internal/mobile-media/v1/uploads/{uploadId}/commit` operation. A
+  dedicated maximum-five-minute service JWT authenticates only this purpose.
+  The API accepts a closed media-publication assertion bound to the durable
+  original byte length, checksum, derivative set, and exact published storage
+  path, then revalidates the
+  active Fasnacht user, organisation membership, immutable StagingArea,
+  current role and `ADMIN_CREATE`, and the exact protected root `top` / direct
+  `Mobile` inbox. It derives the resource IRI, graph, storage path, class,
+  status, role, and permissions and writes one `shared:StagingMediaObject` plus
+  its permanent `clientAssetId` receipt in one GraphDB transaction. Exact
+  request replay returns the stored result; conflicting event, upload, or asset
+  identity reuse fails closed without exposing foreign data. The API also
+  requires the published path to equal the current server-derived StagingArea
+  path so a cross-service metadata change cannot create an unreachable medium.
 - ZIP import Phase 2 is complete. The API owns an immutable-target
   `ImportJob` domain, GraphDB persistence with optimistic state versions and
   atomic staging-area quota sums, purpose-specific upload capabilities, and
@@ -161,6 +177,15 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 
 - `oldap_api.factory.factory()` creates the Flask app and registers all
   blueprints from `oldap_api/views`.
+- `oldap_api/mobile_media` owns the HTTP-independent closed commit contract,
+  service-JWT boundary, cross-worker commit coordination, and GraphDB
+  persistence. GraphDB provides atomic resource/receipt writes but only
+  read-committed isolation, so a bounded global Redis lease serializes the
+  receipt check-and-insert across the four API workers. Redis is coordination
+  only; the permanent GraphDB receipt remains authoritative after crashes or
+  retries. Protected-inbox resolution observes every exact root `top`, including
+  roots without a `Mobile` child, and therefore fails closed on duplicate or
+  incomplete system-folder structures.
 - Generic instance GET resolves the concrete class's complete OLDAP property model and passes it to oldaplib, preventing GraphDB-inferred predicates from external ontology equivalences from appearing in the REST representation.
 - View modules translate HTTP payloads and query parameters into `oldaplib`
   calls, then serialize OLDAP/XSD values into JSON.
@@ -276,6 +301,14 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   before deploying Shared ontology 0.6.0.
 - Expose `/mobile/v1/auth/*` through the deployment proxy over TLS and align the
   exact CORS allowlist with the HTTP transport selected by Fasnacht Capture.
+- Configure the Step-11A internal boundary in the later deployment step with
+  `OLDAP_MOBILE_MEDIA_SERVICE_JWT_SECRET`,
+  `OLDAP_MOBILE_MEDIA_SERVICE_USER`, and
+  `OLDAP_MOBILE_MEDIA_SERVICE_PASSWORD`. Values remain operator-managed; the
+  API repository contains no secret. The media caller and proxy wiring belong
+  to Fasnacht Capture Steps 11D and 11E.
+- Continue with Fasnacht Capture Step 11B: protect the exact `top/Mobile`
+  system folder from generic mutation and add atomic empty-StagingArea removal.
 - Release and deploy the `oldaplib` archive-tree service before enabling the
   archive move endpoint in FasnachtsPage; the route returns `503` when an older
   library build is installed.
