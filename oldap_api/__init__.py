@@ -4,6 +4,7 @@ from flask_cors import CORS
 import logging
 
 from oldap_api.factory import factory
+from oldap_api.redis_config import validate_redis_database_separation
 from oldaplib.src.cachesingleton import CacheSingletonRedis
 
 def create_app():
@@ -11,6 +12,7 @@ def create_app():
 
     cfg = os.getenv("APP_ENV", "Prod")
     app.config.from_object(f"oldap_api.config.{cfg}")
+    validate_redis_database_separation(production=cfg == "Prod")
 
     uploaddir = Path(app.config['UPLOAD_FOLDER'])
     if not uploaddir.exists():

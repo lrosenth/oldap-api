@@ -32,6 +32,27 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   identity reuse fails closed without exposing foreign data. The API also
   requires the published path to equal the current server-derived StagingArea
   path so a cross-service metadata change cannot create an unreachable medium.
+- Fasnacht Capture Step 11B protects the exact Staging system path through
+  additive server-side policy in `oldap_api/staging_area.py`. Generic instance
+  operations and the registered legacy `/admin` resource-create path cannot
+  create duplicate or misplaced reserved system folders, rename another folder
+  to a reserved name, create children below `Mobile`, or rename, move,
+  transform, change the role policy of, or delete the exact root `top`, direct
+  `Mobile`, or direct `Trash` system folders. Existing malformed reserved-name
+  aliases also make further provisioning fail closed. Generic transforms cannot
+  create or reclassify a StagingArea,
+  and generic deletion cannot bypass the dedicated atomic area operation.
+  Project data-graph resolution falls back to authoritative OLDAP project
+  metadata when a fresh bearer-token connection has no project QName in its
+  process-local context. The authenticated
+  `DELETE /data/{project}/{stagingAreaIri}/staging-area` operation resolves one
+  complete system-folder-only area, rechecks current delete authorization and
+  external references, and deletes `Mobile`, `Trash`, `top`, and the
+  StagingArea in one GraphDB transaction. Any ambiguity, content, reference,
+  permission failure, or failed write aborts the complete operation.
+  The existing generic StagingArea default-role editor does not migrate the
+  protected Mobile role policy; until a dedicated atomic contract is reviewed,
+  such a role change can intentionally make mobile commit validation fail closed.
 - ZIP import Phase 2 is complete. The API owns an immutable-target
   `ImportJob` domain, GraphDB persistence with optimistic state versions and
   atomic staging-area quota sums, purpose-specific upload capabilities, and
@@ -178,14 +199,23 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 - `oldap_api.factory.factory()` creates the Flask app and registers all
   blueprints from `oldap_api/views`.
 - `oldap_api/mobile_media` owns the HTTP-independent closed commit contract,
-  service-JWT boundary, cross-worker commit coordination, and GraphDB
-  persistence. GraphDB provides atomic resource/receipt writes but only
-  read-committed isolation, so a bounded global Redis lease serializes the
-  receipt check-and-insert across the four API workers. Redis is coordination
-  only; the permanent GraphDB receipt remains authoritative after crashes or
-  retries. Protected-inbox resolution observes every exact root `top`, including
-  roots without a `Mobile` child, and therefore fails closed on duplicate or
-  incomplete system-folder structures.
+  service-JWT boundary, and GraphDB persistence. GraphDB provides atomic writes
+  but only read-committed isolation, so `oldap_api/staging_lock.py` supplies one
+  bounded global Redis lease shared by mobile commits, generic Staging writes,
+  ZIP-import commits, and atomic empty-area deletion across the four API
+  workers. The existing API-owned Redis container keeps the oldaplib cache in
+  logical DB 0 and Staging coordination in logical DB 1; production startup
+  requires the dedicated `OLDAP_STAGING_LOCK_REDIS_URL` and rejects overlapping
+  database identities before oldaplib can clear its cache DB. The shared Redis
+  process must use `noeviction`, because an evicted active lease would invalidate
+  serialization; `FLUSHALL` remains an operator-controlled outage. Redis is
+  coordination only; GraphDB resources and permanent receipts remain
+  authoritative after crashes or retries. Protected-inbox resolution
+  observes every exact root `top`, including roots without a `Mobile` child,
+  and therefore fails closed on duplicate or incomplete system-folder
+  structures. Generic Staging update, delete, and transform routes re-read the
+  resource only after acquiring this lease and reject a concurrent resource-class
+  transition instead of applying a stale request to the new lifecycle state.
 - Generic instance GET resolves the concrete class's complete OLDAP property model and passes it to oldaplib, preventing GraphDB-inferred predicates from external ontology equivalences from appearing in the REST representation.
 - View modules translate HTTP payloads and query parameters into `oldaplib`
   calls, then serialize OLDAP/XSD values into JSON.
@@ -307,8 +337,9 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   `OLDAP_MOBILE_MEDIA_SERVICE_PASSWORD`. Values remain operator-managed; the
   API repository contains no secret. The media caller and proxy wiring belong
   to Fasnacht Capture Steps 11D and 11E.
-- Continue with Fasnacht Capture Step 11B: protect the exact `top/Mobile`
-  system folder from generic mutation and add atomic empty-StagingArea removal.
+- Continue Fasnacht Capture synchronization with Step 11C in
+  `oldap-mediaserver`; this repository's next coordinated work is the Step 11D
+  call from media processing into the completed Step-11A commit boundary.
 - Release and deploy the `oldaplib` archive-tree service before enabling the
   archive move endpoint in FasnachtsPage; the route returns `503` when an older
   library build is installed.

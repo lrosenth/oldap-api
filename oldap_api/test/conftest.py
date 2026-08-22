@@ -61,7 +61,8 @@ def set_test_env():
     os.environ["OLDAP_TS_SERVER"] = "http://localhost:7200"
     os.environ["OLDAP_TS_REPO"] = "oldap"
     os.environ["OLDAP_API_PORT"] = "8000"
-    os.environ["OLDAP_REDIS_URL"] = "redis://localhost:6379"
+    os.environ["OLDAP_REDIS_URL"] = "redis://localhost:6379/0"
+    os.environ["OLDAP_STAGING_LOCK_REDIS_URL"] = "redis://localhost:6379/1"
     os.environ["OLDAP_ACCESS_JWT_SECRET"] = (
         "oldap-api-test-access-secret-at-least-32-bytes"
     )

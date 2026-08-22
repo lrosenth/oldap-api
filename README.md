@@ -7,13 +7,24 @@
 - OLDAP_TS_SERVER (e.g. "http://localhost:7200")
 - OLDAP_TS_REPO (e.g. "oldap") 
 - OLDAP_API_PORT (e.g. "8000")
-- OLDAP_REDIS_URL (e.g. "redis://localhost:6379")
+- OLDAP_REDIS_URL (API cache only, e.g. "redis://localhost:6379/0")
+- OLDAP_STAGING_LOCK_REDIS_URL (API Staging coordination only, e.g. "redis://localhost:6379/1"; must address a different logical database)
 - OLDAP_IMPORT_UPLOAD_JWT_SECRET (a dedicated random value of at least 32 bytes)
 - OLDAP_IMPORT_SERVICE_JWT_SECRET (a second dedicated random value of at least 32 bytes)
 - OLDAP_IMPORT_RECORDS_JWT_SECRET (dedicated API-to-media retained-record key)
 - OLDAP_MEDIA_INGEST_URL (e.g. "https://media.oldap.org")
 - OLDAP_MEDIA_INTERNAL_URL (optional API-to-media URL; defaults to `OLDAP_MEDIA_INGEST_URL`)
 - OLDAP_IMPORT_SERVICE_USER and OLDAP_IMPORT_SERVICE_PASSWORD (dedicated GraphDB-facing OLDAP service identity)
+
+Both Redis URLs may and normally should address the same API-owned Redis
+server, which must expose at least logical databases 0 and 1. The API rejects a
+production configuration that omits the lock URL or points both purposes at the
+same logical database, before oldaplib can clear cache DB 0. The Redis instance
+must use a `noeviction` maxmemory policy: evicting an active lock key would break
+cross-worker Staging serialization. Logical databases still share one process,
+memory budget, and administrative commands, so operators must not issue
+`FLUSHALL` while the API is active. Other services must not use this API-owned
+Redis.
 
 ZIP import jobs additionally require every participating
 `shared:StagingArea` to define a positive `shared:stagingQuotaBytes` value.
@@ -153,8 +164,9 @@ committed.
    written to the API log instead of being sent by email.
 
 5. Ensure GraphDB is available at `http://localhost:7200`, the `oldap`
-   repository contains the required OLDAP data, and Redis is available at
-   `redis://localhost:6379`. Then start the API:
+   repository contains the required OLDAP data, and the API-owned Redis is
+   available at `redis://localhost:6379`. Cache DB 0 and Staging-lock DB 1 are
+   selected by the local Make target. Then start the API:
 
    ```bash
    make run

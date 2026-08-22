@@ -41,6 +41,10 @@ from oldap_api.imports.records import (
     ImportReportNotReadyError,
 )
 from oldap_api.imports.notifications import deliver_import_notification
+from oldap_api.staging_area import (
+    StagingAreaServiceUnavailable,
+    run_staging_mutation,
+)
 
 import_bp = Blueprint("imports", __name__, url_prefix="/imports")
 internal_import_bp = Blueprint(
@@ -122,6 +126,8 @@ def _request_id() -> str:
 
 
 def _handle_error(error: Exception) -> Response:
+    if isinstance(error, StagingAreaServiceUnavailable):
+        return _error(503, "IMPORT_SERVICE_UNAVAILABLE", "Import service unavailable.")
     if isinstance(error, ImportNotFoundError):
         return _error(404, error.code, str(error))
     if isinstance(error, ImportPermissionDeniedError):
@@ -386,8 +392,10 @@ def commit_staging_import(import_id: str):
 
     try:
         service = _internal_service()
-        job, event_id, resources = service.commit_import(
-            import_id, request.get_json(silent=True)
+        payload = request.get_json(silent=True)
+        job, event_id, resources = run_staging_mutation(
+            "shared:StagingMediaObject",
+            lambda: service.commit_import(import_id, payload),
         )
         job = _attempt_notification(service, job)
     except Exception as error:

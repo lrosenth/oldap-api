@@ -4027,6 +4027,64 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+  /data/{project}/{stagingAreaIri}/staging-area:
+    delete:
+      operationId: deleteEmptyStagingArea
+      summary: Atomically delete one empty StagingArea and its system folders
+      description: >
+        Deletes exactly one unambiguous, empty StagingArea together with its
+        direct system-folder set `top`, `top/Mobile`, and `top/Trash` in one
+        GraphDB transaction. The operation rejects media, user folders,
+        misplaced or duplicate system folders, external references, and
+        insufficient delete permission. Generic API operations cannot mutate or
+        remove the protected `top`, `top/Mobile`, or `top/Trash` system folders,
+        transform a StagingArea, or bypass this atomic route for StagingArea
+        deletion.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          description: Project containing the StagingArea.
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stagingAreaIri
+          description: IRI of the empty StagingArea to delete.
+          in: path
+          required: true
+          schema:
+            type: string
+            format: iri
+      responses:
+        "200":
+          description: The complete empty StagingArea was deleted atomically.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                  - stagingAreaIri
+                properties:
+                  message:
+                    type: string
+                  stagingAreaIri:
+                    type: string
+                    format: iri
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          $ref: '#/components/responses/Conflict'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+        "503":
+          $ref: '#/components/responses/ServiceUnavailable'
+
   /data/{project}/{instiri}/transform:
     post:
       summary: Atomically transform an instance to another resource class while keeping its IRI
@@ -5388,8 +5446,9 @@ components:
           type: array
           minItems: 1
           maxItems: 1
-          prefixItems: [{type: string, const: master.tif}]
-          items: false
+          items:
+            type: string
+            enum: [master.tif]
         storagePath:
           type: string
           minLength: 1

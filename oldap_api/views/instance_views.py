@@ -3,6 +3,16 @@ from typing import Any
 from urllib.parse import unquote
 from flask import request, jsonify, Blueprint, current_app
 from oldap_api.authentication import authenticated_connection, require_auth
+from oldap_api.staging_area import (
+    GraphDbStagingAreaRepository,
+    StagingStructureConflict,
+    StagingStructureError,
+    StagingSystemFolderPolicy,
+    is_staging_folder_class,
+    is_staging_mutation_class,
+    is_staging_structure_class,
+    run_staging_mutation,
+)
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
@@ -42,6 +52,115 @@ from oldaplib.src.xsd.xsd_qname import Xsd_QName
 from oldaplib.src.xsd.xsd_string import Xsd_string
 
 instance_bp = Blueprint('instance', __name__, url_prefix='/data')
+
+
+def _staging_structure_error(error: StagingStructureError):
+    """Map stable Staging structure policy failures to HTTP responses."""
+    return jsonify({"message": str(error)}), error.status
+
+
+def _apply_instance_update_payload(instance, data: dict) -> str | None:
+    """Apply one generic update payload to a freshly read instance.
+
+    Returns a stable client-error message for payload shapes that the legacy
+    endpoint has always rejected. OLDAP validation errors continue to propagate
+    through the route's existing error handling.
+    """
+
+    archive_structure_fields = {
+        "shared:parentArchiveUnit",
+        "schema:position",
+    }
+    if (
+        instance.name == Xsd_QName("shared:ArchiveUnit", validate=False)
+        and archive_structure_fields.intersection(data)
+    ):
+        return (
+            "Archive structure fields must be changed through the "
+            "archive-move endpoint."
+        )
+    if (
+        instance.name == Xsd_QName("shared:StagingFolder", validate=False)
+        and "shared:inStagingFolder" in data
+    ):
+        return (
+            "Staging folder hierarchy must be changed through the "
+            "staging-folder-move endpoint."
+        )
+
+    for attrname, attrval in data.items():
+        attr = Xsd_QName(attrname)
+        if attr == Xsd_QName('oldap:attachedToRole'):
+            if attrval is None:
+                del instance[attr]
+                continue
+            if not isinstance(attrval, dict):
+                return "oldap:attachedToRole expects a role-to-permission object"
+            if "add" in attrval or "del" in attrval:
+                if "add" in attrval:
+                    if not isinstance(attrval["add"], dict):
+                        return "oldap:attachedToRole.add expects a role-to-permission object"
+                    for role, dperm in attrval["add"].items():
+                        instance.attachedToRoleAnnotation[
+                            Xsd_QName(role, validate=True)
+                        ] = DataPermission.from_string(dperm)
+                if "del" in attrval:
+                    deleting = (
+                        attrval["del"]
+                        if isinstance(attrval["del"], list)
+                        else [attrval["del"]]
+                    )
+                    for role in deleting:
+                        role_qname = Xsd_QName(role, validate=True)
+                        if role_qname in instance.attachedToRoleAnnotation:
+                            del instance.attachedToRoleAnnotation[role_qname]
+                continue
+            instance[attr] = {
+                Xsd_QName(role, validate=True): DataPermission.from_string(dperm)
+                for role, dperm in attrval.items()
+            }
+            continue
+        if attrval is None:
+            del instance[attr]
+        elif isinstance(attrval, list):
+            instance[attr] = attrval
+        elif isinstance(attrval, dict):
+            adding_langlist = []
+            if "add" in attrval:
+                adding = (
+                    attrval.get("add", [])
+                    if isinstance(attrval.get("add", []), list)
+                    else [attrval["add"]]
+                )
+                if instance.properties[attr].datatype == XsdDatatypes.langString:
+                    adding_langlist = [Xsd_string(x).lang.shortlang for x in adding]
+                if instance.get(attr) is None:
+                    instance[attr] = adding
+                else:
+                    for value in adding:
+                        instance[attr].add(value)
+            if "del" in attrval:
+                deleting = (
+                    attrval.get("del", [])
+                    if isinstance(attrval.get("del", []), list)
+                    else [attrval["del"]]
+                )
+                if instance.properties[attr].datatype == XsdDatatypes.langString:
+                    deleting = list(set(deleting) - set(adding_langlist))
+                for value in deleting:
+                    instance[attr].discard(value)
+        else:
+            instance[attr] = attrval
+    return None
+
+
+def _assert_staging_class_unchanged(expected_class, current_instance) -> None:
+    """Reject a stale Staging request after a concurrent lifecycle transform."""
+
+    if str(current_instance.name) != str(expected_class):
+        raise StagingStructureConflict(
+            "The resource class changed while the Staging operation was waiting."
+        )
 
 
 
@@ -593,7 +712,16 @@ def add_instance(project, resource):
         current_app.logger.error(f"Failed to create Python instance: {str(error)}")
         return jsonify({"message": str(error)}), 400
     try:
-        instance.create()
+        def create_instance():
+            if is_staging_folder_class(resource):
+                StagingSystemFolderPolicy(con, project).assert_create_allowed(
+                    resource, data
+                )
+            instance.create()
+
+        run_staging_mutation(resource, create_instance)
+    except StagingStructureError as error:
+        return _staging_structure_error(error)
     except OldapErrorNoPermission as error:
         current_app.logger.error(f"Failed to create instance in triplestore: {str(error)}")
         return jsonify({"message": str(error)}), 403
@@ -785,18 +913,44 @@ def transform_instance(project, instiri):
     try:
         factory = ResourceInstanceFactory(con=con, project=project)
         instance = factory.read(iri)
-        transformed = instance.transform_class(target_class,
-                                               preserve_class=preserve_class,
-                                               properties=transform_properties,
-                                               expected_source_class=expected_source_class,
-                                               attached_to_role=attached_to_role,
-                                               link_from_iri=link_from_iri,
-                                               link_from_property=link_from_property)
+        source_class = getattr(instance, "name", expected_source_class)
+        staging_mutation = is_staging_mutation_class(
+            source_class
+        ) or is_staging_mutation_class(target_class)
+
+        def transform():
+            current = factory.read(iri) if staging_mutation else instance
+            if staging_mutation:
+                _assert_staging_class_unchanged(source_class, current)
+            current_source_class = getattr(current, "name", expected_source_class)
+            if is_staging_structure_class(
+                current_source_class
+            ) or is_staging_structure_class(target_class):
+                policy = StagingSystemFolderPolicy(con, project)
+                policy.assert_staging_area_transform_allowed(current_source_class)
+                if current_source_class == Xsd_QName(
+                    "shared:StagingFolder", validate=False
+                ):
+                    policy.assert_transform_allowed(str(iri))
+                policy.assert_transform_target_allowed(target_class)
+            return current.transform_class(
+                target_class,
+                preserve_class=preserve_class,
+                properties=transform_properties,
+                expected_source_class=expected_source_class,
+                attached_to_role=attached_to_role,
+                link_from_iri=link_from_iri,
+                link_from_property=link_from_property,
+            )
+
+        transformed = run_staging_mutation((source_class, target_class), transform)
         return jsonify({
             "message": "Instance successfully transformed",
             "iri": str(transformed.iri),
             "resourceClass": str(transformed.name),
         }), 200
+    except StagingStructureError as error:
+        return _staging_structure_error(error)
     except OldapErrorNoPermission as error:
         return jsonify({"message": str(error)}), 403
     except OldapErrorNotFound as error:
@@ -916,14 +1070,21 @@ def move_staging_folder(project, instiri):
         }), 503
 
     try:
-        tree = StagingFolderTree(con=con, project=project)
-        moved = tree.move(iri, parent_iri)
+        def move_folder():
+            StagingSystemFolderPolicy(con, project).assert_move_allowed(
+                str(iri), parent_iri.strip()
+            )
+            return StagingFolderTree(con=con, project=project).move(iri, parent_iri)
+
+        moved = run_staging_mutation("shared:StagingFolder", move_folder)
         moved_parent = moved.get(Xsd_QName(parent_property, validate=False))
         return jsonify({
             "message": "Staging folder successfully moved",
             "iri": str(moved.iri),
             parent_property: str(next(iter(moved_parent))),
         }), 200
+    except StagingStructureError as error:
+        return _staging_structure_error(error)
     except (OldapErrorAlreadyExists, OldapErrorInconsistency) as error:
         return jsonify({"message": str(error)}), 409
     except OldapErrorNoPermission as error:
@@ -962,96 +1123,28 @@ def update_instance(project, instiri):
     try:
         factory = ResourceInstanceFactory(con=con, project=project)
         instance = factory.read(iri)
-        archive_structure_fields = {
-            "shared:parentArchiveUnit",
-            "schema:position",
-        }
-        if (
-            instance.name == Xsd_QName("shared:ArchiveUnit", validate=False)
-            and archive_structure_fields.intersection(data)
-        ):
-            return jsonify({
-                "message": (
-                    "Archive structure fields must be changed through the "
-                    "archive-move endpoint."
+        staging_mutation = is_staging_mutation_class(instance.name)
+
+        def update():
+            current = factory.read(iri) if staging_mutation else instance
+            if staging_mutation:
+                _assert_staging_class_unchanged(instance.name, current)
+            error_message = _apply_instance_update_payload(current, data)
+            if error_message is not None:
+                return error_message
+            if current.name == Xsd_QName("shared:StagingFolder", validate=False):
+                StagingSystemFolderPolicy(con, project).assert_update_allowed(
+                    str(iri), data
                 )
-            }), 400
-        if (
-            instance.name == Xsd_QName("shared:StagingFolder", validate=False)
-            and "shared:inStagingFolder" in data
-        ):
-            return jsonify({
-                "message": (
-                    "Staging folder hierarchy must be changed through the "
-                    "staging-folder-move endpoint."
-                )
-            }), 400
-        for attrname, attrval in data.items():
-            attr = Xsd_QName(attrname)
-            if attr == Xsd_QName('oldap:attachedToRole'):
-                if attrval is None:
-                    del instance[attr]
-                    continue
-                if not isinstance(attrval, dict):
-                    return jsonify({"message": "oldap:attachedToRole expects a role-to-permission object"}), 400
-                if "add" in attrval or "del" in attrval:
-                    if "add" in attrval:
-                        if not isinstance(attrval["add"], dict):
-                            return jsonify({"message": "oldap:attachedToRole.add expects a role-to-permission object"}), 400
-                        for role, dperm in attrval["add"].items():
-                            instance.attachedToRoleAnnotation[Xsd_QName(role, validate=True)] = DataPermission.from_string(dperm)
-                    if "del" in attrval:
-                        deleting = attrval["del"] if isinstance(attrval["del"], list) else [attrval["del"]]
-                        for role in deleting:
-                            role_qname = Xsd_QName(role, validate=True)
-                            if role_qname in instance.attachedToRoleAnnotation:
-                                del instance.attachedToRoleAnnotation[role_qname]
-                    continue
-                instance[attr] = {
-                    Xsd_QName(role, validate=True): DataPermission.from_string(dperm)
-                    for role, dperm in attrval.items()
-                }
-                continue
-            if attrval is None:
-                del instance[attr]
-            elif isinstance(attrval, list):
-                instance[attr] = attrval
-            elif isinstance(attrval, dict):
-                adding_langlist = []
-                if "add" in attrval:
-                    if (isinstance(attrval.get("add", []), list)):
-                        adding = attrval.get("add", [])  # adding is now a list even if attrval["add"] not existing
-                    else:
-                        adding = [attrval['add']]
-                    if instance.properties[attr].datatype == XsdDatatypes.langString:
-                        #
-                        # LangStrings are special – the can replace. We need a list of all languages added. Some
-                        # of these may just replace an "old" value!
-                        #
-                        adding_langlist = [Xsd_string(x).lang.shortlang for x in adding]
-                    if instance.get(attr) is None:
-                        instance[attr] = adding
-                    else:
-                        for x in adding:
-                            instance[attr].add(x)
-                if "del" in attrval:
-                    if (isinstance(attrval.get("del", []), list)):
-                        deleting = attrval.get("del", [])
-                    else:
-                        deleting = [attrval['del']]
-                    if instance.properties[attr].datatype == XsdDatatypes.langString:
-                        #
-                        # In Langstrings, adding a new lang that already exists results in a replacement.
-                        # Therefore, we remove only languages that are not being replaced. The TypeScript
-                        # langstring.ts cannot distinguish between adding and replacing.
-                        #
-                        deleting = list(set(deleting) - set(adding_langlist))
-                    for x in deleting:
-                        instance[attr].discard(x)
-            else:
-                instance[attr] = attrval
-        instance.update()
+            current.update()
+            return None
+
+        error_message = run_staging_mutation(instance.name, update)
+        if error_message is not None:
+            return jsonify({"message": error_message}), 400
         return jsonify({"message": "Instance successfully updated"}), 200
+    except StagingStructureError as error:
+        return _staging_structure_error(error)
     except OldapError as error:
         current_app.logger.exception("update_instance failed")
         return jsonify({"message": str(error)}), 500
@@ -1077,8 +1170,25 @@ def delete_instance(project, instiri):
     try:
         factory = ResourceInstanceFactory(con=con, project=project)
         instance = factory.read(iri)
-        instance.delete()
+        staging_mutation = is_staging_mutation_class(instance.name)
+
+        def delete():
+            current = factory.read(iri) if staging_mutation else instance
+            if staging_mutation:
+                _assert_staging_class_unchanged(instance.name, current)
+            if is_staging_structure_class(current.name):
+                policy = StagingSystemFolderPolicy(con, project)
+                policy.assert_staging_area_delete_allowed(current.name)
+                if current.name == Xsd_QName(
+                    "shared:StagingFolder", validate=False
+                ):
+                    policy.assert_delete_allowed(str(iri))
+            current.delete()
+
+        run_staging_mutation(instance.name, delete)
         return jsonify({"message": "Instance successfully deleted"}), 200
+    except StagingStructureError as error:
+        return _staging_structure_error(error)
     except OldapErrorInUse as error:
         return jsonify({"message": str(error)}), 409
     except OldapErrorNoPermission as error:
@@ -1090,3 +1200,35 @@ def delete_instance(project, instiri):
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
     return jsonify({"message": "Instance successfully deleted"}), 200
+
+
+@instance_bp.route(
+    '/<path:project>/<path:staging_area_iri>/staging-area', methods=['DELETE']
+)
+@require_auth
+def delete_empty_staging_area(project, staging_area_iri):
+    """Atomically delete one empty system-folder-only StagingArea."""
+    current_app.logger.info(
+        f"/data/{project}/{staging_area_iri}/staging-area with DELETE called"
+    )
+    project = unquote(project)
+    staging_area_iri = unquote(staging_area_iri)
+    connection = authenticated_connection()
+    try:
+        target = run_staging_mutation(
+            "fasnacht:StagingArea",
+            lambda: GraphDbStagingAreaRepository(connection, project).delete_empty(
+                staging_area_iri
+            ),
+        )
+    except StagingStructureError as error:
+        return _staging_structure_error(error)
+    except OldapError as error:
+        current_app.logger.exception("delete_empty_staging_area failed")
+        return jsonify({"message": str(error)}), 500
+    return jsonify(
+        {
+            "message": "StagingArea successfully deleted",
+            "stagingAreaIri": target.area,
+        }
+    ), 200

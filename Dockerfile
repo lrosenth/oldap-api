@@ -59,7 +59,8 @@ RUN chown -R app:app /app
 
 # Set environment variables
 ENV APP_MODULE="oldap_api.wsgi:app"
-ENV OLDAP_REDIS_URL="redis://redis:6379"
+ENV OLDAP_REDIS_URL="redis://redis:6379/0"
+ENV OLDAP_STAGING_LOCK_REDIS_URL="redis://redis:6379/1"
 
 # Switch to non-root user
 USER app

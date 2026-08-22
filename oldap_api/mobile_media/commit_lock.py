@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
-import os
 from collections.abc import Callable
 from typing import TypeVar
 
 from redis import Redis
 from redis.exceptions import LockError, RedisError
+
+from oldap_api.staging_lock import (
+    STAGING_MUTATION_LEASE_SECONDS,
+    STAGING_MUTATION_LOCK_NAME,
+    STAGING_MUTATION_WAIT_SECONDS,
+)
+from oldap_api.redis_config import staging_lock_redis_url
 
 from .domain import MobileMediaServiceUnavailableError
 
@@ -23,14 +29,16 @@ class RedisMobileMediaCommitLock:
     the source of truth; Redis holds no result or ownership data.
     """
 
-    LOCK_NAME = "oldap-api:mobile-media:commit"
-    LEASE_SECONDS = 300
-    WAIT_SECONDS = 30
+    LOCK_NAME = STAGING_MUTATION_LOCK_NAME
+    LEASE_SECONDS = STAGING_MUTATION_LEASE_SECONDS
+    WAIT_SECONDS = STAGING_MUTATION_WAIT_SECONDS
 
     def __init__(self, client: Redis | None = None) -> None:
         self._client = client or Redis.from_url(
-            os.getenv("OLDAP_REDIS_URL", "redis://localhost:6379"),
+            staging_lock_redis_url(),
             decode_responses=True,
+            socket_connect_timeout=5,
+            socket_timeout=5,
         )
 
     def run(self, operation: Callable[[], T]) -> T:

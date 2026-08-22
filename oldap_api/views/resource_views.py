@@ -7,6 +7,12 @@ from oldaplib.src.project import Project
 from oldaplib.src.objectfactory import ResourceInstanceFactory
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNoPermission, OldapErrorAlreadyExists, \
     OldapErrorInconsistency, OldapErrorValue, OldapErrorNotFound, OldapErrorUpdateFailed, OldapErrorKey
+from oldap_api.staging_area import (
+    StagingStructureError,
+    StagingSystemFolderPolicy,
+    is_staging_folder_class,
+    run_staging_mutation,
+)
 
 
 resource_bp = Blueprint('resource', __name__, url_prefix='/admin')
@@ -44,6 +50,7 @@ def get_resource(project, iri):
 def create_resource(project, resclass):
 
     con = authenticated_connection()
+    project_short_name = project
 
     try:
         project = Project.read(con=con, projectIri_SName=project)
@@ -69,7 +76,16 @@ def create_resource(project, resclass):
         return jsonify({'message': str(error)}), 400
 
     try:
-        instance.create()
+        def create_instance():
+            if is_staging_folder_class(resclass):
+                StagingSystemFolderPolicy(
+                    con, project_short_name
+                ).assert_create_allowed(resclass, data)
+            instance.create()
+
+        run_staging_mutation(resclass, create_instance)
+    except StagingStructureError as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
     except OldapErrorAlreadyExists as error:
@@ -78,4 +94,3 @@ def create_resource(project, resclass):
         return jsonify({'message': str(error)}), 500
 
     return jsonify({'message': 'OK', 'iri': str(instance.iri)}), 200
-
