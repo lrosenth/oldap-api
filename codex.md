@@ -331,15 +331,13 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   before deploying Shared ontology 0.6.0.
 - Expose `/mobile/v1/auth/*` through the deployment proxy over TLS and align the
   exact CORS allowlist with the HTTP transport selected by Fasnacht Capture.
-- Configure the Step-11A internal boundary in the later deployment step with
+- Configure the completed Step-11 internal boundary before deployment with
   `OLDAP_MOBILE_MEDIA_SERVICE_JWT_SECRET`,
   `OLDAP_MOBILE_MEDIA_SERVICE_USER`, and
   `OLDAP_MOBILE_MEDIA_SERVICE_PASSWORD`. Values remain operator-managed; the
-  API repository contains no secret. The media caller and proxy wiring belong
-  to Fasnacht Capture Steps 11D and 11E.
-- Continue Fasnacht Capture synchronization with Step 11C in
-  `oldap-mediaserver`; this repository's next coordinated work is the Step 11D
-  call from media processing into the completed Step-11A commit boundary.
+  API repository contains no secret. The media caller, worker, persistent
+  storage, and disabled-by-default proxy wiring are implemented; rollout and
+  cross-service secret provisioning remain operator-controlled.
 - Release and deploy the `oldaplib` archive-tree service before enabling the
   archive move endpoint in FasnachtsPage; the route returns `503` when an older
   library build is installed.

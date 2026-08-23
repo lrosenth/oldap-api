@@ -427,7 +427,9 @@ def _comment(value: Any) -> str | None:
     if (
         not _is_valid_unicode(normalized)
         or len(normalized) > MAX_COMMENT_CHARACTERS
-        or "\x00" in normalized
+        or any(
+            unicodedata.category(character).startswith("C") for character in normalized
+        )
     ):
         raise MobileMediaValidationError("comment is outside the v1 limit.")
     return normalized

@@ -152,6 +152,8 @@ def _folder(namespace: UUID, value: Any) -> FolderCommitItem:
     raw_parent = _path(value["parentRelativePath"], allow_empty=True)
     parent = raw_parent if isinstance(raw_parent, str) else raw_parent.as_posix()
     name = _name(value["name"])
+    if _portable_name_key(name) in {"top", "mobile", "trash"}:
+        raise ValueError("An imported folder uses a reserved Staging system name.")
     if path.name != name or _parent(path) != parent:
         raise ValueError("A folder path decomposition is inconsistent.")
     return FolderCommitItem(

@@ -141,3 +141,12 @@ def test_invalid_unicode_filename_is_a_stable_validation_failure() -> None:
 
     with pytest.raises(MobileMediaValidationError, match="path-free"):
         validate_mobile_media_commit(UPLOAD_ID, value)
+
+
+@pytest.mark.parametrize("comment", ["line\nbreak", "private\ue000value"])
+def test_comment_rejects_all_unicode_control_categories(comment: str) -> None:
+    value = commit_request()
+    value["comment"] = comment
+
+    with pytest.raises(MobileMediaValidationError, match="v1 limit"):
+        validate_mobile_media_commit(UPLOAD_ID, value)

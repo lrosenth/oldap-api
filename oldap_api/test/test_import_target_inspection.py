@@ -9,6 +9,7 @@ from rdflib import URIRef
 
 from oldap_api.imports.authorization import (
     ImportQuotaNotConfiguredError,
+    ImportTargetProtectedError,
     ImportTargetNotFoundError,
     OldapImportAuthorizer,
     OldapImportTargetInspector,
@@ -94,6 +95,36 @@ def test_authorizer_reports_a_missing_quota_after_finding_the_target(
             project_short_name="fasnacht",
             staging_area_iri="https://example.org/staging/area",
             target_root_folder_iri="https://example.org/staging/root",
+        )
+
+
+def test_authorizer_rejects_the_protected_mobile_inbox(monkeypatch) -> None:
+    project_iri = Iri("https://example.org/project")
+    project = SimpleNamespace(
+        projectIri=project_iri,
+        namespaceIri="https://example.org/project/",
+    )
+    monkeypatch.setattr(Project, "read", staticmethod(lambda **_kwargs: project))
+    connection = FakeConnection(
+        [
+            {
+                "areaName": {"value": "Area"},
+                "folderName": {"value": "Mobile"},
+                "quota": {"value": "3000000000"},
+            }
+        ]
+    )
+    connection.userIri = Iri("https://example.org/users/alice")
+    connection.userdata = SimpleNamespace(
+        inProject={project_iri: {AdminPermission.ADMIN_CREATE}}
+    )
+
+    with pytest.raises(ImportTargetProtectedError):
+        OldapImportAuthorizer().authorize_target(
+            connection,
+            project_short_name="fasnacht",
+            staging_area_iri="https://example.org/staging/area",
+            target_root_folder_iri="https://example.org/staging/mobile",
         )
 
 

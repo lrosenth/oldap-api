@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Protocol, TypeVar
@@ -13,6 +14,18 @@ from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from rdflib import Literal, URIRef
 from rdflib.namespace import XSD
 
+from oldap_api.imports.domain import ImportState, TERMINAL_STATES
+from oldap_api.imports.repository import (
+    IMPORT_GRAPH,
+    IMPORT_JOB_CLASS,
+    PAYLOAD as IMPORT_PAYLOAD,
+    STAGING_AREA as IMPORT_STAGING_AREA,
+)
+from oldap_api.mobile_media.repository import (
+    RECEIPT_CLASS as MOBILE_RECEIPT_CLASS,
+    RECEIPT_GRAPH as MOBILE_RECEIPT_GRAPH,
+    STAGING_AREA as MOBILE_RECEIPT_STAGING_AREA,
+)
 from oldap_api.staging_lock import (
     RedisStagingMutationLock,
     StagingMutationLockUnavailable,
@@ -402,6 +415,10 @@ class GraphDbStagingAreaRepository:
                 raise StagingStructureConflict(
                     "The StagingArea contains media or user folders and cannot be deleted."
                 )
+            if self._has_active_import_reference(target.area):
+                raise StagingStructureConflict(
+                    "The StagingArea still has an active ZIP import."
+                )
             if _ask(
                 self._connection.transaction_query(
                     _external_references_query(self._graph, target)
@@ -424,6 +441,22 @@ class GraphDbStagingAreaRepository:
         except Exception:
             self._connection.transaction_abort()
             raise
+
+    def _has_active_import_reference(self, area: str) -> bool:
+        rows = _bindings(
+            self._connection.transaction_query(_active_imports_query(area))
+        )
+        for row in rows:
+            try:
+                payload = json.loads(row["payload"]["value"])
+                state = ImportState(payload["state"])
+            except (KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+                raise StagingAreaServiceUnavailable(
+                    "A referenced ZIP import record is invalid."
+                ) from error
+            if state not in TERMINAL_STATES:
+                return True
+        return False
 
     def _resolve_target(self, area: str) -> DeletionTarget:
         rows = _bindings(
@@ -833,6 +866,16 @@ ASK {{ GRAPH ?graph {{
   ?source ?predicate ?target .
   FILTER(?target IN ({targets}))
   FILTER(!(
+    ?graph = {MOBILE_RECEIPT_GRAPH.n3()} &&
+    ?predicate = {MOBILE_RECEIPT_STAGING_AREA.n3()} &&
+    EXISTS {{ ?source a {MOBILE_RECEIPT_CLASS.n3()} }}
+  ))
+  FILTER(!(
+    ?graph = {IMPORT_GRAPH.n3()} &&
+    ?predicate = {IMPORT_STAGING_AREA.n3()} &&
+    EXISTS {{ ?source a {IMPORT_JOB_CLASS.n3()} }}
+  ))
+  FILTER(!(
     ?graph = {_graph_term(graph)} &&
     (
       (?source IN ({_iri_term(target.top)}, {_iri_term(target.mobile)}, {_iri_term(target.trash)}) &&
@@ -843,6 +886,20 @@ ASK {{ GRAPH ?graph {{
     )
   ))
 }} }}
+"""
+
+
+def _active_imports_query(area: str) -> str:
+    """Return durable ZIP-import payloads that still refer to one StagingArea."""
+
+    return f"""# staging-area-active-import-references
+SELECT ?payload WHERE {{
+  GRAPH {IMPORT_GRAPH.n3()} {{
+    ?job a {IMPORT_JOB_CLASS.n3()} ;
+      {IMPORT_STAGING_AREA.n3()} {_iri_term(area)} ;
+      {IMPORT_PAYLOAD.n3()} ?payload .
+  }}
+}}
 """
 
 

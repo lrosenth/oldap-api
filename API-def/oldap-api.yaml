@@ -5429,7 +5429,10 @@ components:
         checksum:
           type: string
           pattern: '^sha256:[0-9a-f]{64}$'
-        comment: {type: string, maxLength: 2000}
+        comment:
+          type: string
+          maxLength: 2000
+          description: Optional NFC-normalized, control-free German short note; surrounding whitespace is removed.
         publication:
           $ref: '#/components/schemas/MobileMediaPublicationEvidence'
 

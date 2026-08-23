@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from oldaplib.src.helpers.context import Context
 from oldaplib.src.helpers.oldaperror import OldapError
 from oldaplib.src.xsd.iri import Iri
@@ -325,6 +326,7 @@ class TransactionConnection:
         permitted_resources: tuple[str, ...] = (),
         has_contents: bool = False,
         has_references: bool = False,
+        import_states: tuple[str, ...] = (),
         remaining: bool = False,
         fail_update: bool = False,
     ) -> None:
@@ -334,6 +336,7 @@ class TransactionConnection:
         self.permitted_resources = permitted_resources
         self.has_contents = has_contents
         self.has_references = has_references
+        self.import_states = import_states
         self.remaining = remaining
         self.fail_update = fail_update
         self.started = 0
@@ -365,6 +368,13 @@ class TransactionConnection:
             )
         if "# staging-area-contents" in query:
             return {"boolean": self.has_contents}
+        if "# staging-area-active-import-references" in query:
+            return result(
+                [
+                    {"payload": literal(json.dumps({"state": state}))}
+                    for state in self.import_states
+                ]
+            )
         if "# staging-area-external-references" in query:
             return {"boolean": self.has_references}
         if "# remaining-staging-area-targets" in query:
@@ -416,6 +426,24 @@ def test_atomically_deletes_only_the_exact_empty_system_structure() -> None:
     )
     assert "oldap:inProject oldap:SystemProject" in admin_query
     assert "?anyProject" not in admin_query
+    external_query = next(
+        query
+        for query in connection.queries
+        if "# staging-area-external-references" in query
+    )
+    assert "urn:oldap:mobile-media:stagingArea" in external_query
+    assert "urn:oldap:importStagingArea" in external_query
+
+
+def test_active_import_blocks_deletion_but_terminal_history_does_not() -> None:
+    with pytest.raises(StagingStructureConflict, match="active ZIP import"):
+        GraphDbStagingAreaRepository(
+            TransactionConnection(import_states=("READY",)), "fasnacht"
+        ).delete_empty(AREA)
+
+    connection = TransactionConnection(import_states=("IMPORTED", "CANCELLED"))
+    GraphDbStagingAreaRepository(connection, "fasnacht").delete_empty(AREA)
+    assert connection.committed == 1
 
 
 def test_rejects_invalid_staging_area_iri_as_client_input() -> None:

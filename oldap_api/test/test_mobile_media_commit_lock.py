@@ -34,6 +34,7 @@ class FakeRedisLock:
         self.acquire_error = acquire_error
         self.release_error = release_error
         self.released = 0
+        self.extended = 0
 
     def acquire(self, *, blocking: bool):
         assert blocking is True
@@ -46,14 +47,19 @@ class FakeRedisLock:
         if self.release_error is not None:
             raise self.release_error
 
+    def extend(self, additional_time: int, *, replace_ttl: bool) -> None:
+        assert additional_time == RedisMobileMediaCommitLock.LEASE_SECONDS
+        assert replace_ttl is True
+        self.extended += 1
+
 
 class FakeRedis:
     def __init__(self, lock: FakeRedisLock) -> None:
         self.redis_lock = lock
         self.arguments = None
 
-    def lock(self, name, *, timeout, blocking_timeout):
-        self.arguments = (name, timeout, blocking_timeout)
+    def lock(self, name, *, timeout, blocking_timeout, thread_local):
+        self.arguments = (name, timeout, blocking_timeout, thread_local)
         return self.redis_lock
 
 
@@ -67,6 +73,7 @@ def test_redis_commit_lock_uses_a_bounded_lease_and_releases_it() -> None:
         RedisMobileMediaCommitLock.LOCK_NAME,
         RedisMobileMediaCommitLock.LEASE_SECONDS,
         RedisMobileMediaCommitLock.WAIT_SECONDS,
+        False,
     )
     assert redis_lock.released == 1
 
@@ -97,16 +104,13 @@ def test_operation_failure_is_preserved_and_the_lease_is_released() -> None:
     assert redis_lock.released == 1
 
 
-def test_lost_lease_after_a_commit_returns_a_retryable_reconciliation_error() -> None:
+def test_lost_release_after_a_commit_keeps_the_truthful_success() -> None:
     redis_lock = FakeRedisLock(
         release_error=LockNotOwnedError("lease expired before release")
     )
     guard = RedisMobileMediaCommitLock(FakeRedis(redis_lock))
 
-    with pytest.raises(MobileMediaServiceUnavailableError) as caught:
-        guard.run(lambda: "durable GraphDB result")
-
-    assert caught.value.retryable is True
+    assert guard.run(lambda: "durable GraphDB result") == "durable GraphDB result"
     assert redis_lock.released == 1
 
 

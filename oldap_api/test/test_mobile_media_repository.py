@@ -162,7 +162,7 @@ def test_resource_and_permanent_receipt_share_one_transaction() -> None:
         'shared:serverUrl "https://media.example.org/iiif/3/"'
         "^^<http://www.w3.org/2001/XMLSchema#anyURI>" in update
     )
-    assert 'schema:comment "Kurze Notiz"@en' in update
+    assert 'schema:comment "Kurze Notiz"@de' in update
     assert result.asset_id == CLIENT_ASSET_ID
     assert result.resource_iri == _commit().resource_iri
 

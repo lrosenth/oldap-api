@@ -465,7 +465,7 @@ def _atomic_insert(
     server_url = Literal(f"{media_base_url}/iiif/3/", datatype=XSD.anyURI).n3()
     result_json = Literal(rfc8785.dumps(result.to_dict()).decode("utf-8")).n3()
     comment = (
-        f" ;\n      schema:comment {Literal(commit.comment, lang='en').n3()}"
+        f" ;\n      schema:comment {Literal(commit.comment, lang='de').n3()}"
         if commit.comment is not None
         else ""
     )

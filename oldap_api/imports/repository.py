@@ -16,6 +16,7 @@ from rdflib.namespace import RDF, XSD
 
 from .authorization import (
     ImportPermissionDeniedError,
+    ImportTargetProtectedError,
     ImportTargetNotFoundError,
     resolve_project_data_graph_iri,
 )
@@ -420,6 +421,10 @@ LIMIT 1
             or row["folderName"]["value"] != job.target.target_root_folder_name
         ):
             raise ImportTargetNotFoundError("The selected staging target changed.")
+        if row["folderName"]["value"].casefold() == "mobile":
+            raise ImportTargetProtectedError(
+                "ZIP imports cannot target the protected Mobile inbox."
+            )
         admin = self._connection.transaction_query(_admin_create_query(job))
         if not bool(admin.get("boolean")):
             raise ImportPermissionDeniedError(

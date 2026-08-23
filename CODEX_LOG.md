@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-08-23 19:26
+- Decisions: Close the cross-repository Step-11 final-check findings without changing existing public routes or token consumers. Treat the protected Mobile inbox as unavailable to ZIP import, ignore only typed terminal-history references during empty-area deletion, and reuse the common renewable Staging mutation lease for mobile commits.
+- Implementation: Added ZIP-import protection at authorization, closed commit validation, and final transactional revalidation; blocked reserved folder names inside ZIP trees; made active ZIP imports block StagingArea deletion while typed terminal import records and permanent mobile receipts no longer make empty areas undeletable; delegated mobile commit serialization to the heartbeat-renewed shared lock; aligned internal comment validation, German RDF language, and the OpenAPI description; and added blank local environment placeholders plus focused regression coverage.
+- Open: Production enablement still requires operator-provisioned matching internal credentials and an explicit deployment. Existing GraphDB-backed legacy suites remain subject to their documented destructive fixture constraints.
+- Risks/Assumptions: Historical-reference exemptions apply only to typed records in the two application-owned history graphs. Unknown external references still block deletion, and malformed referenced import payloads fail closed.
+
 ### Update 2026-08-22 16:48
 - Decisions: Complete a two-pass merge-readiness review of the full uncommitted Step-11B and Redis-isolation scope before push. Keep generic non-Staging routes independent of the new policy, protect the complete `top`/`Mobile`/`Trash` system structure, and fail closed when a Staging resource changes class while a request waits for the shared lease.
 - Implementation: Moved fresh Staging instance reads and payload application inside the Redis lease, added class-drift rejection for update/delete/transform, avoided constructing Staging policy for ordinary creates, protected direct `Trash` mutations, rejected malformed or misplaced legacy reserved-folder aliases, documented the required Redis `noeviction` policy, updated OpenAPI, and added focused compatibility, structure, and concurrency regressions.

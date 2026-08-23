@@ -10,7 +10,7 @@ from oldaplib.src.enums.adminpermissions import AdminPermission
 from oldaplib.src.project import Project
 from rdflib import URIRef
 
-from .domain import TargetSnapshot
+from .domain import ImportDomainError, TargetSnapshot
 
 
 class ImportPermissionDeniedError(PermissionError):
@@ -29,6 +29,12 @@ class ImportQuotaNotConfiguredError(RuntimeError):
     """Raised when a staging area has no explicit extracted-byte quota."""
 
     code = "IMPORT_QUOTA_NOT_CONFIGURED"
+
+
+class ImportTargetProtectedError(ImportDomainError):
+    """Raised when ZIP import targets the protected mobile upload inbox."""
+
+    code = "IMPORT_TARGET_PROTECTED"
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,6 +113,10 @@ class OldapImportAuthorizer:
                 "The staging area and target folder do not form an authorized target."
             )
         row = rows[0]
+        if row["folderName"]["value"].casefold() == "mobile":
+            raise ImportTargetProtectedError(
+                "ZIP imports cannot target the protected Mobile inbox."
+            )
         if "quota" not in row:
             raise ImportQuotaNotConfiguredError(
                 "The staging area has no shared:stagingQuotaBytes value."

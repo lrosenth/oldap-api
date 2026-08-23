@@ -166,6 +166,18 @@ def test_commit_accepts_closed_heif_image_mime_types(mime_type: str) -> None:
     assert commit.media[0].derivative_name == "master.tif"
 
 
+@pytest.mark.parametrize("reserved_name", ["top", "Mobile", "trash"])
+def test_commit_rejects_reserved_staging_folder_names(reserved_name: str) -> None:
+    payload = _payload()
+    payload["folders"][0]["relativePath"] = reserved_name
+    payload["folders"][0]["name"] = reserved_name
+    payload["media"][0]["relativePath"] = f"{reserved_name}/Bild.jpg"
+    payload["media"][0]["parentRelativePath"] = reserved_name
+
+    with pytest.raises(ValueError, match="reserved Staging system name"):
+        validate_import_commit(IMPORT_ID, payload, "fasnacht")
+
+
 def test_compensated_import_failure_is_terminal_and_exactly_replayable() -> None:
     repository = InMemoryImportJobRepository()
     repository.create(_job(), quota_limit_bytes=3_000_000_000)
