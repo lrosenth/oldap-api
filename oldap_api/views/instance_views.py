@@ -1,6 +1,6 @@
 from pprint import pprint
 from typing import Any
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 from flask import request, jsonify, Blueprint, current_app
 from oldap_api.authentication import authenticated_connection, require_auth
 from oldap_api.staging_area import (
@@ -19,9 +19,8 @@ from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapErrorKey, OldapErrorNoPermission, \
     OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse, OldapErrorInconsistency
 from oldaplib.src.helpers.langstring import LangString
-from oldaplib.src.helpers.query_processor import QueryProcessor
 from oldaplib.src.objectfactory import CompOp, FTSearchFilter, HLSearchFilter, LogicOp, ResourceInstance, \
-    ResourceInstanceFactory, SearchFilter, SortBy, SortDir, SortKind, convert2datatype
+    ResourceInstanceFactory, ResourceReadResult, SearchFilter, SortBy, SortDir, SortKind, convert2datatype
 try:
     from oldaplib.src.objectfactory import LinkedResourceSearchFilter
 except ImportError:
@@ -52,6 +51,22 @@ from oldaplib.src.xsd.xsd_qname import Xsd_QName
 from oldaplib.src.xsd.xsd_string import Xsd_string
 
 instance_bp = Blueprint('instance', __name__, url_prefix='/data')
+
+SUMMARY_DEFAULT_PROPERTIES = {Xsd_QName('schema:name', validate=False)}
+SUMMARY_MEDIA_PROPERTIES = {
+    Xsd_QName(value, validate=False)
+    for value in (
+        'shared:mediaAccessMode',
+        'shared:protocol',
+        'shared:serverUrl',
+        'shared:assetId',
+        'shared:path',
+        'shared:derivativeName',
+        'shared:originalName',
+        'shared:mediaUrl',
+        'shared:thumbnailUrl',
+    )
+}
 
 
 def _staging_structure_error(error: StagingStructureError):
@@ -199,6 +214,149 @@ def media_object_json_response(res: dict[str, Any]) -> tuple[Any, int]:
         )
         for key, val in res.items()
     }), 200
+
+
+def _sanitize_instance_datatype(val: Any) -> Any:
+    """Convert OLDAP values into the established instance JSON primitives."""
+    if val is None:
+        return None
+    if isinstance(val, LangString):
+        return [str(langval) for langval in val]
+    if isinstance(val, dict):
+        return {
+            _sanitize_instance_datatype(key): _sanitize_instance_datatype(value)
+            for key, value in val.items()
+        }
+    if isinstance(val, list):
+        return [_sanitize_instance_datatype(value) for value in val]
+    if isinstance(val, (Xsd_integer, FloatingPoint, Xsd_boolean)):
+        return val.value
+    return str(val)
+
+
+def _instance_read_json(read_result: ResourceReadResult) -> dict[str, Any]:
+    """Serialize one structured oldaplib read without changing its HTTP shape."""
+    asserted_types = [str(resource_type) for resource_type in read_result.asserted_types]
+    asserted_type_set = set(asserted_types)
+    inferred_types: list[str] = []
+    result: dict[str, Any] = {}
+    ordered_datatypes = {
+        XsdDatatypes.langString,
+        XsdDatatypes.integer,
+        XsdDatatypes.nonPositiveInteger,
+        XsdDatatypes.negativeInteger,
+        XsdDatatypes.long,
+        XsdDatatypes.int,
+        XsdDatatypes.short,
+        XsdDatatypes.byte,
+        XsdDatatypes.nonNegativeInteger,
+        XsdDatatypes.unsignedLong,
+        XsdDatatypes.unsignedInt,
+        XsdDatatypes.unsignedShort,
+        XsdDatatypes.unsignedByte,
+        XsdDatatypes.positiveInteger,
+        XsdDatatypes.decimal,
+        XsdDatatypes.float,
+        XsdDatatypes.double,
+    }
+    for property_iri, raw_value in read_result.data.items():
+        if str(property_iri) == 'rdf:type':
+            all_types = raw_value if isinstance(raw_value, list) else [raw_value]
+            visible_types = {
+                _sanitize_instance_datatype(node_type)
+                for node_type in all_types
+            }
+            inferred_types = sorted(visible_types - asserted_type_set)
+            result['rdf:type'] = asserted_types
+            continue
+        attr = Xsd_QName(str(property_iri), validate=False)
+        prop = read_result.properties.get(attr)
+        datatype = prop.datatype if prop else None
+        if isinstance(raw_value, list):
+            values = []
+            for value in raw_value:
+                if datatype is not None and not isinstance(value, LangString):
+                    value = convert2datatype(value, datatype)
+                sanitized = _sanitize_instance_datatype(value)
+                if isinstance(value, LangString):
+                    values.extend(sanitized)
+                else:
+                    values.append(sanitized)
+            if datatype in ordered_datatypes:
+                values.sort()
+            if datatype == XsdDatatypes.boolean and prop.maxCount == 1:
+                result[str(property_iri)] = values[0] if values else None
+            else:
+                result[str(property_iri)] = values
+        else:
+            result[str(property_iri)] = _sanitize_instance_datatype(raw_value)
+    if inferred_types:
+        result['virtual:inferredTypes'] = inferred_types
+    return result
+
+
+def _summary_scalar(read_result: ResourceReadResult, property_iri: str) -> str | None:
+    """Return the first non-empty raw summary value as a string."""
+    value = read_result.data.get(property_iri)
+    if value is None:
+        value = read_result.data.get(Xsd_QName(property_iri, validate=False))
+    values = value if isinstance(value, list) else [value]
+    return str(values[0]) if values and values[0] is not None else None
+
+
+def _summary_media_delivery(
+        con,
+        project: str,
+        iri: Iri,
+        read_result: ResourceReadResult,
+) -> dict[str, Any] | None:
+    """Build optional authorized media delivery from already-read summary data."""
+    access_mode = _summary_scalar(read_result, 'shared:mediaAccessMode')
+    if access_mode == 'external':
+        media_url = _summary_scalar(read_result, 'shared:mediaUrl')
+        if not media_url:
+            return None
+        return {
+            'kind': 'external-image',
+            'url': media_url,
+            'thumbnailUrl': _summary_scalar(read_result, 'shared:thumbnailUrl'),
+        }
+    if access_mode != 'local' or _summary_scalar(read_result, 'shared:protocol') != 'iiif':
+        return None
+
+    server_url = _summary_scalar(read_result, 'shared:serverUrl')
+    asset_id = _summary_scalar(read_result, 'shared:assetId')
+    if not server_url or not asset_id:
+        return None
+    attached_roles = read_result.data.get(Xsd_QName('oldap:attachedToRole'))
+    user_roles = {
+        str(role)
+        for role in (getattr(con.userdata, 'hasRole', {}) or {})
+    }
+    effective_permissions = [
+        permission
+        for role, permission in (attached_roles or {}).items()
+        if str(role) in user_roles
+    ]
+    if not effective_permissions:
+        return None
+    permission = max(effective_permissions, key=lambda item: int(item.numeric.value))
+    payload = {
+        'userIri': str(con.userIri),
+        'userid': str(con.userid),
+        'projectShortName': project,
+        'id': asset_id,
+        'path': _summary_scalar(read_result, 'shared:path'),
+        'assetId': asset_id,
+        'derivativeName': _summary_scalar(read_result, 'shared:derivativeName'),
+        'originalName': _summary_scalar(read_result, 'shared:originalName'),
+        'permval': int(permission.numeric.value),
+    }
+    return {
+        'kind': 'iiif-image',
+        'infoUrl': f'{server_url.rstrip("/")}/{quote(asset_id, safe="")}/info.json',
+        'capability': con.issue_media_token(payload),
+    }
 
 
 def parse_bool_query_param(value: str | bool | None) -> bool:
@@ -610,6 +768,91 @@ def search_instance(project, resclass=None):
     return text_search_response(project=project, resclass=resclass)
 
 
+@instance_bp.route('/summaries/<path:project>', methods=['POST'])
+@require_auth
+def summarize_instances(project):
+    """Return bounded permission-aware resource summaries in one request."""
+    current_app.logger.info(f"/data/summaries/{project} with POST called")
+    project = unquote(project)
+    if not request.is_json:
+        return jsonify({'message': 'Invalid request format, JSON required'}), 400
+    payload = request.get_json()
+    if not isinstance(payload, dict):
+        return jsonify({'message': 'JSON body must be an object'}), 400
+    unknown_fields = set(payload) - {'iris', 'includeProperties', 'includeMediaDelivery'}
+    if unknown_fields:
+        return jsonify({'message': f'Unknown field/s: {sorted(unknown_fields)}'}), 400
+
+    raw_iris = payload.get('iris')
+    if not isinstance(raw_iris, list) or not raw_iris:
+        return jsonify({'message': 'iris must be a non-empty array'}), 400
+    if len(raw_iris) > 100:
+        return jsonify({'message': 'iris may contain at most 100 entries'}), 400
+    if not all(isinstance(iri, str) and iri.strip() for iri in raw_iris):
+        return jsonify({'message': 'Every iris entry must be a non-empty string'}), 400
+
+    raw_properties = payload.get(
+        'includeProperties',
+        [str(prop) for prop in sorted(SUMMARY_DEFAULT_PROPERTIES, key=str)],
+    )
+    if not isinstance(raw_properties, list):
+        return jsonify({'message': 'includeProperties must be an array'}), 400
+    if len(raw_properties) > 32:
+        return jsonify({'message': 'includeProperties may contain at most 32 entries'}), 400
+    if not all(isinstance(prop, str) and prop.strip() for prop in raw_properties):
+        return jsonify({'message': 'Every includeProperties entry must be a non-empty string'}), 400
+    include_media_delivery = payload.get('includeMediaDelivery', False)
+    if not isinstance(include_media_delivery, bool):
+        return jsonify({'message': 'includeMediaDelivery must be a boolean'}), 400
+
+    con = authenticated_connection()
+    context = Context(name=con.context_name)
+    if not context.get(project):
+        return jsonify({'message': f'Project "{project}" not found'}), 404
+    try:
+        iris = [Iri(value, validate=True) for value in raw_iris]
+        requested_properties = {
+            Xsd_QName(value, validate=True)
+            for value in raw_properties
+        }
+        read_properties = set(requested_properties)
+        if include_media_delivery:
+            read_properties.update(SUMMARY_MEDIA_PROPERTIES)
+        factory = ResourceInstanceFactory(con=con, project=project)
+        summaries = factory.read_summaries(
+            iris=iris,
+            include_properties=read_properties,
+        )
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 500
+
+    public_fields = {str(prop) for prop in requested_properties}
+    public_fields.update({'rdf:type', 'virtual:inferredTypes'})
+    resources = []
+    for iri, read_result in summaries.items():
+        serialized = _instance_read_json(read_result)
+        summary = {
+            'iri': str(iri),
+            'resclass': str(read_result.resource_class),
+            'data': {
+                key: value
+                for key, value in serialized.items()
+                if key in public_fields
+            },
+        }
+        if include_media_delivery:
+            summary['mediaDelivery'] = _summary_media_delivery(
+                con,
+                project,
+                iri,
+                read_result,
+            )
+        resources.append(summary)
+    return jsonify({'resources': resources}), 200
+
+
 @instance_bp.route('/textsearch/<path:project>', methods=['GET'])
 @require_auth
 def textsearch_instance(project):
@@ -738,21 +981,6 @@ def add_instance(project, resource):
 def read_instance(project, instiri):
     current_app.logger.info(f"/data/{project}/{instiri} with GET called")
 
-    # Sanitizes XSD values to primitive Python types
-    def sanitize_datatype(val: Xsd | None) -> str | int | float | bool | list[str] | None:
-        if val is None:
-            return None
-        if isinstance(val, LangString):
-            return [str(langval) for langval in val]
-        if isinstance(val, dict):
-            return {sanitize_datatype(k): sanitize_datatype(v) for k, v in val.items()}
-        elif isinstance(val, list):
-            return [sanitize_datatype(v) for v in val]
-        elif isinstance(val, (Xsd_integer, FloatingPoint, Xsd_boolean)):
-            return val.value
-        else:
-            return str(val)
-
     project = unquote(project)
     instiri = unquote(instiri)
 
@@ -766,89 +994,16 @@ def read_instance(project, instiri):
     if not context.get(project):
         return jsonify({"message": f'Project "{project}" not found'}), 404
 
-    query = context.sparql_context
-    query += f"SELECT ?resclass FROM {project}:data WHERE {{ {iri.toRdf} a ?resclass }}"
-    try:
-        jsonres = con.query(query)
-    except OldapError as error:
-        return jsonify({"message": str(error)}), 500
-    res = QueryProcessor(context, jsonres)
-    asserted_types = []
-    resource = None
-    for r in res:
-        resource = r['resclass']
-        resource_type = str(resource)
-        if resource_type not in asserted_types:
-            asserted_types.append(resource_type)
-    if resource is None:
-        return jsonify({'message': f'Resource with iri <{iri}> not found.'}), 404
-
     try:
         factory = ResourceInstanceFactory(con=con, project=project)
-        instance_class = factory.createObjectInstance(resource)
-        data = ResourceInstance.read_data(con=con,
-                                          iri=Iri(instiri, validate=True),
-                                          projectShortName=Xsd_NCName(project, validate=True),
-                                          allowed_properties=instance_class.resolved_properties())
+        read_result = factory.read_data(iri)
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
-    res = {}
-    asserted_type_set = set(asserted_types)
-    inferred_types = []
-    ordered_datatypes = {
-        XsdDatatypes.langString,
-        XsdDatatypes.integer,
-        XsdDatatypes.nonPositiveInteger,
-        XsdDatatypes.negativeInteger,
-        XsdDatatypes.long,
-        XsdDatatypes.int,
-        XsdDatatypes.short,
-        XsdDatatypes.byte,
-        XsdDatatypes.nonNegativeInteger,
-        XsdDatatypes.unsignedLong,
-        XsdDatatypes.unsignedInt,
-        XsdDatatypes.unsignedShort,
-        XsdDatatypes.unsignedByte,
-        XsdDatatypes.positiveInteger,
-        XsdDatatypes.decimal,
-        XsdDatatypes.float,
-        XsdDatatypes.double,
-    }
-    for x, y in data.items():
-        if str(x) == 'rdf:type':
-            all_types = y if isinstance(y, list) else [y]
-            visible_types = {sanitize_datatype(node_type) for node_type in all_types}
-            inferred_types = sorted(visible_types - asserted_type_set)
-            res['rdf:type'] = asserted_types
-            continue
-        attr = Xsd_QName(str(x), validate=False)
-        prop = instance_class.properties.get(attr)
-        datatype = prop.datatype if prop else None
-        if isinstance(y, list):
-            values = []
-            for yy in y:
-                if datatype is not None and not isinstance(yy, LangString):
-                    yy = convert2datatype(yy, datatype)
-                sanitized = sanitize_datatype(yy)
-                if isinstance(yy, LangString):
-                    values.extend(sanitized)
-                else:
-                    values.append(sanitized)
-            if datatype in ordered_datatypes:
-                values.sort()
-            if datatype == XsdDatatypes.boolean and prop.maxCount == 1:
-                res[str(x)] = values[0] if values else None
-            else:
-                res[str(x)] = values
-        else:
-            res[str(x)] = sanitize_datatype(y)
-    if inferred_types:
-        res['virtual:inferredTypes'] = inferred_types
-    return jsonify(res), 200
+    return jsonify(_instance_read_json(read_result)), 200
 
 @instance_bp.route('/<path:project>/<path:instiri>/transform', methods=['POST'])
 @require_auth

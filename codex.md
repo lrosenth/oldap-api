@@ -8,15 +8,19 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 
 - Authentication uses 15-minute access JWTs plus absolute-lifetime refresh JWTs. Existing browser routes retain the secure HttpOnly refresh-cookie contract. Additive `/mobile/v1/auth/login` and `/mobile/v1/auth/refresh` routes expose the same Variant D tokens in JSON for native Keychain/Keystore storage without setting or reading authentication cookies. Refresh reloads current user permissions and checks `authVersion`; `/admin/auth/logout` performs global refresh revocation.
 - All protected user, project, role, resource, hierarchical-list, datamodel, and instance routes authenticate through `oldap_api.authentication.require_auth`. The boundary strictly parses Bearer credentials, creates the request-scoped `Connection`, and emits one cache-safe `401` response for missing, malformed, expired, wrong-purpose, or invalid access tokens.
+- Generic `GET /data/{project}/{instiri}` uses `ResourceInstanceFactory.read_data()` so its permission-checked main CONSTRUCT also supplies explicit project-graph type provenance and the complete attached-role permission map. The former standalone `rdf:type` and roles queries are removed while `rdf:type`, `virtual:inferredTypes`, `oldap:attachedToRole`, property filtering, datatype shaping, and error responses remain stable.
+- Additive `POST /data/summaries/{project}` returns bounded, permission-aware metadata for up to 100 known resource IRIs through one oldaplib batch read. Callers select at most 32 properties and may request authorized IIIF/external-image delivery enrichment. Missing and unreadable resources are indistinguishably omitted; all pre-existing endpoints and response contracts remain unchanged. The contract lives in `API-def/oldap-api.yaml` and its usage guide in `doc/resource_summaries.md`.
 - Python project managed by Poetry.
 - Main package: `oldap_api`.
 - OpenAPI contract: `API-def/oldap-api.yaml`.
 - Instance search documentation: `doc/search_instance.md`.
+- Resource-summary documentation: `doc/resource_summaries.md`.
 - Tests live in `oldap_api/test` and rely on a local GraphDB repository plus
   OLDAP test data from the sibling `oldaplib` repository.
-- The API requires `oldaplib` 0.7.9 or newer within the 0.7 series. The current
-  Poetry resolution uses 0.7.11, including the shared Variant D and media
-  capability-token support.
+- The API generally requires `oldaplib` 0.7.9 or newer within the 0.7 series.
+  The current Poetry resolution uses 0.7.14; deploying the additive resource
+  summary endpoint requires the prepared 0.7.15 release that introduces
+  `ResourceInstanceFactory.read_summaries()`.
 - Fasnacht Capture Step 11A is implemented as the additive internal
   `POST /internal/mobile-media/v1/uploads/{uploadId}/commit` operation. A
   dedicated maximum-five-minute service JWT authenticates only this purpose.
@@ -344,5 +348,5 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 - Complete authentication roadmap work package 6 in the browser clients.
 - Keep instance read responses stable while exposing reasoning-derived metadata
   explicitly.
-- Continue consolidating duplicated instance-read logic when broader refactoring
-  is warranted.
+- Continue the shared performance roadmap with search summaries/batching before
+  adding SALSAH-specific request reuse.

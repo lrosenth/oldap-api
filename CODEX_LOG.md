@@ -1,5 +1,23 @@
 # CODEX_LOG
 
+### Update 2026-08-26 01:01
+- Decisions: Add a bounded summary endpoint instead of expanding existing search or single-resource contracts; omit missing and unreadable resources identically, and make media delivery an explicit opt-in enrichment.
+- Implementation: Added `POST /data/summaries/{project}` with strict request bounds, selected-property serialization, optional IIIF/external delivery, one oldaplib batch call, OpenAPI 3.1 schemas/examples, a dedicated usage/security guide, and isolated route coverage.
+- Open: Publish/install the corresponding oldaplib release before deploying this API revision; run live Chama timing after restart.
+- Risks/Assumptions: Batches are capped at 100 IRIs and 32 requested properties. IIIF capabilities are short-lived and clients must not persist them. Existing API routes and payloads are unchanged.
+
+### Update 2026-08-26 00:38
+- Decisions: Keep the instance-read HTTP contract unchanged while accepting the complete attached-role map from oldaplib's main resource CONSTRUCT.
+- Implementation: Extended the isolated fast-path route regression with two attached roles and exact serialized permissions; synchronized stable context with oldaplib 0.7.13 and the removal of both former follow-up queries.
+- Open: Install the next oldaplib release containing integrated role extraction, restart the API, and measure representative resource detail reads.
+- Risks/Assumptions: No API implementation change is required beyond the already active structured read result; compatibility depends on publishing/installing the corresponding oldaplib revision.
+
+### Update 2026-08-26 00:24
+- Decisions: Consume oldaplib's structured single-CONSTRUCT read result instead of maintaining an API-owned preliminary type query; preserve the existing explicit/inferred type response contract.
+- Implementation: Reworked generic instance GET to use `ResourceInstanceFactory.read_data()`, reuse its resolved property model during serialization, and remove duplicate IRI/project validation plus direct QueryProcessor usage; added a GraphDB-independent route regression proving no preliminary connection query.
+- Open: Publish/install the corresponding oldaplib release, run the existing GraphDB-backed read-instance test in a disposable fixture repository, restart the API, and measure representative Chama detail reads.
+- Risks/Assumptions: The local shared GraphDB fixture suite was not run because it clears administrative/test graphs; focused library and isolated route tests cover the changed contract without mutating the user's repository.
+
 ### Update 2026-08-23 19:26
 - Decisions: Close the cross-repository Step-11 final-check findings without changing existing public routes or token consumers. Treat the protected Mobile inbox as unavailable to ZIP import, ignore only typed terminal-history references during empty-area deletion, and reuse the common renewable Staging mutation lease for mobile commits.
 - Implementation: Added ZIP-import protection at authorization, closed commit validation, and final transactional revalidation; blocked reserved folder names inside ZIP trees; made active ZIP imports block StagingArea deletion while typed terminal import records and permanent mobile receipts no longer make empty areas undeletable; delegated mobile commit serialization to the heartbeat-renewed shared lock; aligned internal comment validation, German RDF language, and the OpenAPI description; and added blank local environment placeholders plus focused regression coverage.

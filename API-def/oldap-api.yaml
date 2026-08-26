@@ -3904,6 +3904,57 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+  /data/summaries/{project}:
+    post:
+      summary: Read bounded permission-aware resource summaries in one request
+      description: >
+        Returns compact metadata for at most 100 requested resource IRIs using one
+        backend batch read. Missing and unreadable resources are both omitted, so
+        callers cannot use the endpoint to probe protected resource existence.
+        `rdf:type` is always returned; `includeProperties` controls all other
+        metadata fields. When `includeMediaDelivery` is true, readable media
+        resources also receive a short-lived authorized IIIF delivery or an
+        external-image delivery description. Existing single-resource endpoints
+        are unchanged.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          in: path
+          required: true
+          description: Project short name containing the requested resources.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceSummaryRequest'
+            example:
+              iris:
+                - chama:IMG_1751
+                - chama:PICT0111
+              includeProperties:
+                - schema:name
+                - shared:hasMediaObject
+              includeMediaDelivery: true
+      responses:
+        "200":
+          description: Readable summaries in first-occurrence request order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceSummaryResponse'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+
   /data/{project}/{instiri}:
     get:
       summary: Get an instance of a resource only based on it's IRI
@@ -6639,6 +6690,134 @@ components:
         shared:inStagingFolder:
           type: string
           format: iri
+
+    ResourceSummaryRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - iris
+      properties:
+        iris:
+          type: array
+          minItems: 1
+          maxItems: 100
+          description: >
+            Resource QNames or absolute IRIs. Duplicate values are accepted by
+            the implementation but collapsed at their first occurrence.
+          items:
+            type: string
+            format: iri
+        includeProperties:
+          type: array
+          maxItems: 32
+          default:
+            - schema:name
+          description: >
+            Property QNames to return in addition to the always included type
+            information. Duplicate values are collapsed. Omit the field to
+            request `schema:name`; send an empty array to request types only.
+          items:
+            type: string
+        includeMediaDelivery:
+          type: boolean
+          default: false
+          description: >
+            Add an authorized delivery description for readable MediaObjects.
+            Internal token source fields are not added to the public summary
+            unless separately listed in `includeProperties`.
+
+    ResourceSummaryMediaDelivery:
+      description: Optional authorized image delivery derived without a follow-up query.
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required:
+            - kind
+            - infoUrl
+            - capability
+          properties:
+            kind:
+              type: string
+              const: iiif-image
+            infoUrl:
+              type: string
+              format: uri
+            capability:
+              type: [string, "null"]
+              description: Short-lived media capability for IIIF metadata and tiles.
+        - type: object
+          additionalProperties: false
+          required:
+            - kind
+            - url
+            - thumbnailUrl
+          properties:
+            kind:
+              type: string
+              const: external-image
+            url:
+              type: string
+              format: uri
+            thumbnailUrl:
+              type: [string, "null"]
+              format: uri
+        - type: "null"
+
+    ResourceSummary:
+      type: object
+      required:
+        - iri
+        - resclass
+        - data
+      properties:
+        iri:
+          type: string
+          format: iri
+        resclass:
+          type: string
+          description: Most specific known OLDAP resource-class QName.
+        data:
+          type: object
+          description: >
+            Requested metadata plus explicit `rdf:type` and optional
+            `virtual:inferredTypes`, using the normal instance JSON value shapes.
+          required:
+            - rdf:type
+          properties:
+            rdf:type:
+              type: array
+              minItems: 1
+              items:
+                type: string
+            virtual:inferredTypes:
+              type: array
+              minItems: 1
+              items:
+                type: string
+          additionalProperties:
+            oneOf:
+              - $ref: '#/components/schemas/ValueArray'
+              - type: string
+              - type: number
+              - type: boolean
+              - type: "null"
+        mediaDelivery:
+          $ref: '#/components/schemas/ResourceSummaryMediaDelivery'
+      additionalProperties: false
+
+    ResourceSummaryResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - resources
+      properties:
+        resources:
+          type: array
+          description: >
+            Readable summaries in first-occurrence input order. Missing and
+            unreadable requested resources are omitted without distinction.
+          items:
+            $ref: '#/components/schemas/ResourceSummary'
 
     InstanceData:
       description: >
