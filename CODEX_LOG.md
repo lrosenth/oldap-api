@@ -1,5 +1,23 @@
 # CODEX_LOG
 
+### Update 2026-08-27 17:45
+- Decisions: Rebase the two mobile namespace corrections onto the current API 0.2.21 baseline and review only their changed code, tests, and interactions with the newly integrated resource-read fast path.
+- Implementation: Preserved both additive namespace fixes while integrating the upstream summary/read changes, resolved the work-log ordering, and reran the focused mobile, StagingArea, and fast-path regression matrix.
+- Open: API 0.2.21 still requires the corresponding newer oldaplib release documented by its upstream commits; the checked-in Poetry lock installs 0.7.11, which does not provide `ResourceReadResult`.
+- Risks/Assumptions: The 56 mobile/StagingArea tests pass with the locked environment and all 58 relevant tests pass against a temporary read-only export of current oldaplib 0.7.16. The uncommitted patch adds no route, payload, dependency, deployment, or token change.
+
+### Update 2026-08-26 19:35
+- Decisions: Resolve mobile-commit Fasnacht vocabulary from the authoritative OLDAP project namespace while preserving every existing account, organisation, role, StagingArea, inbox, and `ADMIN_CREATE` revalidation.
+- Implementation: Removed the deprecated hardcoded `http://oldap.org/fasnacht#` prefix from the transactional target query, derived its five project terms from `oldap:namespaceIri`, and updated the focused repository contract test to the live `http://fasnacht.digital/ns/` graph.
+- Open: The already compensated local test upload cannot reuse its terminal server generation. The current live test must use a new local media item; an explicit cross-service restart-generation workflow remains a separate recovery decision. No GraphDB migration is required.
+- Risks/Assumptions: The project metadata remains authoritative and its namespace ends in the separator required by OLDAP. Existing routes, payloads, token consumers, permission thresholds, and non-mobile operations are unchanged.
+
+### Update 2026-08-26 17:55
+- Decisions: Keep the protected `top/Mobile` role policy exact while making valid project-QName input independent of process-local bearer-token context hydration.
+- Implementation: Expanded the StagingArea default-role QName through the authoritative project namespace already resolved from GraphDB, added a regression for the current Fasnacht namespace and a fresh bearer context, and documented the boundary.
+- Open: Existing StagingAreas without `top/Mobile` must retry the normal FasnachtsPage provisioning flow once this API patch is running; no data migration is required.
+- Risks/Assumptions: The patch changes only QName normalization inside the existing create guard. Absolute IRIs, non-project prefixes, the single-role requirement, exact `DATA_VIEW`, and all existing routes remain unchanged.
+
 ### Update 2026-08-26 01:01
 - Decisions: Add a bounded summary endpoint instead of expanding existing search or single-resource contracts; omit missing and unreadable resources identically, and make media delivery an explicit opt-in enrichment.
 - Implementation: Added `POST /data/summaries/{project}` with strict request bounds, selected-property serialization, optional IIIF/external delivery, one oldaplib batch call, OpenAPI 3.1 schemas/examples, a dedicated usage/security guide, and isolated route coverage.

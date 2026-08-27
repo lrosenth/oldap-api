@@ -32,6 +32,9 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   `Mobile` inbox. It derives the resource IRI, graph, storage path, class,
   status, role, and permissions and writes one `shared:StagingMediaObject` plus
   its permanent `clientAssetId` receipt in one GraphDB transaction. Exact
+  Fasnacht classes and properties in the authorization query are derived from
+  the authoritative `oldap:Project` namespace rather than a deployment-local
+  or historical hardcoded namespace. Exact
   request replay returns the stored result; conflicting event, upload, or asset
   identity reuse fails closed without exposing foreign data. The API also
   requires the published path to equal the current server-derived StagingArea
@@ -48,7 +51,9 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   and generic deletion cannot bypass the dedicated atomic area operation.
   Project data-graph resolution falls back to authoritative OLDAP project
   metadata when a fresh bearer-token connection has no project QName in its
-  process-local context. The authenticated
+  process-local context. Protected-folder role validation uses that same
+  authoritative namespace to expand project QNames without weakening the exact
+  default-role and `DATA_VIEW` policy. The authenticated
   `DELETE /data/{project}/{stagingAreaIri}/staging-area` operation resolves one
   complete system-folder-only area, rechecks current delete authorization and
   external references, and deletes `Mobile`, `Trash`, `top`, and the

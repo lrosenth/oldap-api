@@ -11,6 +11,7 @@ from oldaplib.src.helpers.context import Context
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
+from oldaplib.src.xsd.xsd_qname import Xsd_QName
 from rdflib import Literal, URIRef
 from rdflib.namespace import XSD
 
@@ -219,6 +220,7 @@ class StagingSystemFolderPolicy:
                 roles,
                 state.default_role,
                 Context(name=self._connection.context_name),
+                self._graph,
             ):
                 raise StagingStructureConflict(
                     "The Mobile inbox must grant only DATA_VIEW to the StagingArea default role."
@@ -614,23 +616,31 @@ def _reserved_kind(name: str) -> str | None:
     return None
 
 
-def _expanded_iri(value: str, context: Context) -> str | None:
+def _expanded_iri(value: str, context: Context, graph: StagingGraph) -> str | None:
     try:
         if "://" in value or value.startswith("urn:"):
             return _validated_absolute_iri(value)
-        return str(context.qname2iri(value, validate=True))
+        qname = Xsd_QName(value, validate=True)
+        if str(qname.prefix) == graph.project_short_name:
+            return _validated_absolute_iri(f"{graph.project_namespace}{qname.fragment}")
+        return str(context.qname2iri(qname, validate=True))
     except (OldapError, OldapErrorValue, ValueError):
         return None
 
 
-def _has_exact_mobile_policy(roles: Any, default_role: str, context: Context) -> bool:
+def _has_exact_mobile_policy(
+    roles: Any,
+    default_role: str,
+    context: Context,
+    graph: StagingGraph,
+) -> bool:
     if not isinstance(roles, dict) or len(roles) != 1:
         return False
     role, permission = next(iter(roles.items()))
     if not isinstance(role, str) or not isinstance(permission, str):
         return False
     return (
-        _expanded_iri(role, context) == default_role
+        _expanded_iri(role, context, graph) == default_role
         and permission.removeprefix("oldap:") == "DATA_VIEW"
     )
 

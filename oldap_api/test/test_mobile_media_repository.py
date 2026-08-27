@@ -60,8 +60,8 @@ class CommitConnection:
             if target_rows is not None
             else [
                 {
-                    "dataGraph": _value("http://oldap.org/fasnacht#data"),
-                    "project": _value("http://oldap.org/fasnacht"),
+                    "dataGraph": _value("http://fasnacht.digital/ns/data"),
+                    "project": _value("https://fasnacht.digital"),
                     "projectShortName": _value("fasnacht"),
                     "defaultRole": _value(DEFAULT_ROLE),
                     "mediaPath": _value("bmg"),
@@ -147,7 +147,7 @@ def test_resource_and_permanent_receipt_share_one_transaction() -> None:
     assert connection.aborted == 0
     assert len(connection.updates) == 1
     update = connection.updates[0]
-    assert "GRAPH <http://oldap.org/fasnacht#data>" in update
+    assert "GRAPH <http://fasnacht.digital/ns/data>" in update
     assert "GRAPH <urn:oldap:mobile-media-commits>" in update
     assert "shared:StagingMediaObject" in update
     assert f'shared:assetId "{CLIENT_ASSET_ID}"' in update
@@ -169,8 +169,12 @@ def test_resource_and_permanent_receipt_share_one_transaction() -> None:
     target_query = next(
         query for query in connection.queries if "SELECT ?dataGraph" in query
     )
-    assert "fasnacht:memberOfOrganisation" in target_query
-    assert "fasnacht:depositingOrganisation" in target_query
+    assert "http://oldap.org/fasnacht#" not in target_query
+    assert 'CONCAT(STR(?namespaceIri), "memberOfOrganisation")' in target_query
+    assert 'CONCAT(STR(?namespaceIri), "depositingOrganisation")' in target_query
+    assert 'CONCAT(STR(?namespaceIri), "FasnachtUser")' in target_query
+    assert 'CONCAT(STR(?namespaceIri), "Organisation")' in target_query
+    assert 'CONCAT(STR(?namespaceIri), "StagingArea")' in target_query
     assert "oldap:isActive true" in target_query
     assert "oldap:hasRole ?defaultRole" in target_query
     inbox_query = next(query for query in connection.queries if "SELECT ?top" in query)
