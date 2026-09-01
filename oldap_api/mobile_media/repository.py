@@ -342,34 +342,41 @@ def _target_query(commit: MobileMediaCommit) -> str:
     return f"""
 PREFIX oldap: <http://oldap.org/base#>
 PREFIX shared: <http://oldap.org/shared#>
-PREFIX fasnacht: <http://oldap.org/fasnacht#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?dataGraph ?project ?projectShortName ?defaultRole ?mediaPath
 WHERE {{
+  GRAPH oldap:admin {{
+    ?project a oldap:Project ;
+      oldap:projectShortName ?projectShortName ;
+      oldap:namespaceIri ?namespaceIri .
+  }}
+  BIND(IRI(CONCAT(STR(?namespaceIri), "FasnachtUser")) AS ?fasnachtUserClass)
+  BIND(IRI(CONCAT(STR(?namespaceIri), "Organisation")) AS ?organisationClass)
+  BIND(IRI(CONCAT(STR(?namespaceIri), "StagingArea")) AS ?stagingAreaClass)
+  BIND(IRI(CONCAT(STR(?namespaceIri), "memberOfOrganisation")) AS ?membershipProperty)
+  BIND(IRI(CONCAT(STR(?namespaceIri), "depositingOrganisation")) AS ?depositingProperty)
   GRAPH ?dataGraph {{
     {area} a ?areaClass ;
       shared:mediaPath ?mediaPath ;
       shared:stagingDefaultRole ?defaultRole ;
-      fasnacht:depositingOrganisation ?organisation ;
+      ?depositingProperty ?organisation ;
       oldap:attachedToRole ?defaultRole .
     << {area} oldap:attachedToRole ?defaultRole >>
       oldap:hasDataPermission ?areaPermission .
-    ?organisation a fasnacht:Organisation .
+    ?organisation a ?organisationClass .
   }}
   FILTER(
     ?areaClass = shared:StagingArea ||
+    ?areaClass = ?stagingAreaClass ||
     EXISTS {{ GRAPH ?areaOntology {{
       ?areaClass rdfs:subClassOf+ shared:StagingArea .
     }} }}
   )
   GRAPH oldap:admin {{
-    ?project a oldap:Project ;
-      oldap:projectShortName ?projectShortName ;
-      oldap:namespaceIri ?namespaceIri .
-    {owner} a oldap:User, fasnacht:FasnachtUser ;
+    {owner} a oldap:User, ?fasnachtUserClass ;
       oldap:isActive true ;
-      fasnacht:memberOfOrganisation ?organisation ;
+      ?membershipProperty ?organisation ;
       oldap:hasRole ?defaultRole .
     ?areaPermission oldap:permissionValue ?areaPermissionValue .
     FILTER(xsd:integer(?areaPermissionValue) >= 2)

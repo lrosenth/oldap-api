@@ -31,6 +31,8 @@ TRASH = "urn:uuid:00000000-0000-0000-0000-000000000204"
 USER_FOLDER = "urn:uuid:00000000-0000-0000-0000-000000000205"
 DEFAULT_ROLE = "http://oldap.org/fasnacht#DefaultRole"
 ACTOR = "urn:uuid:00000000-0000-0000-0000-000000000206"
+CURRENT_PROJECT_NAMESPACE = "http://fasnacht.digital/ns/"
+CURRENT_DEFAULT_ROLE = f"{CURRENT_PROJECT_NAMESPACE}BMG-Archivist"
 
 
 def binding(value: str) -> dict[str, str]:
@@ -62,6 +64,43 @@ def test_resolves_project_graph_for_a_fresh_bearer_context() -> None:
 
     assert graph.project_namespace == "http://oldap.org/fasnacht#"
     assert graph.data_graph_iri == "http://oldap.org/fasnacht#data"
+
+
+def test_mobile_policy_resolves_project_qname_for_a_fresh_bearer_context() -> None:
+    class FreshBearerPolicyConnection:
+        context_name = "STAGING_FRESH_BEARER_POLICY_CONTEXT"
+
+        def query(self, query: str):
+            if "# staging-project-namespace" in query:
+                return result([{"namespace": binding(CURRENT_PROJECT_NAMESPACE)}])
+            if "# staging-system-state" in query:
+                return result(
+                    [
+                        {
+                            "defaultRole": binding(CURRENT_DEFAULT_ROLE),
+                            "reservedFolder": binding(TOP),
+                            "reservedName": literal("top"),
+                        }
+                    ]
+                )
+            raise AssertionError(f"Unexpected query: {query}")
+
+    payload = {
+        "schema:name": ["Mobile"],
+        "shared:inStagingArea": [AREA],
+        "shared:inStagingFolder": [TOP],
+        "attachedToRole": {"fasnacht:BMG-Archivist": "DATA_VIEW"},
+    }
+
+    policy = StagingSystemFolderPolicy(FreshBearerPolicyConnection(), "fasnacht")
+    policy.assert_create_allowed("shared:StagingFolder", payload)
+
+    wrong_role_payload = {
+        **payload,
+        "attachedToRole": {"fasnacht:OtherRole": "DATA_VIEW"},
+    }
+    with pytest.raises(StagingStructureConflict, match="must grant only DATA_VIEW"):
+        policy.assert_create_allowed("shared:StagingFolder", wrong_role_payload)
 
 
 class PolicyConnection:
