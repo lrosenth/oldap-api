@@ -55,9 +55,101 @@ def test_public_target_query_is_self_contained_for_real_oldap_identifiers() -> N
     assert "fasnacht:data" not in query
     assert "PREFIX schema: <https://schema.org/>" in query
     assert "rdfs:subClassOf+ shared:StagingArea" in query
+    assert "shared:mediaPath ?mediaPath" in query
+    assert "shared:stagingDefaultRole ?defaultRole" in query
+    assert "oldap:hasDataPermission ?defaultPermission" in query
     assert (
         "OPTIONAL { <urn:uuid:e1c03947-4f53-465f-85c5-0296e12bd0cc> shared:stagingQuotaBytes ?quota . }"
         in query
+    )
+
+
+def test_authorizer_returns_server_owned_upload_configuration(monkeypatch) -> None:
+    """A valid target exposes only configuration derived from OLDAP data."""
+
+    project_iri = Iri("https://example.org/project")
+    project = SimpleNamespace(
+        projectIri=project_iri,
+        namespaceIri="https://example.org/project/",
+    )
+    monkeypatch.setattr(Project, "read", staticmethod(lambda **_kwargs: project))
+    connection = FakeConnection(
+        [
+            {
+                "areaName": {"value": "Chama Demo Staging"},
+                "folderName": {"value": "Own photographs"},
+                "quota": {"value": "10737418240"},
+                "mediaPath": {"value": "chama"},
+                "defaultRole": {"value": "https://example.org/project/Curator"},
+                "defaultPermission": {
+                    "value": "http://oldap.org/base#DATA_PERMISSIONS"
+                },
+            }
+        ]
+    )
+    connection.userIri = Iri("https://example.org/users/alice")
+    connection.userdata = SimpleNamespace(
+        inProject={project_iri: {AdminPermission.ADMIN_CREATE}}
+    )
+
+    result = OldapImportAuthorizer().authorize_target(
+        connection,
+        project_short_name="chama",
+        staging_area_iri="https://example.org/staging/area",
+        target_root_folder_iri="https://example.org/staging/photos",
+    )
+
+    assert result.quota_limit_bytes == 10_737_418_240
+    assert result.media_path == "chama"
+    assert result.default_role_qname == "chama:Curator"
+    assert result.default_permission == "DATA_PERMISSIONS"
+
+
+def test_authorizer_expands_project_qnames_before_custom_sparql(monkeypatch) -> None:
+    """Documented project QNames must resolve to their authoritative namespace."""
+
+    project_iri = Iri("https://chama.salsah.org")
+    project = SimpleNamespace(
+        projectIri=project_iri,
+        namespaceIri="https://chama.salsah.org/ns/",
+    )
+    monkeypatch.setattr(Project, "read", staticmethod(lambda **_kwargs: project))
+    connection = FakeConnection(
+        [
+            {
+                "areaName": {"value": "Chama Demo Staging"},
+                "folderName": {"value": "Own photographs"},
+                "quota": {"value": "10737418240"},
+                "mediaPath": {"value": "chama"},
+                "defaultRole": {"value": "https://chama.salsah.org/ns/Curator"},
+                "defaultPermission": {
+                    "value": "http://oldap.org/base#DATA_PERMISSIONS"
+                },
+            }
+        ]
+    )
+    connection.userIri = Iri("https://example.org/users/alice")
+    connection.userdata = SimpleNamespace(
+        inProject={project_iri: {AdminPermission.ADMIN_CREATE}}
+    )
+
+    result = OldapImportAuthorizer().authorize_target(
+        connection,
+        project_short_name="chama",
+        staging_area_iri="chama:ChamaDemoStaging",
+        target_root_folder_iri="chama:ChamaOwnPhotographs",
+    )
+
+    assert "<https://chama.salsah.org/ns/ChamaDemoStaging>" in connection.query_text
+    assert "<https://chama.salsah.org/ns/ChamaOwnPhotographs>" in connection.query_text
+    assert "<chama:" not in connection.query_text
+    assert (
+        result.snapshot.staging_area_iri
+        == "https://chama.salsah.org/ns/ChamaDemoStaging"
+    )
+    assert (
+        result.snapshot.target_root_folder_iri
+        == "https://chama.salsah.org/ns/ChamaOwnPhotographs"
     )
 
 

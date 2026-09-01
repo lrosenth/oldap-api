@@ -1,5 +1,29 @@
 # CODEX_LOG
 
+### Update 2026-08-30 00:13
+- Decisions: Align public ZIP job creation with the existing authorizer boundary by accepting only safe QNames in the explicitly selected project, while retaining absolute HTTP(S) and canonical UUID-URN targets.
+- Implementation: Passed the validated project short name into target validation, documented canonical response identifiers in OpenAPI, synchronized the media-owned contract copy, and added isolated acceptance/rejection regressions. Six focused import-view tests pass.
+- Open: Exercise one real Chama ZIP through SALSAH; immutable report rendering and explicit confirmation remain the next frontend increment.
+- Risks/Assumptions: This is an additive request-format extension; responses and existing absolute-IRI clients are unchanged. QName canonicalization remains authoritative in `OldapImportAuthorizer`, and no GraphDB-backed test was run.
+
+### Update 2026-08-29 02:58
+- Decisions: Preserve the documented QName-or-absolute-IRI Staging target contract and canonicalize project QNames before custom SPARQL instead of requiring clients to know storage namespaces.
+- Implementation: Expanded selected StagingArea/folder QNames through authoritative project metadata, returned canonical absolute target IRIs, documented the response behavior, and added an isolated Chama-shaped regression proving the query never emits `<chama:...>` pseudo-IRIs.
+- Open: Restart oldap-api and repeat the single-file Chama Staging upload.
+- Risks/Assumptions: Already absolute and URN targets remain unchanged. No GraphDB-backed test was run.
+
+### Update 2026-08-29 01:15
+- Decisions: Keep single-file Staging upload authorization in OLDAP and expose only an additive target-resolution endpoint; derive path, quota, default role, and permission server-side and keep Mobile on its dedicated workflow.
+- Implementation: Added strict `POST /data/{project}/staging-upload-target`, enriched the shared import authorizer with upload configuration, documented the OpenAPI contract, and added isolated query/HTTP regressions.
+- Open: Restart oldap-api before the live SALSAH acceptance upload; aggregate quota usage remains owned by the later unified ingest accounting design.
+- Risks/Assumptions: The selected StagingArea must define media path, quota, and an annotated project-local default role. Existing API contracts are unchanged, and no GraphDB-backed tests were run.
+
+### Update 2026-08-28 00:52
+- Decisions: Treat every GraphDB-backed API fixture as destructive and fail closed before application setup when it targets the normal local `oldap` repository.
+- Implementation: Switched the fixture default to the dedicated `oldap-test` repository, added an explicit `OLDAP_TEST_TS_REPO` resolver/guard with focused non-GraphDB regressions, and documented the test-repository contract.
+- Open: Create/provision `oldap-test` before running the legacy integration suite; do not weaken the guard to reuse a development repository.
+- Risks/Assumptions: Existing CI or developer setups that implicitly reused `oldap` now fail intentionally until they select a disposable repository. No runtime API behavior changes.
+
 ### Update 2026-08-26 01:01
 - Decisions: Add a bounded summary endpoint instead of expanding existing search or single-resource contracts; omit missing and unreadable resources identically, and make media delivery an explicit opt-in enrichment.
 - Implementation: Added `POST /data/summaries/{project}` with strict request bounds, selected-property serialization, optional IIIF/external delivery, one oldaplib batch call, OpenAPI 3.1 schemas/examples, a dedicated usage/security guide, and isolated route coverage.

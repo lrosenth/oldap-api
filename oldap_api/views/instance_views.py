@@ -3,6 +3,13 @@ from typing import Any
 from urllib.parse import quote, unquote
 from flask import request, jsonify, Blueprint, current_app
 from oldap_api.authentication import authenticated_connection, require_auth
+from oldap_api.imports.authorization import (
+    ImportPermissionDeniedError,
+    ImportQuotaNotConfiguredError,
+    ImportTargetNotFoundError,
+    ImportTargetProtectedError,
+    OldapImportAuthorizer,
+)
 from oldap_api.staging_area import (
     GraphDbStagingAreaRepository,
     StagingStructureConflict,
@@ -975,6 +982,61 @@ def add_instance(project, resource):
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
     return jsonify({"message": "Instance successfully created", "iri": str(instance.iri)}), 200
+
+
+@instance_bp.route('/<path:project>/staging-upload-target', methods=['POST'])
+@require_auth
+def authorize_staging_upload_target(project):
+    """Resolve one writable Staging folder into server-owned upload facts."""
+
+    project = unquote(project)
+    if not request.is_json:
+        return jsonify({"message": "Invalid request format, JSON required"}), 400
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"message": "Request body must be an object."}), 400
+    expected = {"stagingAreaIri", "stagingFolderIri"}
+    if set(data) != expected or not all(
+        isinstance(data.get(field), str) and data[field].strip() for field in expected
+    ):
+        return jsonify({
+            "message": "stagingAreaIri and stagingFolderIri are required IRI strings."
+        }), 400
+
+    connection = authenticated_connection()
+    try:
+        target = OldapImportAuthorizer().authorize_target(
+            connection,
+            project_short_name=project,
+            staging_area_iri=data["stagingAreaIri"].strip(),
+            target_root_folder_iri=data["stagingFolderIri"].strip(),
+        )
+    except ImportPermissionDeniedError as error:
+        return jsonify({"message": str(error)}), 403
+    except ImportTargetNotFoundError as error:
+        return jsonify({"message": str(error)}), 404
+    except (ImportTargetProtectedError, ImportQuotaNotConfiguredError) as error:
+        return jsonify({"message": str(error)}), 409
+    except OldapError as error:
+        current_app.logger.exception("authorize_staging_upload_target failed")
+        return jsonify({"message": str(error)}), 503
+
+    if not all(
+        (target.media_path, target.default_role_qname, target.default_permission)
+    ):
+        return jsonify({"message": "The staging upload configuration is incomplete."}), 409
+    return jsonify({
+        "projectShortName": project,
+        "stagingAreaIri": target.snapshot.staging_area_iri,
+        "stagingAreaName": target.snapshot.staging_area_name,
+        "stagingFolderIri": target.snapshot.target_root_folder_iri,
+        "stagingFolderName": target.snapshot.target_root_folder_name,
+        "mediaPath": target.media_path,
+        "quotaBytes": target.quota_limit_bytes,
+        "attachedToRole": {
+            target.default_role_qname: target.default_permission,
+        },
+    }), 200
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['GET'])
 @require_auth

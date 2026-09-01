@@ -4078,6 +4078,95 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+  /data/{project}/staging-upload-target:
+    post:
+      operationId: authorizeStagingUploadTarget
+      summary: Resolve a writable Staging folder for a media upload
+      description: >
+        Validates that the authenticated user may create data in the project and
+        update the selected StagingArea/folder pair. Returns server-owned upload
+        configuration such as the media path, default role permission, and quota.
+        Clients must not choose or override these trusted values. The protected
+        Mobile inbox is intentionally rejected by this endpoint; its resumable
+        upload workflow uses the dedicated mobile-upload API.
+      security:
+        - AccessToken: [ ]
+      parameters:
+        - name: project
+          in: path
+          required: true
+          description: Short name of the target OLDAP project.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [stagingAreaIri, stagingFolderIri]
+              properties:
+                stagingAreaIri:
+                  type: string
+                  format: iri
+                  description: Project QName or absolute IRI; returned canonically as an absolute IRI.
+                stagingFolderIri:
+                  type: string
+                  format: iri
+                  description: Project QName or absolute IRI; returned canonically as an absolute IRI.
+            example:
+              stagingAreaIri: chama:ChamaDemoStaging
+              stagingFolderIri: chama:ChamaOwnPhotographs
+      responses:
+        "200":
+          description: Authorized target and its trusted upload configuration.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - projectShortName
+                  - stagingAreaIri
+                  - stagingFolderIri
+                  - mediaPath
+                  - quotaBytes
+                  - attachedToRole
+                properties:
+                  projectShortName:
+                    type: string
+                  stagingAreaIri:
+                    type: string
+                  stagingAreaName:
+                    type: string
+                  stagingFolderIri:
+                    type: string
+                  stagingFolderName:
+                    type: string
+                  mediaPath:
+                    type: string
+                  quotaBytes:
+                    type: integer
+                    format: int64
+                    minimum: 1
+                  attachedToRole:
+                    type: object
+                    minProperties: 1
+                    additionalProperties:
+                      type: string
+                    example:
+                      chama:Curator: DATA_PERMISSIONS
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "409":
+          description: The target is protected or has incomplete quota/configuration.
+        "503":
+          description: OLDAP could not resolve the target configuration.
+
   /data/{project}/{stagingAreaIri}/staging-area:
     delete:
       operationId: deleteEmptyStagingArea
@@ -5807,8 +5896,14 @@ components:
       additionalProperties: false
       properties:
         projectShortName: {type: string, pattern: '^[A-Za-z][A-Za-z0-9_-]{0,63}$'}
-        stagingAreaIri: {type: string, format: uri, maxLength: 2048}
-        targetRootFolderIri: {type: string, format: uri, maxLength: 2048}
+        stagingAreaIri:
+          type: string
+          maxLength: 2048
+          description: Absolute HTTP(S) IRI, canonical UUID URN, or QName using projectShortName; responses contain the canonical absolute IRI.
+        targetRootFolderIri:
+          type: string
+          maxLength: 2048
+          description: Absolute HTTP(S) IRI, canonical UUID URN, or QName using projectShortName; responses contain the canonical absolute IRI.
         originalFileName: {type: string, minLength: 1, maxLength: 255}
         compressedSizeBytes: {type: integer, minimum: 1, maximum: 500000000}
       required: [projectShortName, stagingAreaIri, targetRootFolderIri, originalFileName, compressedSizeBytes]

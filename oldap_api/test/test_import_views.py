@@ -128,6 +128,24 @@ def test_create_accepts_canonical_oldap_uuid_urn_targets(monkeypatch):
     assert response.json["job"]["state"] == "UPLOADING"
 
 
+def test_create_accepts_selected_project_qname_targets(monkeypatch):
+    """SALSAH project resources may be represented by their project QName."""
+    client = _client(monkeypatch)
+    body = _body() | {
+        "stagingAreaIri": "fasnacht:PrivateStaging",
+        "targetRootFolderIri": "fasnacht:IncomingFolder",
+    }
+
+    response = client.post(
+        "/imports",
+        json=body,
+        headers={"Authorization": "Bearer valid-test-token"},
+    )
+
+    assert response.status_code == 201
+    assert response.json["job"]["state"] == "UPLOADING"
+
+
 def test_authentication_and_closed_request_validation(monkeypatch):
     client = _client(monkeypatch)
     missing_auth = client.post("/imports", json=_body())
@@ -157,6 +175,8 @@ def test_authentication_and_closed_request_validation(monkeypatch):
         "file:///tmp/staging-area",
         "data:text/plain,staging-area",
         "javascript:alert(1)",
+        "another:PrivateStaging",
+        "fasnacht:invalid/local-name",
     ):
         response = client.post(
             "/imports",

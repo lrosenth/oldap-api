@@ -919,8 +919,16 @@ def _validate_create_request(value: Any) -> dict[str, Any]:
     project = value["projectShortName"]
     if not isinstance(project, str) or PROJECT_SHORT_NAME_RE.fullmatch(project) is None:
         raise ImportValidationError("projectShortName is invalid.")
-    staging_area = _validate_iri(value["stagingAreaIri"], "stagingAreaIri")
-    target_folder = _validate_iri(value["targetRootFolderIri"], "targetRootFolderIri")
+    staging_area = _validate_iri(
+        value["stagingAreaIri"],
+        "stagingAreaIri",
+        project_short_name=project,
+    )
+    target_folder = _validate_iri(
+        value["targetRootFolderIri"],
+        "targetRootFolderIri",
+        project_short_name=project,
+    )
     original_name = value["originalFileName"]
     if not isinstance(original_name, str):
         raise ImportValidationError("originalFileName must be text.")
@@ -948,23 +956,31 @@ def _validate_create_request(value: Any) -> dict[str, Any]:
     }
 
 
-def _validate_iri(value: Any, field: str) -> str:
-    """Validate one public staging-resource IRI without accepting unsafe schemes.
+def _validate_iri(
+    value: Any,
+    field: str,
+    *,
+    project_short_name: str | None = None,
+) -> str:
+    """Validate one public staging-resource identifier without unsafe schemes.
 
     OLDAP instance creation normally assigns canonical ``urn:uuid`` identifiers,
-    while imported or externally managed resources may use HTTP(S) identifiers.
-    Keeping this allowlist narrow prevents URI-shaped local-file or executable
-    schemes from crossing the public import boundary.
+    project-authored resources may use the selected project's QName, and imported
+    or externally managed resources may use HTTP(S) identifiers. Keeping this
+    allowlist narrow prevents URI-shaped local-file or executable schemes from
+    crossing the public import boundary. Project QNames are canonicalized later
+    through authoritative project metadata by ``OldapImportAuthorizer``.
 
     Args:
         value: Candidate JSON field value.
         field: Public field name used in validation errors.
+        project_short_name: Optional validated project prefix allowed for QNames.
 
     Returns:
-        The unchanged, validated IRI.
+        The unchanged, validated IRI or project QName.
 
     Raises:
-        ImportValidationError: If the value is not an allowed absolute IRI.
+        ImportValidationError: If the value is not an allowed identifier.
     """
     if not isinstance(value, str) or not 1 <= len(value) <= 2048:
         raise ImportValidationError(f"{field} must be an absolute IRI.")
@@ -986,8 +1002,19 @@ def _validate_iri(value: Any, field: str) -> str:
             if identifier == str(parsed_uuid):
                 return value
 
+    if project_short_name is not None:
+        qname_prefix = f"{project_short_name}:"
+        local_name = value.removeprefix(qname_prefix)
+        if (
+            value.startswith(qname_prefix)
+            and local_name
+            and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]*", local_name) is not None
+        ):
+            return value
+
     raise ImportValidationError(
-        f"{field} must be an absolute HTTP(S) IRI or canonical UUID URN."
+        f"{field} must be an absolute HTTP(S) IRI, canonical UUID URN, "
+        "or a QName in the selected project."
     )
 
 

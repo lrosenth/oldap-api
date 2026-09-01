@@ -14,6 +14,8 @@ from oldap_api.staging_area import (
     DeletionTarget,
     StagingStructureConflict,
 )
+from oldap_api.imports.authorization import AuthorizedTarget
+from oldap_api.imports.domain import TargetSnapshot
 from oldap_api.views import instance_views
 from oldap_api.views import import_views
 from oldap_api.views import resource_views
@@ -23,6 +25,77 @@ TOP = "urn:uuid:00000000-0000-0000-0000-000000000302"
 MOBILE = "urn:uuid:00000000-0000-0000-0000-000000000303"
 TRASH = "urn:uuid:00000000-0000-0000-0000-000000000304"
 USER_FOLDER = "urn:uuid:00000000-0000-0000-0000-000000000305"
+
+
+def test_staging_upload_target_returns_server_derived_configuration(monkeypatch) -> None:
+    """The media server receives trusted storage and permission facts only."""
+
+    class FakeAuthorizer:
+        def authorize_target(self, connection, **kwargs):
+            assert connection is fake_connection
+            assert kwargs == {
+                "project_short_name": "chama",
+                "staging_area_iri": AREA,
+                "target_root_folder_iri": USER_FOLDER,
+            }
+            return AuthorizedTarget(
+                snapshot=TargetSnapshot(
+                    project_short_name="chama",
+                    staging_area_iri=AREA,
+                    staging_area_name="Chama Demo Staging",
+                    target_root_folder_iri=USER_FOLDER,
+                    target_root_folder_name="Own photographs",
+                ),
+                quota_limit_bytes=10_737_418_240,
+                media_path="chama",
+                default_role_qname="chama:Curator",
+                default_permission="DATA_PERMISSIONS",
+            )
+
+    fake_connection = object()
+    monkeypatch.setattr(instance_views, "authenticated_connection", lambda: fake_connection)
+    monkeypatch.setattr(instance_views, "OldapImportAuthorizer", FakeAuthorizer)
+    app = Flask(__name__)
+
+    with app.test_request_context(
+        "/data/chama/staging-upload-target",
+        method="POST",
+        json={"stagingAreaIri": AREA, "stagingFolderIri": USER_FOLDER},
+    ):
+        response, status = instance_views.authorize_staging_upload_target.__wrapped__(
+            "chama"
+        )
+
+    assert status == 200
+    assert response.get_json() == {
+        "projectShortName": "chama",
+        "stagingAreaIri": AREA,
+        "stagingAreaName": "Chama Demo Staging",
+        "stagingFolderIri": USER_FOLDER,
+        "stagingFolderName": "Own photographs",
+        "mediaPath": "chama",
+        "quotaBytes": 10_737_418_240,
+        "attachedToRole": {"chama:Curator": "DATA_PERMISSIONS"},
+    }
+
+
+def test_staging_upload_target_rejects_client_owned_extra_fields() -> None:
+    app = Flask(__name__)
+    with app.test_request_context(
+        "/data/chama/staging-upload-target",
+        method="POST",
+        json={
+            "stagingAreaIri": AREA,
+            "stagingFolderIri": USER_FOLDER,
+            "mediaPath": "../../outside",
+        },
+    ):
+        response, status = instance_views.authorize_staging_upload_target.__wrapped__(
+            "chama"
+        )
+
+    assert status == 400
+    assert "required IRI strings" in response.get_json()["message"]
 
 
 @pytest.fixture(autouse=True)

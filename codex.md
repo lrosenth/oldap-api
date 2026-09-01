@@ -10,6 +10,7 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 - All protected user, project, role, resource, hierarchical-list, datamodel, and instance routes authenticate through `oldap_api.authentication.require_auth`. The boundary strictly parses Bearer credentials, creates the request-scoped `Connection`, and emits one cache-safe `401` response for missing, malformed, expired, wrong-purpose, or invalid access tokens.
 - Generic `GET /data/{project}/{instiri}` uses `ResourceInstanceFactory.read_data()` so its permission-checked main CONSTRUCT also supplies explicit project-graph type provenance and the complete attached-role permission map. The former standalone `rdf:type` and roles queries are removed while `rdf:type`, `virtual:inferredTypes`, `oldap:attachedToRole`, property filtering, datatype shaping, and error responses remain stable.
 - Additive `POST /data/summaries/{project}` returns bounded, permission-aware metadata for up to 100 known resource IRIs through one oldaplib batch read. Callers select at most 32 properties and may request authorized IIIF/external-image delivery enrichment. Missing and unreadable resources are indistinguishably omitted; all pre-existing endpoints and response contracts remain unchanged. The contract lives in `API-def/oldap-api.yaml` and its usage guide in `doc/resource_summaries.md`.
+- Additive `POST /data/{project}/staging-upload-target` authorizes one explicitly selected StagingArea/StagingFolder pair for a normal single-file ingest. It accepts project QNames or absolute IRIs, canonicalizes QNames through authoritative project metadata before custom SPARQL, and returns canonical absolute target IRIs plus the authoritative media path, quota, and default role permission from OLDAP; clients cannot choose those storage or access-control facts. The protected Mobile inbox remains reserved for its dedicated resumable workflow.
 - Python project managed by Poetry.
 - Main package: `oldap_api`.
 - OpenAPI contract: `API-def/oldap-api.yaml`.
@@ -17,6 +18,9 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 - Resource-summary documentation: `doc/resource_summaries.md`.
 - Tests live in `oldap_api/test` and rely on a local GraphDB repository plus
   OLDAP test data from the sibling `oldaplib` repository.
+- Destructive GraphDB-backed tests default to the dedicated `oldap-test`
+  repository. They refuse `OLDAP_TEST_TS_REPO=oldap`; developers must select a
+  disposable repository explicitly when using another test repository name.
 - The API generally requires `oldaplib` 0.7.9 or newer within the 0.7 series.
   The current Poetry resolution uses 0.7.14; deploying the additive resource
   summary endpoint requires the prepared 0.7.15 release that introduces
@@ -75,6 +79,10 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   reads current direct staging children with the dedicated GraphDB service
   connection, and returns bounded target-change/folder-collision/media-warning
   findings using the ZIP validator's NFC/portable key semantics.
+  Public job creation accepts absolute HTTP(S) IRIs, canonical UUID URNs, or
+  safe QNames whose prefix is the selected project short name. Authorization
+  canonicalizes project QNames through authoritative project metadata, and job
+  responses expose canonical absolute target IRIs.
 - ZIP import Phase 5 is complete. `POST /internal/imports/{id}/commit`
   accepts only the active IMPORT claim and a closed, manifest-bound complete
   folder/media mapping. It derives deterministic UUIDv5 staging IRIs, rechecks

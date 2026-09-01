@@ -9,6 +9,39 @@ from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
 from oldap_api.factory import factory
 
 
+DEFAULT_TEST_REPOSITORY = "oldap-test"
+FORBIDDEN_TEST_REPOSITORIES = frozenset({"oldap"})
+
+
+def resolve_test_repository(configured_repository: str | None) -> str:
+    """Return a dedicated GraphDB repository name for destructive API tests.
+
+    The integration fixtures below deliberately clear administrative and test
+    graphs. They must therefore fail before application setup when a developer
+    accidentally points them at the normal local ``oldap`` repository.
+
+    Args:
+        configured_repository: Value of ``OLDAP_TEST_TS_REPO`` or ``None``.
+
+    Returns:
+        The stripped configured name, or ``oldap-test`` when unset.
+
+    Raises:
+        pytest.UsageError: If the name is empty or identifies the live local
+            repository.
+    """
+    repository = (configured_repository or DEFAULT_TEST_REPOSITORY).strip()
+    if not repository:
+        raise pytest.UsageError("OLDAP_TEST_TS_REPO must not be empty.")
+    if repository.casefold() in FORBIDDEN_TEST_REPOSITORIES:
+        raise pytest.UsageError(
+            "Refusing to run destructive OLDAP API fixtures against repository "
+            f"'{repository}'. Set OLDAP_TEST_TS_REPO to a dedicated disposable "
+            "repository, for example 'oldap-test'."
+        )
+    return repository
+
+
 class ConnectionManager:
     _access_secret: str
     _refresh_secret: str
@@ -59,7 +92,9 @@ def connection_manager():
 @pytest.fixture(scope="session", autouse=True)
 def set_test_env():
     os.environ["OLDAP_TS_SERVER"] = "http://localhost:7200"
-    os.environ["OLDAP_TS_REPO"] = "oldap"
+    os.environ["OLDAP_TS_REPO"] = resolve_test_repository(
+        os.environ.get("OLDAP_TEST_TS_REPO")
+    )
     os.environ["OLDAP_API_PORT"] = "8000"
     os.environ["OLDAP_REDIS_URL"] = "redis://localhost:6379/0"
     os.environ["OLDAP_STAGING_LOCK_REDIS_URL"] = "redis://localhost:6379/1"

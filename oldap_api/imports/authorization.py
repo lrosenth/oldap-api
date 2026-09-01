@@ -7,6 +7,7 @@ from collections.abc import Callable
 from typing import Any, Protocol
 
 from oldaplib.src.enums.adminpermissions import AdminPermission
+from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.project import Project
 from rdflib import URIRef
 
@@ -43,6 +44,9 @@ class AuthorizedTarget:
 
     snapshot: TargetSnapshot
     quota_limit_bytes: int
+    media_path: str | None = None
+    default_role_qname: str | None = None
+    default_permission: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,11 +105,22 @@ class OldapImportAuthorizer:
                 "ADMIN_CREATE is required for the selected project."
             )
 
+        canonical_area_iri = _canonical_project_resource_iri(
+            staging_area_iri,
+            project_short_name=project_short_name,
+            project_namespace=str(project.namespaceIri),
+        )
+        canonical_folder_iri = _canonical_project_resource_iri(
+            target_root_folder_iri,
+            project_short_name=project_short_name,
+            project_namespace=str(project.namespaceIri),
+        )
+
         query = _target_query(
             connection.userIri.toRdf,
             _project_data_graph_iri(project),
-            staging_area_iri,
-            target_root_folder_iri,
+            canonical_area_iri,
+            canonical_folder_iri,
         )
         rows = connection.query(query).get("results", {}).get("bindings", [])
         if not rows:
@@ -126,15 +141,33 @@ class OldapImportAuthorizer:
             raise ImportQuotaNotConfiguredError(
                 "The staging-area quota must be greater than zero."
             )
+        try:
+            media_path = row["mediaPath"]["value"]
+            default_role_iri = row["defaultRole"]["value"]
+            default_permission_iri = row["defaultPermission"]["value"]
+            project_namespace = str(project.namespaceIri)
+            if not default_role_iri.startswith(project_namespace):
+                raise ValueError("The default role is outside the project namespace.")
+            default_role_qname = f"{project_short_name}:{default_role_iri.removeprefix(project_namespace)}"
+            default_permission = DataPermission.from_string(
+                default_permission_iri.rsplit("#", 1)[-1]
+            ).to_string()
+        except (KeyError, TypeError, ValueError) as error:
+            raise ImportTargetNotFoundError(
+                "The staging area has incomplete upload configuration."
+            ) from error
         return AuthorizedTarget(
             snapshot=TargetSnapshot(
                 project_short_name=project_short_name,
-                staging_area_iri=staging_area_iri,
+                staging_area_iri=canonical_area_iri,
                 staging_area_name=row["areaName"]["value"],
-                target_root_folder_iri=target_root_folder_iri,
+                target_root_folder_iri=canonical_folder_iri,
                 target_root_folder_name=row["folderName"]["value"],
             ),
             quota_limit_bytes=quota,
+            media_path=media_path,
+            default_role_qname=default_role_qname,
+            default_permission=default_permission,
         )
 
 
@@ -246,6 +279,34 @@ def _project_data_graph_iri(project: Project) -> URIRef:
     return URIRef(f"{project.namespaceIri}data")
 
 
+def _canonical_project_resource_iri(
+    value: str,
+    *,
+    project_short_name: str,
+    project_namespace: str,
+) -> str:
+    """Expand a project QName while preserving an already absolute IRI.
+
+    Public OLDAP routes conventionally accept both project QNames such as
+    ``chama:ChamaDemoStaging`` and absolute resource IRIs. Custom SPARQL must
+    not place the QName text directly inside ``<...>`` because SPARQL then
+    interprets it as an unrelated absolute IRI with the ``chama`` scheme.
+
+    Args:
+        value: Client-supplied project QName or absolute IRI.
+        project_short_name: Authoritative short name of the selected project.
+        project_namespace: Authoritative namespace loaded from OLDAP metadata.
+
+    Returns:
+        The absolute project resource IRI, or the original absolute IRI.
+    """
+
+    prefix = f"{project_short_name}:"
+    if value.startswith(prefix) and len(value) > len(prefix):
+        return f"{project_namespace}{value[len(prefix):]}"
+    return value
+
+
 def _target_query(
     user_iri_rdf: str,
     data_graph_iri: URIRef,
@@ -261,15 +322,19 @@ PREFIX oldap: <http://oldap.org/base#>
 PREFIX shared: <http://oldap.org/shared#>
 PREFIX schema: <https://schema.org/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT ?areaName ?folderName ?quota
+SELECT ?areaName ?folderName ?quota ?mediaPath ?defaultRole ?defaultPermission
 WHERE {{
   GRAPH {data_graph} {{
     {area} a ?areaClass ;
       schema:name ?areaName ;
+      shared:mediaPath ?mediaPath ;
+      shared:stagingDefaultRole ?defaultRole ;
       oldap:attachedToRole ?role .
     OPTIONAL {{ {area} shared:stagingQuotaBytes ?quota . }}
     << {area} oldap:attachedToRole ?role >>
       oldap:hasDataPermission ?dataPermission .
+    << {area} oldap:attachedToRole ?defaultRole >>
+      oldap:hasDataPermission ?defaultPermission .
     {folder} a shared:StagingFolder ;
       shared:inStagingArea {area} ;
       schema:name ?folderName .
