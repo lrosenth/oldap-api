@@ -1,6 +1,9 @@
 from pprint import pprint
+from datetime import UTC, datetime
+import re
 from typing import Any
 from urllib.parse import quote, unquote
+from uuid import uuid4
 from flask import request, jsonify, Blueprint, current_app
 from oldap_api.authentication import authenticated_connection, require_auth
 from oldap_api.imports.authorization import (
@@ -19,6 +22,10 @@ from oldap_api.staging_area import (
     is_staging_mutation_class,
     is_staging_structure_class,
     run_staging_mutation,
+)
+from oldap_api.mobile_media.lifecycle import (
+    GraphDbMobileMediaLifecycleOutbox,
+    MobileMediaLifecycleError,
 )
 from oldaplib.src.datamodel import DataModel
 from oldaplib.src.enums.datapermissions import DataPermission
@@ -74,6 +81,56 @@ SUMMARY_MEDIA_PROPERTIES = {
         'shared:thumbnailUrl',
     )
 }
+
+STAGING_MEDIA_CLASS = Xsd_QName("shared:StagingMediaObject", validate=False)
+ARCHIVE_MEDIA_CLASS = Xsd_QName("fasnacht:ArchiveMediaObject", validate=False)
+
+
+def _single_resource_text(instance, property_name: str) -> str | None:
+    """Return one scalar OLDAP property value without accepting ambiguity."""
+
+    value = instance.get(Xsd_QName(property_name, validate=False))
+    if value is None:
+        return None
+    if isinstance(value, (str, bytes)):
+        values = (value,)
+    else:
+        try:
+            values = tuple(value)
+        except TypeError:
+            values = (value,)
+    if len(values) != 1:
+        return None
+    text = str(values[0]).strip()
+    return text or None
+
+
+def _mobile_lifecycle_hook(instance, kind: str):
+    """Build an atomic outbox hook for one mobile-origin staging medium.
+
+    The GraphDB INSERT is conditional on the immutable mobile commit receipt,
+    so ordinary legacy staging media do not create lifecycle work.
+    """
+
+    if getattr(instance, "name", None) != STAGING_MEDIA_CLASS:
+        return None
+    checksum = _single_resource_text(instance, "shared:checksum")
+    if checksum is None or re.fullmatch(r"[0-9a-f]{64}", checksum) is None:
+        return None
+    event_id = str(uuid4())
+    occurred_at = datetime.now(UTC)
+    resource_iri = str(instance.iri)
+
+    def append(connection) -> None:
+        GraphDbMobileMediaLifecycleOutbox(connection).append_to_active_transaction(
+            event_id=event_id,
+            kind=kind,
+            resource_iri=resource_iri,
+            checksum=f"sha256:{checksum}",
+            occurred_at=occurred_at,
+        )
+
+    return append
 
 
 def _staging_structure_error(error: StagingStructureError):
@@ -1150,15 +1207,23 @@ def transform_instance(project, instiri):
                 ):
                     policy.assert_transform_allowed(str(iri))
                 policy.assert_transform_target_allowed(target_class)
-            return current.transform_class(
-                target_class,
-                preserve_class=preserve_class,
-                properties=transform_properties,
-                expected_source_class=expected_source_class,
-                attached_to_role=attached_to_role,
-                link_from_iri=link_from_iri,
-                link_from_property=link_from_property,
+            transform_arguments = {
+                "preserve_class": preserve_class,
+                "properties": transform_properties,
+                "expected_source_class": expected_source_class,
+                "attached_to_role": attached_to_role,
+                "link_from_iri": link_from_iri,
+                "link_from_property": link_from_property,
+            }
+            lifecycle_hook = (
+                _mobile_lifecycle_hook(current, "archived")
+                if current_source_class == STAGING_MEDIA_CLASS
+                and Xsd_QName(target_class, validate=False) == ARCHIVE_MEDIA_CLASS
+                else None
             )
+            if lifecycle_hook is not None:
+                transform_arguments["before_commit"] = lifecycle_hook
+            return current.transform_class(target_class, **transform_arguments)
 
         transformed = run_staging_mutation((source_class, target_class), transform)
         return jsonify({
@@ -1353,7 +1418,15 @@ def update_instance(project, instiri):
                 StagingSystemFolderPolicy(con, project).assert_update_allowed(
                     str(iri), data
                 )
-            current.update()
+            lifecycle_hook = (
+                _mobile_lifecycle_hook(current, "moved")
+                if "shared:inStagingFolder" in data
+                else None
+            )
+            if lifecycle_hook is None:
+                current.update()
+            else:
+                current.update(before_commit=lifecycle_hook)
             return None
 
         error_message = run_staging_mutation(instance.name, update)
@@ -1400,7 +1473,23 @@ def delete_instance(project, instiri):
                     "shared:StagingFolder", validate=False
                 ):
                     policy.assert_delete_allowed(str(iri))
-            current.delete()
+            lifecycle_hook = _mobile_lifecycle_hook(current, "staging_deleted")
+            if lifecycle_hook is None:
+                current.delete()
+            else:
+                try:
+                    current.delete(before_commit=lifecycle_hook)
+                except OldapErrorInUse:
+                    # Step-13D initially stored its private receipt resource as
+                    # an RDF IRI. Retry only after the first delete has already
+                    # passed OLDAP permission checks and that exact internal
+                    # legacy reference has been normalized to URI metadata.
+                    normalized = GraphDbMobileMediaLifecycleOutbox(
+                        con
+                    ).normalize_legacy_resource_reference(str(current.iri))
+                    if not normalized:
+                        raise
+                    current.delete(before_commit=lifecycle_hook)
 
         run_staging_mutation(instance.name, delete)
         return jsonify({"message": "Instance successfully deleted"}), 200
@@ -1414,6 +1503,9 @@ def delete_instance(project, instiri):
         return jsonify({"message": str(error)}), 404
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
+    except MobileMediaLifecycleError:
+        current_app.logger.exception("mobile_media_legacy_receipt_normalization_failed")
+        return jsonify({"message": "Mobile media lifecycle state is unavailable."}), 503
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
     return jsonify({"message": "Instance successfully deleted"}), 200

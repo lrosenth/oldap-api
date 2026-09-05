@@ -1,5 +1,17 @@
 # CODEX_LOG
 
+### Update 2026-09-03 19:39
+- Decisions: Keep OLDAP's generic in-use protection intact and represent private mobile receipt resource identifiers as non-referential typed URI metadata instead of weakening deletion checks.
+- Implementation: Changed new mobile commit and lifecycle receipt resource values to `xsd:anyURI` literals; added a narrow transactional normalizer for the early Step-13D IRI representation after an authorized delete has already encountered an in-use conflict; retried the unchanged deletion guard so real incoming references still block; contradictory legacy metadata now fails closed with a structured `503`; added receipt, normalization, deletion-retry, error-mapping, and real-reference regressions.
+- Open: Rebuild/restart matching API and media worker services before repeating the disposable live deletion/re-upload acceptance flow.
+- Risks/Assumptions: The normalization preserves immutable receipt values and touches only `urn:oldap:mobile-media-commits`. Existing public routes, payloads, permissions, tokens, IIIF consumers, non-mobile resources, GraphDB application data, and genuine referential-integrity behavior remain unchanged.
+
+### Update 2026-09-02 18:08
+- Decisions: Make the authoritative OLDAP staging mutation and its mobile-receipt lifecycle notification one GraphDB transaction. Distinguish moved, staging_deleted, and archived events and expose them only through a separate purpose-authenticated internal worker contract.
+- Implementation: Added the durable leased lifecycle outbox and claim/ack routes; connected mobile-origin generic move, delete, and exact archive transformation through oldaplib's additive pre-commit hook while leaving non-mobile mutations unchanged; retained the delivered claim fence so only the exact acknowledgement is replayable; added closed security, lease, rollback, route, and compatibility tests; synchronized OpenAPI and stable context; prepared API 0.2.22.
+- Open: Publish oldaplib 0.7.17, update this repository's Poetry lock from 0.7.16, and rebuild oldap-api before enabling Step-13D workers.
+- Risks/Assumptions: Outbox delivery is at least once and deliberately fail closed; delayed delivery may retain files and block a re-upload but cannot release early. Existing public routes, payloads, access tokens, media/IIIF consumers, and FasnachtsPage behavior remain compatible.
+
 ### Update 2026-08-30 00:13
 - Decisions: Align public ZIP job creation with the existing authorizer boundary by accepting only safe QNames in the explicitly selected project, while retaining absolute HTTP(S) and canonical UUID-URN targets.
 - Implementation: Passed the validated project short name into target validation, documented canonical response identifiers in OpenAPI, synchronized the media-owned contract copy, and added isolated acceptance/rejection regressions. Six focused import-view tests pass.

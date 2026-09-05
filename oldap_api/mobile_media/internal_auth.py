@@ -16,6 +16,8 @@ MOBILE_MEDIA_TOKEN_TYPE = "mobile-media-service"
 MOBILE_MEDIA_TOKEN_PURPOSE = "mobile-media-commit"
 MOBILE_MEDIA_AUDIENCE = "oldap-api-mobile-media"
 MOBILE_MEDIA_SUBJECT = "oldap-mediaserver"
+MOBILE_MEDIA_LIFECYCLE_TOKEN_PURPOSE = "mobile-media-lifecycle"
+MOBILE_MEDIA_LIFECYCLE_AUDIENCE = "oldap-api-mobile-media-lifecycle"
 MAX_TOKEN_LIFETIME_SECONDS = 300
 REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 
@@ -46,7 +48,44 @@ def require_mobile_media_service(view: Callable[P, R]) -> Callable[P, R | Respon
     return wrapped
 
 
+def require_mobile_media_lifecycle_service(
+    view: Callable[P, R],
+) -> Callable[P, R | Response]:
+    """Accept only the media worker's lifecycle claim and acknowledgement JWT."""
+
+    @wraps(view)
+    def wrapped(*args: P.args, **kwargs: P.kwargs) -> R | Response:
+        token = _bearer_token()
+        if token is None:
+            return _failure(401, "invalid_credentials", False)
+        try:
+            _decode_expected(
+                token,
+                purpose=MOBILE_MEDIA_LIFECYCLE_TOKEN_PURPOSE,
+                audience=MOBILE_MEDIA_LIFECYCLE_AUDIENCE,
+            )
+        except RuntimeError as error:
+            current_app.logger.error(
+                "Mobile-media lifecycle authentication unavailable: %s", error
+            )
+            return _failure(503, "authentication_unavailable", True)
+        except jwt.PyJWTError:
+            return _failure(401, "invalid_credentials", False)
+        return view(*args, **kwargs)
+
+    setattr(wrapped, "_oldap_requires_mobile_media_lifecycle_service", True)
+    return wrapped
+
+
 def _decode(token: str) -> dict[str, Any]:
+    return _decode_expected(
+        token,
+        purpose=MOBILE_MEDIA_TOKEN_PURPOSE,
+        audience=MOBILE_MEDIA_AUDIENCE,
+    )
+
+
+def _decode_expected(token: str, *, purpose: str, audience: str) -> dict[str, Any]:
     secret = os.getenv("OLDAP_MOBILE_MEDIA_SERVICE_JWT_SECRET", "")
     if len(secret.encode("utf-8")) < 32:
         raise RuntimeError(
@@ -71,13 +110,13 @@ def _decode(token: str) -> dict[str, Any]:
         token,
         secret,
         algorithms=["HS256"],
-        audience=MOBILE_MEDIA_AUDIENCE,
+        audience=audience,
         issuer=os.getenv("OLDAP_JWT_ISSUER", "https://oldap.org"),
         options={"require": ["typ", "purpose", "sub", "iat", "exp", "iss", "aud"]},
     )
     if (
         claims.get("typ") != MOBILE_MEDIA_TOKEN_TYPE
-        or claims.get("purpose") != MOBILE_MEDIA_TOKEN_PURPOSE
+        or claims.get("purpose") != purpose
         or claims.get("sub") != MOBILE_MEDIA_SUBJECT
     ):
         raise jwt.InvalidTokenError("Wrong mobile-media service token purpose.")

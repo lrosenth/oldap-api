@@ -149,6 +149,11 @@ def test_resource_and_permanent_receipt_share_one_transaction() -> None:
     update = connection.updates[0]
     assert "GRAPH <http://fasnacht.digital/ns/data>" in update
     assert "GRAPH <urn:oldap:mobile-media-commits>" in update
+    assert (
+        f'<urn:oldap:mobile-media:resource> "{result.resource_iri}"'
+        "^^<http://www.w3.org/2001/XMLSchema#anyURI>" in update
+    )
+    assert f"<urn:oldap:mobile-media:resource> <{result.resource_iri}>" not in update
     assert "shared:StagingMediaObject" in update
     assert f'shared:assetId "{CLIENT_ASSET_ID}"' in update
     assert f'shared:checksum "{"a" * 64}"' in update
