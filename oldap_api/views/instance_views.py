@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from pprint import pprint
 from typing import Any
 from urllib.parse import quote, unquote
@@ -28,6 +29,11 @@ from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapEr
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.objectfactory import CompOp, FTSearchFilter, HLSearchFilter, LogicOp, ResourceInstance, \
     ResourceInstanceFactory, ResourceReadResult, SearchFilter, SortBy, SortDir, SortKind, convert2datatype
+from oldaplib.src.objectfactory import resource_class_is_or_extends
+from oldaplib.src.resource_transaction import resource_transaction, archive_policy_for
+from oldaplib.src.mutation_gate import archive_coordination_enabled, MutationGateUnavailable
+from oldaplib.src.archive_policy import ArchiveConflict
+from oldaplib.src.helpers.oldaperror import OldapErrorConfiguration
 try:
     from oldaplib.src.objectfactory import LinkedResourceSearchFilter
 except ImportError:
@@ -94,7 +100,7 @@ def _apply_instance_update_payload(instance, data: dict) -> str | None:
         "schema:position",
     }
     if (
-        instance.name == Xsd_QName("shared:ArchiveUnit", validate=False)
+        resource_class_is_or_extends(type(instance), "shared:ArchiveUnit")
         and archive_structure_fields.intersection(data)
     ):
         return (
@@ -102,7 +108,7 @@ def _apply_instance_update_payload(instance, data: dict) -> str | None:
             "archive-move endpoint."
         )
     if (
-        instance.name == Xsd_QName("shared:StagingFolder", validate=False)
+        resource_class_is_or_extends(type(instance), "shared:StagingFolder")
         and "shared:inStagingFolder" in data
     ):
         return (
@@ -142,6 +148,8 @@ def _apply_instance_update_payload(instance, data: dict) -> str | None:
                 for role, dperm in attrval.items()
             }
             continue
+        if attr not in instance.properties:
+            return f'Unknown property "{attr}".'
         if attrval is None:
             del instance[attr]
         elif isinstance(attrval, list):
@@ -169,8 +177,9 @@ def _apply_instance_update_payload(instance, data: dict) -> str | None:
                 )
                 if instance.properties[attr].datatype == XsdDatatypes.langString:
                     deleting = list(set(deleting) - set(adding_langlist))
-                for value in deleting:
-                    instance[attr].discard(value)
+                if instance.get(attr) is not None:
+                    for value in deleting:
+                        instance[attr].discard(value)
         else:
             instance[attr] = attrval
     return None
@@ -719,6 +728,10 @@ def text_search_response(project: str, resclass: str | None = None, allow_search
             res = ResourceInstance.search(con=con,
                                           project=Xsd_NCName(project, validate=True),
                                           **params)
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         return jsonify({"message": f"Search failed: {str(error)}"}), 400
 
@@ -740,6 +753,10 @@ def media_object_by_id(imageid):
     con = authenticated_connection()
     try:
         res = ResourceInstance.get_media_object_by_id(con=con, mediaObjectId=imageid)
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         current_app.logger.error(f"mediaobject_by_id: Retrieving MediaObject with id='{imageid}' failed: {str(error)}")
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
@@ -755,6 +772,10 @@ def media_object_by_iri(imageiri):
     con = authenticated_connection()
     try:
         res = ResourceInstance.get_media_object_by_iri(con=con, mediaObjectIri=imageiri)
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
     if not res:
@@ -832,6 +853,10 @@ def summarize_instances(project):
         )
     except OldapErrorValue as error:
         return jsonify({'message': str(error)}), 400
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
 
@@ -925,6 +950,10 @@ def allofclass_instance(project):
         res = ResourceInstance.search(con=con,
                                       project=Xsd_NCName(project, validate=True),
                                       **params)
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         return jsonify({"message": f"Connection failed: {str(error)}"}), 400
 
@@ -979,6 +1008,10 @@ def add_instance(project, resource):
         return jsonify({"message": str(error)}), 409
     except OldapErrorAlreadyExists as error:
         return jsonify({"message": str(error)}), 409
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
     return jsonify({"message": "Instance successfully created", "iri": str(instance.iri)}), 200
@@ -1017,6 +1050,10 @@ def authorize_staging_upload_target(project):
         return jsonify({"message": str(error)}), 404
     except (ImportTargetProtectedError, ImportQuotaNotConfiguredError) as error:
         return jsonify({"message": str(error)}), 409
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         current_app.logger.exception("authorize_staging_upload_target failed")
         return jsonify({"message": str(error)}), 503
@@ -1063,6 +1100,10 @@ def read_instance(project, instiri):
         return jsonify({"message": str(error)}), 400
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         return jsonify({'message': str(error)}), 500
     return jsonify(_instance_read_json(read_result)), 200
@@ -1174,6 +1215,10 @@ def transform_instance(project, instiri):
         return jsonify({"message": str(error)}), 404
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         current_app.logger.exception("transform_instance failed")
         return jsonify({"message": str(error)}), 500
@@ -1240,6 +1285,10 @@ def move_archive_unit(project, instiri):
         return jsonify({"message": str(error)}), 404
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         current_app.logger.exception("move_archive_unit failed")
         return jsonify({"message": str(error)}), 500
@@ -1310,6 +1359,10 @@ def move_staging_folder(project, instiri):
         return jsonify({"message": str(error)}), 404
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         current_app.logger.exception("move_staging_folder failed")
         return jsonify({"message": str(error)}), 500
@@ -1325,6 +1378,8 @@ def update_instance(project, instiri):
     if not request.is_json:
         return jsonify({"message": "Invalid request format, JSON required"}), 400
     data = request.get_json()
+    if not isinstance(data, dict):
+        return jsonify({"message": "Request body must be an object."}), 400
     if not data:
         return jsonify({"message": "No data provided"}), 400
 
@@ -1340,21 +1395,25 @@ def update_instance(project, instiri):
     try:
         factory = ResourceInstanceFactory(con=con, project=project)
         instance = factory.read(iri)
-        staging_mutation = is_staging_mutation_class(instance.name)
+        staging_mutation = is_staging_mutation_class(instance.name) or archive_coordination_enabled()
 
         def update():
-            current = factory.read(iri) if staging_mutation else instance
-            if staging_mutation:
-                _assert_staging_class_unchanged(instance.name, current)
-            error_message = _apply_instance_update_payload(current, data)
-            if error_message is not None:
-                return error_message
-            if current.name == Xsd_QName("shared:StagingFolder", validate=False):
-                StagingSystemFolderPolicy(con, project).assert_update_allowed(
-                    str(iri), data
-                )
-            current.update()
-            return None
+            with resource_transaction(con) if archive_coordination_enabled() else nullcontext():
+                current = factory.read(iri) if staging_mutation else instance
+                policy = archive_policy_for(con, current.project) if archive_coordination_enabled() else None
+                if policy is not None:
+                    policy.check_note_payload(current, data)
+                if staging_mutation:
+                    _assert_staging_class_unchanged(instance.name, current)
+                error_message = _apply_instance_update_payload(current, data)
+                if error_message is not None:
+                    return error_message
+                if current.name == Xsd_QName("shared:StagingFolder", validate=False):
+                    StagingSystemFolderPolicy(con, project).assert_update_allowed(
+                        str(iri), data
+                    )
+                current.update()
+                return None
 
         error_message = run_staging_mutation(instance.name, update)
         if error_message is not None:
@@ -1362,6 +1421,18 @@ def update_instance(project, instiri):
         return jsonify({"message": "Instance successfully updated"}), 200
     except StagingStructureError as error:
         return _staging_structure_error(error)
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({"message": str(error)}), 404
+    except (OldapErrorValue, OldapErrorKey) as error:
+        return jsonify({"message": str(error)}), 400
+    except (OldapErrorInUse, OldapErrorInconsistency) as error:
+        return jsonify({"message": str(error)}), 409
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         current_app.logger.exception("update_instance failed")
         return jsonify({"message": str(error)}), 500
@@ -1414,6 +1485,10 @@ def delete_instance(project, instiri):
         return jsonify({"message": str(error)}), 404
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
     return jsonify({"message": "Instance successfully deleted"}), 200
@@ -1440,6 +1515,10 @@ def delete_empty_staging_area(project, staging_area_iri):
         )
     except StagingStructureError as error:
         return _staging_structure_error(error)
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         current_app.logger.exception("delete_empty_staging_area failed")
         return jsonify({"message": str(error)}), 500

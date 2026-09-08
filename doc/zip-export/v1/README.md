@@ -84,3 +84,41 @@ formula prefixes are neutralized in human-facing scalar cells.
 The same parser and contract tests must accept both example project profiles.
 No `fasnacht:` identifier may occur in the generic domain, manifest schema,
 job state, worker protocol, media route, or capability claims.
+
+## AS-05 mixed private repository exports
+
+`STAGING_FOLDER` and `STAGING_ALL` include readable unfinished media and
+folder-owned `shared:referencedMediaObject` catalogue entries. Each target is
+read through the caller's permission-checked factory and the profile's allowed
+archive classes. Folder permissions do not grant media/original access. Missing,
+unreadable and restricted-only targets are omitted without metadata or warning
+counts. Whole-area exports retain only paths connected to the visible `top`;
+Trash subtrees remain excluded.
+
+The existing manifest and metadata schema remain **1.0.0**. They already allow
+one media IRI at several unique relative paths and extensible metadata columns.
+Source resolution is deduplicated by media IRI, but file/byte totals count every
+included path. Portable collisions fail instead of overwriting or dropping
+entries. The generated `metadata.csv` column `repository_entry_kind` contains
+`stagingMedia` or `archiveReference`; it is reserved against profile overrides.
+Archive references use `archiveMedia` profile projections, drafts use
+`stagingMedia` projections. Existing `media_iri` and `container_iri` columns
+identify the medium and private placement. External originals remain CSV-only
+exclusions and are never remotely fetched.
+
+Before issuing a download capability, the API rereads all frozen folders and
+media through the caller. It checks directory paths, exact folder/media pairs,
+entry kinds and source identity/path facts, including excluded CSV rows.
+Removal, relocation, renaming, loss of access, or a changed source denies the
+new link with the existing HTTP 403 `EXPORT_PERMISSION_DENIED`. Create a fresh
+estimate/job; existing artifact bytes and immutable job state are not rewritten.
+Adding unrelated items does not invalidate the frozen subset. Ordinary metadata
+edits do not regenerate an existing snapshot. Legacy jobs without the new column
+are interpreted as `stagingMedia` and remain subject to current authorization.
+
+Capabilities already issued retain the existing **maximum five-minute lifetime**
+(or the earlier artifact expiry). The media endpoint checks that capability,
+not current RDF on every GET/Range request. Permission changes prevent new links;
+this is not instant revocation of already issued links or bytes already sent.
+No JWT format, worker schema, public job API or CaptureApp request changes are
+introduced. Policy rollout and production HTTP/Range acceptance remain separate.

@@ -124,7 +124,7 @@ class FakeBinaryResolver:
         return {
             item.media_iri: ResolvedBinarySource(
                 asset_id=item.asset_id,
-                storage_path=f"museum/assets/{item.asset_id}/original/{item.original_name}",
+                storage_path=f"{item.storage_path_candidate}/{item.asset_id}/original/{item.original_name}",
                 original_name=item.original_name,
                 original_mime_type=(
                     "audio/wav" if item.original_name.endswith(".wav") else "image/jpeg"
@@ -508,3 +508,123 @@ def test_snapshot_uses_the_configured_environment_limit() -> None:
             inventory=inventory(),
             enforce_size_limit=True,
         )
+
+
+def mixed_inventory():
+    """One unfinished original and a catalogue original placed in two folders."""
+    from dataclasses import replace
+
+    value = inventory()
+    reference = replace(value.media[0], entry_kind="archiveReference")
+    return replace(
+        value,
+        media=(
+            reference,
+            replace(reference, folder_iri=CHILD),
+            value.media[1],
+            value.media[-1],
+        ),
+    )
+
+
+def mixed_snapshot(value, resolver=None, limit=50_000_000_000):
+    return StagingSnapshotProjector(
+        FakeInventoryReader(value),
+        resolver or FakeBinaryResolver(),
+        max_archive_bytes=limit,
+    ).project_inventory(
+        export_id=EXPORT_ID,
+        kind=ExportKind.STAGING_FOLDER,
+        selection_iri=FOLDER,
+        profile=profile(),
+        generated_at=NOW,
+        inventory=value,
+        requested_by_iri="https://example.org/users/alice",
+        enforce_size_limit=True,
+    )
+
+
+def test_mixed_export_preserves_paths_and_counts_copies_but_resolves_once():
+    resolver = FakeBinaryResolver()
+    snapshot = mixed_snapshot(mixed_inventory(), resolver)
+    assert snapshot.files_total == 3
+    assert snapshot.source_bytes == 17_345
+    assert len(resolver.references) == 2
+    rows = snapshot.manifest.to_dict()["media"]
+    references = [
+        row
+        for row in rows
+        if row["metadata"]["repository_entry_kind"] == "archiveReference"
+    ]
+    assert {row["relativePath"] for row in references} == {
+        "Posters/One.jpg",
+        "Posters/Portraits/One.jpg",
+    }
+    assert references[0]["mediaIri"] == references[1]["mediaIri"]
+    with pytest.raises(ExportSizeLimitError):
+        mixed_snapshot(mixed_inventory(), limit=17_344)
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        "reference_move",
+        "reference_remove",
+        "rename",
+        "hidden_directory",
+        "external_remove",
+        "source_path",
+        "kind",
+    ],
+)
+def test_mixed_frozen_download_rejects_changed_membership_and_sources(change):
+    from dataclasses import replace
+
+    value = mixed_inventory()
+    snapshot = mixed_snapshot(value)
+    job = SimpleNamespace(selection=snapshot.selection)
+    authorizer = lambda current: StagingDownloadAuthorizer(
+        FakeInventoryReader(current)
+    ).authorize(object(), job=job, manifest=snapshot.manifest)
+    authorizer(value)
+    media, folders = list(value.media), list(value.folders)
+    if change == "reference_move":
+        media[0] = replace(media[0], folder_iri=OTHER)
+    elif change == "reference_remove":
+        media.pop(0)
+    elif change == "rename":
+        folders[2] = replace(folders[2], name="Renamed")
+    elif change == "hidden_directory":
+        folders.pop(2)
+    elif change == "external_remove":
+        media.pop()
+    elif change == "source_path":
+        media[0] = replace(media[0], storage_path_candidate="other/storage")
+    else:
+        media[0] = replace(media[0], entry_kind="stagingMedia")
+    with pytest.raises(ExportDownloadPermissionError):
+        authorizer(replace(value, media=tuple(media), folders=tuple(folders)))
+
+
+def test_mixed_portable_collision_fails_instead_of_discarding_an_entry():
+    from dataclasses import replace
+
+    value = mixed_inventory()
+    value = replace(
+        value,
+        media=value.media
+        + (replace(value.media[2], folder_iri=FOLDER, original_name="one.JPG"),),
+    )
+    with pytest.raises(ExportSnapshotError):
+        mixed_snapshot(value)
+
+
+def test_all_export_does_not_promote_descendants_of_hidden_folders():
+    from dataclasses import replace
+
+    value = inventory()
+    value = replace(value, folders=tuple(f for f in value.folders if f.iri != FOLDER))
+    selected, _ = staging_snapshot._selected_folder_paths(
+        ExportKind.STAGING_ALL, AREA, value.area, {f.iri: f for f in value.folders}
+    )
+    assert CHILD not in selected

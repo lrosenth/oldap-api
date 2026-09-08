@@ -36,6 +36,7 @@ COMMON_METADATA_COLUMNS = frozenset(
         "container_iri",
         "container_path",
         "source_modified_at",
+        "repository_entry_kind",
     }
 )
 

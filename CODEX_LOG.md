@@ -1,5 +1,41 @@
 # CODEX_LOG
 
+### Update 2026-09-08 12:08
+- Decisions: AS-05 reuses manifest/metadata v1 and existing public APIs; count originals per private path and retain the five-minute capability lifetime.
+- Implementation: Added permission-checked catalogue references, deduplicated source resolution, per-placement totals/CSV kinds, frozen path/membership/source reauthorization; authoritative RDF deletion now precedes binary withdrawal. Verified 141 API tests, 281 media tests (one Linux-only skip), isolated GraphDB/real-writer integration, and network-disabled Docker deletion smoke; Black/Poetry/diff checks pass. Updated an older Staging test double to expose its required property model.
+- Open: Verification complete; evidence is recorded in FasnachtsPage docs/as-05; AS-06–AS-09 UI, SALSAH, native acceptance and operational rollout remain separate.
+- Risks/Assumptions: Already issued links remain valid for at most five minutes; uncertain DELETE outcomes retain originals for reconciliation. No ontology, CaptureApp, application RDF, policy activation, secret or deployment changes; existing uncommitted work preserved.
+
+### Update 2026-09-08 00:08
+- Decisions: Complete AS-04 source work with frozen wire contracts, source-scoped grants and unchanged guarded CRUD; AS-05 mixed ZIP export is next.
+- Implementation: Added reviewed adoption/API/schema/docs and correlated receipts/audit; eliminated repeated vocabulary/ACL/QName validation and redundant read aggregation. 174 focused tests plus 42 subtests, all 61 ObjectFactory tests and real adoption/lifecycle/HTTP/concurrency/rollback/deletion regressions pass; 500 actions commit in 55.733 seconds. Build, OpenAPI/schema checks and final wheel verification pass. Evidence: FasnachtsPage docs/as-04.
+- Open: AS-05–AS-09 export, admin UI, SALSAH, native Capture acceptance, production ACL/coordination migration and activation. Production depth/contention/latency acceptance remains necessary.
+- Risks/Assumptions: With explicit user approval, backed up GraphDB Desktop cfg and changed heap from automatic 9 GiB to explicit 12 GiB, then restarted/verified service. No API timeout change, live RDF/ontology/role/policy change, CaptureApp edit or deployment. All disposable test repositories/caches removed; previous unrelated working changes preserved.
+
+### Update 2026-09-07 23:42
+- Decisions: Implement AS-04 reviewed structure adoption with project-neutral backend and no ontology/CaptureApp changes; retain all pre-existing work.
+- Implementation: Added frozen proposal/preflight/apply bindings and adoption receipt response, strict body limits, HTTP tests, OpenAPI schemas and guide; legacy Capture and YAML shapes remain unchanged.
+- Open: Complete isolated maximum-envelope and full ObjectFactory/lifecycle regression verification before marking AS-04 complete; subsequent export/UI/SALSAH/activation remain later steps.
+- Risks/Assumptions: Local GraphDB at 9 GiB heap encountered free-heap guards/interrupted queries during large tests. User explicitly approved increasing to 12 GiB and clean restart; configuration backed up. No application RDF, role, policy or deployment change. The permission-query simplification still needs full real regression verification.
+
+### Update 2026-09-07 22:59
+- Decisions: Keep legacy transform/Capture bodies and response identities unchanged; expose mixed repository inventory through the frozen additive GET binding.
+- Implementation: Added staging-folder-inventory route with strict query inputs, purpose-derived cursor key, no-store errors and OpenAPI schemas; extended HTTP tests/documentation. Matching oldaplib atomically retains references/read grants and resolves stale source retries. 76 mobile/StagingArea regressions and the parent 187-test focused set pass; real HTTP note/transform and mobile receipt replay after relocation verified.
+- Open: AS-04 and later UI/export/SALSAH integration, native Capture acceptance, reviewed ACL migration and deployment.
+- Risks/Assumptions: Requires accompanying oldaplib changes and opt-in durable coordination. Signing-secret rotation invalidates cursors. CaptureApp and existing runtime/ontology/role data were not changed.
+
+### Update 2026-09-07 22:23
+- Decisions: Complete AS-02 HTTP bindings with unchanged legacy/Capture formats and frozen additive v1 contracts; post-catalogue note writes/clears always receive the agreed 409, including combined/admin roles.
+- Implementation: Registered capabilities/reference-move/receipt routes, schema/OpenAPI documentation and typed no-store errors. Update conversion now follows the coordinated fresh lifecycle check. Policy-selected staging/mobile coordination uses oldaplib persistent ownership; atomic area teardown checks references/default mappings. 12 focused HTTP tests and 27 StagingArea tests pass; parent combined evidence totals 129 tests plus real isolated library/API integration.
+- Open: AS-03 transfer/inventory; native Capture acceptance, reviewed ACL migration, matching library release, persistent-store rollout and recovery rehearsal before activation.
+- Risks/Assumptions: Current Redis was not changed. Persistent policy rollout requires all writers upgraded together and a separate durable gate store. No CaptureApp edits, ontology load, memberships or live workflow activation. Generic legacy objectfactory ACL test failure reproduces on original source and remains tracked in parent AS-02 evidence.
+
+### Update 2026-09-07 21:07
+- Decisions: Preserve generic update request/response shapes while returning typed permission/value/not-found/reference statuses. Apply existing hierarchy-route restrictions to transitive Shared subclasses.
+- Implementation: Rejected non-object and unknown-field writes before persistence, kept absent known-property clears idempotent, returned 400/403/404/409 for typed failures, updated OpenAPI/guide/context, and added six isolated HTTP regression tests (49 combined library/API tests pass).
+- Open: AS-02 project policy, preparation-note lifecycle guard, role/ACL union, complete safe domain operations, reference receipts and writer coordination. GraphDB concurrent claims exposed a coordination gap; persistent-gate recovery decision remains pending.
+- Risks/Assumptions: Requires accompanying unreleased oldaplib source changes. No CaptureApp formats/source, role grants, ontology load or deployment changed. The accepted post-archive preparation-note rejection is not implemented by this error-mapping increment; no destructive application fixtures were run.
+
 ### Update 2026-08-30 00:13
 - Decisions: Align public ZIP job creation with the existing authorizer boundary by accepting only safe QNames in the explicitly selected project, while retaining absolute HTTP(S) and canonical UUID-URN targets.
 - Implementation: Passed the validated project short name into target validation, documented canonical response identifiers in OpenAPI, synchronized the media-owned contract copy, and added isolated acceptance/rejection regressions. Six focused import-view tests pass.

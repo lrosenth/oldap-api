@@ -1,13 +1,15 @@
-"""Authorized Staging inventory projection into immutable export manifests."""
+"""Authorized mixed private inventory projection into immutable export manifests."""
 
 from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import PurePosixPath
 from typing import Any, Mapping, Protocol
 
 import rfc8785
+from oldaplib.src.archive_policy import canonical_iri
 from oldaplib.src.helpers.oldaperror import (
     OldapErrorNoPermission,
     OldapErrorNotFound,
@@ -19,8 +21,10 @@ from oldaplib.src.objectfactory import (
     ResourceInstance,
     ResourceInstanceFactory,
     SearchFilter,
+    resource_class_is_or_extends,
 )
 from oldaplib.src.xsd.iri import Iri
+from oldaplib.src.xsd.xsd_anyuri import Xsd_anyURI
 from oldaplib.src.xsd.floatingpoint import FloatingPoint
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
 from oldaplib.src.xsd.xsd_integer import Xsd_integer
@@ -47,6 +51,7 @@ MAX_STAGING_FOLDERS = 100_000
 MAX_STAGING_MEDIA = 1_000_000
 SYSTEM_TOP = "top"
 SYSTEM_TRASH = "trash"
+REPOSITORY_KIND_COLUMN = "repository_entry_kind"
 
 
 class ExportSelectionNotFoundError(ExportSnapshotError):
@@ -88,6 +93,7 @@ class StagingMediaRecord:
     recorded_checksum: str | None = None
     external_source_url: str | None = None
     metadata: Mapping[str, Any] | None = None
+    entry_kind: str = "stagingMedia"
 
 
 @dataclass(frozen=True, slots=True)
@@ -207,6 +213,7 @@ class OldapStagingInventoryReader:
             includeProperties={
                 Xsd_QName("schema:name", validate=False),
                 Xsd_QName("shared:inStagingFolder", validate=False),
+                Xsd_QName("shared:referencedMediaObject", validate=False),
             },
             filter=area_filter,
             limit=MAX_STAGING_FOLDERS + 1,
@@ -241,12 +248,103 @@ class OldapStagingInventoryReader:
             raise ExportSnapshotError("Visible Staging inventory exceeds the v1 bound.")
 
         folders = tuple(_folder_record(row) for row in folder_rows)
+        # Resolve each referenced identity only once, through the caller's reader.
+        # Restrict to the visible connected selection before touching private metadata.
+        selected, _ = _selected_folder_paths(
+            kind,
+            selection_iri,
+            StagingAreaRecord(str(area_iri), str(area_name)),
+            _unique_folders(folders),
+        )
+        references = {}
+        for row in folder_rows:
+            folder_iri = str(_first(row, "iri"))
+            if folder_iri in selected:
+                for iri in _values(row, "shared:referencedMediaObject"):
+                    references.setdefault(str(iri), set()).add(folder_iri)
         media = tuple(_media_record(row, profile.staging_media) for row in media_rows)
+        media += self._references(connection, factory, references, profile)
+        if len(media) > MAX_STAGING_MEDIA:
+            raise ExportSnapshotError("Visible mixed inventory exceeds the v1 bound.")
         return AuthorizedStagingInventory(
             area=StagingAreaRecord(str(area_iri), str(area_name)),
             folders=folders,
             media=media,
         )
+
+    @staticmethod
+    def _references(
+        connection: Any,
+        factory: ResourceInstanceFactory,
+        references: Mapping[str, set[str]],
+        profile: ExportProfile,
+    ) -> tuple[StagingMediaRecord, ...]:
+        """Project readable catalogue references using existing archive metadata rules.
+
+        Unreadable targets are omitted without names, identifiers or hidden counts.
+        Profiles govern metadata/classes; folder grants never grant media access.
+        """
+        from .archive_snapshot import (
+            OldapVisibleLabelResolver,
+            _archive_media_record,
+            _label_iris,
+        )
+
+        rows = {}
+        for iri in references:
+            try:
+                read = factory.read_data(
+                    Iri(
+                        Xsd_anyURI(
+                            canonical_iri(Context(name=connection.context_name), iri)
+                        )
+                    )
+                )
+            except (OldapErrorNotFound, OldapErrorNoPermission):
+                continue
+            model = factory.createObjectInstance(read.resource_class)
+            if resource_class_is_or_extends(
+                model, Xsd_QName("shared:StagingMediaObject")
+            ):
+                continue
+            if not resource_class_is_or_extends(model, Xsd_QName("shared:MediaObject")):
+                continue
+            if not any(
+                resource_class_is_or_extends(model, _property_qname(name, connection))
+                for name in profile.allowed_archive_media_classes
+            ):
+                continue
+            rows[iri] = {**read.data, "iri": iri}
+        label_iris = _label_iris(rows.values(), profile.archive_media)
+        labels = (
+            OldapVisibleLabelResolver().resolve(
+                connection,
+                project_short_name=profile.project_short_name,
+                iris=label_iris,
+            )
+            if label_iris
+            else {}
+        )
+        result = []
+        for iri, row in rows.items():
+            record = _archive_media_record(row, (), profile.archive_media, labels)
+            for folder in sorted(references[iri]):
+                result.append(
+                    StagingMediaRecord(
+                        iri=iri,
+                        folder_iri=folder,
+                        access_mode=record.access_mode,
+                        original_name=record.original_name,
+                        original_mime_type=record.original_mime_type,
+                        asset_id=record.asset_id,
+                        storage_path_candidate=record.storage_path_candidate,
+                        recorded_checksum=record.recorded_checksum,
+                        external_source_url=record.external_source_url,
+                        metadata=record.metadata,
+                        entry_kind="archiveReference",
+                    )
+                )
+        return tuple(result)
 
 
 class StagingSnapshotProjector:
@@ -325,6 +423,28 @@ class StagingSnapshotProjector:
         ]
         if any(item.access_mode not in {"local", "external"} for item in visible_media):
             raise ExportSnapshotError("Visible media has an unsupported access mode.")
+        local_media = {}
+        for item in visible_media:
+            if item.entry_kind not in {"stagingMedia", "archiveReference"}:
+                raise ExportSnapshotError("Unsupported repository entry kind.")
+            if item.access_mode == "local":
+                previous = local_media.setdefault(item.iri, item)
+                if (
+                    previous.asset_id,
+                    previous.storage_path_candidate,
+                    previous.original_name,
+                    previous.original_mime_type,
+                    previous.recorded_checksum,
+                ) != (
+                    item.asset_id,
+                    item.storage_path_candidate,
+                    item.original_name,
+                    item.original_mime_type,
+                    item.recorded_checksum,
+                ):
+                    raise ExportSnapshotError(
+                        "Repeated media identity has inconsistent source facts."
+                    )
         references = tuple(
             LocalBinaryReference(
                 media_iri=item.iri,
@@ -332,8 +452,7 @@ class StagingSnapshotProjector:
                 storage_path_candidate=item.storage_path_candidate or "",
                 original_name=item.original_name,
             )
-            for item in visible_media
-            if item.access_mode == "local"
+            for item in local_media.values()
         )
         if any(
             not item.asset_id or not item.storage_path_candidate for item in references
@@ -359,7 +478,10 @@ class StagingSnapshotProjector:
                 "mediaIri": item.iri,
                 "containerIri": item.folder_iri,
                 "included": item.access_mode == "local",
-                "metadata": dict(item.metadata or {}),
+                "metadata": {
+                    **dict(item.metadata or {}),
+                    REPOSITORY_KIND_COLUMN: item.entry_kind,
+                },
             }
             if item.access_mode == "local":
                 binary = resolved[item.iri]
@@ -474,7 +596,7 @@ class StagingDownloadAuthorizer:
         job: Any,
         manifest: ExportManifest,
     ) -> None:
-        """Require every frozen included StagingMediaObject to remain visible."""
+        """Require frozen private paths, memberships and sources to remain authorized."""
 
         if (
             job.selection.kind
@@ -499,26 +621,77 @@ class StagingDownloadAuthorizer:
                 profile=profile,
             )
             folders = _unique_folders(inventory.folders)
-            selected, _ = _selected_folder_paths(
+            selected, paths = _selected_folder_paths(
                 job.selection.kind,
                 job.selection.selection_iri,
                 inventory.area,
                 folders,
             )
-        except (OldapErrorNoPermission, OldapErrorNotFound) as error:
+        except (
+            OldapErrorNoPermission,
+            OldapErrorNotFound,
+            ExportSnapshotError,
+        ) as error:
             raise ExportDownloadPermissionError(
                 "Export source authorization is no longer available."
             ) from error
-        visible = {item.iri for item in inventory.media if item.folder_iri in selected}
-        frozen = {
-            str(item["mediaIri"])
-            for item in manifest.to_dict()["media"]
-            if item["included"]
+        # Membership and paths, not just media IDs, authorize the frozen ZIP.
+        # Include excluded rows too: their CSV metadata also requires current access.
+        for directory in manifest.to_dict()["directories"]:
+            if paths.get(str(directory["containerIri"])) != directory["relativePath"]:
+                raise ExportDownloadPermissionError(
+                    "Export folders changed; create a new export."
+                )
+        visible = {
+            (item.folder_iri, item.iri): item
+            for item in inventory.media
+            if item.folder_iri in selected
         }
-        if not frozen <= visible:
-            raise ExportDownloadPermissionError(
-                "Export source authorization is no longer available."
+        for frozen in manifest.to_dict()["media"]:
+            current = visible.get(
+                (str(frozen["containerIri"]), str(frozen["mediaIri"]))
             )
+            expected_kind = frozen.get("metadata", {}).get(
+                REPOSITORY_KIND_COLUMN, "stagingMedia"
+            )
+            if (
+                current is None
+                or current.entry_kind != expected_kind
+                or _safe_join(paths[current.folder_iri], current.original_name)
+                != frozen["relativePath"]
+            ):
+                raise ExportDownloadPermissionError(
+                    "Export selection changed; create a new export."
+                )
+            if frozen["included"]:
+                binary = frozen["binarySource"]
+                if (
+                    current.access_mode != "local"
+                    or current.asset_id != binary["assetId"]
+                    or str(
+                        PurePosixPath(current.storage_path_candidate or "")
+                        / (current.asset_id or "")
+                        / "original"
+                        / current.original_name
+                    )
+                    != binary["storagePath"]
+                    or current.original_name != binary["originalName"]
+                    or current.original_mime_type != binary["originalMimeType"]
+                    or (
+                        current.recorded_checksum
+                        and current.recorded_checksum != binary.get("recordedChecksum")
+                    )
+                ):
+                    raise ExportDownloadPermissionError(
+                        "Export source changed; create a new export."
+                    )
+            elif (
+                current.access_mode != "external"
+                or current.external_source_url != frozen.get("externalSourceUrl")
+            ):
+                raise ExportDownloadPermissionError(
+                    "Export source changed; create a new export."
+                )
 
 
 def _unique_folders(
@@ -573,15 +746,11 @@ def _selected_folder_paths(
 
     if selection_iri != area.iri:
         raise ExportSelectionNotFoundError("Selected StagingArea was not found.")
-    selected = set(folders) - excluded
+    if top is None:
+        raise ExportSelectionNotFoundError("Visible Staging root was not found.")
+    selected = ({top.iri} | _descendants(top.iri, children)) - excluded
     area_path = _safe_name(area.name)
-    roots = [item for item in folders.values() if item.parent_iri not in selected]
-    initial: dict[str, str] = {}
-    for root in roots:
-        initial[root.iri] = (
-            area_path if root is top else _safe_join(area_path, _safe_name(root.name))
-        )
-    return selected, _build_paths(tuple(roots), children, selected, initial)
+    return selected, _build_paths((top,), children, selected, {top.iri: area_path})
 
 
 def _build_paths(

@@ -7,6 +7,10 @@ from collections.abc import Callable
 from threading import Event, Thread
 from typing import TypeVar
 
+from oldaplib.src.mutation_gate import (
+    archive_coordination_enabled, mutation_gate, MutationGateUnavailable,
+)
+
 from redis import Redis
 from redis.exceptions import LockError, RedisError
 
@@ -46,6 +50,13 @@ class RedisStagingMutationLock:
 
     def run(self, operation: Callable[[], T]) -> T:
         """Run one Staging mutation while holding the bounded global lease."""
+
+        if archive_coordination_enabled():
+            try:
+                with mutation_gate(client=self._client, wait_seconds=self.WAIT_SECONDS):
+                    return operation()
+            except MutationGateUnavailable as error:
+                raise StagingMutationLockUnavailable(str(error)) from error
 
         lock = self._client.lock(
             self.LOCK_NAME,

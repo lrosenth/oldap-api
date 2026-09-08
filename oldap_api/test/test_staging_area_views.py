@@ -27,7 +27,9 @@ TRASH = "urn:uuid:00000000-0000-0000-0000-000000000304"
 USER_FOLDER = "urn:uuid:00000000-0000-0000-0000-000000000305"
 
 
-def test_staging_upload_target_returns_server_derived_configuration(monkeypatch) -> None:
+def test_staging_upload_target_returns_server_derived_configuration(
+    monkeypatch,
+) -> None:
     """The media server receives trusted storage and permission facts only."""
 
     class FakeAuthorizer:
@@ -53,7 +55,9 @@ def test_staging_upload_target_returns_server_derived_configuration(monkeypatch)
             )
 
     fake_connection = object()
-    monkeypatch.setattr(instance_views, "authenticated_connection", lambda: fake_connection)
+    monkeypatch.setattr(
+        instance_views, "authenticated_connection", lambda: fake_connection
+    )
     monkeypatch.setattr(instance_views, "OldapImportAuthorizer", FakeAuthorizer)
     app = Flask(__name__)
 
@@ -317,6 +321,7 @@ def test_generic_staging_update_checks_policy_inside_serialized_write(
 
     class FakeInstance:
         name = Xsd_QName("shared:StagingFolder", validate=False)
+        properties = {Xsd_QName("schema:name", validate=False): None}
 
         def __setitem__(self, key, value):
             calls.append("payload")

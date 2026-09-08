@@ -415,7 +415,7 @@ class GraphDbStagingAreaRepository:
                 )
             ):
                 raise StagingStructureConflict(
-                    "The StagingArea contains media or user folders and cannot be deleted."
+                    "The StagingArea contains media, user folders, archive references or mappings and cannot be deleted."
                 )
             if self._has_active_import_reference(target.area):
                 raise StagingStructureConflict(
@@ -863,6 +863,9 @@ ASK {{ GRAPH {_graph_term(graph)} {{
     VALUES ?folder {{ {folders} }}
     ?resource shared:inStagingFolder ?folder .
     FILTER(?resource NOT IN ({', '.join(_iri_term(value) for value in target.resources)}))
+  }} UNION {{
+    VALUES ?folder {{ {folders} }}
+    ?folder (shared:referencedMediaObject|shared:defaultArchiveUnit) ?archiveResource .
   }}
 }} }}
 """

@@ -551,3 +551,15 @@ def test_forced_graphdb_failure_rolls_back_the_complete_delete() -> None:
     assert connection.committed == 0
     assert connection.aborted == 1
     assert len(connection.updates) == 1
+
+
+def test_empty_area_check_includes_archived_references_and_default_mappings() -> None:
+    """A system folder holding repository links must survive area teardown."""
+    connection = TransactionConnection(has_contents=True)
+    with pytest.raises(StagingStructureConflict):
+        GraphDbStagingAreaRepository(connection, "fasnacht").delete_empty(AREA)
+    contents = next(q for q in connection.queries if "# staging-area-contents" in q)
+    assert "shared:referencedMediaObject|shared:defaultArchiveUnit" in contents
+    assert all(f"<{folder}>" in contents for folder in (TOP, MOBILE, TRASH))
+    assert connection.updates == []
+    assert connection.aborted == 1
