@@ -1,8 +1,9 @@
 """Isolated update-boundary regressions; no application/database fixtures."""
 
+from contextlib import nullcontext
 import unittest
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from flask import Flask
 
@@ -15,6 +16,7 @@ from oldaplib.src.helpers.oldaperror import (
     OldapErrorValue,
 )
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
+from oldaplib.src.archive_policy import PreparationNoteArchived
 
 
 class FakeInstance:
@@ -60,9 +62,12 @@ class ArchiveUpdateBoundaryTest(unittest.TestCase):
     def send(self, payload, instance=None):
         instance = instance or FakeInstance()
         factory = SimpleNamespace(read=lambda iri: instance)
-        with patch.object(
-            views, "authenticated_connection", return_value=self.connection
-        ), patch.object(views, "ResourceInstanceFactory", return_value=factory):
+        with (
+            patch.object(
+                views, "authenticated_connection", return_value=self.connection
+            ),
+            patch.object(views, "ResourceInstanceFactory", return_value=factory),
+        ):
             return self.client.post("/update", json=payload)
 
     def test_typed_errors_keep_legacy_message_envelope(self):
@@ -79,6 +84,26 @@ class ArchiveUpdateBoundaryTest(unittest.TestCase):
                 )
                 self.assertEqual(response.status_code, status)
                 self.assertEqual(response.json, {"message": str(error)})
+
+    def test_archived_note_rejection_precedes_mobile_hook_and_payload_changes(self):
+        for note in (["late@de"], None):
+            instance = FakeInstance()
+            instance.project = "shared"
+            policy = SimpleNamespace(
+                check_note_payload=Mock(side_effect=PreparationNoteArchived())
+            )
+            with (
+                patch.object(views, "archive_coordination_enabled", return_value=True),
+                patch.object(views, "resource_transaction", return_value=nullcontext()),
+                patch.object(views, "archive_policy_for", return_value=policy),
+                patch.object(views, "_mobile_lifecycle_hook") as hook,
+            ):
+                response = self.send({"schema:comment": note}, instance)
+            self.assertEqual(response.status_code, 409)
+            self.assertEqual(set(response.json), {"message"})
+            self.assertFalse(instance.updated)
+            self.assertEqual(instance.values, {})
+            hook.assert_not_called()
 
     def test_non_object_body_rejected_before_factory(self):
         with patch.object(views, "ResourceInstanceFactory") as factory:

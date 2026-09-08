@@ -6,6 +6,8 @@ hierarchical list, resource, and instance operations backed by GraphDB through
 
 ## Repository State
 
+- Archive/mobile merge: combined `2f7af33` and `9f76807`, preserving archive guards and mobile transactional outbox callbacks through the merged oldaplib 0.7.17 source. Generic note rejection precedes payload/outbox work; real private references still block deletion while legacy receipt identifiers can be normalized. Both archive and internal worker routes are retained. See `doc/archive_mobile_merge.md` for checks and source/runtime limits. No release, lock refresh, deployment or native Capture change.
+
 - AS-05 mixed private ZIP export is implemented: permission-checked folder references, one resolver read per identity, copies/bytes per private path, CSV entry kinds and frozen membership/path reauthorization. Existing v1 manifests and five-minute download links are retained. Media deletion now waits for authoritative RDF deletion before touching originals. See `doc/zip-export/v1/README.md`. AS-06 UI integration is next; no ontology/CaptureApp/production changes.
 
 - AS-04 adds authenticated no-store structure proposal/preflight/apply endpoints and adoption operation receipts, with frozen request/result shapes, strict limits and OpenAPI documentation. Matching oldaplib supplies reviewed atomic creates/mappings and audit. 174 combined focused tests, all 61 ObjectFactory tests and real adoption/lifecycle/HTTP probes pass; 500 actions take 55.733 seconds within the unchanged API timeout. See `doc/archive_structure_adoption.md` and FasnachtsPage `docs/as-04/`. Capture/YAML contracts and source remain unchanged; no policy activation/release. Local GraphDB was restarted at 12 GiB with user approval.
@@ -30,9 +32,9 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   repository. They refuse `OLDAP_TEST_TS_REPO=oldap`; developers must select a
   disposable repository explicitly when using another test repository name.
 - The API generally requires `oldaplib` 0.7.9 or newer within the 0.7 series.
-  The current Poetry resolution uses 0.7.14; deploying the additive resource
-  summary endpoint requires the prepared 0.7.15 release that introduces
-  `ResourceInstanceFactory.read_summaries()`.
+  The current Poetry lock resolves 0.7.16. Deploying the mobile-media lifecycle
+  outbox requires the prepared 0.7.17 release and an updated API lock because
+  that release adds the additive `before_commit` mutation hook.
 - Fasnacht Capture Step 11A is implemented as the additive internal
   `POST /internal/mobile-media/v1/uploads/{uploadId}/commit` operation. A
   dedicated maximum-five-minute service JWT authenticates only this purpose.
@@ -51,6 +53,21 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   identity reuse fails closed without exposing foreign data. The API also
   requires the published path to equal the current server-derived StagingArea
   path so a cross-service metadata change cannot create an unreachable medium.
+- Fasnacht Capture Step 13D adds an internal GraphDB lifecycle outbox in the
+  existing mobile receipt graph. Generic movement, intentional staging
+  deletion, and the exact staging-to-archive transformation append immutable
+  `moved`, `staging_deleted`, and `archived` events inside the same resource
+  transaction, but only when an exact mobile commit receipt exists. A separate
+  purpose/audience service JWT protects leased internal claim and completion
+  operations. Delivery retries after lease expiry and exact completion is
+  idempotent. Receipt resource identifiers are stored as typed URI metadata,
+  not semantic RDF references, so the private audit graph cannot falsely trip
+  OLDAP's general in-use deletion guard. A permitted deletion transparently
+  normalizes the early Step-13D IRI representation before retrying that same
+  guard; real incoming resource references remain blocking. OLDAP records facts
+  only; the media worker owns exact-file deletion and checksum-receipt release.
+  Existing resource URLs, payloads, access/media tokens, IIIF consumers, and
+  non-mobile resources remain unchanged.
 - Fasnacht Capture Step 11B protects the exact Staging system path through
   additive server-side policy in `oldap_api/staging_area.py`. Generic instance
   operations and the registered legacy `/admin` resource-create path cannot
@@ -363,6 +380,9 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   API repository contains no secret. The media caller, worker, persistent
   storage, and disabled-by-default proxy wiring are implemented; rollout and
   cross-service secret provisioning remain operator-controlled.
+- Publish oldaplib 0.7.17, update the oldap-api dependency lock to that release,
+  and deploy/restart oldap-api before enabling Step-13D lifecycle consumption.
+  The API mutation and outbox write must never be rolled out independently.
 - Release and deploy the `oldaplib` archive-tree service before enabling the
   archive move endpoint in FasnachtsPage; the route returns `503` when an older
   library build is installed.

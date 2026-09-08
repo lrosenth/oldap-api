@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-09-08 16:20
+- Decisions: Resolve the archive/mobile lifecycle merge by retaining both sides: coordinated archive checks and resource callbacks/outbox, legacy receipt normalization and all typed error mappings. Preserve existing Capture contracts.
+- Implementation: Combined update/delete and OpenAPI conflicts; retained 84 routes and validated 812 refs without duplicate keys. Added guard-before-hook note/clear regression; corrected the incoming test double's required property model. 236 API tests plus 22 subtests, actual isolated lifecycle/adoption and Capture transport/parser checks pass. Documentation: doc/archive_mobile_merge.md.
+- Open: Merge is resolved and staged for review/commit; native AS-T12 and target acceptance, matched dependency releases/lock and activation remain separate.
+- Risks/Assumptions: Matching oldaplib hook/archive integration rechecked after Tower reset and still intact. No CaptureApp, production data, runtime configuration or service changes. Existing unrelated regex warnings retained; merge remains uncommitted for review.
+
 ### Update 2026-09-08 12:08
 - Decisions: AS-05 reuses manifest/metadata v1 and existing public APIs; count originals per private path and retain the five-minute capability lifetime.
 - Implementation: Added permission-checked catalogue references, deduplicated source resolution, per-placement totals/CSV kinds, frozen path/membership/source reauthorization; authoritative RDF deletion now precedes binary withdrawal. Verified 141 API tests, 281 media tests (one Linux-only skip), isolated GraphDB/real-writer integration, and network-disabled Docker deletion smoke; Black/Poetry/diff checks pass. Updated an older Staging test double to expose its required property model.
@@ -35,6 +41,18 @@
 - Implementation: Rejected non-object and unknown-field writes before persistence, kept absent known-property clears idempotent, returned 400/403/404/409 for typed failures, updated OpenAPI/guide/context, and added six isolated HTTP regression tests (49 combined library/API tests pass).
 - Open: AS-02 project policy, preparation-note lifecycle guard, role/ACL union, complete safe domain operations, reference receipts and writer coordination. GraphDB concurrent claims exposed a coordination gap; persistent-gate recovery decision remains pending.
 - Risks/Assumptions: Requires accompanying unreleased oldaplib source changes. No CaptureApp formats/source, role grants, ontology load or deployment changed. The accepted post-archive preparation-note rejection is not implemented by this error-mapping increment; no destructive application fixtures were run.
+
+### Update 2026-09-03 19:39
+- Decisions: Keep OLDAP's generic in-use protection intact and represent private mobile receipt resource identifiers as non-referential typed URI metadata instead of weakening deletion checks.
+- Implementation: Changed new mobile commit and lifecycle receipt resource values to `xsd:anyURI` literals; added a narrow transactional normalizer for the early Step-13D IRI representation after an authorized delete has already encountered an in-use conflict; retried the unchanged deletion guard so real incoming references still block; contradictory legacy metadata now fails closed with a structured `503`; added receipt, normalization, deletion-retry, error-mapping, and real-reference regressions.
+- Open: Rebuild/restart matching API and media worker services before repeating the disposable live deletion/re-upload acceptance flow.
+- Risks/Assumptions: The normalization preserves immutable receipt values and touches only `urn:oldap:mobile-media-commits`. Existing public routes, payloads, permissions, tokens, IIIF consumers, non-mobile resources, GraphDB application data, and genuine referential-integrity behavior remain unchanged.
+
+### Update 2026-09-02 18:08
+- Decisions: Make the authoritative OLDAP staging mutation and its mobile-receipt lifecycle notification one GraphDB transaction. Distinguish moved, staging_deleted, and archived events and expose them only through a separate purpose-authenticated internal worker contract.
+- Implementation: Added the durable leased lifecycle outbox and claim/ack routes; connected mobile-origin generic move, delete, and exact archive transformation through oldaplib's additive pre-commit hook while leaving non-mobile mutations unchanged; retained the delivered claim fence so only the exact acknowledgement is replayable; added closed security, lease, rollback, route, and compatibility tests; synchronized OpenAPI and stable context; prepared API 0.2.22.
+- Open: Publish oldaplib 0.7.17, update this repository's Poetry lock from 0.7.16, and rebuild oldap-api before enabling Step-13D workers.
+- Risks/Assumptions: Outbox delivery is at least once and deliberately fail closed; delayed delivery may retain files and block a re-upload but cannot release early. Existing public routes, payloads, access tokens, media/IIIF consumers, and FasnachtsPage behavior remain compatible.
 
 ### Update 2026-08-30 00:13
 - Decisions: Align public ZIP job creation with the existing authorizer boundary by accepting only safe QNames in the explicitly selected project, while retaining absolute HTTP(S) and canonical UUID-URN targets.

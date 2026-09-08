@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from flask import Flask
 from oldaplib.src.helpers.context import Context
+from oldaplib.src.helpers.oldaperror import OldapErrorInUse
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
 import pytest
@@ -19,6 +20,7 @@ from oldap_api.imports.domain import TargetSnapshot
 from oldap_api.views import instance_views
 from oldap_api.views import import_views
 from oldap_api.views import resource_views
+from oldap_api.mobile_media.lifecycle import MobileMediaLifecycleError
 
 AREA = "urn:uuid:00000000-0000-0000-0000-000000000301"
 TOP = "urn:uuid:00000000-0000-0000-0000-000000000302"
@@ -673,3 +675,323 @@ def test_zip_import_commit_uses_the_shared_staging_write_lease(monkeypatch) -> N
         ("lock", "shared:StagingMediaObject"),
         ("commit", "import-id", payload),
     ]
+
+
+@pytest.mark.parametrize(
+    ("method", "path_suffix", "payload", "expected_kind"),
+    [
+        ("DELETE", "", None, "staging_deleted"),
+        (
+            "POST",
+            "",
+            {"shared:inStagingFolder": "urn:uuid:00000000-0000-4000-8000-000000000401"},
+            "moved",
+        ),
+        (
+            "POST",
+            "/transform",
+            {
+                "targetClass": "fasnacht:ArchiveMediaObject",
+                "preserveClass": "shared:MediaObject",
+            },
+            "archived",
+        ),
+    ],
+)
+def test_mobile_staging_mutations_append_lifecycle_inside_oldap_transaction(
+    monkeypatch, method, path_suffix, payload, expected_kind
+) -> None:
+    appended = []
+    resource = Iri("urn:uuid:00000000-0000-4000-8000-000000000402")
+
+    class RecordingOutbox:
+        def __init__(self, connection):
+            assert connection == "active-transaction"
+
+        def append_to_active_transaction(self, **facts):
+            appended.append(facts)
+
+    class FakeInstance:
+        name = Xsd_QName("shared:StagingMediaObject", validate=False)
+        iri = resource
+        properties = {
+            Xsd_QName("shared:inStagingFolder", validate=False): SimpleNamespace(
+                datatype=None
+            )
+        }
+
+        def get(self, key):
+            if str(key) == "shared:checksum":
+                return {"a" * 64}
+            return None
+
+        def __setitem__(self, key, value):
+            pass
+
+        def delete(self, *, before_commit=None):
+            before_commit("active-transaction")
+
+        def update(self, *, before_commit=None):
+            before_commit("active-transaction")
+
+        def transform_class(self, target_class, **kwargs):
+            kwargs["before_commit"]("active-transaction")
+            return SimpleNamespace(iri=resource, name=Xsd_QName(target_class))
+
+    class FakeFactory:
+        def __init__(self, con, project):
+            pass
+
+        def read(self, iri):
+            return FakeInstance()
+
+    connection = SimpleNamespace(context_name="DEFAULT")
+    Context(name="DEFAULT")["fasnacht"] = "http://oldap.org/fasnacht#"
+    monkeypatch.setattr(instance_views, "authenticated_connection", lambda: connection)
+    monkeypatch.setattr(instance_views, "ResourceInstanceFactory", FakeFactory)
+    monkeypatch.setattr(
+        instance_views, "GraphDbMobileMediaLifecycleOutbox", RecordingOutbox
+    )
+    monkeypatch.setattr(
+        instance_views, "run_staging_mutation", lambda unused, operation: operation()
+    )
+    app = Flask(__name__)
+
+    with app.test_request_context(
+        f"/data/fasnacht/{resource}{path_suffix}", method=method, json=payload
+    ):
+        if path_suffix:
+            response, status = instance_views.transform_instance.__wrapped__(
+                "fasnacht", str(resource)
+            )
+        elif method == "POST":
+            response, status = instance_views.update_instance.__wrapped__(
+                "fasnacht", str(resource)
+            )
+        else:
+            response, status = instance_views.delete_instance.__wrapped__(
+                "fasnacht", str(resource)
+            )
+
+    assert status == 200
+    assert len(appended) == 1
+    assert appended[0]["kind"] == expected_kind
+    assert appended[0]["resource_iri"] == str(resource)
+    assert appended[0]["checksum"] == "sha256:" + "a" * 64
+
+
+def test_mobile_delete_normalizes_only_internal_legacy_receipt_then_rechecks_in_use(
+    monkeypatch,
+) -> None:
+    calls = []
+    resource = Iri("urn:uuid:00000000-0000-4000-8000-000000000404")
+
+    class RecordingOutbox:
+        def __init__(self, connection):
+            assert connection is authenticated
+
+        def normalize_legacy_resource_reference(self, resource_iri):
+            calls.append(("normalize", resource_iri))
+            return True
+
+        def append_to_active_transaction(self, **facts):
+            calls.append(("append", facts["kind"]))
+
+    class FakeInstance:
+        name = Xsd_QName("shared:StagingMediaObject", validate=False)
+        iri = resource
+
+        def get(self, key):
+            return {"a" * 64} if str(key) == "shared:checksum" else None
+
+        def delete(self, *, before_commit=None):
+            calls.append("delete")
+            if calls.count("delete") == 1:
+                raise OldapErrorInUse("internal receipt still references resource")
+            before_commit(authenticated)
+
+    class FakeFactory:
+        def __init__(self, con, project):
+            pass
+
+        def read(self, iri):
+            return FakeInstance()
+
+    authenticated = SimpleNamespace(context_name="DEFAULT")
+    Context(name="DEFAULT")["fasnacht"] = "http://oldap.org/fasnacht#"
+    monkeypatch.setattr(
+        instance_views, "authenticated_connection", lambda: authenticated
+    )
+    monkeypatch.setattr(instance_views, "ResourceInstanceFactory", FakeFactory)
+    monkeypatch.setattr(
+        instance_views, "GraphDbMobileMediaLifecycleOutbox", RecordingOutbox
+    )
+    monkeypatch.setattr(
+        instance_views, "run_staging_mutation", lambda unused, operation: operation()
+    )
+    app = Flask(__name__)
+
+    with app.test_request_context(f"/data/fasnacht/{resource}", method="DELETE"):
+        response, status = instance_views.delete_instance.__wrapped__(
+            "fasnacht", str(resource)
+        )
+
+    assert status == 200
+    assert response.get_json() == {"message": "Instance successfully deleted"}
+    assert calls == [
+        "delete",
+        ("normalize", str(resource)),
+        "delete",
+        ("append", "staging_deleted"),
+    ]
+
+
+def test_real_in_use_reference_remains_a_conflict_after_receipt_normalization(
+    monkeypatch,
+) -> None:
+    resource = Iri("urn:uuid:00000000-0000-4000-8000-000000000405")
+    delete_calls = 0
+
+    class RecordingOutbox:
+        def __init__(self, connection):
+            pass
+
+        def normalize_legacy_resource_reference(self, resource_iri):
+            return True
+
+    class FakeInstance:
+        name = Xsd_QName("shared:StagingMediaObject", validate=False)
+        iri = resource
+
+        def get(self, key):
+            return {"a" * 64} if str(key) == "shared:checksum" else None
+
+        def delete(self, *, before_commit=None):
+            nonlocal delete_calls
+            delete_calls += 1
+            raise OldapErrorInUse("a real resource still references this medium")
+
+    class FakeFactory:
+        def __init__(self, con, project):
+            pass
+
+        def read(self, iri):
+            return FakeInstance()
+
+    authenticated = SimpleNamespace(context_name="DEFAULT")
+    Context(name="DEFAULT")["fasnacht"] = "http://oldap.org/fasnacht#"
+    monkeypatch.setattr(
+        instance_views, "authenticated_connection", lambda: authenticated
+    )
+    monkeypatch.setattr(instance_views, "ResourceInstanceFactory", FakeFactory)
+    monkeypatch.setattr(
+        instance_views, "GraphDbMobileMediaLifecycleOutbox", RecordingOutbox
+    )
+    monkeypatch.setattr(
+        instance_views, "run_staging_mutation", lambda unused, operation: operation()
+    )
+    app = Flask(__name__)
+
+    with app.test_request_context(f"/data/fasnacht/{resource}", method="DELETE"):
+        response, status = instance_views.delete_instance.__wrapped__(
+            "fasnacht", str(resource)
+        )
+
+    assert status == 409
+    assert "real resource" in response.get_json()["message"]
+    assert delete_calls == 2
+
+
+def test_invalid_legacy_mobile_receipt_returns_structured_service_error(
+    monkeypatch,
+) -> None:
+    resource = Iri("urn:uuid:00000000-0000-4000-8000-000000000406")
+
+    class InvalidOutbox:
+        def __init__(self, connection):
+            pass
+
+        def normalize_legacy_resource_reference(self, resource_iri):
+            raise MobileMediaLifecycleError("receipt is contradictory")
+
+    class FakeInstance:
+        name = Xsd_QName("shared:StagingMediaObject", validate=False)
+        iri = resource
+
+        def get(self, key):
+            return {"a" * 64} if str(key) == "shared:checksum" else None
+
+        def delete(self, *, before_commit=None):
+            raise OldapErrorInUse("internal receipt references resource")
+
+    class FakeFactory:
+        def __init__(self, con, project):
+            pass
+
+        def read(self, iri):
+            return FakeInstance()
+
+    authenticated = SimpleNamespace(context_name="DEFAULT")
+    Context(name="DEFAULT")["fasnacht"] = "http://oldap.org/fasnacht#"
+    monkeypatch.setattr(
+        instance_views, "authenticated_connection", lambda: authenticated
+    )
+    monkeypatch.setattr(instance_views, "ResourceInstanceFactory", FakeFactory)
+    monkeypatch.setattr(
+        instance_views, "GraphDbMobileMediaLifecycleOutbox", InvalidOutbox
+    )
+    monkeypatch.setattr(
+        instance_views, "run_staging_mutation", lambda unused, operation: operation()
+    )
+    app = Flask(__name__)
+
+    with app.test_request_context(f"/data/fasnacht/{resource}", method="DELETE"):
+        response, status = instance_views.delete_instance.__wrapped__(
+            "fasnacht", str(resource)
+        )
+
+    assert status == 503
+    assert response.get_json() == {
+        "message": "Mobile media lifecycle state is unavailable."
+    }
+
+
+def test_non_archive_staging_transform_does_not_emit_archive_lifecycle(
+    monkeypatch,
+) -> None:
+    class FakeInstance:
+        name = Xsd_QName("shared:StagingMediaObject", validate=False)
+        iri = Iri("urn:uuid:00000000-0000-4000-8000-000000000403")
+
+        def transform_class(self, target_class, **kwargs):
+            assert "before_commit" not in kwargs
+            return SimpleNamespace(iri=self.iri, name=Xsd_QName(target_class))
+
+    class FakeFactory:
+        def __init__(self, con, project):
+            pass
+
+        def read(self, iri):
+            return FakeInstance()
+
+    connection = SimpleNamespace(context_name="DEFAULT")
+    Context(name="DEFAULT")["fasnacht"] = "http://oldap.org/fasnacht#"
+    monkeypatch.setattr(instance_views, "authenticated_connection", lambda: connection)
+    monkeypatch.setattr(instance_views, "ResourceInstanceFactory", FakeFactory)
+    monkeypatch.setattr(
+        instance_views, "run_staging_mutation", lambda unused, operation: operation()
+    )
+    app = Flask(__name__)
+    payload = {
+        "targetClass": "fasnacht:Place",
+        "preserveClass": "oldap:Thing",
+    }
+
+    with app.test_request_context(
+        f"/data/fasnacht/{FakeInstance.iri}/transform", method="POST", json=payload
+    ):
+        response, status = instance_views.transform_instance.__wrapped__(
+            "fasnacht", str(FakeInstance.iri)
+        )
+
+    assert status == 200

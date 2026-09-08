@@ -5982,6 +5982,87 @@ paths:
               schema:
                 $ref: '#/components/schemas/ArchiveStructureError'
 
+  /internal/mobile-media/v1/lifecycle-events/claims:
+    post:
+      summary: Lease one durable mobile-media lifecycle event
+      description: >
+        Internal worker-only operation over the GraphDB outbox. The oldest
+        pending or expired claim is leased without exposing a public media or
+        staging lookup. Empty work returns 204. The purpose-specific token is
+        not accepted by the mobile commit operation and vice versa.
+      security: [{MobileMediaLifecycleServiceToken: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [workerId]
+              properties:
+                workerId: {type: string, pattern: '^[A-Za-z0-9._:-]{1,128}$'}
+      responses:
+        "200":
+          description: One immutable lifecycle event was leased.
+          headers:
+            Cache-Control:
+              schema: {type: string, const: no-store}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/MobileMediaLifecycleClaim'}
+        "204":
+          description: No lifecycle event is currently claimable.
+          headers:
+            Cache-Control:
+              schema: {type: string, const: no-store}
+        "400": {$ref: '#/components/responses/MobileMediaProblem'}
+        "401": {$ref: '#/components/responses/MobileMediaProblem'}
+        "503": {$ref: '#/components/responses/MobileMediaProblem'}
+
+  /internal/mobile-media/v1/lifecycle-events/{eventId}/complete:
+    post:
+      summary: Acknowledge one applied mobile-media lifecycle event
+      description: >
+        Internal worker-only exact-claim acknowledgement. An identical replay
+        after a lost response is idempotent. A stale or foreign active claim is
+        rejected and the durable event remains recoverable.
+      security: [{MobileMediaLifecycleServiceToken: []}]
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [claimId, workerId]
+              properties:
+                claimId: {type: string, format: uuid}
+                workerId: {type: string, pattern: '^[A-Za-z0-9._:-]{1,128}$'}
+      responses:
+        "200":
+          description: Lifecycle application was durably acknowledged.
+          headers:
+            Cache-Control:
+              schema: {type: string, const: no-store}
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [eventId, state]
+                properties:
+                  eventId: {type: string, format: uuid}
+                  state: {type: string, const: delivered}
+        "400": {$ref: '#/components/responses/MobileMediaProblem'}
+        "401": {$ref: '#/components/responses/MobileMediaProblem'}
+        "409": {$ref: '#/components/responses/MobileMediaProblem'}
+        "503": {$ref: '#/components/responses/MobileMediaProblem'}
+
 components:
   parameters:
     ExportId:
@@ -6578,6 +6659,24 @@ components:
         checksum: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
         committedAt: {type: string, format: date-time}
 
+    MobileMediaLifecycleClaim:
+      type: object
+      additionalProperties: false
+      required: [eventId, claimId, workerId, kind, uploadId, clientAssetId, ownerUserIri, stagingAreaId, resourceIri, checksum, occurredAt, leaseExpiresAt]
+      properties:
+        eventId: {type: string, format: uuid}
+        claimId: {type: string, format: uuid}
+        workerId: {type: string, pattern: '^[A-Za-z0-9._:-]{1,128}$'}
+        kind: {type: string, enum: [moved, staging_deleted, archived]}
+        uploadId: {type: string, format: uuid}
+        clientAssetId: {type: string, format: uuid}
+        ownerUserIri: {type: string, format: uri}
+        stagingAreaId: {type: string, format: uri}
+        resourceIri: {type: string, format: uri}
+        checksum: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+        occurredAt: {type: string, format: date-time}
+        leaseExpiresAt: {type: string, format: date-time}
+
     MobileMediaProblem:
       type: object
       additionalProperties: false
@@ -6588,7 +6687,7 @@ components:
         status: {type: integer}
         code:
           type: string
-          enum: [validation_failed, invalid_credentials, authentication_unavailable, staging_area_not_permitted, staging_upload_not_permitted, staging_folder_not_found, staging_folder_not_protected, staging_destination_changed, client_asset_conflict, upstream_unavailable]
+          enum: [validation_failed, invalid_credentials, authentication_unavailable, staging_area_not_permitted, staging_upload_not_permitted, staging_folder_not_found, staging_folder_not_protected, staging_destination_changed, client_asset_conflict, lifecycle_claim_conflict, upstream_unavailable]
         traceId: {type: string}
         retryable: {type: boolean}
 
@@ -8741,6 +8840,11 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Internal maximum-five-minute typ=mobile-media-service JWT with purpose mobile-media-commit, subject oldap-mediaserver, and audience oldap-api-mobile-media; accepted only by the exact mobile commit route.
+    MobileMediaLifecycleServiceToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Internal maximum-five-minute typ=mobile-media-service JWT with purpose mobile-media-lifecycle, subject oldap-mediaserver, and audience oldap-api-mobile-media-lifecycle; accepted only by the lifecycle claim and acknowledgement routes.
     RefreshCookie:
       type: apiKey
       in: cookie

@@ -463,6 +463,7 @@ def _atomic_insert(
 ) -> str:
     graph = URIRef(target.data_graph_iri).n3()
     resource = URIRef(commit.resource_iri).n3()
+    receipt_resource = Literal(commit.resource_iri, datatype=XSD.anyURI).n3()
     owner = URIRef(commit.owner_user_iri).n3()
     area = URIRef(commit.staging_area_id).n3()
     folder = URIRef(target.mobile_folder_iri).n3()
@@ -514,7 +515,7 @@ INSERT DATA {{
       {REQUEST_DIGEST.n3()} {Literal(commit.request_digest).n3()} ;
       {OWNER.n3()} {owner} ;
       {STAGING_AREA.n3()} {area} ;
-      {RESOURCE.n3()} {resource} ;
+      {RESOURCE.n3()} {receipt_resource} ;
       {RESULT.n3()} {result_json} .
   }}
 }}
