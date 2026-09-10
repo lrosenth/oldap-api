@@ -1,5 +1,59 @@
 # CODEX_LOG
 
+### Update 2026-09-10 19:32
+- Decisions: Implement a separate folder-default tree; suggestions require a unique recorded structure-only origin and current target visibility. Save/remove one folder at a time, without changing media or archive structure.
+- Implementation: Added default_proposal/read-only API route and generated client, shared source-choice loader, and ArchiveFolderDefaults below persisted management. Preflight/apply remains authoritative and exact pending requests survive reload. 28 backend/API tests plus 21 subtests, targeted lint, build, defaults desktop/mobile retry smoke and step-one/public regression pass; check baseline remains 23 errors/37 warnings in 15 files. Guarded API restart succeeded; live read-only response returned 44 folders/seven hints.
+- Open: User acceptance; SALSAH-2 UI adaptation remains separate.
+- Risks/Assumptions: Hints suppressed above 1,000 scanned receipts, capped at 500 with warnings. No guessed names/recency, ontology/Capture changes, live default writes, commit or production deployment. Existing unrelated changes preserved.
+
+### Update 2026-09-10 19:12
+- Decisions: Separate creating empty archive units from hierarchy editing and folder defaults. Keep old request semantics and exact uncertain retries compatible.
+- Implementation: Added optional applyMappings=false in library/API/client contracts, suppressing folder writes while preserving creation grants and storing origin IDs in private receipts. Replaced the combined FasnachtsPage editor with a fixed-hierarchy source/placement/name/level/review flow. 26 backend/API tests plus 15 subtests, targeted lint, build and desktop/mobile/public fixture smoke pass; frontend baseline stays 23 errors/37 warnings. Local API restarted through its guarded Make target; live read-only preflight confirmed zero default changes.
+- Open: Step-three default editor and retrieval of recorded provenance; user acceptance of step one. New operation IDs are separate imports, not cross-operation deduplication.
+- Risks/Assumptions: No ontology/Capture changes or live archive writes; old SALSAH requests retain combined behavior. Match API/library release before deploying the new frontend. No commit/push or production deployment; unrelated work preserved.
+
+### Update 2026-09-10 12:36
+- Decisions: Include all Docker Desktop workloads and the four native backend/store jobs; keep frontends and unrelated native apps manual, as explicitly selected.
+- Implementation: Added documented services-stop/start/status targets and development_services.py; shared reviewed environment validation with restart_api.py. Stop uses writer exclusion, persistent native disable and exact Docker resume IDs; all engine calls pin the local socket. Docker status handles a fully exited Desktop without hanging. Verification: nine focused tests and the full live stop/start cycle pass; repeated stop is safe, native jobs stay disabled while stopped, all six original containers return, and the writer gate is free afterwards.
+- Open: No change to Docker login-item preferences or audio-system configuration.
+- Risks/Assumptions: Finish transfers first; occupied writer gates refuse stop. Partial failures preserve resume/safety state; no stale-owner reset, volumes removed, commit or production changes.
+
+### Update 2026-09-10 12:22
+- Decisions: Keep native API development restart accessible through Make; preserve retained-owner recovery rules.
+- Implementation: Added documented `make restart` and help entry, backed by restart_api.py: validated local inventory/environment, atomic writer exclusion, kernel exit/job removal and API readiness checks. Added three isolated Redis tests; actual make restart succeeded without restarting GraphDB/Redis.
+- Open: None for this local development target.
+- Risks/Assumptions: Occupied writer/recovery gates refuse restart; uncertain runtime control retains the gate. Existing unrelated working changes preserved; no commit or production changes.
+
+### Update 2026-09-10 12:10
+- Decisions: Complete WR-04 local operational acceptance; enable only the explicitly authorized rosenth operator. Production remains a separate target-specific rollout.
+- Implementation: Verified real API authorization/no-store/free state and actual Redis evidence-denial ACL; enabled private local runtime configuration and dedicated operator role through ordinary OLDAP models. Local SALSAH CORS origin localhost:5175 was added and verified against the actual API. Acceptance: 50 recovery/native, 19 deployment, 49 authentication/Capture transport and 8 frontend tests pass; 10 native and 15 pinned Redis checks pass. Both live/fixture UI flows and builds pass; FP typecheck baseline remains 23 errors/37 warnings, SALSAH is clean.
+- Open: Production multi-host/SSH partition, whole-host reboot and independent-storage restore acceptance; native Capture acceptance retains the user's local waiver.
+- Risks/Assumptions: Native services must remain foreground and within the reviewed inventory; unmanaged direct writers are maintenance-only. Persistent controller/gate state never expires. No commit, push or production deployment.
+
+### Update 2026-09-10 01:32
+- Decisions: Expose additive deployment-wide recovery endpoints with fresh operational authorization and sanitized closed responses; never accept runtime/evidence claims from HTTP.
+- Implementation: Registered writer-recovery blueprint for capabilities/status/begin/operation/finish; closed 8-KiB inputs, canonical UUID/revision/reason validation, no-store responses, scoped Redis pool cleanup, bounded fresh role query and explicit unknown-result handling. Added OpenAPI schemas and real isolated-Redis HTTP tests.
+- Open: Recovery activation remains disabled; WR-04 target/runtime acceptance and native MacBook control are still required. No role assignment or deployment.
+- Risks/Assumptions: 44 recovery/library/service tests plus eight existing authentication tests pass. Live unauthenticated discovery returns 401/no-store. Both clients validated against the same HTTP contract. No Capture transport/source changes.
+
+### Update 2026-09-10 01:05
+- Decisions: Use a deployment-wide ordinary operational role with authoritative membership checks, independent of archive editing and administrator shortcuts.
+- Implementation: Added WriterRecoveryService for diagnosis, begin/status/finish and actor binding; every call queries current active-user role membership. Dedicated recovery Redis credential and reviewed runtime inventory digest are opt-in. Added four unit tests and service integration documentation.
+- Open: WR-03 authenticated no-store HTTP contracts plus FasnachtsPage/SALSAH-2; WR-04 native runtime/target acceptance. No role assignment or recovery activation.
+- Risks/Assumptions: 51 combined library/API focused tests pass. No existing API/Capture contract, route, ontology or source change in CaptureApp. No Docker socket or shell capability enters the API.
+
+### Update 2026-09-09 23:19
+- Decisions: Honor the configured durable writer store and normalize export identity values at the OLDAP search boundary.
+- Implementation: Makefile run/run-prod preserve OLDAP_STAGING_LOCK_REDIS_URL from local settings. Archive export reader expands typed QName subjects/links before selection and manifest joins while preserving literals; added regression. Deployed current editable API/library locally with enabled project policy and dedicated AOF Redis 6380/1.
+- Open: Versioned production deployment and native Capture acceptance remain separate; no Capture contract/source changes.
+- Risks/Assumptions: 37 export tests pass. Actual BMG estimate returns 256 files/499433768 bytes; editor/unknown capabilities and canonical reads pass. Media services restarted. No production or git publication.
+
+### Update 2026-09-09 21:57
+- Decisions: Keep API and Capture contracts unchanged for user-approved project creation grants implemented in matching oldaplib.
+- Implementation: Documented optional grantEditorRolesOnCreation and library deployment ordering; updated stable context. Archive HTTP boundary/structure unit tests pass in the 90-test combined suite; Capture contract probe passes with synthetic transport.
+- Open: Matching library deployment, reviewed policy/resource migration, durable gate and native/target acceptance.
+- Risks/Assumptions: API application code/routes/payload schemas unchanged; documentation only in this repository. No runtime activation or CaptureApp source changes.
+
 ### Update 2026-09-08 16:20
 - Decisions: Resolve the archive/mobile lifecycle merge by retaining both sides: coordinated archive checks and resource callbacks/outbox, legacy receipt normalization and all typed error mappings. Preserve existing Capture contracts.
 - Implementation: Combined update/delete and OpenAPI conflicts; retained 84 routes and validated 812 refs without duplicate keys. Added guard-before-hook note/clear regression; corrected the incoming test double's required property model. 236 API tests plus 22 subtests, actual isolated lifecycle/adoption and Capture transport/parser checks pass. Documentation: doc/archive_mobile_merge.md.

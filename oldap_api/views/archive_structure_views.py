@@ -192,6 +192,18 @@ def structure_proposal(project):
     return ArchiveAdoption(authenticated_connection(), project).proposal(body)
 
 
+@archive_structure_bp.post("/archive/<project>/structure/defaults/proposal")
+@require_auth
+@domain_response
+def archive_default_proposal(project):
+    """Read current folder defaults and permission-filtered provenance suggestions."""
+    from oldaplib.src.archive_adoption import ArchiveAdoption
+
+    return ArchiveAdoption(authenticated_connection(), project).default_proposal(
+        _review_body()
+    )
+
+
 @archive_structure_bp.post("/archive/<project>/structure/preflight")
 @require_auth
 @domain_response

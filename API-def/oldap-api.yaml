@@ -10,6 +10,295 @@ servers:
 - url: http://127.0.0.1:5000
   description: local server...
 paths:
+  /admin/writer-recovery/capabilities:
+    get:
+      operationId: writerRecoveryCapabilities
+      summary: writerRecoveryCapabilities
+      tags:
+      - Writer recovery
+      security:
+      - AccessToken: []
+      description: Deployment-wide operator capability. Responses are no-store. Maintenance
+        proof is established offline; requests never accept runtime targets or evidence.
+        Retain the exact operation ID and begin body after any uncertain response. A
+        409 leaves recovery blocked; a 503 may have an unknown result. No automatic
+        replay of archive writes.
+      responses:
+        '200':
+          description: Restricted recovery result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryCapabilities'
+        '400':
+          description: Invalid closed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '403':
+          description: Operational role missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '409':
+          description: Recovery blocked or inspected revision changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '413':
+          description: Request too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '503':
+          description: Unavailable or result unknown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '401':
+          description: Missing or invalid bearer authentication
+  /admin/writer-recovery/status:
+    get:
+      operationId: writerRecoveryStatus
+      summary: writerRecoveryStatus
+      tags:
+      - Writer recovery
+      security:
+      - AccessToken: []
+      description: Deployment-wide operator capability. Responses are no-store. Maintenance
+        proof is established offline; requests never accept runtime targets or evidence.
+        Retain the exact operation ID and begin body after any uncertain response. A
+        409 leaves recovery blocked; a 503 may have an unknown result. No automatic
+        replay of archive writes.
+      responses:
+        '200':
+          description: Restricted recovery result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryStatus'
+        '400':
+          description: Invalid closed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '403':
+          description: Operational role missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '409':
+          description: Recovery blocked or inspected revision changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '413':
+          description: Request too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '503':
+          description: Unavailable or result unknown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '401':
+          description: Missing or invalid bearer authentication
+  /admin/writer-recovery/operations:
+    post:
+      operationId: writerRecoveryBegin
+      summary: writerRecoveryBegin
+      tags:
+      - Writer recovery
+      security:
+      - AccessToken: []
+      description: Deployment-wide operator capability. Responses are no-store. Maintenance
+        proof is established offline; requests never accept runtime targets or evidence.
+        Retain the exact operation ID and begin body after any uncertain response. A
+        409 leaves recovery blocked; a 503 may have an unknown result. No automatic
+        replay of archive writes.
+      responses:
+        '200':
+          description: Restricted recovery result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryOperation'
+        '400':
+          description: Invalid closed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '403':
+          description: Operational role missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '409':
+          description: Recovery blocked or inspected revision changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '413':
+          description: Request too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '503':
+          description: Unavailable or result unknown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '401':
+          description: Missing or invalid bearer authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WriterRecoveryBegin'
+  /admin/writer-recovery/operations/{identifier}:
+    get:
+      operationId: writerRecoveryOperation
+      summary: writerRecoveryOperation
+      tags:
+      - Writer recovery
+      security:
+      - AccessToken: []
+      description: Deployment-wide operator capability. Responses are no-store. Maintenance
+        proof is established offline; requests never accept runtime targets or evidence.
+        Retain the exact operation ID and begin body after any uncertain response. A
+        409 leaves recovery blocked; a 503 may have an unknown result. No automatic
+        replay of archive writes.
+      responses:
+        '200':
+          description: Restricted recovery result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryOperation'
+        '400':
+          description: Invalid closed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '403':
+          description: Operational role missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '409':
+          description: Recovery blocked or inspected revision changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '413':
+          description: Request too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '503':
+          description: Unavailable or result unknown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '401':
+          description: Missing or invalid bearer authentication
+      parameters:
+      - name: identifier
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /admin/writer-recovery/operations/{identifier}/finish:
+    post:
+      operationId: writerRecoveryFinish
+      summary: writerRecoveryFinish
+      tags:
+      - Writer recovery
+      security:
+      - AccessToken: []
+      description: Deployment-wide operator capability. Responses are no-store. Maintenance
+        proof is established offline; requests never accept runtime targets or evidence.
+        Retain the exact operation ID and begin body after any uncertain response. A
+        409 leaves recovery blocked; a 503 may have an unknown result. No automatic
+        replay of archive writes.
+      responses:
+        '200':
+          description: Restricted recovery result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryOperation'
+        '400':
+          description: Invalid closed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '403':
+          description: Operational role missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '409':
+          description: Recovery blocked or inspected revision changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '413':
+          description: Request too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '503':
+          description: Unavailable or result unknown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WriterRecoveryError'
+        '401':
+          description: Missing or invalid bearer authentication
+      parameters:
+      - name: identifier
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties: {}
+              required: []
   /admin/auth/{userId}:
     post:
       summary: Authentication/login
@@ -5839,6 +6128,74 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ArchiveStructureError'
+  /archive/{project}/structure/defaults/proposal:
+    post:
+      operationId: archiveDefaultProposal
+      summary: Read folder defaults and visible source-correspondence suggestions
+      description: 'Opt-in structure capability and instance permissions are required.
+        Responses use Cache-Control: no-store. Limits: 2,000,000 request bytes, 5,000
+        source folders, 500 combined creates and set/clear actions. Existing archive
+        units are never edited by adoption. See doc/archive_structure_adoption.md and
+        the frozen v1 JSON Schema.'
+      security:
+      - AccessToken: []
+      parameters:
+      - name: project
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArchiveStructureProposalRequest'
+      responses:
+        '200':
+          description: Successful proposal.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveStructureProposalResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          description: Invalid request or hierarchy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveStructureError'
+        '403':
+          description: Role or resource permission denied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveStructureError'
+        '404':
+          description: Source, target or receipt unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveStructureError'
+        '409':
+          description: Stale review or idempotency conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveStructureError'
+        '413':
+          description: Select a smaller subtree or plan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveStructureError'
+        '503':
+          description: Coordination unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveStructureError'
   /archive/{project}/structure/preflight:
     post:
       operationId: archiveStructurePreflight
@@ -6086,6 +6443,107 @@ components:
       required: true
       schema: {type: string, format: uuid}
   schemas:
+    WriterRecoveryCapabilities:
+      type: object
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+        canRecover:
+          type: boolean
+      required:
+      - enabled
+      - canRecover
+    WriterRecoveryStatus:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+          - free
+          - occupied
+          - recovery_required
+          - recovery_in_progress
+          - store_unavailable
+        revision:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        startedAt:
+          type: string
+        operationId:
+          type: string
+          format: uuid
+      required:
+      - state
+    WriterRecoveryOperation:
+      type: object
+      additionalProperties: false
+      properties:
+        operationId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+          - awaiting_operator
+          - controller_blocked
+          - ready
+          - completed
+        requestedAt:
+          type: string
+        reason:
+          type: string
+        canFinish:
+          type: boolean
+        completedAt:
+          type: string
+      required:
+      - operationId
+      - state
+      - requestedAt
+      - reason
+      - canFinish
+    WriterRecoveryBegin:
+      type: object
+      additionalProperties: false
+      properties:
+        operationId:
+          type: string
+          format: uuid
+        expectedRevision:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        reason:
+          type: string
+          minLength: 10
+          maxLength: 2000
+      required:
+      - operationId
+      - expectedRevision
+      - reason
+    WriterRecoveryError:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          enum:
+          - FORBIDDEN
+          - RECOVERY_DISABLED
+          - TOO_LARGE
+          - INVALID_REQUEST
+          - RECOVERY_BLOCKED
+          - RESULT_UNKNOWN
+        message:
+          type: string
+        requestId:
+          type: string
+          format: uuid
+      required:
+      - code
+      - message
+      - requestId
     ArchiveStructureApplyRequest:
       type: object
       properties:
@@ -6267,6 +6725,9 @@ components:
       properties:
         sourceFolderIri:
           $ref: '#/components/schemas/ArchiveStructureIri'
+        applyMappings:
+          type: boolean
+          description: Defaults to true. False creates archive units only and records source correspondence without changing folder defaults.
         sourceSnapshot:
           $ref: '#/components/schemas/ArchiveStructureDigest'
         newUnits:

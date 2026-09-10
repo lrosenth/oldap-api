@@ -1,5 +1,21 @@
 # OLDAP API Codex Context
 
+- Step-three folder defaults are implemented in FasnachtsPage and shared backend: separate read-only default proposal with current permissions and stable-ID provenance hints; per-folder reviewed set/clear with exact retries. No media moves or unit creation. New route `/archive/{project}/structure/defaults/proposal`; matching local API restarted. See FasnachtsPage `docs/archive-hierarchy/README.md` for current workflow and receipt-scan limits.
+
+
+- Structure-only archive import: optional plan `applyMappings:false` creates reviewed units without changing working-folder defaults; source/unit correspondence is retained in private GraphDB receipts. Legacy omitted-option behavior stays combined. FasnachtsPage now exposes only source, placement, names/levels and review in step one; normal archive management is step two. Separate default editor/provenance retrieval is still pending. Matching local API was safely restarted; no real archive import was applied during verification.
+
+
+- Local service modes: `make services-stop`, `make services-start`, and `make services-status` control the native API/GraphDB/two Redis services plus all of Docker Desktop. Frontends remain terminal-managed. Native stop disables automatic loading until start; exact running container IDs are privately journaled for resume. See `doc/local_development.md`.
+
+- WR-04: WR-04 locally activates the shared recovery API for the explicitly approved system role WriterRecoveryOperator (rosenth only). The MacBook API is launchd-supervised, single-process/threaded, with the development reloader disabled. Use `make restart` after Python changes; `restart_api.py` holds the normal writer gate across verified shutdown/startup and refuses an occupied gate. No new HTTP/Capture contracts; see FasnachtsPage `docs/wr-04/README.md`.
+
+- WR-03 is implemented: `views/writer_recovery_views.py` exposes protected no-store capabilities, status and recovery operations under `/admin/writer-recovery`, with closed OpenAPI schemas, fresh role authorization and redacted projections. Both frontends use this contract. See `doc/writer_recovery.md`; WR-04 local activation is now complete; production remains separately gated.
+
+- WR-02 adds `oldap_api/writer_recovery.py`: a project-neutral application service with fresh active-user membership in an explicitly configured ordinary operational role, no admin/archive-role shortcut, and evidence-backed journal operations. WR-03 routes and both UIs are implemented; see `doc/writer_recovery.md`; see WR-04 for completed local activation and remaining production acceptance.
+
+- AS-09 policy compatibility: matching oldaplib supports optional `grantEditorRolesOnCreation` (default false) for transactional creation-time archive ACLs. `doc/archive_update_boundary.md` documents deployment ordering. No API routes/payloads, native Capture contracts or runtime configuration changed.
+
 OLDAP API is a Flask REST API that exposes OLDAP administration, data modelling,
 hierarchical list, resource, and instance operations backed by GraphDB through
 `oldaplib`.
@@ -391,3 +407,11 @@ hierarchical list, resource, and instance operations backed by GraphDB through
   explicitly.
 - Continue the shared performance roadmap with search summaries/batching before
   adding SALSAH-specific request reuse.
+
+## MacBook archive rollout (2026-09-09)
+
+Local archive policy/model/ACL activation is applied. The API uses a dedicated
+AOF/fsync-always writer Redis on localhost:6380/1 and matching local source;
+FasnachtsPage and SALSAH-2 share the activated backend. Production deployment
+remains separate. Native Capture acceptance was waived only for this test rollout.
+See `../FasnachtsPage/docs/as-09/local-rollout.md` for runtime, backup, recovery, verification and production steps.

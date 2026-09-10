@@ -55,6 +55,26 @@ class ArchiveStructureViewsTest(unittest.TestCase):
             response.json
         )
 
+    def test_default_proposal_forwards_read_request_with_no_store(self):
+        body = {"sourceFolderIri": "urn:test:source"}
+        from unittest.mock import MagicMock
+
+        repo = MagicMock()
+        repo.default_proposal.return_value = {
+            "folders": [],
+            "suggestedPlan": {"newUnits": [], "mappings": []},
+        }
+        with (
+            patch.object(views, "authenticated_connection", return_value=object()),
+            patch("oldaplib.src.archive_adoption.ArchiveAdoption", return_value=repo),
+        ):
+            response = self.client.post(
+                "/archive/test/structure/defaults/proposal", json=body
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Cache-Control"], "no-store")
+        repo.default_proposal.assert_called_once_with(body)
+
     def test_move_forwards_closed_request_and_idempotency_header(self):
         body = {
             key: value
@@ -68,9 +88,10 @@ class ArchiveStructureViewsTest(unittest.TestCase):
                 else None
             )
         )
-        with patch.object(
-            views, "authenticated_connection", return_value=object()
-        ), patch.object(views, "ArchiveRepository", return_value=repo):
+        with (
+            patch.object(views, "authenticated_connection", return_value=object()),
+            patch.object(views, "ArchiveRepository", return_value=repo),
+        ):
             response = self.client.post(
                 "/data/test/staging-reference-move",
                 json=body,
@@ -93,9 +114,11 @@ class ArchiveStructureViewsTest(unittest.TestCase):
                 "COORDINATION_UNAVAILABLE",
             ),
         ):
-            with self.subTest(code=code), patch.object(
-                views, "authenticated_connection", return_value=object()
-            ), patch.object(views, "ArchiveRepository", side_effect=error):
+            with (
+                self.subTest(code=code),
+                patch.object(views, "authenticated_connection", return_value=object()),
+                patch.object(views, "ArchiveRepository", side_effect=error),
+            ):
                 response = self.client.post(
                     "/data/test/staging-reference-move", json={}
                 )
@@ -121,9 +144,10 @@ class ArchiveStructureViewsTest(unittest.TestCase):
 
     def test_receipt_is_schema_conformant(self):
         repo = SimpleNamespace(operation=lambda key: self.result)
-        with patch.object(
-            views, "authenticated_connection", return_value=object()
-        ), patch.object(views, "ArchiveRepository", return_value=repo):
+        with (
+            patch.object(views, "authenticated_connection", return_value=object()),
+            patch.object(views, "ArchiveRepository", return_value=repo),
+        ):
             response = self.client.get(
                 "/archive/test/structure/operations/" + self.operation_id
             )
@@ -139,9 +163,10 @@ class ArchiveStructureViewsTest(unittest.TestCase):
             has_role=lambda roles: True,
             project=SimpleNamespace(projectIri=project_iri),
         )
-        with patch.object(
-            views, "authenticated_connection", return_value=con
-        ), patch.object(views.ArchivePolicy, "load", return_value=policy):
+        with (
+            patch.object(views, "authenticated_connection", return_value=con),
+            patch.object(views.ArchivePolicy, "load", return_value=policy),
+        ):
             response = self.client.get("/archive/test/structure/capabilities")
             self.validate(response, "CapabilitiesResponse", 200)
             self.assertTrue(response.json["canManageStructure"])
@@ -168,13 +193,11 @@ class ArchiveStructureViewsTest(unittest.TestCase):
             "nextCursor": None,
             "warnings": [],
         }
-        with patch.dict(
-            os.environ, {"OLDAP_ACCESS_JWT_SECRET": "x" * 48}
-        ), patch.object(
-            views, "authenticated_connection", return_value=object()
-        ), patch(
-            "oldaplib.src.archive_inventory.ArchiveInventory"
-        ) as service:
+        with (
+            patch.dict(os.environ, {"OLDAP_ACCESS_JWT_SECRET": "x" * 48}),
+            patch.object(views, "authenticated_connection", return_value=object()),
+            patch("oldaplib.src.archive_inventory.ArchiveInventory") as service,
+        ):
             service.return_value.page.return_value = result
             response = self.client.get(
                 "/data/test/staging-folder-inventory",
@@ -196,9 +219,10 @@ class ArchiveStructureViewsTest(unittest.TestCase):
             "folderIri=urn:test&limit=1.5",
             "folderIri=urn:test&limit=" + "9" * 5000,
         ):
-            with self.subTest(query=query[:40]), patch(
-                "oldaplib.src.archive_inventory.ArchiveInventory"
-            ) as service:
+            with (
+                self.subTest(query=query[:40]),
+                patch("oldaplib.src.archive_inventory.ArchiveInventory") as service,
+            ):
                 response = self.client.get(
                     "/data/test/staging-folder-inventory?" + query
                 )
@@ -207,9 +231,11 @@ class ArchiveStructureViewsTest(unittest.TestCase):
 
     def test_adoption_routes_forward_bodies_and_operation_key(self):
         for command in ("proposal", "preflight", "apply"):
-            with self.subTest(command=command), patch.object(
-                views, "authenticated_connection", return_value=object()
-            ), patch("oldaplib.src.archive_adoption.ArchiveAdoption") as service:
+            with (
+                self.subTest(command=command),
+                patch.object(views, "authenticated_connection", return_value=object()),
+                patch("oldaplib.src.archive_adoption.ArchiveAdoption") as service,
+            ):
                 getattr(service.return_value, command).return_value = {
                     "forwarded": True
                 }

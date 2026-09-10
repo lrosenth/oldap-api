@@ -14,6 +14,7 @@ from typing import Any, Mapping, Protocol
 
 import rfc8785
 from oldaplib.src.helpers.context import Context
+from oldaplib.src.archive_policy import canonical_iri
 from oldaplib.src.helpers.oldaperror import OldapErrorNoPermission, OldapErrorNotFound
 from oldaplib.src.objectfactory import ResourceInstance, ResourceInstanceFactory
 from oldaplib.src.xsd.iri import Iri
@@ -215,6 +216,8 @@ class OldapArchiveInventoryReader:
         if len(unit_rows) > MAX_ARCHIVE_UNITS:
             raise ExportSnapshotError("Visible archive units exceed the v1 bound.")
 
+        context = Context(name=connection.context_name)
+        unit_rows = [_canonical_identity_row(row, context) for row in unit_rows]
         links: dict[str, set[str]] = {}
         for row in unit_rows:
             unit_iri = _required_text(row, "iri", "Visible archive unit")
@@ -240,6 +243,7 @@ class OldapArchiveInventoryReader:
             if len(rows) > MAX_ARCHIVE_MEDIA:
                 raise ExportSnapshotError("Visible archive media exceeds the v1 bound.")
             for row in rows:
+                row = _canonical_identity_row(row, context)
                 media_iri = _required_text(row, "iri", "Visible archive media")
                 if media_iri in links:
                     media_by_iri.setdefault(media_iri, row)
@@ -868,6 +872,25 @@ def _projected_value(
     if isinstance(value, (bool, int, float)):
         return value
     return str(value)
+
+
+def _canonical_identity_row(row: Mapping[Any, Any], context: Context) -> dict:
+    """Expand search-result IRIs before joining or freezing export identities.
+
+    OLDAP search compacts registered namespaces. Preserve literal values (including
+    strings containing colons), while normalizing typed IRI values and the subject.
+    """
+    return {
+        key: [
+            (
+                canonical_iri(context, value)
+                if str(key) == "iri" or isinstance(value, (Iri, Xsd_QName))
+                else value
+            )
+            for value in _values(row, str(key))
+        ]
+        for key in row
+    }
 
 
 def _values(row: Mapping[Any, Any], property_name: str) -> list[Any]:

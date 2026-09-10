@@ -466,3 +466,36 @@ def test_archive_download_rechecks_profile_units_media_and_relationships() -> No
         ArchiveDownloadAuthorizer(
             StaticReader(current), Registry(changed_profile)
         ).authorize(object(), job=job, manifest=snapshot.manifest)
+
+
+def test_search_identity_rows_expand_qnames_without_changing_literals():
+    """A full-IRI selection must match compact subjects, parents and media links."""
+    from oldaplib.src.helpers.context import Context
+    from oldaplib.src.xsd.iri import Iri
+    from oldaplib.src.xsd.xsd_qname import Xsd_QName
+
+    context = Context(name="export_identity_test")
+    context["example"] = "https://example.org/archive/"
+    row = {
+        "iri": Iri("example:child"),
+        "shared:parentArchiveUnit": [Iri("example:root")],
+        "shared:hasMediaObject": [Xsd_QName("example:medium")],
+        "schema:name": [Xsd_string("example:literal")],
+    }
+    normalized = archive_snapshot._canonical_identity_row(row, context)
+    unit = archive_snapshot.ArchiveUnitRecord(
+        iri=normalized["iri"][0],
+        name="Child",
+        parent_iri=None,
+        archive_level_iri="shared:Fonds",
+        media_iris=(),
+    )
+    selected, _ = archive_snapshot._selected_unit_paths(
+        ExportKind.ARCHIVE_UNIT, "https://example.org/archive/child", {unit.iri: unit}
+    )
+    assert unit.iri in selected
+    assert normalized["shared:parentArchiveUnit"] == [
+        "https://example.org/archive/root"
+    ]
+    assert normalized["shared:hasMediaObject"] == ["https://example.org/archive/medium"]
+    assert normalized["schema:name"] == row["schema:name"]

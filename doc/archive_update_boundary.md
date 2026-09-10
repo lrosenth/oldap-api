@@ -6,6 +6,16 @@ Shared model load and durable writer-store deployment have been reviewed. Policy
 selection also switches existing staging/mobile writer coordination to the shared
 non-expiring gate. The old lease behavior remains when no policy is selected.
 
+## Optional creation grants
+
+The accompanying library now accepts the optional project policy boolean
+`grantEditorRolesOnCreation` (default false). Enabled projects automatically add
+configured structure roles with DELETE to new archive units and configured media
+editor roles with UPDATE to new catalogue media, including transfers. This is
+server configuration; existing API/Capture payloads and response schemas do not
+change. See [the library contract](../../oldaplib/docs/archive_creation_grants.md).
+Deploy the matching library before selecting a policy containing this field.
+
 ## Existing client contracts
 
 The generic `POST /data/{project}/{instance}` endpoint retains its JSON `{message}`

@@ -1,0 +1,9 @@
+{
+  "completeStopStart": true,
+  "nativeJobsDisabledDuringMusic": true,
+  "dockerDesktopStopped": true,
+  "repeatedStopSafe": true,
+  "sameContainersRestored": 6,
+  "writerGateFreeAfterStart": true,
+  "frontendsRemainManual": true
+}
