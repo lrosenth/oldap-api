@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-09-11 02:39
+- Decisions: Align archive data endpoint project converters with the existing generic instance routes to avoid Werkzeug dispatch collisions.
+- Implementation: Inventory GET and reference-move POST now use path:project; public URLs and payloads remain unchanged. Added full-factory route regression coverage for short/absolute project identifiers, ordinary resource reads, and authentication. All 14 route/archive view tests pass.
+- Open: Publish and deploy an API patch release, then repeat the production BMG-Archivist workspace acceptance check.
+- Risks/Assumptions: No data, permissions, frontend, or CaptureApp changes. Blueprint-only tests had missed this collision; the complete route map reproduces and verifies the fix. Production remains on the previous image until deployment.
+
 ### Update 2026-09-10 19:32
 - Decisions: Implement a separate folder-default tree; suggestions require a unique recorded structure-only origin and current target visibility. Save/remove one folder at a time, without changing media or archive structure.
 - Implementation: Added default_proposal/read-only API route and generated client, shared source-choice loader, and ArchiveFolderDefaults below persisted management. Preflight/apply remains authoritative and exact pending requests survive reload. 28 backend/API tests plus 21 subtests, targeted lint, build, defaults desktop/mobile retry smoke and step-one/public regression pass; check baseline remains 23 errors/37 warnings in 15 files. Guarded API restart succeeded; live read-only response returned 44 folders/seven hints.

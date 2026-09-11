@@ -118,7 +118,9 @@ def capabilities(project):
     }
 
 
-@archive_structure_bp.post("/data/<project>/staging-reference-move")
+# Match the generic data routes' project converter so these literal suffixes
+# take precedence over the catch-all instance IRI route in the complete app.
+@archive_structure_bp.post("/data/<path:project>/staging-reference-move")
 @require_auth
 @domain_response
 def move_reference(project):
@@ -144,7 +146,7 @@ def operation(project, operation_id):
     )
 
 
-@archive_structure_bp.get("/data/<project>/staging-folder-inventory")
+@archive_structure_bp.get("/data/<path:project>/staging-folder-inventory")
 @require_auth
 @domain_response
 def folder_inventory(project):
