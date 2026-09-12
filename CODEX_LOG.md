@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-09-13 00:58
+- Decisions: Expose publication as narrow project-neutral endpoints, preserving generic and CaptureApp contracts.
+- Implementation: Added authenticated no-store capabilities/preview/apply/owner receipt routes, OpenAPI closed schemas, lazy versioned service resolution and route/non-disclosure tests. Validation: 85 focused backend/gate tests and 4 frontend retry tests pass; local GraphDB success/replay and injected-failure rollback pass. Both frontend builds/lint pass; FP check baseline unchanged (23/37), SALSAH check clean.
+- Open: Matching oldaplib release and all-writer deployment before publication policy activation.
+- Risks/Assumptions: No production or local shared policy activation; new endpoints fail closed without matching library/configuration.
+
 ### Update 2026-09-11 02:39
 - Decisions: Align archive data endpoint project converters with the existing generic instance routes to avoid Werkzeug dispatch collisions.
 - Implementation: Inventory GET and reference-move POST now use path:project; public URLs and payloads remain unchanged. Added full-factory route regression coverage for short/absolute project identifiers, ordinary resource reads, and authentication. All 14 route/archive view tests pass.

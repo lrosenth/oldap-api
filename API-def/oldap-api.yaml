@@ -6420,6 +6420,169 @@ paths:
         "409": {$ref: '#/components/responses/MobileMediaProblem'}
         "503": {$ref: '#/components/responses/MobileMediaProblem'}
 
+  /archive/{project}/publication/capabilities:
+    get:
+      operationId: publicationCapabilities
+      summary: publicationCapabilities
+      description: Project-configured publication. Responses are no-store. Fresh publisher
+        membership and per-resource UPDATE are required. Apply is atomic and revision-bound;
+        preserve the exact body and Idempotency-Key after uncertain responses.
+      security:
+      - AccessToken: []
+      parameters:
+      - name: project
+        in: path
+        required: true
+        schema: &id001
+          type: string
+      - name: resourceIri
+        in: query
+        schema:
+          type: string
+          format: uri
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicationCapabilities'
+        '400':
+          description: Request rejected; no partial publication is committed.
+        '401':
+          description: Request rejected; no partial publication is committed.
+        '403':
+          description: Request rejected; no partial publication is committed.
+        '404':
+          description: Request rejected; no partial publication is committed.
+        '409':
+          description: Request rejected; no partial publication is committed.
+        '503':
+          description: Request rejected; no partial publication is committed.
+  /archive/{project}/publication/preview:
+    post:
+      operationId: publicationPreview
+      summary: publicationPreview
+      description: Project-configured publication. Responses are no-store. Fresh publisher
+        membership and per-resource UPDATE are required. Apply is atomic and revision-bound;
+        preserve the exact body and Idempotency-Key after uncertain responses.
+      security:
+      - AccessToken: []
+      parameters:
+      - name: project
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicationPreview'
+        '400':
+          description: Request rejected; no partial publication is committed.
+        '401':
+          description: Request rejected; no partial publication is committed.
+        '403':
+          description: Request rejected; no partial publication is committed.
+        '404':
+          description: Request rejected; no partial publication is committed.
+        '409':
+          description: Request rejected; no partial publication is committed.
+        '503':
+          description: Request rejected; no partial publication is committed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicationPreviewRequest'
+  /archive/{project}/publication/apply:
+    post:
+      operationId: publicationApply
+      summary: publicationApply
+      description: Project-configured publication. Responses are no-store. Fresh publisher
+        membership and per-resource UPDATE are required. Apply is atomic and revision-bound;
+        preserve the exact body and Idempotency-Key after uncertain responses.
+      security:
+      - AccessToken: []
+      parameters:
+      - name: project
+        in: path
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicationResult'
+        '400':
+          description: Request rejected; no partial publication is committed.
+        '401':
+          description: Request rejected; no partial publication is committed.
+        '403':
+          description: Request rejected; no partial publication is committed.
+        '404':
+          description: Request rejected; no partial publication is committed.
+        '409':
+          description: Request rejected; no partial publication is committed.
+        '503':
+          description: Request rejected; no partial publication is committed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicationApplyRequest'
+  /archive/{project}/publication/operations/{operationId}:
+    get:
+      operationId: publicationOperation
+      summary: publicationOperation
+      description: Project-configured publication. Responses are no-store. Fresh publisher
+        membership and per-resource UPDATE are required. Apply is atomic and revision-bound;
+        preserve the exact body and Idempotency-Key after uncertain responses.
+      security:
+      - AccessToken: []
+      parameters:
+      - name: project
+        in: path
+        required: true
+        schema: *id001
+      - name: operationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicationResult'
+        '400':
+          description: Request rejected; no partial publication is committed.
+        '401':
+          description: Request rejected; no partial publication is committed.
+        '403':
+          description: Request rejected; no partial publication is committed.
+        '404':
+          description: Request rejected; no partial publication is committed.
+        '409':
+          description: Request rejected; no partial publication is committed.
+        '503':
+          description: Request rejected; no partial publication is committed.
+
 components:
   parameters:
     ExportId:
@@ -6443,6 +6606,100 @@ components:
       required: true
       schema: {type: string, format: uuid}
   schemas:
+    PublicationCapabilities:
+      type: object
+      additionalProperties: false
+      properties:
+        statusPropertyName:
+          type: string
+        enabled:
+          type: boolean
+        canPublish:
+          type: boolean
+        rootClassIris:
+          type: array
+          items: &id001
+            type: string
+            format: uri
+          maxItems: 500
+        mediaClassIris:
+          type: array
+          items: *id001
+          maxItems: 500
+        statusPropertyIri: *id001
+        publishedStatusIri: *id001
+      required:
+      - enabled
+      - canPublish
+    PublicationPreviewRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        resourceIri: *id001
+        permission: &id002
+          type: string
+          enum:
+          - DATA_VIEW
+          - DATA_RESTRICTED
+      required:
+      - resourceIri
+      - permission
+    PublicationPreview:
+      type: object
+      additionalProperties: false
+      properties:
+        resourceIri: *id001
+        revision:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        resources:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              iri: *id001
+              permission: *id002
+            required:
+            - iri
+            - permission
+          maxItems: 500
+      required:
+      - resourceIri
+      - revision
+      - resources
+    PublicationApplyRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        resourceIri: *id001
+        permission: *id002
+        revision:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      required:
+      - resourceIri
+      - permission
+      - revision
+    PublicationResult:
+      type: object
+      additionalProperties: false
+      properties:
+        operationId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+          - committed
+        resourceIris:
+          type: array
+          items: *id001
+          maxItems: 500
+      required:
+      - operationId
+      - state
+      - resourceIris
     WriterRecoveryCapabilities:
       type: object
       additionalProperties: false
