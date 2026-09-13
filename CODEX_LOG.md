@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-09-13 23:18
+- Decisions: Activate publication on the local MacBook first; production remains unchanged. API-only media workers do not require an independent archive policy or Redis gate.
+- Implementation: Verified installed oldaplib 0.7.19; replaced three local media containers using old :local/0.7.11 with v0.2.12/0.7.19, persisted Compose tag and backed up configuration. Validated/atomically added local publication policy and safely restarted native API under writer gate. Installed-library GraphDB success/retry/receipt and failure rollback pass; API capabilities 200, unauthenticated 401, authorized IIIF 200/unauthorized 401. BMG-Archivist publisher membership verified read-only.
+- Open: User authenticated UI acceptance; separately coordinated production activation. Public archive viewer token propagation remains separate.
+- Risks/Assumptions: No existing RDF resource, role assignment or public grant changed; fixtures/receipts rolled back. Backups in BACKUP/local-publication-20260913-231358 and local-publication-policy-20260913-231513.json. No CaptureApp, production, version or Git publication changes.
+
 ### Update 2026-09-13 00:58
 - Decisions: Expose publication as narrow project-neutral endpoints, preserving generic and CaptureApp contracts.
 - Implementation: Added authenticated no-store capabilities/preview/apply/owner receipt routes, OpenAPI closed schemas, lazy versioned service resolution and route/non-disclosure tests. Validation: 85 focused backend/gate tests and 4 frontend retry tests pass; local GraphDB success/replay and injected-failure rollback pass. Both frontend builds/lint pass; FP check baseline unchanged (23/37), SALSAH check clean.
