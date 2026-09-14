@@ -6894,6 +6894,10 @@ components:
           - unavailable
         protected:
           type: boolean
+        directMediaCount:
+          type: integer
+          minimum: 0
+          description: Readable distinct direct media including archive references, excluding descendants. Optional for older servers and structure-import proposals.
       required:
       - iri
       - parentIri
