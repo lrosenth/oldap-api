@@ -16,6 +16,7 @@ from oldap_api.imports.authorization import (
 )
 from oldap_api.staging_area import (
     GraphDbStagingAreaRepository,
+    provision_staging_system_folders,
     StagingStructureConflict,
     StagingStructureError,
     StagingSystemFolderPolicy,
@@ -1072,6 +1073,32 @@ def add_instance(project, resource):
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
     return jsonify({"message": "Instance successfully created", "iri": str(instance.iri)}), 200
+
+
+@instance_bp.route('/<path:project>/staging-system-folders', methods=['POST'])
+@require_auth
+def ensure_staging_system_folders(project):
+    """Provision reserved folders as an administrator without private data access."""
+    data = request.get_json(silent=True)
+    if (not isinstance(data, dict) or set(data) != {"stagingAreaIri"}
+            or not isinstance(data["stagingAreaIri"], str) or not data["stagingAreaIri"].strip()):
+        return jsonify({"message": "Exactly one stagingAreaIri string is required."}), 400
+    try:
+        provision_staging_system_folders(
+            authenticated_connection(), unquote(project), data["stagingAreaIri"].strip()
+        )
+    except StagingStructureError as error:
+        return _staging_structure_error(error)
+    except OldapErrorNoPermission as error:
+        return jsonify({"message": str(error)}), 403
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({"message": str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({"message": str(error)}), error.status
+    except OldapError as error:
+        current_app.logger.exception("ensure_staging_system_folders failed")
+        return jsonify({"message": str(error)}), 500
+    return jsonify({"ready": True}), 200
 
 
 @instance_bp.route('/<path:project>/staging-upload-target', methods=['POST'])

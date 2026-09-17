@@ -1,5 +1,17 @@
 # CODEX_LOG
 
+### Update 2026-09-17 23:57
+- Decisions: Provide project-neutral placement summaries as a bounded read-only API rather than per-item frontend lookups.
+- Implementation: POST /archive/{project}/placement-status accepts up to 500 targets; one COUNT(DISTINCT) aggregate per batch with separate target/media ACL filters. Policy supplies classes/semantic relation. Hidden destinations count as assigned without revealing identities. OpenAPI and doc/archive-placement-status.md document the contract.
+- Open: Release/deploy API before the updated FasnachtsPage. Existing publication policy is required; no oldaplib release or migration.
+- Risks/Assumptions: Advisory snapshot only, no writer lock or mutation; existing write guards remain authoritative. Nine unit/HTTP tests and real GraphDB rollback fixture verify partial/full/empty/direct media, hidden media/targets and hidden destinations. Local API restarted via guarded Make target; no lock reset or production writes.
+
+### Update 2026-09-16 23:36
+- Decisions: Provision reserved staging folders through an explicit generic administrative command, independent of organisation-role visibility. No ontology or CaptureApp contract change.
+- Implementation: POST /data/{project}/staging-system-folders checks fresh ADMIN_RESOURCES/system ADMIN_OLDAP, locks and atomically fills missing top/Trash/Mobile with existing ACL conventions and audit. Rejects ambiguous topology, preserves existing resources, returns only readiness. OpenAPI and doc/staging-provisioning.md describe deployment and bounded direct writes.
+- Open: Release/deploy this API before the updated FasnachtsPage.
+- Risks/Assumptions: Area creation remains a separate resumable request. No additional private role/read grants. 53 focused tests passed; real local GraphDB create/retry probe rolled back entirely. Local API restarted safely. New OpenAPI block parses; full-file PyYAML validation encounters duplicate anchors already present in HEAD.
+
 ### Update 2026-09-14 23:10
 - Decisions: Return local API to the published oldaplib dependency through normal Poetry resolution.
 - Implementation: `poetry update oldaplib` confirmed no further update needed: lock and installed package already resolve 0.7.20. Verified site-packages import, no direct/local-wheel origin metadata, and direct media count implementation. `make restart` passed API readiness and released the writer gate.

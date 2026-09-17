@@ -228,3 +228,13 @@ def structure_apply(project):
     return ArchiveAdoption(authenticated_connection(), project).apply(
         body, operation_id=request.headers.get("Idempotency-Key")
     )
+
+
+@archive_structure_bp.post("/archive/<project>/placement-status")
+@require_auth
+@domain_response
+def content_placement_status(project):
+    """Return bounded, permission-filtered counts for archive content selection."""
+    from oldap_api.archive_placement import placement_status
+    request.max_content_length = MAX_REQUEST_BYTES
+    return placement_status(authenticated_connection(), project, request.get_json(silent=True))

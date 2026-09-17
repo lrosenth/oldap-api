@@ -4377,6 +4377,123 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+  /archive/{project}/placement-status:
+    post:
+      operationId: archivePlacementStatus
+      summary: Summarize archive assignment status for a bounded content batch
+      description: >
+        Uses server-configured archive classes and media-to-root relationships.
+        Counts readable media only; unreadable targets are omitted. Placement
+        existence includes hidden archive units without returning their identities.
+        Advisory counts do not replace write-time validation. No data is modified.
+      security:
+        - AccessToken: []
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [targets]
+              properties:
+                targets:
+                  type: array
+                  minItems: 1
+                  maxItems: 500
+                  items:
+                    type: object
+                    additionalProperties: false
+                    required: [iri, kind]
+                    properties:
+                      iri: {type: string}
+                      kind: {type: string, enum: [entry, media]}
+      responses:
+        "200":
+          description: Permission-filtered aggregate counts; Cache-Control no-store.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [iri, mediaCount, unassignedCount]
+                      properties:
+                        iri: {type: string}
+                        mediaCount: {type: integer, minimum: 0}
+                        unassignedCount: {type: integer, minimum: 0}
+        "400":
+          description: Invalid batch or missing project relationship configuration.
+        "401":
+          description: Authentication required.
+        "503":
+          description: Archive configuration or database unavailable.
+
+  /data/{project}/staging-system-folders:
+    post:
+      operationId: ensureStagingSystemFolders
+      summary: Provision the reserved folders of a StagingArea
+      description: >
+        Requires project ADMIN_RESOURCES or system ADMIN_OLDAP. Creates missing
+        top, top/Trash and top/Mobile in one coordinated transaction. Retries
+        reuse existing folders without changing their metadata or ACLs. The
+        default role receives DATA_DELETE on new top/Trash and DATA_VIEW on
+        Mobile. Does not grant the administrator private data access. Duplicate
+        or misplaced system folders are rejected. Returns no private contents.
+      security:
+        - AccessToken: []
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [stagingAreaIri]
+              properties:
+                stagingAreaIri:
+                  type: string
+                  format: iri
+      responses:
+        "200":
+          description: All reserved folders exist in their required positions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ready]
+                properties:
+                  ready:
+                    type: boolean
+                    enum: [true]
+        "400":
+          description: Invalid request.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Administrative permission required.
+        "404":
+          description: Project or StagingArea does not exist.
+        "409":
+          description: Ambiguous or misplaced system folders.
+        "503":
+          description: Write coordination or verification unavailable.
+
   /data/{project}/staging-upload-target:
     post:
       operationId: authorizeStagingUploadTarget

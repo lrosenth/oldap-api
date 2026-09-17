@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
+from uuid import uuid4
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Protocol, TypeVar
 
 from oldaplib.src.helpers.context import Context
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue
+from oldaplib.src.resource_transaction import resource_transaction
 from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
@@ -303,9 +306,12 @@ class StagingSystemFolderPolicy:
             self._connection.query(_mobile_folder_query(self._graph, folder_iri))
         )
 
-    def _system_state(self, staging_area_iri: str) -> "SystemFolderState":
+    def _system_state(
+        self, staging_area_iri: str, *, query: Callable[[str], Any] | None = None
+    ) -> "SystemFolderState":
+        """Read exact topology; composed commands supply their transaction query."""
         rows = _bindings(
-            self._connection.query(_system_state_query(self._graph, staging_area_iri))
+            (query or self._connection.query)(_system_state_query(self._graph, staging_area_iri))
         )
         if not rows:
             raise StagingStructureConflict("The StagingArea does not exist.")
@@ -364,6 +370,86 @@ class StagingSystemFolderPolicy:
             mobile=frozenset(by_kind["mobile"]),
             trash=frozenset(by_kind["trash"]),
         )
+
+
+def provision_staging_system_folders(connection, project: str, staging_area_iri: str) -> None:
+    """Idempotently provision only reserved folders, without private read access.
+
+    Requires fresh project ADMIN_RESOURCES (or system ADMIN_OLDAP). The shared
+    staging lock and a resource transaction cover authoritative discovery and
+    inserts. Existing resources and ACLs are never modified. This narrow command
+    deliberately does not use visibility-filtered ResourceInstance reads: the
+    administrator need not be a member of the organisation's default role.
+    No folder identifiers or private contents are returned.
+    """
+    area = _validated_request_iri(staging_area_iri)
+
+    def provision():
+        graph = StagingGraph.resolve(connection, project)
+        with resource_transaction(connection):
+            actor = _validated_absolute_iri(str(connection.userIri))
+            if not _ask(connection.transaction_query(_admin_delete_query(graph, actor))):
+                raise StagingAreaPermissionDenied(
+                    "System-folder provisioning requires project ADMIN_RESOURCES."
+                )
+            if not _ask(connection.transaction_query(_staging_area_exists_query(graph, area))):
+                raise StagingAreaNotFound("The StagingArea does not exist in this project.")
+            policy = StagingSystemFolderPolicy(connection, project)
+            state = policy._system_state(area, query=connection.transaction_query)
+            top = next(iter(state.top), None) or f"urn:uuid:{uuid4()}"
+            now = datetime.now(timezone.utc).isoformat()
+            for kind, existing in (("top", state.top), ("trash", state.trash), ("mobile", state.mobile)):
+                if existing:
+                    continue
+                iri = top if kind == "top" else f"urn:uuid:{uuid4()}"
+                connection.transaction_update(_system_folder_insert(
+                    graph, area, iri, kind, top, state.default_role, actor, now
+                ))
+            # Verify exact topology before commit; malformed existing data fails closed.
+            final = policy._system_state(area, query=connection.transaction_query)
+            if not all(len(getattr(final, kind)) == 1 for kind in SYSTEM_FOLDER_NAMES):
+                raise StagingAreaServiceUnavailable("System-folder provisioning could not be verified.")
+
+    run_staging_mutation(STAGING_FOLDER_CLASS, provision)
+
+
+def _system_folder_insert(
+    graph: StagingGraph, area: str, iri: str, kind: str, top: str,
+    role: str, actor: str, now: str,
+) -> str:
+    """Build the fixed Shared system-folder record and audit in one update.
+
+    Inputs are server-owned facts, never an arbitrary client resource payload.
+    Mobile remains read-only for the default role; top/Trash retain the existing
+    DATA_DELETE contract. No admin/public ACL is added by this operation.
+    """
+    permission = "DATA_VIEW" if kind == "mobile" else "DATA_DELETE"
+    parent = f"; shared:inStagingFolder {_iri_term(top)}" if kind != "top" else ""
+    after = {
+        "rdf:type": ["shared:StagingFolder"], "schema:name": [SYSTEM_FOLDER_NAMES[kind]],
+        "shared:inStagingArea": [area], "oldap:attachedToRole": [f"{role}={permission}"],
+    }
+    if kind != "top":
+        after["shared:inStagingFolder"] = [top]
+    audit = Literal(json.dumps({
+        "actor": actor, "project": graph.project_short_name, "time": now,
+        "operation": "create", "iri": iri, "before": None, "after": after,
+    }, sort_keys=True)).n3()
+    return f"""PREFIX oldap: <http://oldap.org/base#>
+PREFIX shared: <http://oldap.org/shared#>
+PREFIX schema: <https://schema.org/>
+INSERT DATA {{ GRAPH {_graph_term(graph)} {{
+  {_iri_term(iri)} a shared:StagingFolder ;
+    schema:name {Literal(SYSTEM_FOLDER_NAMES[kind], datatype=XSD.string).n3()} ;
+    shared:inStagingArea {_iri_term(area)} {parent} ;
+    oldap:createdBy {_iri_term(actor)} ; oldap:lastModifiedBy {_iri_term(actor)} ;
+    oldap:creationDate {Literal(now, datatype=XSD.dateTimeStamp).n3()} ;
+    oldap:lastModificationDate {Literal(now, datatype=XSD.dateTimeStamp).n3()} ;
+    oldap:attachedToRole {_iri_term(role)} .
+  << {_iri_term(iri)} oldap:attachedToRole {_iri_term(role)} >> oldap:hasDataPermission oldap:{permission} .
+}} GRAPH <urn:oldap:archive-operations> {{
+  <urn:oldap:archive:audit:{uuid4()}> <urn:oldap:archive:record> {audit} .
+}} }}"""
 
 
 @dataclass(frozen=True, slots=True)

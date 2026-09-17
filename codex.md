@@ -1,5 +1,9 @@
 # OLDAP API Codex Context
 
+- Generic placement-status summaries: POST /archive/{project}/placement-status counts readable media and unassigned media for up to 500 targets per aggregate. Existing archive/publication policy supplies project semantics. See doc/archive-placement-status.md; no ontology change.
+
+- Administrative staging provisioning: POST /data/{project}/staging-system-folders completes reserved folders atomically without private-role membership; see doc/staging-provisioning.md. Deploy before the consuming frontend; no ontology change.
+
 - Folder-default proposals now optionally expose directMediaCount, aggregated once in oldaplib over readable direct media and archive references. Counts do not affect structure review snapshots or deletion decisions. Shared GUI consumes the field in both apps. Local API now uses the normally published oldaplib 0.7.20 through Poetry (lock and installed package verified); the temporary development wheel is no longer used. Native API safely restarted on 2026-09-14; production deployment remains separate.
 
 - Publication local activation (2026-09-13): native API now enables the project-configured publication command with oldaplib 0.7.19. API-only media services run v0.2.12; no duplicate policy on those workers. Shared local API also serves SALSAH-2. Production remains unchanged; user UI acceptance is next. See FasnachtsPage/docs/permissions/archive-roles.md for evidence and backups.
