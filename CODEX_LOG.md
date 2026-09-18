@@ -1,5 +1,11 @@
 # CODEX_LOG
 
+### Update 2026-09-18 23:47
+- Decisions: Document the additive automatic editorial-default capability.
+- Implementation: Add optional automaticEditorialGrants to PublicationCapabilities in OpenAPI; response is supplied by the updated oldaplib. No route, request or CaptureApp contract changes.
+- Open: Update the normal oldaplib dependency after its release, then restart/deploy API.
+- Risks/Assumptions: Absent capability on older libraries deliberately blocks the new frontend shared-assignment flow. No production or local service changes.
+
 ### Update 2026-09-17 23:57
 - Decisions: Provide project-neutral placement summaries as a bounded read-only API rather than per-item frontend lookups.
 - Implementation: POST /archive/{project}/placement-status accepts up to 500 targets; one COUNT(DISTINCT) aggregate per batch with separate target/media ACL filters. Policy supplies classes/semantic relation. Hidden destinations count as assigned without revealing identities. OpenAPI and doc/archive-placement-status.md document the contract.

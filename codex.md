@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- Publication capabilities include optional automaticEditorialGrants from updated oldaplib. Deploy the library update before the simplified shared-assignment frontend; no new API command or policy key is required.
+
 - Generic placement-status summaries: POST /archive/{project}/placement-status counts readable media and unassigned media for up to 500 targets per aggregate. Existing archive/publication policy supplies project semantics. See doc/archive-placement-status.md; no ontology change.
 
 - Administrative staging provisioning: POST /data/{project}/staging-system-folders completes reserved folders atomically without private-role membership; see doc/staging-provisioning.md. Deploy before the consuming frontend; no ontology change.

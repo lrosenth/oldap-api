@@ -6727,6 +6727,9 @@ components:
       type: object
       additionalProperties: false
       properties:
+        automaticEditorialGrants:
+          type: boolean
+          description: Project policy automatically grants editorial UPDATE on newly created archive roots and media. Absent on older servers; clients must not assume it is enabled.
         statusPropertyName:
           type: string
         enabled:
