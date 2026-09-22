@@ -48,6 +48,7 @@ def factory():
             200,
         )
 
+    from oldap_api.views import lucene_views
     from oldap_api.views import auth_views
     from oldap_api.views import user_views
     from oldap_api.views import project_views
@@ -62,6 +63,7 @@ def factory():
     from oldap_api.views import mobile_media_views
     from oldap_api.views import mobile_media_lifecycle_views
 
+    app.register_blueprint(lucene_views.lucene_bp)
     app.register_blueprint(auth_views.auth_bp)
     app.register_blueprint(auth_views.mobile_auth_bp)
     app.register_blueprint(user_views.user_bp)

@@ -101,6 +101,7 @@ def test_every_protected_route_uses_shared_authentication_boundary():
     """Keep protected blueprints from reintroducing local token parsing."""
     app = factory()
     protected_blueprints = {
+        "lucene",
         "user",
         "project",
         "role",

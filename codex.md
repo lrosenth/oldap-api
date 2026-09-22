@@ -427,3 +427,9 @@ AOF/fsync-always writer Redis on localhost:6380/1 and matching local source;
 FasnachtsPage and SALSAH-2 share the activated backend. Production deployment
 remains separate. Native Capture acceptance was waived only for this test rollout.
 See `../FasnachtsPage/docs/as-09/local-rollout.md` for runtime, backup, recovery, verification and production steps.
+
+- Additive authenticated /admin/lucene/{project} GET/PUT delegates project-scoped connector administration to oldaplib; see doc/lucene-connectors.md. Existing routes remain compatible with older libraries.
+
+- Local Lucene activation (2026-09-22): native API uses an unpublished development oldaplib wheel still versioned 0.7.21 and was safely restarted. Real read-only dump/load planning preserves the Fasnacht connector and yields zero operations; paired published releases remain pending.
+
+- Recovery freshness (2026-09-22): model JSON GET and TriG download bypass the DataModel cache, so Workbench graph deletion cannot make API import planning skip missing definitions. Scoped cache invalidation remains necessary for other direct GraphDB edits; never flush the writer-coordination Redis store.

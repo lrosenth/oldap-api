@@ -69,7 +69,8 @@ def read_datamodel(project):
     con = authenticated_connection()
 
     try:
-        dm = DataModel.read(con, project)
+        # Administrative snapshots must reflect GraphDB, including external graph deletion.
+        dm = DataModel.read(con, project, ignore_cache=True)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:
@@ -267,7 +268,8 @@ def download_datamodel(project):
 
     con = authenticated_connection()
     try:
-        dm = DataModel.read(con, project)
+        # Administrative snapshots must reflect GraphDB, including external graph deletion.
+        dm = DataModel.read(con, project, ignore_cache=True)
     except OldapErrorNotFound as error:
         return jsonify({'message': str(error)}), 404
     except OldapError as error:

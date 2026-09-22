@@ -1,5 +1,17 @@
 # CODEX_LOG
 
+### Update 2026-09-22 23:26
+- Decisions: Administrative model planning/export must read GraphDB freshly after out-of-band Workbench edits; never clear all Redis databases to repair model visibility.
+- Implementation: API JSON model GET and TriG download now use DataModel.read(ignore_cache=True). OpenAPI documents fresh reads and corrects the download path spelling to match the existing route. Two regression cases simulate deleted graphs with a stale cached model; 14 targeted API/auth/connector tests pass. Safely restarted local API. Captured complete explicit RDF before/after snapshots at /Users/rosenth/.codex/backups/oldap-fasnacht-recovery-20260922-232248; restored only fasnacht onto/shacl from the user's 23:15 API ZIP after confirming zero differences against the exported YAML. Restoration held the normal writer gate and used additive RDF import with exact graph-scope validation.
+- Open: User browser acceptance; publish the API fix through normal release workflow. Workbench edits to other cached entities still require appropriate scoped invalidation.
+- Risks/Assumptions: The earlier same-state roundtrip did not test external graph deletion and overstated recovery confidence. Fresh administrative reads cost additional GraphDB queries. All 27 other graph contexts are RDF-isomorphic before/after, including all 25,435 Fasnacht data triples and taxonomies. Recovered API: 16 classes; YAML replace dry-run: zero operations; Lucene: 693 entities; ArchiveObject/ArchiveMediaObject API samples read successfully. Connector configuration/index was not replaced during recovery. No global cache flush, data-graph mutation, or production change.
+
+### Update 2026-09-22 23:06
+- Decisions: Preserve complete Lucene creation options in native YAML; load remains opt-in and project-scoped. Existing shorthand and transport defaults remain supported.
+- Implementation: Register Lucene blueprint, request/revision validation and mapped errors; add route/authentication regressions and OpenAPI contract. Rename pre-existing colliding publication YAML anchors without changing their schemas; the complete OpenAPI document now parses. 126 tools tests + 8 legacy tests + 25 targeted library/API/export/auth tests passed. Live Fasnacht dump retained 16 classes, 10 taxonomies and all options of the 8-field connector; replace dry-run planned zero operations. No live connector/model writes.
+- Open: Publish paired releases before use outside this local development setup; no release/version bump performed.
+- Risks/Assumptions: Connector commands are not RDF transactions. Failed replacement attempts restoration but may require reindexing; administrators outside configured writer coordination must serialize changes. Installed a local, unpublished oldaplib wheel still labelled 0.7.21 in the native API Python 3.13 environment; activated with writer-gated make restart. Production unchanged.
+
 ### Update 2026-09-18 23:47
 - Decisions: Document the additive automatic editorial-default capability.
 - Implementation: Add optional automaticEditorialGrants to PublicationCapabilities in OpenAPI; response is supplied by the updated oldaplib. No route, request or CaptureApp contract changes.

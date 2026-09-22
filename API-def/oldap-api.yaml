@@ -10,6 +10,78 @@ servers:
 - url: http://127.0.0.1:5000
   description: local server...
 paths:
+  /admin/lucene/{project}:
+    parameters:
+      - name: project
+        in: path
+        required: true
+        schema: {type: string}
+    get:
+      operationId: readProjectLuceneConnector
+      summary: Read the project connector's complete native creation options
+      tags: [Lucene]
+      security:
+        - AccessToken: []
+      responses:
+        '200':
+          description: Existing project; null configuration and revision denote no connector
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [name, configuration, revision]
+                properties:
+                  name: {type: string}
+                  configuration: {type: [object, 'null'], additionalProperties: true}
+                  revision: {type: [string, 'null'], description: SHA-256 of canonical configuration JSON}
+        '401': {description: Authentication required}
+        '403': {description: Project ADMIN_MODEL or system ADMIN_OLDAP required}
+        '404': {description: Project not found}
+        '500': {description: Connector export failed}
+        '503': {description: Matching oldaplib connector service unavailable}
+    put:
+      operationId: applyProjectLuceneConnector
+      summary: Create or replace the project-named connector with a reviewed revision
+      description: Replacement may rebuild the index and is not an RDF transaction. Identical configuration remains unchanged. expectedRevision is mandatory for replace, including null for absence.
+      tags: [Lucene]
+      security:
+        - AccessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [mode, configuration]
+              properties:
+                mode: {type: string, enum: [create, replace]}
+                configuration: {type: object, additionalProperties: true}
+                expectedRevision: {type: [string, 'null'], pattern: '^[0-9a-f]{64}$'}
+              allOf:
+                - if:
+                    properties:
+                      mode: {const: replace}
+                  then:
+                    required: [expectedRevision]
+      responses:
+        '200':
+          description: Operation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [name, status]
+                properties:
+                  name: {type: string}
+                  status: {type: string, enum: [created, replaced, unchanged]}
+        '400': {description: Invalid input}
+        '401': {description: Authentication required}
+        '403': {description: Model administration required}
+        '404': {description: Project not found}
+        '409': {description: Existing connector in create mode or stale replacement revision}
+        '500': {description: Command failed; inspect reported recovery status before retrying}
+        '503': {description: Matching oldaplib connector service unavailable}
   /admin/writer-recovery/capabilities:
     get:
       operationId: writerRecoveryCapabilities
@@ -1765,7 +1837,7 @@ paths:
     get:
       summary: Read a datamodel
       description:
-        Viewfunction to get the information about a datamodel of a project.
+        Read the current datamodel directly from GraphDB, bypassing the model cache so external graph edits are visible.
       security:
         - AccessToken: [ ]
       parameters:
@@ -1838,10 +1910,10 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
-  /admin/datamodel/{project}/downlad:
+  /admin/datamodel/{project}/download:
     get:
-      summary: Download datamode as trig-file
-      description: Export the datamode as trig file
+      summary: Download datamodel as TriG
+      description: Export the current GraphDB datamodel as TriG, bypassing the model cache.
       security:
         - AccessToken: [ ]
       parameters:
@@ -6550,7 +6622,7 @@ paths:
       - name: project
         in: path
         required: true
-        schema: &id001
+        schema: &publicationProjectSchema
           type: string
       - name: resourceIri
         in: query
@@ -6589,7 +6661,7 @@ paths:
       - name: project
         in: path
         required: true
-        schema: *id001
+        schema: *publicationProjectSchema
       responses:
         '200':
           description: Successful operation
@@ -6628,7 +6700,7 @@ paths:
       - name: project
         in: path
         required: true
-        schema: *id001
+        schema: *publicationProjectSchema
       - name: Idempotency-Key
         in: header
         required: true
@@ -6673,7 +6745,7 @@ paths:
       - name: project
         in: path
         required: true
-        schema: *id001
+        schema: *publicationProjectSchema
       - name: operationId
         in: path
         required: true
@@ -6738,16 +6810,16 @@ components:
           type: boolean
         rootClassIris:
           type: array
-          items: &id001
+          items: &publicationIriSchema
             type: string
             format: uri
           maxItems: 500
         mediaClassIris:
           type: array
-          items: *id001
+          items: *publicationIriSchema
           maxItems: 500
-        statusPropertyIri: *id001
-        publishedStatusIri: *id001
+        statusPropertyIri: *publicationIriSchema
+        publishedStatusIri: *publicationIriSchema
       required:
       - enabled
       - canPublish
@@ -6755,7 +6827,7 @@ components:
       type: object
       additionalProperties: false
       properties:
-        resourceIri: *id001
+        resourceIri: *publicationIriSchema
         permission: &id002
           type: string
           enum:
@@ -6768,7 +6840,7 @@ components:
       type: object
       additionalProperties: false
       properties:
-        resourceIri: *id001
+        resourceIri: *publicationIriSchema
         revision:
           type: string
           pattern: ^[a-f0-9]{64}$
@@ -6778,7 +6850,7 @@ components:
             type: object
             additionalProperties: false
             properties:
-              iri: *id001
+              iri: *publicationIriSchema
               permission: *id002
             required:
             - iri
@@ -6792,7 +6864,7 @@ components:
       type: object
       additionalProperties: false
       properties:
-        resourceIri: *id001
+        resourceIri: *publicationIriSchema
         permission: *id002
         revision:
           type: string
@@ -6814,7 +6886,7 @@ components:
           - committed
         resourceIris:
           type: array
-          items: *id001
+          items: *publicationIriSchema
           maxItems: 500
       required:
       - operationId
