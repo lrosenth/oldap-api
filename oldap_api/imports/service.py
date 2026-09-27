@@ -93,6 +93,7 @@ class ImportJobService:
         data: Any,
         *,
         now: datetime | None = None,
+        frontend_id: str | None = None,
     ) -> tuple[ImportJob, UploadAuthorization]:
         """Authorize, reserve quota atomically, persist, and issue upload access."""
         request_data = _validate_create_request(data)
@@ -111,6 +112,7 @@ class ImportJobService:
             updated_at=current,
             requested_by_iri=str(connection.userIri),
             requested_by_user_id=str(connection.userid),
+            frontend_id=frontend_id,
             target=target.snapshot,
             original_file_name=request_data["originalFileName"],
             declared_compressed_size_bytes=request_data["compressedSizeBytes"],

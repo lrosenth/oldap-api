@@ -23,6 +23,7 @@ from urllib.parse import quote, urlsplit
 
 import jwt
 import requests
+from oldap_api.frontend_links import frontend_for_origin, mail_link, mail_display_name
 from flask import (
     request,
     jsonify,
@@ -264,17 +265,6 @@ def _password_reset_connection() -> Connection:
         raise RuntimeError("The password-reset service connection failed.") from error
 
 
-def _password_reset_frontend_url() -> str:
-    base_url = os.getenv("OLDAP_PASSWORD_RESET_FRONTEND_URL") or os.getenv(
-        "OLDAP_PUBLIC_APP_URL"
-    )
-    if not base_url:
-        raise RuntimeError(
-            "OLDAP_PASSWORD_RESET_FRONTEND_URL or OLDAP_PUBLIC_APP_URL must be configured."
-        )
-    return base_url.rstrip("/")
-
-
 def _resolve_password_reset_user(
     con: Connection, data: dict
 ) -> tuple[User | None, str | None]:
@@ -313,7 +303,7 @@ def _build_password_reset_token(
     return jwt.encode(payload, _password_reset_secret(), algorithm="HS256")
 
 
-def _password_reset_link(token: str) -> str:
+def _password_reset_link(token: str, frontend_id: str | None = None) -> str:
     """Build a reset URL that remains clickable in plain-text mail clients.
 
     JWT segment separators are valid URL characters, but some mail clients stop
@@ -327,11 +317,11 @@ def _password_reset_link(token: str) -> str:
         Absolute frontend reset URL with an encoded token query parameter.
     """
     encoded_token = quote(token, safe="").replace(".", "%2E")
-    return f"{_password_reset_frontend_url()}/password-reset?token={encoded_token}"
+    return f"{mail_link(frontend_id, 'password_reset')}?token={encoded_token}"
 
 
 def _password_reset_email_content(
-    user: User, link: str, identified_by_email: bool
+    user: User, link: str, identified_by_email: bool, application_name: str = "OLDAP"
 ) -> tuple[str, str]:
     """Create UTF-8 plain-text and HTML password-reset mail bodies.
 
@@ -348,7 +338,7 @@ def _password_reset_email_content(
     )
     plain_body = (
         f"Guten Tag {user.givenName} {user.familyName}\n\n"
-        "Für Ihr OLDAP-/fasnacht.digital-Konto wurde ein Passwort-Reset angefordert."
+        f"Für Ihr Konto bei {application_name} wurde ein Passwort-Reset angefordert."
         f"{user_id_line}\n"
         "Bitte verwenden Sie den folgenden Link, um ein neues Passwort zu setzen:\n\n"
         f"{link}\n\n"
@@ -368,7 +358,7 @@ def _password_reset_email_content(
 <html lang="de">
   <body style="font-family: Arial, sans-serif; color: #172033; line-height: 1.5;">
     <p>Guten Tag {display_name}</p>
-    <p>Für Ihr OLDAP-/fasnacht.digital-Konto wurde ein Passwort-Reset angefordert.</p>
+    <p>Für Ihr Konto bei {escape(application_name)} wurde ein Passwort-Reset angefordert.</p>
     {html_user_id}
     <p>Bitte verwenden Sie den folgenden Link, um ein neues Passwort zu setzen:</p>
     <p style="margin: 24px 0;">
@@ -384,12 +374,12 @@ def _password_reset_email_content(
 
 
 def _send_password_reset_email(
-    user: User, link: str, identified_by_email: bool
+    user: User, link: str, identified_by_email: bool, frontend_id: str | None = None
 ) -> None:
     """Deliver a multipart password-reset message through console or SMTP."""
     subject = "Passwort zurücksetzen"
     plain_body, html_body = _password_reset_email_content(
-        user, link, identified_by_email
+        user, link, identified_by_email, mail_display_name(frontend_id)
     )
 
     deliver_multipart_email(
@@ -642,6 +632,9 @@ def request_password_reset():
         )
 
     try:
+        frontend_id = frontend_for_origin(request.headers.get("Origin"))
+        # Validate the destination before changing reset state or issuing a token.
+        mail_link(frontend_id, "password_reset")
         con = _password_reset_connection()
         user, resolution_error = _resolve_password_reset_user(con, data)
     except ValueError as error:
@@ -659,7 +652,11 @@ def request_password_reset():
         return (
             jsonify(
                 {
-                    "message": "Passwort reset unmöglich, kontaktieren sie info@fasnacht.digital"
+                    "message": (
+                        "Passwort-Reset nicht möglich. Bitte kontaktieren Sie die Administration Ihrer Anwendung."
+                        if frontend_id
+                        else "Passwort reset unmöglich, kontaktieren sie info@fasnacht.digital"
+                    )
                 }
             ),
             409,
@@ -670,9 +667,12 @@ def request_password_reset():
         user.passwordResetRequestAt = reset_requested_at
         user.update()
         token = _build_password_reset_token(user, reset_requested_at)
-        link = _password_reset_link(token)
+        link = _password_reset_link(token, frontend_id)
         _send_password_reset_email(
-            user, link, identified_by_email=bool((data.get("email") or "").strip())
+            user,
+            link,
+            identified_by_email=bool((data.get("email") or "").strip()),
+            **({"frontend_id": frontend_id} if frontend_id else {}),
         )
     except (RuntimeError, OldapErrorConfiguration) as error:
         current_app.logger.error(

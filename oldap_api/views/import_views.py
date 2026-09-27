@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from oldap_api.frontend_links import frontend_for_origin, FrontendRequestError
+
 import re
 from uuid import uuid4
 
@@ -126,6 +128,8 @@ def _request_id() -> str:
 
 
 def _handle_error(error: Exception) -> Response:
+    if isinstance(error, FrontendRequestError):
+        return _error(400, "FRONTEND_INVALID", str(error))
     if isinstance(error, StagingAreaServiceUnavailable):
         return _error(503, "IMPORT_SERVICE_UNAVAILABLE", "Import service unavailable.")
     if isinstance(error, ImportNotFoundError):
@@ -172,7 +176,8 @@ def create_import_job():
     connection = authenticated_connection()
     try:
         job, upload = _service(connection).create(
-            connection, request.get_json(silent=True)
+            connection, request.get_json(silent=True),
+            frontend_id=frontend_for_origin(request.headers.get("Origin")),
         )
     except Exception as error:
         return _handle_error(error)

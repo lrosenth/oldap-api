@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from oldap_api.frontend_links import frontend_for_origin, FrontendRequestError
+
 import base64
 import os
 import re
@@ -175,6 +177,8 @@ def _request_id() -> str:
 
 
 def _handle_error(error: Exception) -> Response:
+    if isinstance(error, FrontendRequestError):
+        return _error(400, "FRONTEND_INVALID", str(error))
     if isinstance(error, ExportWorkerValidationError):
         return _error(400, "EXPORT_REQUEST_INVALID", str(error))
     if isinstance(error, ExportValidationError):
@@ -243,7 +247,8 @@ def create_export():
     connection = authenticated_connection()
     try:
         job = _service(connection, snapshots=True).create(
-            connection, request.get_json(silent=True)
+            connection, request.get_json(silent=True),
+            frontend_id=frontend_for_origin(request.headers.get("Origin")),
         )
     except Exception as error:
         return _handle_error(error)

@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import os
 from html import escape
-from urllib.parse import quote
 
 from flask import current_app
 from oldaplib.src.user import User
 
 from oldap_api.mail import deliver_multipart_email
+from oldap_api.frontend_links import mail_link, mail_display_name
 
 from .domain import ImportJob, ImportState
 
@@ -30,8 +30,10 @@ def deliver_import_notification(connection, job: ImportJob) -> None:
         userId=job.requested_by_user_id,
         ignore_cache=True,
     )
-    link = _job_link(job.import_id)
-    plain, html = _content(user, job.notification_for_state, link)
+    link = _job_link(job.import_id, job.frontend_id)
+    plain, html = _content(
+        user, job.notification_for_state, link, mail_display_name(job.frontend_id)
+    )
     backend = os.getenv("OLDAP_IMPORT_EMAIL_BACKEND") or os.getenv(
         "OLDAP_PASSWORD_RESET_EMAIL_BACKEND", "console"
     )
@@ -45,14 +47,15 @@ def deliver_import_notification(connection, job: ImportJob) -> None:
     )
 
 
-def _job_link(import_id: str) -> str:
-    base_url = os.getenv("OLDAP_PUBLIC_APP_URL")
-    if not base_url:
-        raise RuntimeError("OLDAP_PUBLIC_APP_URL must be configured for import email.")
-    return f"{base_url.rstrip('/')}/imports/{quote(import_id, safe='')}"
+def _job_link(import_id: str, frontend_id: str | None = None) -> str:
+    """Resolve the durable job destination through trusted server configuration."""
+    return mail_link(frontend_id, "import_status", import_id=import_id)
 
 
-def _content(user, state: ImportState, link: str) -> tuple[str, str]:
+def _content(
+    user, state: ImportState, link: str, display_name: str = "OLDAP"
+) -> tuple[str, str]:
+    application_name = display_name
     display_name = f"{user.givenName} {user.familyName}"
     messages = {
         ImportState.READY: (
@@ -70,7 +73,7 @@ def _content(user, state: ImportState, link: str) -> tuple[str, str]:
     plain = (
         f"Guten Tag {display_name}\n\n{message}\n\n"
         f"Import anzeigen: {link}\n\n"
-        "Dieser Link enthält kein Zugriffstoken. Eine Anmeldung bei fasnacht.digital ist erforderlich.\n"
+        f"Dieser Link enthält kein Zugriffstoken. Eine Anmeldung bei {application_name} ist erforderlich.\n"
     )
     safe_name = escape(display_name)
     safe_message = escape(message)
@@ -79,6 +82,6 @@ def _content(user, state: ImportState, link: str) -> tuple[str, str]:
 <html lang="de"><body style="font-family: Arial, sans-serif; color: #172033; line-height: 1.5;">
 <p>Guten Tag {safe_name}</p><p>{safe_message}</p>
 <p><a href="{safe_link}" style="background:#1f5eff;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;display:inline-block;">Import anzeigen</a></p>
-<p style="font-size:13px;color:#526079;">Der Link enthält kein Zugriffstoken. Eine Anmeldung bei fasnacht.digital ist erforderlich.</p>
+<p style="font-size:13px;color:#526079;">Der Link enthält kein Zugriffstoken. Eine Anmeldung bei {escape(application_name)} ist erforderlich.</p>
 </body></html>"""
     return plain, html

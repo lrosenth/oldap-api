@@ -7,6 +7,9 @@ from datetime import datetime, UTC
 
 
 def factory():
+    from oldap_api.frontend_links import registry
+
+    registry()  # Reject invalid trusted mail destinations before serving requests.
     app = Flask(__name__)
 
     # Simple status endpoint

@@ -209,6 +209,9 @@ class ExportJob:
     notification_last_attempt_at: datetime | None = None
     notification_last_error: str | None = None
 
+    # Stable server-configured mail destination; absent on legacy jobs.
+    frontend_id: str | None = None
+
     def __post_init__(self) -> None:
         if self.state_version < 0:
             raise ValueError("stateVersion must not be negative.")
@@ -357,6 +360,8 @@ class ExportJob:
         )
         if internal:
             result["requestedByUserId"] = self.requested_by_user_id
+            if self.frontend_id is not None:
+                result["frontendId"] = self.frontend_id
             if self.manifest_sha256:
                 result["manifestSha256"] = self.manifest_sha256
             internal_values = {
@@ -420,6 +425,7 @@ class ExportJob:
             updated_at=_parse_datetime(value["updatedAt"]),
             requested_by_iri=str(value["requestedByIri"]),
             requested_by_user_id=str(value["requestedByUserId"]),
+            frontend_id=value.get("frontendId"),
             selection=ExportSelectionSnapshot.from_dict(value["selection"]),
             estimated_source_bytes=int(value["estimatedSourceBytes"]),
             warning_count=int(value.get("warningCount", 0)),

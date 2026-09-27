@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- Added server-owned frontend mail routing with exact Origin selection, internal durable job IDs, fail-closed validation, and legacy fallback. See doc/frontend-mail-routing.md.
+
 - Publication capabilities include optional automaticEditorialGrants from updated oldaplib. Deploy the library update before the simplified shared-assignment frontend; no new API command or policy key is required.
 
 - Generic placement-status summaries: POST /archive/{project}/placement-status counts readable media and unassigned media for up to 500 targets per aggregate. Existing archive/publication policy supplies project semantics. See doc/archive-placement-status.md; no ontology change.

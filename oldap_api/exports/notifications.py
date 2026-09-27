@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import os
 from html import escape
-from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
 from flask import current_app
 from oldaplib.src.user import User
 
 from oldap_api.mail import deliver_multipart_email
+from oldap_api.frontend_links import mail_link, mail_display_name
 
 from .domain import ExportJob, ExportState
 
@@ -31,8 +31,8 @@ def deliver_export_notification(connection, job: ExportJob) -> None:
         userId=job.requested_by_user_id,
         ignore_cache=True,
     )
-    link = _job_link(job.export_id)
-    plain, html = _content(user, job, state, link)
+    link = _job_link(job.export_id, job.frontend_id)
+    plain, html = _content(user, job, state, link, mail_display_name(job.frontend_id))
     backend = os.getenv("OLDAP_EXPORT_EMAIL_BACKEND") or os.getenv(
         "OLDAP_PASSWORD_RESET_EMAIL_BACKEND", "console"
     )
@@ -46,14 +46,14 @@ def deliver_export_notification(connection, job: ExportJob) -> None:
     )
 
 
-def _job_link(export_id: str) -> str:
-    base_url = os.getenv("OLDAP_PUBLIC_APP_URL")
-    if not base_url:
-        raise RuntimeError("OLDAP_PUBLIC_APP_URL must be configured for export email.")
-    return f"{base_url.rstrip('/')}/exports/{quote(export_id, safe='')}"
+def _job_link(export_id: str, frontend_id: str | None = None) -> str:
+    """Resolve the durable job destination through trusted server configuration."""
+    return mail_link(frontend_id, "export_status", export_id=export_id)
 
 
-def _content(user, job: ExportJob, state: ExportState, link: str) -> tuple[str, str]:
+def _content(
+    user, job: ExportJob, state: ExportState, link: str, application_name: str = "OLDAP"
+) -> tuple[str, str]:
     """Return escaped German plain-text and HTML alternatives."""
 
     display_name = f"{user.givenName} {user.familyName}"
@@ -74,7 +74,7 @@ def _content(user, job: ExportJob, state: ExportState, link: str) -> tuple[str, 
     plain = (
         f"Guten Tag {display_name}\n\n{message}\n\n"
         f"Export anzeigen: {link}\n\n"
-        "Dieser Link enthält kein Download-Ticket. Eine Anmeldung ist erforderlich.\n"
+        f"Dieser Link enthält kein Download-Ticket. Eine Anmeldung bei {application_name} ist erforderlich.\n"
     )
     safe_name = escape(display_name)
     safe_message = escape(message)
@@ -83,6 +83,6 @@ def _content(user, job: ExportJob, state: ExportState, link: str) -> tuple[str, 
 <html lang="de"><body style="font-family: Arial, sans-serif; color: #172033; line-height: 1.5;">
 <p>Guten Tag {safe_name}</p><p>{safe_message}</p>
 <p><a href="{safe_link}" style="background:#1f5eff;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;display:inline-block;">Export anzeigen</a></p>
-<p style="font-size:13px;color:#526079;">Der Link enthält kein Download-Ticket. Eine Anmeldung ist erforderlich.</p>
+<p style="font-size:13px;color:#526079;">Der Link enthält kein Download-Ticket. Eine Anmeldung bei {escape(application_name)} ist erforderlich.</p>
 </body></html>"""
     return plain, html

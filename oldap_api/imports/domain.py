@@ -227,6 +227,9 @@ class ImportJob:
     notification_last_attempt_at: datetime | None = None
     notification_last_error: str | None = None
 
+    # Stable server-configured mail destination; absent on legacy jobs.
+    frontend_id: str | None = None
+
     @property
     def can_confirm(self) -> bool:
         """Return whether the job is READY and has not expired."""
@@ -310,6 +313,8 @@ class ImportJob:
         )
         if internal:
             result["requestedByUserId"] = self.requested_by_user_id
+            if self.frontend_id is not None:
+                result["frontendId"] = self.frontend_id
             internal_optional = {
                 "sipSha256": self.sip_sha256,
                 "sipUploadRequestId": self.sip_upload_request_id,
@@ -387,6 +392,7 @@ class ImportJob:
             updated_at=_parse_datetime(value["updatedAt"]),
             requested_by_iri=str(value["requestedByIri"]),
             requested_by_user_id=str(value["requestedByUserId"]),
+            frontend_id=value.get("frontendId"),
             target=TargetSnapshot.from_dict(value["target"]),
             original_file_name=str(value["originalFileName"]),
             declared_compressed_size_bytes=int(value["declaredCompressedSizeBytes"]),

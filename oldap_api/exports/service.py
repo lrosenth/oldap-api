@@ -123,6 +123,7 @@ class ExportJobService:
         data: Any,
         *,
         now: datetime | None = None,
+        frontend_id: str | None = None,
         export_id: str | None = None,
     ) -> ExportJob:
         """Create and atomically publish one QUEUED job plus frozen manifest."""
@@ -154,6 +155,7 @@ class ExportJobService:
             updated_at=current,
             requested_by_iri=str(connection.userIri),
             requested_by_user_id=str(connection.userid),
+            frontend_id=frontend_id,
             selection=snapshot.selection,
             estimated_source_bytes=snapshot.source_bytes,
             warning_count=snapshot.warning_count,

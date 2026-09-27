@@ -1,3 +1,10 @@
+### Update 2026-09-27 23:08
+- Decisions: Preserve existing deployments; add trusted server-owned mail destinations and opt-in SALSAH installation.
+- Implementation: Added server-owned frontend mail routing with exact Origin selection, internal durable job IDs, fail-closed validation, and legacy fallback. See doc/frontend-mail-routing.md.
+- Open: Publish immutable compatible releases; perform coordinated initial installation and real DNS/TLS/browser/SMTP acceptance.
+- Risks/Assumptions: No server deployment or image publication performed. Initial configuration requires an API restart; frontend-only updates do not.
+- Validation: 117 isolated API/security/auth/mail/import/export regression tests passed; no live GraphDB integration tests or SMTP delivery performed.
+
 # CODEX_LOG
 
 ### Update 2026-09-22 23:26
