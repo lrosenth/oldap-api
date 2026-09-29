@@ -1,0 +1,4360 @@
+[
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "resource_person",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 99.96704200011663,
+    "p95_ms": 147.02333399964118,
+    "min_ms": 93.81687499990221,
+    "max_ms": 147.02333399964118,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 577.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "resource_media",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 97.42512499997247,
+    "p95_ms": 127.97866699929727,
+    "min_ms": 94.78458300054626,
+    "max_ms": 127.97866699929727,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2017.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "resource_linked_archive",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 121.58316650038614,
+    "p95_ms": 155.36770800008526,
+    "min_ms": 117.72445799942943,
+    "max_ms": 155.36770800008526,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 13085.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_page1",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 24.057250499936345,
+    "p95_ms": 31.73475000039616,
+    "min_ms": 18.36304199969163,
+    "max_ms": 31.73475000039616,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2427.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_sorted",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 30.31441650000488,
+    "p95_ms": 87.78087500013498,
+    "min_ms": 23.07495800050674,
+    "max_ms": 87.78087500013498,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 3202.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_offset250",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 35.51387499965131,
+    "p95_ms": 37.561041999651934,
+    "min_ms": 25.05758299957961,
+    "max_ms": 37.561041999651934,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 4035.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_count",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 31.08816650001245,
+    "p95_ms": 35.41333300017868,
+    "min_ms": 17.952458000763727,
+    "max_ms": 35.41333300017868,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 14.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_fulltext",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 31.527416999779234,
+    "p95_ms": 37.8482919995804,
+    "min_ms": 21.71870799975295,
+    "max_ms": 37.8482919995804,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 83503.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_with_properties",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 32.6302499997837,
+    "p95_ms": 36.24754199972813,
+    "min_ms": 27.70745799989527,
+    "max_ms": 36.24754199972813,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 23078.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "summaries_25",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 112.42277100018327,
+    "p95_ms": 142.67862499946204,
+    "min_ms": 103.5905830003685,
+    "max_ms": 142.67862499946204,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 25917.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "summaries_100",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 147.79560449960627,
+    "p95_ms": 183.95095899995795,
+    "min_ms": 137.9782089998116,
+    "max_ms": 183.95095899995795,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 94074.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "summaries_25_delivery",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 114.17839599971558,
+    "p95_ms": 156.1992500000997,
+    "min_ms": 110.15937499996653,
+    "max_ms": 156.1992500000997,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 22364.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "archive_children",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 22.441541500029416,
+    "p95_ms": 31.05566700014606,
+    "min_ms": 17.48550000047544,
+    "max_ms": 31.05566700014606,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 728.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "hierarchical_list",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 29.681395999887172,
+    "p95_ms": 33.65424999992683,
+    "min_ms": 23.938833000102022,
+    "max_ms": 33.65424999992683,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 6698.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "resource_person",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 106.88733350025359,
+    "p95_ms": 134.7994590005328,
+    "min_ms": 101.05129099974874,
+    "max_ms": 134.7994590005328,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 577.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "resource_media",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 107.72037499964426,
+    "p95_ms": 140.05779099989013,
+    "min_ms": 105.86387500006822,
+    "max_ms": 140.05779099989013,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2017.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "resource_linked_archive",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 131.77633299937952,
+    "p95_ms": 161.3425420000567,
+    "min_ms": 125.97762500081444,
+    "max_ms": 161.3425420000567,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 13085.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_page1",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 37.66320800014,
+    "p95_ms": 39.466707999963546,
+    "min_ms": 36.45983299975342,
+    "max_ms": 39.466707999963546,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2427.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_sorted",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 41.29981249980119,
+    "p95_ms": 43.66279200075951,
+    "min_ms": 35.57358399939403,
+    "max_ms": 43.66279200075951,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 3270.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_offset250",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 43.095000500215974,
+    "p95_ms": 45.40958399957162,
+    "min_ms": 39.55479199976253,
+    "max_ms": 45.40958399957162,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 3705.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_count",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 36.92943750002087,
+    "p95_ms": 38.395833000322455,
+    "min_ms": 35.155000000486325,
+    "max_ms": 38.395833000322455,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 14.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_fulltext",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 31.930541500059917,
+    "p95_ms": 35.52541600038239,
+    "min_ms": 29.56433399958769,
+    "max_ms": 35.52541600038239,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 83503.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_with_properties",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 43.314187500072876,
+    "p95_ms": 47.283999999308435,
+    "min_ms": 40.317250000043714,
+    "max_ms": 47.283999999308435,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 23078.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "summaries_25",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 136.6894164993937,
+    "p95_ms": 169.2097080003805,
+    "min_ms": 133.9775840006041,
+    "max_ms": 169.2097080003805,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 25917.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "summaries_100",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 212.58256250030172,
+    "p95_ms": 266.9825419998233,
+    "min_ms": 186.9092079996335,
+    "max_ms": 266.9825419998233,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 94074.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "summaries_25_delivery",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 155.4077084997516,
+    "p95_ms": 217.18300000065938,
+    "min_ms": 147.7527500001088,
+    "max_ms": 217.18300000065938,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 22213.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "archive_children",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 36.04381199966156,
+    "p95_ms": 37.4653330000001,
+    "min_ms": 34.0758749998713,
+    "max_ms": 37.4653330000001,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 728.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "hierarchical_list",
+    "mode": "live_http",
+    "n": 12,
+    "median_ms": 36.76135450041329,
+    "p95_ms": 37.87875000034546,
+    "min_ms": 33.302124999863736,
+    "max_ms": 37.87875000034546,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 6698.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "resource_person",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 91.14143750048243,
+    "p95_ms": 122.52995899962116,
+    "min_ms": 89.55145800064201,
+    "max_ms": 122.52995899962116,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 577.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "resource_media",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 92.54052100004628,
+    "p95_ms": 132.90916599999036,
+    "min_ms": 88.68891700058157,
+    "max_ms": 132.90916599999036,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2017.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "resource_linked_archive",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 109.38549999991665,
+    "p95_ms": 149.43975000005594,
+    "min_ms": 106.30399999990914,
+    "max_ms": 149.43975000005594,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 13085.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_page1",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 16.317916500611318,
+    "p95_ms": 23.79320900035964,
+    "min_ms": 12.404000000060478,
+    "max_ms": 23.79320900035964,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2427.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_sorted",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 18.254271000387234,
+    "p95_ms": 25.558916000591125,
+    "min_ms": 14.746834000106901,
+    "max_ms": 25.558916000591125,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 3202.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_offset250",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 18.280875000073138,
+    "p95_ms": 20.257375000255706,
+    "min_ms": 15.984874999958265,
+    "max_ms": 20.257375000255706,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 4035.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_count",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 16.973249999864493,
+    "p95_ms": 20.976540999981808,
+    "min_ms": 10.975875000440283,
+    "max_ms": 20.976540999981808,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 14.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_fulltext",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 16.79660400031935,
+    "p95_ms": 22.7020000002085,
+    "min_ms": 11.055042000407411,
+    "max_ms": 22.7020000002085,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 83503.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_with_properties",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 20.23566700017909,
+    "p95_ms": 25.244082999961392,
+    "min_ms": 16.50199999949109,
+    "max_ms": 25.244082999961392,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 23078.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "summaries_25",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 104.12270849974448,
+    "p95_ms": 141.90945900008956,
+    "min_ms": 100.9736249998241,
+    "max_ms": 141.90945900008956,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 25917.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "summaries_100",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 143.69904149998547,
+    "p95_ms": 200.3725000004124,
+    "min_ms": 134.65512499988108,
+    "max_ms": 200.3725000004124,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 94074.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "summaries_25_delivery",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 112.81833300017752,
+    "p95_ms": 162.96729199984838,
+    "min_ms": 110.09279199970479,
+    "max_ms": 162.96729199984838,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 22364.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "archive_children",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 15.14187450038662,
+    "p95_ms": 17.39475000067614,
+    "min_ms": 13.651666999976442,
+    "max_ms": 17.39475000067614,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 728.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "hierarchical_list",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 16.417854499650275,
+    "p95_ms": 16.96470800015959,
+    "min_ms": 15.132167000047048,
+    "max_ms": 16.96470800015959,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 6698.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "resource_person",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 113.36491699967155,
+    "p95_ms": 150.66654099973675,
+    "min_ms": 109.93175000021438,
+    "max_ms": 150.66654099973675,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 577.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "resource_media",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 114.15827099972375,
+    "p95_ms": 173.73362500075018,
+    "min_ms": 111.93729100068595,
+    "max_ms": 173.73362500075018,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2017.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "resource_linked_archive",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 137.67710399997668,
+    "p95_ms": 183.62700000034238,
+    "min_ms": 127.69500000013068,
+    "max_ms": 183.62700000034238,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 13085.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_page1",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 38.71958350009663,
+    "p95_ms": 48.61341600008018,
+    "min_ms": 34.14041599990014,
+    "max_ms": 48.61341600008018,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2427.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_sorted",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 44.338832999983424,
+    "p95_ms": 58.968999999706284,
+    "min_ms": 42.066957999850274,
+    "max_ms": 58.968999999706284,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 3270.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_offset250",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 46.08195800028625,
+    "p95_ms": 49.7300830002132,
+    "min_ms": 42.01704200022505,
+    "max_ms": 49.7300830002132,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 3705.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_count",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 44.87110400032179,
+    "p95_ms": 53.20174999997107,
+    "min_ms": 33.59187499972904,
+    "max_ms": 53.20174999997107,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 14.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_fulltext",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 37.761604499792156,
+    "p95_ms": 45.60912500073755,
+    "min_ms": 30.559458999960043,
+    "max_ms": 45.60912500073755,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 83503.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_with_properties",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 45.48774999966554,
+    "p95_ms": 48.30216600021231,
+    "min_ms": 41.08724999969127,
+    "max_ms": 48.30216600021231,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 23078.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "summaries_25",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 136.37293750025492,
+    "p95_ms": 183.9565420004874,
+    "min_ms": 132.05591699988872,
+    "max_ms": 183.9565420004874,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 25917.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "summaries_100",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 190.9120205000363,
+    "p95_ms": 239.5834159997321,
+    "min_ms": 186.22304099972098,
+    "max_ms": 239.5834159997321,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 94074.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "summaries_25_delivery",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 150.7380625002952,
+    "p95_ms": 195.40183300068747,
+    "min_ms": 145.02975000050355,
+    "max_ms": 195.40183300068747,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 22213.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "archive_children",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 33.51629149983637,
+    "p95_ms": 35.150624999914726,
+    "min_ms": 30.29579099984403,
+    "max_ms": 35.150624999914726,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 728.0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "hierarchical_list",
+    "mode": "inprocess",
+    "n": 12,
+    "median_ms": 36.4213119996748,
+    "p95_ms": 37.25845799999661,
+    "min_ms": 33.207124999535154,
+    "max_ms": 37.25845799999661,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 6698.0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "resource_person",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 92.96624949956822,
+    "p95_ms": 128.9952090000952,
+    "min_ms": 90.2496250000695,
+    "max_ms": 128.9952090000952,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 577.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 9.74210399954245,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 24.15700424876377,
+        "exclusive_ms": 23.123681332132644
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 80.93271866672087,
+        "exclusive_ms": 0.07846508325807615
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 5.119604250012344,
+        "exclusive_ms": 5.119604250012344
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 10.573375083292072,
+        "exclusive_ms": 0.2842710828948232
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 0.3761735000959258,
+        "exclusive_ms": 0.3761735000959258
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.09030199983802352,
+        "exclusive_ms": 0.09030199983802352
+      },
+      "results.api_shape": {
+        "count": 1,
+        "inclusive_ms": 0.04479150008288949,
+        "exclusive_ms": 0.04479150008288949
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 130.19180950012318,
+        "exclusive_ms": 51.77644700150571
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 3.9669859997199333,
+        "exclusive_ms": 3.9669859997199333
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 0.5156493332378886,
+        "exclusive_ms": 0.5156493332378886
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.014986083215262624,
+        "exclusive_ms": 0.014986083215262624
+      },
+      "resource.read": {
+        "count": 1,
+        "inclusive_ms": 5.618138916815951,
+        "exclusive_ms": 0.1590553333699063
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 5.825955000242781,
+        "exclusive_ms": 0.10381625058168235
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 95.97755900002387,
+        "exclusive_ms": 0.3875139164695914
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 9.912930500301323,
+        "exclusive_ms": 9.912930500301323
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 84.79252433342783,
+        "exclusive_ms": 0.022885833307858167
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "resource_media",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 94.37456199975713,
+    "p95_ms": 140.51116599966917,
+    "min_ms": 92.59995799948229,
+    "max_ms": 140.51116599966917,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2017.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 10.68352199945366,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 23.84123183621038,
+        "exclusive_ms": 22.959339252868933
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 80.92789600019994,
+        "exclusive_ms": 0.07922541643286725
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 5.412666666643418,
+        "exclusive_ms": 5.412666666643418
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 11.387243000096229,
+        "exclusive_ms": 0.2871598337605974
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 0.6531840833758906,
+        "exclusive_ms": 0.6531840833758906
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.09426733345208049,
+        "exclusive_ms": 0.09426733345208049
+      },
+      "results.api_shape": {
+        "count": 1,
+        "inclusive_ms": 0.08882300009342241,
+        "exclusive_ms": 0.08882300009342241
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 133.82417758331636,
+        "exclusive_ms": 52.20303274866941
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 3.967104165440105,
+        "exclusive_ms": 3.967104165440105
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 1.1733366666248912,
+        "exclusive_ms": 1.1733366666248912
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.021496416669227376,
+        "exclusive_ms": 0.021496416669227376
+      },
+      "resource.read": {
+        "count": 1,
+        "inclusive_ms": 7.380232750013723,
+        "exclusive_ms": 0.1847362502000275
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 5.564580083576705,
+        "exclusive_ms": 0.10334074992594348
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 98.09196183315787,
+        "exclusive_ms": 0.39427416633467754
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 10.44689908295974,
+        "exclusive_ms": 10.44689908295974
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 84.7944688334034,
+        "exclusive_ms": 0.02307599970663432
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "resource_linked_archive",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 118.18079199929343,
+    "p95_ms": 163.8629580002089,
+    "min_ms": 115.87308300022414,
+    "max_ms": 163.8629580002089,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 13085.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 23.48185449909579,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 24.26939383349236,
+        "exclusive_ms": 23.333321166395155
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 82.7347602498018,
+        "exclusive_ms": 0.08244099944931804
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 9.565843833494606,
+        "exclusive_ms": 9.565843833494606
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 25.521406249936263,
+        "exclusive_ms": 0.3080138331673273
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 2.168510333300825,
+        "exclusive_ms": 2.168510333300825
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.0922814168310045,
+        "exclusive_ms": 0.0922814168310045
+      },
+      "results.api_shape": {
+        "count": 1,
+        "inclusive_ms": 0.1543750832600684,
+        "exclusive_ms": 0.1543750832600684
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 132.57414625021133,
+        "exclusive_ms": 52.722203251050814
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.448413082855041,
+        "exclusive_ms": 4.448413082855041
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 6.300725583287203,
+        "exclusive_ms": 6.300725583287203
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.043586833498920896,
+        "exclusive_ms": 0.043586833498920896
+      },
+      "resource.read": {
+        "count": 1,
+        "inclusive_ms": 26.34951050019178,
+        "exclusive_ms": 0.2497778338389859
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 5.927343666523181,
+        "exclusive_ms": 0.11080191635907492
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 125.00744774994625,
+        "exclusive_ms": 2.3573329162142422
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 23.04488208346811,
+        "exclusive_ms": 23.04488208346811
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 86.53679858328663,
+        "exclusive_ms": 0.02493758347554831
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_page1",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 17.399874499915313,
+    "p95_ms": 19.258541999988665,
+    "min_ms": 12.761417000547226,
+    "max_ms": 19.258541999988665,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2427.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 5.785000500054593,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.4667605001031916,
+        "exclusive_ms": 0.049878583543735054
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 6.1189200833572,
+        "exclusive_ms": 6.1189200833572
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 5.80535783334805,
+        "exclusive_ms": 0.13120158337187604
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.39570141658866004,
+        "exclusive_ms": 0.39570141658866004
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.41688191655945656,
+        "exclusive_ms": 0.2111977499528924
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.20568416660656416,
+        "exclusive_ms": 0.20568416660656416
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.03948250006639379,
+        "exclusive_ms": 0.03948250006639379
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 6.738104416702602,
+        "exclusive_ms": 0.07028466666270106
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 16.310826499951265,
+        "exclusive_ms": 3.414319499825069
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 5.674156249976174,
+        "exclusive_ms": 5.674156249976174
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_sorted",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 20.595853500253725,
+    "p95_ms": 22.208666000551602,
+    "min_ms": 15.272208000169485,
+    "max_ms": 22.208666000551602,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 3202.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 6.131791500138206,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.4587849165697359,
+        "exclusive_ms": 0.05277449986351712
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 6.6434965833650494,
+        "exclusive_ms": 6.6434965833650494
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 6.205215250020046,
+        "exclusive_ms": 0.12458333329353384
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.4376422499869174,
+        "exclusive_ms": 0.4376422499869174
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.4060104167062188,
+        "exclusive_ms": 0.20339916689711876
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.20261124980910003,
+        "exclusive_ms": 0.20261124980910003
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.046388916416617576,
+        "exclusive_ms": 0.046388916416617576
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 7.189350583151584,
+        "exclusive_ms": 0.08770816657488467
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 20.217604249864962,
+        "exclusive_ms": 6.338368166931711
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 6.080631916726513,
+        "exclusive_ms": 6.080631916726513
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_offset250",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 21.84947949990601,
+    "p95_ms": 23.575541999889538,
+    "min_ms": 18.788999999742373,
+    "max_ms": 23.575541999889538,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 4035.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 7.760187500025495,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.48148616679100087,
+        "exclusive_ms": 0.052690833702702854
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 6.633718750208573,
+        "exclusive_ms": 6.633718750208573
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 7.948833250035629,
+        "exclusive_ms": 0.1480070001586379
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.44835075019970344,
+        "exclusive_ms": 0.44835075019970344
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.42879533308829804,
+        "exclusive_ms": 0.2064341663299274
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.22236116675837062,
+        "exclusive_ms": 0.22236116675837062
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.0500936665351522,
+        "exclusive_ms": 0.0500936665351522
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 8.967447583321094,
+        "exclusive_ms": 0.08877741629476077
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 21.829197833464303,
+        "exclusive_ms": 6.177937833399483
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 7.800826249876991,
+        "exclusive_ms": 7.800826249876991
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_count",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 16.85672949997752,
+    "p95_ms": 18.096208999850205,
+    "min_ms": 14.063375000660017,
+    "max_ms": 18.096208999850205,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 14.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 5.313895999734086,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.4779721668152585,
+        "exclusive_ms": 0.052371666621790304
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 6.845809250004701,
+        "exclusive_ms": 6.845809250004701
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 5.371322916516874,
+        "exclusive_ms": 0.10438883312720766
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.0355140000465326,
+        "exclusive_ms": 0.0355140000465326
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.4256005001934682,
+        "exclusive_ms": 0.2027670835407965
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.22283341665267167,
+        "exclusive_ms": 0.22283341665267167
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.030861083208340762,
+        "exclusive_ms": 0.030861083208340762
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 5.93698625016259,
+        "exclusive_ms": 0.05217716678392511
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 16.649527583240342,
+        "exclusive_ms": 3.83587099986471
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 5.266934083389667,
+        "exclusive_ms": 5.266934083389667
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_fulltext",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 17.40324949969363,
+    "p95_ms": 18.59508300003654,
+    "min_ms": 13.409000000137894,
+    "max_ms": 18.59508300003654,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 83503.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 5.727062499772728,
+    "spans_mean": {
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 6.121197833181213,
+        "exclusive_ms": 0.34105199983969214
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 7.347135333323725,
+        "exclusive_ms": 7.347135333323725
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 1.2607084165665583,
+        "exclusive_ms": 1.2607084165665583
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 17.009461749997474,
+        "exclusive_ms": 1.9973261670808522
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 5.780145833341521,
+        "exclusive_ms": 5.780145833341521
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.21354183309085784,
+        "exclusive_ms": 0.21354183309085784
+      },
+      "search.fulltext": {
+        "count": 1,
+        "inclusive_ms": 7.45145841650204,
+        "exclusive_ms": 0.0695521667542683
+      }
+    },
+    "cache_hits_mean": 0,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "search_with_properties",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 21.797604000312276,
+    "p95_ms": 22.47108300070977,
+    "min_ms": 17.467708000367566,
+    "max_ms": 22.47108300070977,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 23078.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 5.549812999561254,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.4545796668177597,
+        "exclusive_ms": 0.05145458324780824
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 6.1802638335090405,
+        "exclusive_ms": 6.1802638335090405
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 5.664308750207662,
+        "exclusive_ms": 0.20523600020775726
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.5439132501881735,
+        "exclusive_ms": 0.5439132501881735
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.4031250835699514,
+        "exclusive_ms": 0.19055900020248373
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.2125660833674677,
+        "exclusive_ms": 0.2125660833674677
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.09565941665338566,
+        "exclusive_ms": 0.09565941665338566
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 6.748479249912028,
+        "exclusive_ms": 0.08567758269843277
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 20.95128816677061,
+        "exclusive_ms": 7.926885666696156
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 5.459072749999905,
+        "exclusive_ms": 5.459072749999905
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "summaries_25",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 110.52593749991502,
+    "p95_ms": 152.71574999951554,
+    "min_ms": 102.95562500050437,
+    "max_ms": 152.71574999951554,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 25917.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 17.071687999759888,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 27.26945624893536,
+        "exclusive_ms": 22.763209915638072
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 76.72234733308869,
+        "exclusive_ms": 0.07863208293201751
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 5.57717008337022,
+        "exclusive_ms": 5.57717008337022
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 18.80981608322448,
+        "exclusive_ms": 0.2992154994293135
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 1.581597166781042,
+        "exclusive_ms": 1.581597166781042
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.09151733350639309,
+        "exclusive_ms": 0.09151733350639309
+      },
+      "results.api_shape": {
+        "count": 25,
+        "inclusive_ms": 0.3058356671014432,
+        "exclusive_ms": 0.3058356671014432
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 126.44714849996792,
+        "exclusive_ms": 51.92033291821948
+      },
+      "resource.summaries": {
+        "count": 1,
+        "inclusive_ms": 18.91791666662357,
+        "exclusive_ms": 0.8658990833131005
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.021592832865887,
+        "exclusive_ms": 4.021592832865887
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 4.368663333252698,
+        "exclusive_ms": 4.368663333252698
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.10507608340049046,
+        "exclusive_ms": 0.10507608340049046
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 5.324819166844463,
+        "exclusive_ms": 0.10494416672675773
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 113.4176595833954,
+        "exclusive_ms": 4.379608833005477
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 16.929003417014126,
+        "exclusive_ms": 16.929003417014126
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 84.13205224989422,
+        "exclusive_ms": 0.02536116683889607
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "summaries_100",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 147.31258350002463,
+    "p95_ms": 215.71920899987163,
+    "min_ms": 143.0697499999951,
+    "max_ms": 215.71920899987163,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 94074.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 33.58835449898834,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 23.78019024801385,
+        "exclusive_ms": 22.874568414560297
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 77.01068041637882,
+        "exclusive_ms": 0.08094799985277253
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 5.425895666500462,
+        "exclusive_ms": 5.425895666500462
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 44.760809000157074,
+        "exclusive_ms": 0.3481005001049198
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 11.42555208328607,
+        "exclusive_ms": 11.42555208328607
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.0938646666478841,
+        "exclusive_ms": 0.0938646666478841
+      },
+      "results.api_shape": {
+        "count": 100,
+        "inclusive_ms": 1.123544167739965,
+        "exclusive_ms": 1.123544167739965
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 122.83505499999592,
+        "exclusive_ms": 48.31476433393315
+      },
+      "resource.summaries": {
+        "count": 1,
+        "inclusive_ms": 59.74273941660613,
+        "exclusive_ms": 2.919277416215967
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.184771251175334,
+        "exclusive_ms": 4.184771251175334
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 17.38380566689557,
+        "exclusive_ms": 17.38380566689557
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.27332316653883026,
+        "exclusive_ms": 0.27332316653883026
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 5.521097166820255,
+        "exclusive_ms": 0.10411108337393671
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 152.46688900000058,
+        "exclusive_ms": 4.905087999456252
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 32.987156416766084,
+        "exclusive_ms": 32.987156416766084
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 80.99629858315893,
+        "exclusive_ms": 0.02211816695307789
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "summaries_25_delivery",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 116.7923544999212,
+    "p95_ms": 171.81820899986633,
+    "min_ms": 110.05970799942588,
+    "max_ms": 171.81820899986633,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 22364.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 20.50095799995688,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 23.59147907888352,
+        "exclusive_ms": 22.66189891201975
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 77.17839600013576,
+        "exclusive_ms": 0.07585800009716574
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 5.585673749995597,
+        "exclusive_ms": 5.585673749995597
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 31.633433833349045,
+        "exclusive_ms": 0.29921208329142246
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 11.618333083485291,
+        "exclusive_ms": 11.618333083485291
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.08925683315889425,
+        "exclusive_ms": 0.08925683315889425
+      },
+      "results.api_shape": {
+        "count": 25,
+        "inclusive_ms": 0.6587949162621953,
+        "exclusive_ms": 0.6587949162621953
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 122.4828160833719,
+        "exclusive_ms": 48.39891800543228
+      },
+      "resource.summaries": {
+        "count": 1,
+        "inclusive_ms": 34.393149166589865,
+        "exclusive_ms": 0.9301524999803709
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.102367332355546,
+        "exclusive_ms": 4.102367332355546
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 7.281013999772767,
+        "exclusive_ms": 7.281013999772767
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.08766308337726514,
+        "exclusive_ms": 0.08766308337726514
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 5.644614416799716,
+        "exclusive_ms": 0.10213908368920481
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 124.37995841658751,
+        "exclusive_ms": 2.334264000182884
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 19.71588866657233,
+        "exclusive_ms": 19.71588866657233
+      },
+      "results.media_delivery": {
+        "count": 25,
+        "inclusive_ms": 0.41681975024706236,
+        "exclusive_ms": 0.41681975024706236
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 80.90359374993265,
+        "exclusive_ms": 0.021704416667489568
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "archive_children",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 17.032083499998407,
+    "p95_ms": 17.874833999485418,
+    "min_ms": 13.832124999680673,
+    "max_ms": 17.874833999485418,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 728.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 2.94087500014939,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.461288249956245,
+        "exclusive_ms": 0.04636458334061899
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 6.047187416697852,
+        "exclusive_ms": 6.047187416697852
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 3.0484827500458778,
+        "exclusive_ms": 0.10237508346714701
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.2016874999905364,
+        "exclusive_ms": 0.2016874999905364
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.414923666615626,
+        "exclusive_ms": 0.2207777498976308
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.19414591671799522,
+        "exclusive_ms": 0.19414591671799522
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.03578149994609703,
+        "exclusive_ms": 0.03578149994609703
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 3.7774134166284057,
+        "exclusive_ms": 0.06595491663574649
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 16.76837841660017,
+        "exclusive_ms": 6.9079960833278165
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 2.946107666578731,
+        "exclusive_ms": 2.946107666578731
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "unknown",
+    "case": "hierarchical_list",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 19.48116650009979,
+    "p95_ms": 21.147999999811873,
+    "min_ms": 17.1388750004553,
+    "max_ms": 21.147999999811873,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 6698.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 3.662958499717206,
+    "spans_mean": {
+      "model.project": {
+        "count": 2,
+        "inclusive_ms": 1.7451634165202752,
+        "exclusive_ms": 1.0694552500657057
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 6.301538333445933,
+        "exclusive_ms": 6.301538333445933
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 4.042260249965087,
+        "exclusive_ms": 0.3146630832967882
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 4.258600583322429,
+        "exclusive_ms": 4.258600583322429
+      },
+      "cache.get": {
+        "count": 3,
+        "inclusive_ms": 3.040579749722383,
+        "exclusive_ms": 2.285295083311212
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 19.409215416620402,
+        "exclusive_ms": 0.9807570831981138
+      },
+      "redis.command": {
+        "count": 3,
+        "inclusive_ms": 0.4713088333119231,
+        "exclusive_ms": 0.4713088333119231
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 3.7275971666682985,
+        "exclusive_ms": 3.7275971666682985
+      }
+    },
+    "cache_hits_mean": 3,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "resource_person",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 109.81572950004193,
+    "p95_ms": 153.47633399960614,
+    "min_ms": 106.91683300046861,
+    "max_ms": 153.47633399960614,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 577.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 10.33716550000463,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 22.61457299907003,
+        "exclusive_ms": 21.81506949894659
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 76.22652083333985,
+        "exclusive_ms": 0.07311475004219876
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 27.782416833360912,
+        "exclusive_ms": 27.782416833360912
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 11.172614749890878,
+        "exclusive_ms": 0.2671736665433855
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 0.38303833328730735,
+        "exclusive_ms": 0.38303833328730735
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.08174658326727997,
+        "exclusive_ms": 0.08174658326727997
+      },
+      "results.api_shape": {
+        "count": 1,
+        "inclusive_ms": 0.049235999919498376,
+        "exclusive_ms": 0.049235999919498376
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 119.65868825094124,
+        "exclusive_ms": 47.29702850143743
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 3.9483777495661343,
+        "exclusive_ms": 3.9483777495661343
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 0.5115103334295176,
+        "exclusive_ms": 0.5115103334295176
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.015433916814799886,
+        "exclusive_ms": 0.015433916814799886
+      },
+      "resource.read": {
+        "count": 1,
+        "inclusive_ms": 5.570916749775279,
+        "exclusive_ms": 0.15546891669752463
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 6.44614916647394,
+        "exclusive_ms": 0.09395791645753586
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 113.40826733324623,
+        "exclusive_ms": 0.38497216663320916
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 10.522402750060186,
+        "exclusive_ms": 10.522402750060186
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 79.60529166674253,
+        "exclusive_ms": 0.027319416782726574
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "resource_media",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 116.05774950021441,
+    "p95_ms": 210.61391700004606,
+    "min_ms": 112.40008300046611,
+    "max_ms": 210.61391700004606,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2017.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 11.822729000414256,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 25.228631167313626,
+        "exclusive_ms": 24.255492167185366
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 88.97869108348762,
+        "exclusive_ms": 0.09034058355913051
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 25.9178991667189,
+        "exclusive_ms": 25.9178991667189
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 13.327347416482857,
+        "exclusive_ms": 0.3279797498028832
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 0.6827534167920627,
+        "exclusive_ms": 0.6827534167920627
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.08848616676004895,
+        "exclusive_ms": 0.08848616676004895
+      },
+      "results.api_shape": {
+        "count": 1,
+        "inclusive_ms": 0.10492699993847054,
+        "exclusive_ms": 0.10492699993847054
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 147.31577308286128,
+        "exclusive_ms": 56.94638999921153
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.793017083784434,
+        "exclusive_ms": 4.793017083784434
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 8.837530999926457,
+        "exclusive_ms": 8.837530999926457
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.024645833339794383,
+        "exclusive_ms": 0.024645833339794383
+      },
+      "resource.read": {
+        "count": 1,
+        "inclusive_ms": 16.125291583117967,
+        "exclusive_ms": 0.2076457500000591
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 6.44196516645934,
+        "exclusive_ms": 0.10410041644111818
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 135.14347216664646,
+        "exclusive_ms": 0.4146322503402189
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 12.31661424988791,
+        "exclusive_ms": 12.31661424988791
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 92.55607633319111,
+        "exclusive_ms": 0.031017332958072075
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "resource_linked_archive",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 139.40595849953752,
+    "p95_ms": 258.2570410004337,
+    "min_ms": 135.55650000034802,
+    "max_ms": 258.2570410004337,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 13085.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 24.752875000103813,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 24.971144833595343,
+        "exclusive_ms": 24.03425908346435
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 89.04536133339509,
+        "exclusive_ms": 0.0865872498252429
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 34.6748331667186,
+        "exclusive_ms": 34.6748331667186
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 27.51518041645795,
+        "exclusive_ms": 0.32688491652758483
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 2.1255311667118804,
+        "exclusive_ms": 2.1255311667118804
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.09450358326527446,
+        "exclusive_ms": 0.09450358326527446
+      },
+      "results.api_shape": {
+        "count": 1,
+        "inclusive_ms": 0.1544618332900427,
+        "exclusive_ms": 0.1544618332900427
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 142.88977374962997,
+        "exclusive_ms": 57.34439341525407
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.78140958481769,
+        "exclusive_ms": 4.78140958481769
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 6.560927166750237,
+        "exclusive_ms": 6.560927166750237
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.045788083374039466,
+        "exclusive_ms": 0.045788083374039466
+      },
+      "resource.read": {
+        "count": 1,
+        "inclusive_ms": 27.914277833360757,
+        "exclusive_ms": 0.2561041668135052
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 6.625295083267702,
+        "exclusive_ms": 0.11088191680149369
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 157.86700000004808,
+        "exclusive_ms": 2.1762571666386066
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 25.062764333218485,
+        "exclusive_ms": 25.062764333218485
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 92.90138191666604,
+        "exclusive_ms": 0.03141316657699159
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_page1",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 39.64393800015387,
+    "p95_ms": 41.96899999988091,
+    "min_ms": 35.83470800003852,
+    "max_ms": 41.96899999988091,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 2427.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 9.89499999968757,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.43789233351769025,
+        "exclusive_ms": 0.04730191699309216
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 25.448979250086268,
+        "exclusive_ms": 25.448979250086268
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 10.079218833273748,
+        "exclusive_ms": 0.11579508342644355
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.37796875009613967,
+        "exclusive_ms": 0.37796875009613967
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.3905904165245981,
+        "exclusive_ms": 0.174496749878017
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.21609366664658106,
+        "exclusive_ms": 0.21609366664658106
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.03996508326054027,
+        "exclusive_ms": 0.03996508326054027
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 10.961236166470675,
+        "exclusive_ms": 0.06615624958309733
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 39.505968666617264,
+        "exclusive_ms": 3.0557881667997813
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 9.963423749847303,
+        "exclusive_ms": 9.963423749847303
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_sorted",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 43.934978999914165,
+    "p95_ms": 45.12916700059577,
+    "min_ms": 40.1989579995643,
+    "max_ms": 45.12916700059577,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 3270.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 11.851479499910056,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.42703474976709305,
+        "exclusive_ms": 0.04456941655917035
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 25.733791833166226,
+        "exclusive_ms": 25.733791833166226
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 12.046212000086598,
+        "exclusive_ms": 0.2852850001697031
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.405416583286448,
+        "exclusive_ms": 0.405416583286448
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.3824653332079227,
+        "exclusive_ms": 0.16804524974152932
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.2144200834663934,
+        "exclusive_ms": 0.2144200834663934
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.04671516649068508,
+        "exclusive_ms": 0.04671516649068508
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 12.954340333256672,
+        "exclusive_ms": 0.07567700011653263
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 43.62028475005294,
+        "exclusive_ms": 4.885437417139353
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 11.760926999916895,
+        "exclusive_ms": 11.760926999916895
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_offset250",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 47.205500500240305,
+    "p95_ms": 51.79275000045891,
+    "min_ms": 38.91391599972849,
+    "max_ms": 51.79275000045891,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 3705.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 14.032208499884291,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.4326596667093933,
+        "exclusive_ms": 0.04547916675316325
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 25.80482958334566,
+        "exclusive_ms": 25.80482958334566
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 14.722948000022976,
+        "exclusive_ms": 0.3230313333612382
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.4122221667633615,
+        "exclusive_ms": 0.4122221667633615
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.38718049995623005,
+        "exclusive_ms": 0.1723020833802972
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.21487841657593285,
+        "exclusive_ms": 0.21487841657593285
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.04660066656470008,
+        "exclusive_ms": 0.04660066656470008
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 15.645645833425684,
+        "exclusive_ms": 0.07781599992995325
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 46.3771109167889,
+        "exclusive_ms": 4.880034833452858
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 14.399916666661738,
+        "exclusive_ms": 14.399916666661738
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_count",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 38.044166499730636,
+    "p95_ms": 39.20266599925526,
+    "min_ms": 35.181958000066516,
+    "max_ms": 39.20266599925526,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 14.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 8.749270999942382,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.41821541663011885,
+        "exclusive_ms": 0.04363908343899917
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 25.646444500049864,
+        "exclusive_ms": 25.646444500049864
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 8.822746499769588,
+        "exclusive_ms": 0.09902066638763547
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.035374916554549905,
+        "exclusive_ms": 0.035374916554549905
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.37457633319111966,
+        "exclusive_ms": 0.16741641638873261
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.20715991680238707,
+        "exclusive_ms": 0.20715991680238707
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.0272188333383383,
+        "exclusive_ms": 0.0272188333383383
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 9.320895749927635,
+        "exclusive_ms": 0.04455891697337696
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 37.858784833360914,
+        "exclusive_ms": 2.8642257500450796
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 8.723725833381954,
+        "exclusive_ms": 8.723725833381954
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_fulltext",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 34.7516454999095,
+    "p95_ms": 38.0886670000109,
+    "min_ms": 30.824291999124398,
+    "max_ms": 38.0886670000109,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 83503.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 8.19645799947466,
+    "spans_mean": {
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 7.836045083346714,
+        "exclusive_ms": 0.27810733316376474
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 24.42647558329251,
+        "exclusive_ms": 24.42647558329251
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.8953090833377549,
+        "exclusive_ms": 0.8953090833377549
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 34.81502766688512,
+        "exclusive_ms": 1.4501840835995001
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 7.5579377501829486,
+        "exclusive_ms": 7.5579377501829486
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.15336458333573924,
+        "exclusive_ms": 0.15336458333573924
+      },
+      "search.fulltext": {
+        "count": 1,
+        "inclusive_ms": 8.78500341665737,
+        "exclusive_ms": 0.05364924997290169
+      }
+    },
+    "cache_hits_mean": 0,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "search_with_properties",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 42.798417000085465,
+    "p95_ms": 46.135208000123384,
+    "min_ms": 39.139124999564956,
+    "max_ms": 46.135208000123384,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 23078.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 11.227270500057784,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.4254373333575738,
+        "exclusive_ms": 0.045617750174642424
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 24.180538416582447,
+        "exclusive_ms": 24.180538416582447
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 11.163093750004313,
+        "exclusive_ms": 0.19075341651841882
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.4641838331735926,
+        "exclusive_ms": 0.4641838331735926
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.37981958318293135,
+        "exclusive_ms": 0.1640419166051288
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.21577766657780253,
+        "exclusive_ms": 0.21577766657780253
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.08313183343489072,
+        "exclusive_ms": 0.08313183343489072
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 12.128260333308086,
+        "exclusive_ms": 0.0755454167726081
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 42.95550008335643,
+        "exclusive_ms": 6.563569500031008
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 10.972340333485894,
+        "exclusive_ms": 10.972340333485894
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "summaries_25",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 139.07106300030136,
+    "p95_ms": 211.84279099998093,
+    "min_ms": 133.80187500024476,
+    "max_ms": 211.84279099998093,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 25917.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 27.641812499950902,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 27.754060999617042,
+        "exclusive_ms": 26.883623832948917
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 86.32139233335086,
+        "exclusive_ms": 0.07799616651027463
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 24.67497566650915,
+        "exclusive_ms": 24.67497566650915
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 30.28957250004775,
+        "exclusive_ms": 0.31316308316794067
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 1.7789999167234782,
+        "exclusive_ms": 1.7789999167234782
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.08913891641289713,
+        "exclusive_ms": 0.08913891641289713
+      },
+      "results.api_shape": {
+        "count": 25,
+        "inclusive_ms": 0.31604458331457863,
+        "exclusive_ms": 0.31604458331457863
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 139.58689966686202,
+        "exclusive_ms": 52.3898583328446
+      },
+      "resource.summaries": {
+        "count": 1,
+        "inclusive_ms": 29.688010499739903,
+        "exclusive_ms": 0.9827463330414806
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.254004334294829,
+        "exclusive_ms": 4.254004334294829
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 4.5475072500569995,
+        "exclusive_ms": 4.5475072500569995
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.10777083343782579,
+        "exclusive_ms": 0.10777083343782579
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 6.3242952500483325,
+        "exclusive_ms": 0.10145175027294802
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 148.71901750007055,
+        "exclusive_ms": 3.975726250473599
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 28.19740950015633,
+        "exclusive_ms": 28.19740950015633
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 89.95648966659549,
+        "exclusive_ms": 0.028600749904702145
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "summaries_100",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 195.0359790002949,
+    "p95_ms": 257.29983299970627,
+    "min_ms": 186.39708299997437,
+    "max_ms": 257.29983299970627,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 94074.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 60.29300050022357,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 23.330679915564662,
+        "exclusive_ms": 22.1209368324556
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 81.35946533320748,
+        "exclusive_ms": 0.08690991656597664
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 25.54078125005314,
+        "exclusive_ms": 25.54078125005314
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 75.76128466666887,
+        "exclusive_ms": 0.3587676664362031
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 10.898600583383692,
+        "exclusive_ms": 10.898600583383692
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.09414266651219805,
+        "exclusive_ms": 0.09414266651219805
+      },
+      "results.api_shape": {
+        "count": 100,
+        "inclusive_ms": 1.1940138350989098,
+        "exclusive_ms": 1.1940138350989098
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 122.81760649951441,
+        "exclusive_ms": 48.713042834985266
+      },
+      "resource.summaries": {
+        "count": 1,
+        "inclusive_ms": 87.32096516663053,
+        "exclusive_ms": 3.0150275829328166
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.28723908256264,
+        "exclusive_ms": 4.28723908256264
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 18.27944100015581,
+        "exclusive_ms": 18.27944100015581
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.28942716645966965,
+        "exclusive_ms": 0.28942716645966965
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 9.936256916868539,
+        "exclusive_ms": 0.10525675027868904
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 203.99109725015782,
+        "exclusive_ms": 4.473402915285381
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 64.50391641684898,
+        "exclusive_ms": 64.50391641684898
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 85.17250691663018,
+        "exclusive_ms": 0.030190750142840745
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "summaries_25_delivery",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 151.64516650020232,
+    "p95_ms": 207.50095899984444,
+    "min_ms": 138.87891600006697,
+    "max_ms": 207.50095899984444,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 22213.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 34.931959000459756,
+    "spans_mean": {
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 27.477638418758943,
+        "exclusive_ms": 26.60170758554159
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 81.18484366650591,
+        "exclusive_ms": 0.07972549982090034
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 30.337149250044604,
+        "exclusive_ms": 30.337149250044604
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 37.46419433355186,
+        "exclusive_ms": 0.3126629169400985
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 2.623073000070993,
+        "exclusive_ms": 2.623073000070993
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.08983691653459876,
+        "exclusive_ms": 0.08983691653459876
+      },
+      "results.api_shape": {
+        "count": 25,
+        "inclusive_ms": 0.6914923329380448,
+        "exclusive_ms": 0.6914923329380448
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 126.29942391633146,
+        "exclusive_ms": 48.14743533105078
+      },
+      "resource.summaries": {
+        "count": 1,
+        "inclusive_ms": 40.82162849992225,
+        "exclusive_ms": 1.0968648330162978
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.317766666796767,
+        "exclusive_ms": 4.317766666796767
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 7.692305583304915,
+        "exclusive_ms": 7.692305583304915
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.09072216698768898,
+        "exclusive_ms": 0.09072216698768898
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 5.6256599167075665,
+        "exclusive_ms": 0.10213891687271826
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 159.6188784167225,
+        "exclusive_ms": 2.4151254170495426
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 34.528458416540765,
+        "exclusive_ms": 34.528458416540765
+      },
+      "results.media_delivery": {
+        "count": 25,
+        "inclusive_ms": 0.4630558332792134,
+        "exclusive_ms": 0.4630558332792134
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 84.79970491650117,
+        "exclusive_ms": 0.02935774993299371
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "archive_children",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 36.04320849990472,
+    "p95_ms": 38.322417000017595,
+    "min_ms": 33.293707999291655,
+    "max_ms": 38.322417000017595,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 728.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 4.16491650048556,
+    "spans_mean": {
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.4490520000217657,
+        "exclusive_ms": 0.04355191678466023
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 25.043374999844065,
+        "exclusive_ms": 25.043374999844065
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 4.401576500034328,
+        "exclusive_ms": 0.09461825008353723
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.18114916679223825,
+        "exclusive_ms": 0.18114916679223825
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.40550008323710546,
+        "exclusive_ms": 0.20369449975987663
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.20180558347722885,
+        "exclusive_ms": 0.20180558347722885
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.03219783350990232,
+        "exclusive_ms": 0.03219783350990232
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 5.0918958334780955,
+        "exclusive_ms": 0.060118166629763437
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 35.74937175001954,
+        "exclusive_ms": 5.581903083187474
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 4.3069582499507915,
+        "exclusive_ms": 4.3069582499507915
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "baseline",
+    "subject": "rosenth",
+    "case": "hierarchical_list",
+    "mode": "instrumented",
+    "n": 12,
+    "median_ms": 36.74570850034797,
+    "p95_ms": 38.889499999640975,
+    "min_ms": 31.631457999537815,
+    "max_ms": 38.889499999640975,
+    "status": {
+      "200": 12
+    },
+    "bytes_median": 6698.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 3.933708499516797,
+    "spans_mean": {
+      "model.project": {
+        "count": 2,
+        "inclusive_ms": 1.4969062500161574,
+        "exclusive_ms": 0.8894340833194292
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 24.482538166845796,
+        "exclusive_ms": 24.482538166845796
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 4.237201583312829,
+        "exclusive_ms": 0.27254191672909656
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 3.5921526667455814,
+        "exclusive_ms": 3.5921526667455814
+      },
+      "cache.get": {
+        "count": 3,
+        "inclusive_ms": 2.553979000140316,
+        "exclusive_ms": 1.859492916992167
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 36.34962841670131,
+        "exclusive_ms": 0.8571041663193076
+      },
+      "redis.command": {
+        "count": 3,
+        "inclusive_ms": 0.4317048331661984,
+        "exclusive_ms": 0.4317048331661984
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 3.964659666583733,
+        "exclusive_ms": 3.964659666583733
+      }
+    },
+    "cache_hits_mean": 3,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "resource_media",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 95.14750000016647,
+    "p95_ms": 196.78379200013296,
+    "min_ms": 94.19812499982072,
+    "max_ms": 196.78379200013296,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 2017.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "summaries_25",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 110.24872899997717,
+    "p95_ms": 144.04004199968767,
+    "min_ms": 107.18145800001366,
+    "max_ms": 144.04004199968767,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 25917.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "datamodel_fasnacht",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 226.12158300034935,
+    "p95_ms": 270.7342499998049,
+    "min_ms": 216.28566700019292,
+    "max_ms": 270.7342499998049,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 62375.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "datamodel_shared",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 102.37070799985304,
+    "p95_ms": 104.51329199986503,
+    "min_ms": 96.06100000019069,
+    "max_ms": 104.51329199986503,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 15486.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "search_lucene_fields",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 25.670229000297695,
+    "p95_ms": 29.130792000614747,
+    "min_ms": 22.62637499916309,
+    "max_ms": 29.130792000614747,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 14191.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "resource_media",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 112.43777100025909,
+    "p95_ms": 145.2762500002791,
+    "min_ms": 107.31733400007215,
+    "max_ms": 145.2762500002791,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 2017.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "summaries_25",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 140.60960400001932,
+    "p95_ms": 189.7486249999929,
+    "min_ms": 129.6221249995142,
+    "max_ms": 189.7486249999929,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 25917.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "datamodel_fasnacht",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 241.9690830001855,
+    "p95_ms": 275.52933399965696,
+    "min_ms": 237.02687500008324,
+    "max_ms": 275.52933399965696,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 62119.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "datamodel_shared",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 120.18035450000752,
+    "p95_ms": 176.15920800017193,
+    "min_ms": 116.4496669998698,
+    "max_ms": 176.15920800017193,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 15390.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "search_lucene_fields",
+    "mode": "live_http",
+    "n": 6,
+    "median_ms": 41.816750000180036,
+    "p95_ms": 42.98766699957923,
+    "min_ms": 38.31575000003795,
+    "max_ms": 42.98766699957923,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 14191.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "resource_media",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 91.35056250033813,
+    "p95_ms": 123.03916699966067,
+    "min_ms": 90.33858299972053,
+    "max_ms": 123.03916699966067,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 2017.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "summaries_25",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 105.58343799948489,
+    "p95_ms": 138.38383399979648,
+    "min_ms": 103.67766699982894,
+    "max_ms": 138.38383399979648,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 25917.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "datamodel_fasnacht",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 225.87679150046824,
+    "p95_ms": 259.262917000342,
+    "min_ms": 216.02345799965406,
+    "max_ms": 259.262917000342,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 62375.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "datamodel_shared",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 103.40368749984918,
+    "p95_ms": 103.79754099994898,
+    "min_ms": 97.70241699970938,
+    "max_ms": 103.79754099994898,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 15486.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "search_lucene_fields",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 24.025750499731657,
+    "p95_ms": 24.39924999998766,
+    "min_ms": 22.423499999604246,
+    "max_ms": 24.39924999998766,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 14191.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "resource_media",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 111.57337500026188,
+    "p95_ms": 137.5201669998205,
+    "min_ms": 108.01587500009191,
+    "max_ms": 137.5201669998205,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 2017.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "summaries_25",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 135.91647950033803,
+    "p95_ms": 160.87504100050865,
+    "min_ms": 132.79770799999824,
+    "max_ms": 160.87504100050865,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 25917.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "datamodel_fasnacht",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 243.7712079999983,
+    "p95_ms": 291.92008300015004,
+    "min_ms": 241.0727920005229,
+    "max_ms": 291.92008300015004,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 62119.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "datamodel_shared",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 120.47531199959849,
+    "p95_ms": 147.70687500003987,
+    "min_ms": 118.975207999938,
+    "max_ms": 147.70687500003987,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 15390.0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "search_lucene_fields",
+    "mode": "inprocess",
+    "n": 6,
+    "median_ms": 42.89418749976903,
+    "p95_ms": 48.35320900019724,
+    "min_ms": 36.99883300032525,
+    "max_ms": 48.35320900019724,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 14191.0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "resource_media",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 95.04860400011239,
+    "p95_ms": 120.52533300084178,
+    "min_ms": 93.73087499989197,
+    "max_ms": 120.52533300084178,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 2017.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 10.559749999629275,
+    "spans_mean": {
+      "resource.read": {
+        "count": 1,
+        "inclusive_ms": 7.180229166957967,
+        "exclusive_ms": 0.17911066728023192
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 102.46572949972688,
+        "exclusive_ms": 0.3308204994330784
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 129.96107616633404,
+        "exclusive_ms": 51.58217433366493
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 9.799527833213991,
+        "exclusive_ms": 9.799527833213991
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.02088183327941806,
+        "exclusive_ms": 0.02088183327941806
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 11.186874832825803,
+        "exclusive_ms": 0.2748809994651917
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 81.23637483322455,
+        "exclusive_ms": 0.08139550012250159
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 0.820104333342897,
+        "exclusive_ms": 0.820104333342897
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 10.091889500017714,
+        "exclusive_ms": 10.091889500017714
+      },
+      "results.api_shape": {
+        "count": 1,
+        "inclusive_ms": 0.08738850025717208,
+        "exclusive_ms": 0.08738850025717208
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.506416499073869,
+        "exclusive_ms": 4.506416499073869
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.0916871666352866,
+        "exclusive_ms": 0.0916871666352866
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 85.04688166658525,
+        "exclusive_ms": 0.021534333427553065
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 5.551847333360153,
+        "exclusive_ms": 0.09753550042053878
+      },
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 24.19238849991719,
+        "exclusive_ms": 23.30507633344799
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 1.1753056666445143,
+        "exclusive_ms": 1.1753056666445143
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "summaries_25",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 109.6893335002278,
+    "p95_ms": 143.9535830004388,
+    "min_ms": 102.39841699967656,
+    "max_ms": 143.9535830004388,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 25917.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 16.21518800038757,
+    "spans_mean": {
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 114.4436875001702,
+        "exclusive_ms": 4.07719400057734
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 134.8285138345394,
+        "exclusive_ms": 49.031158330156664
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 5.55961116636657,
+        "exclusive_ms": 5.55961116636657
+      },
+      "resource.summaries": {
+        "count": 1,
+        "inclusive_ms": 17.971812333295627,
+        "exclusive_ms": 0.8411736666857905
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.09761800007860681,
+        "exclusive_ms": 0.09761800007860681
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 17.411027833835153,
+        "exclusive_ms": 0.2737641672562556
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 82.43888233315981,
+        "exclusive_ms": 0.0757851660940408
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 1.5569098331980058,
+        "exclusive_ms": 1.5569098331980058
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 15.580353833380892,
+        "exclusive_ms": 15.580353833380892
+      },
+      "results.api_shape": {
+        "count": 25,
+        "inclusive_ms": 0.30921583326441276,
+        "exclusive_ms": 0.30921583326441276
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.223721167363692,
+        "exclusive_ms": 4.223721167363692
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.0922431666670794,
+        "exclusive_ms": 0.0922431666670794
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 86.42823616658764,
+        "exclusive_ms": 0.02094383323007302
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 4.867250166777619,
+        "exclusive_ms": 0.09984016651287675
+      },
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 29.063675336298427,
+        "exclusive_ms": 28.211051169516093
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 4.393103999821808,
+        "exclusive_ms": 4.393103999821808
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "datamodel_fasnacht",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 229.99352099986936,
+    "p95_ms": 234.95941700002732,
+    "min_ms": 217.01691599992046,
+    "max_ms": 234.95941700002732,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 62375.0,
+    "query_count_median": 4.0,
+    "graphdb_http_median_ms": 120.17008399971019,
+    "spans_mean": {
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 228.45707616670552,
+        "exclusive_ms": 1.4142153331704321
+      },
+      "cache.get": {
+        "count": 33,
+        "inclusive_ms": 44.11350633275409,
+        "exclusive_ms": 23.06396399823522
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 5.324353999943317,
+        "exclusive_ms": 5.324353999943317
+      },
+      "cache.set": {
+        "count": 4,
+        "inclusive_ms": 1.9008954999056489,
+        "exclusive_ms": 1.4140959997348546
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.2050695002253633,
+        "exclusive_ms": 0.2050695002253633
+      },
+      "graphdb.query_decode": {
+        "count": 4,
+        "inclusive_ms": 132.43416666712923,
+        "exclusive_ms": 0.5607075004263606
+      },
+      "model.datamodel": {
+        "count": 1,
+        "inclusive_ms": 221.5134373333664,
+        "exclusive_ms": 7.28096699898136
+      },
+      "results.rdf_parse": {
+        "count": 2,
+        "inclusive_ms": 12.470972500371621,
+        "exclusive_ms": 12.470972500371621
+      },
+      "graphdb.http": {
+        "count": 4,
+        "inclusive_ms": 119.40248666633124,
+        "exclusive_ms": 119.40248666633124
+      },
+      "redis.command": {
+        "count": 37,
+        "inclusive_ms": 3.8432651666274373,
+        "exclusive_ms": 3.8432651666274373
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 3.5152708339107144,
+        "exclusive_ms": 3.5152708339107144
+      },
+      "model.list_context": {
+        "count": 1,
+        "inclusive_ms": 2.4647154999305108,
+        "exclusive_ms": 0.08378499933314743
+      },
+      "model.project": {
+        "count": 293,
+        "inclusive_ms": 13.368221335592049,
+        "exclusive_ms": 12.469645002511243
+      },
+      "results.construct_processor": {
+        "count": 2,
+        "inclusive_ms": 37.40827766690321,
+        "exclusive_ms": 37.40827766690321
+      }
+    },
+    "cache_hits_mean": 33,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "datamodel_shared",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 105.00868750023074,
+    "p95_ms": 108.24666600001365,
+    "min_ms": 95.5063749997862,
+    "max_ms": 108.24666600001365,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 15486.0,
+    "query_count_median": 4.0,
+    "graphdb_http_median_ms": 49.9067914997795,
+    "spans_mean": {
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 103.46822216630851,
+        "exclusive_ms": 0.9724376661021475
+      },
+      "cache.get": {
+        "count": 9,
+        "inclusive_ms": 11.24877033271332,
+        "exclusive_ms": 6.372181166019193
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 5.735243000193198,
+        "exclusive_ms": 5.735243000193198
+      },
+      "cache.set": {
+        "count": 4,
+        "inclusive_ms": 1.3673543335244176,
+        "exclusive_ms": 0.8627011673828141
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.0880624999505623,
+        "exclusive_ms": 0.0880624999505623
+      },
+      "graphdb.query_decode": {
+        "count": 4,
+        "inclusive_ms": 57.97199983347431,
+        "exclusive_ms": 0.559937333794854
+      },
+      "model.datamodel": {
+        "count": 1,
+        "inclusive_ms": 96.6724790000626,
+        "exclusive_ms": 3.3332568333814074
+      },
+      "results.rdf_parse": {
+        "count": 2,
+        "inclusive_ms": 7.590083333222235,
+        "exclusive_ms": 7.590083333222235
+      },
+      "graphdb.http": {
+        "count": 4,
+        "inclusive_ms": 49.82197916645722,
+        "exclusive_ms": 49.82197916645722
+      },
+      "redis.command": {
+        "count": 13,
+        "inclusive_ms": 1.6344446659483463,
+        "exclusive_ms": 1.6344446659483463
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 3.4042011666315375,
+        "exclusive_ms": 3.4042011666315375
+      },
+      "model.list_context": {
+        "count": 1,
+        "inclusive_ms": 2.4010624999088273,
+        "exclusive_ms": 0.023812666465043247
+      },
+      "model.project": {
+        "count": 76,
+        "inclusive_ms": 5.0211246672612715,
+        "exclusive_ms": 4.294027667431995
+      },
+      "results.construct_processor": {
+        "count": 2,
+        "inclusive_ms": 18.775853833327954,
+        "exclusive_ms": 18.775853833327954
+      }
+    },
+    "cache_hits_mean": 9,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "unknown",
+    "case": "search_lucene_fields",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 25.949561999823345,
+    "p95_ms": 32.39312500045344,
+    "min_ms": 21.574499999587715,
+    "max_ms": 32.39312500045344,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 14191.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 5.246458500096196,
+    "spans_mean": {
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 26.67923616657693,
+        "exclusive_ms": 12.793409499863628
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.4568613332291231,
+        "exclusive_ms": 0.2280489998156554
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 6.120146166722407,
+        "exclusive_ms": 6.120146166722407
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.08828466661725543,
+        "exclusive_ms": 0.08828466661725543
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 5.694548333243195,
+        "exclusive_ms": 0.1990903332019419
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 7.677395833373642,
+        "exclusive_ms": 0.12459050003599259
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 5.495458000041253,
+        "exclusive_ms": 5.495458000041253
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.22881233341346766,
+        "exclusive_ms": 0.22881233341346766
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 1.3466179999947296,
+        "exclusive_ms": 1.3466179999947296
+      },
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.5116390000997247,
+        "exclusive_ms": 0.05477766687060163
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "resource_media",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 122.09831249947456,
+    "p95_ms": 176.2416250003298,
+    "min_ms": 112.4208750006801,
+    "max_ms": 176.2416250003298,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 2017.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 12.0699380008773,
+    "spans_mean": {
+      "resource.read": {
+        "count": 1,
+        "inclusive_ms": 8.376166833083213,
+        "exclusive_ms": 0.20199300009456542
+      },
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 131.59980549971806,
+        "exclusive_ms": 0.37754100018598064
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 143.2562576675688,
+        "exclusive_ms": 53.00522083098258
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 26.121618166598637,
+        "exclusive_ms": 26.121618166598637
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.02265283319502487,
+        "exclusive_ms": 0.02265283319502487
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 13.075180499830216,
+        "exclusive_ms": 0.32817333294588025
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 93.01072883332988,
+        "exclusive_ms": 0.08963183351321884
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 0.7078540002112277,
+        "exclusive_ms": 0.7078540002112277
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 12.039153166673108,
+        "exclusive_ms": 12.039153166673108
+      },
+      "results.api_shape": {
+        "count": 1,
+        "inclusive_ms": 0.09590983321080178,
+        "exclusive_ms": 0.09590983321080178
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.643737332874783,
+        "exclusive_ms": 4.643737332874783
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.09105550028228511,
+        "exclusive_ms": 0.09105550028228511
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 96.6059168334444,
+        "exclusive_ms": 0.03063950028566372
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 6.356548333163421,
+        "exclusive_ms": 0.10243033269337805
+      },
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 33.410333336178155,
+        "exclusive_ms": 32.48211116927754
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 1.2600836666933901,
+        "exclusive_ms": 1.2600836666933901
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "summaries_25",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 139.59312499946464,
+    "p95_ms": 170.58387500037497,
+    "min_ms": 136.89570899987302,
+    "max_ms": 170.58387500037497,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 25917.0,
+    "query_count_median": 3.0,
+    "graphdb_http_median_ms": 27.699312000095233,
+    "spans_mean": {
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 144.84822916665507,
+        "exclusive_ms": 4.103262832510761
+      },
+      "cache.get": {
+        "count": 42,
+        "inclusive_ms": 120.50929166662172,
+        "exclusive_ms": 47.598606161803524
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 30.617027666721697,
+        "exclusive_ms": 30.617027666721697
+      },
+      "resource.summaries": {
+        "count": 1,
+        "inclusive_ms": 29.895875166554713,
+        "exclusive_ms": 0.8609301665577126
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.10064550042443443,
+        "exclusive_ms": 0.10064550042443443
+      },
+      "graphdb.query_decode": {
+        "count": 3,
+        "inclusive_ms": 30.29920166636657,
+        "exclusive_ms": 0.2943749999152108
+      },
+      "model.datamodel": {
+        "count": 2,
+        "inclusive_ms": 76.2148958334971,
+        "exclusive_ms": 0.07539666709514374
+      },
+      "results.rdf_parse": {
+        "count": 1,
+        "inclusive_ms": 1.834500166599658,
+        "exclusive_ms": 1.834500166599658
+      },
+      "graphdb.http": {
+        "count": 3,
+        "inclusive_ms": 28.1703264998517,
+        "exclusive_ms": 28.1703264998517
+      },
+      "results.api_shape": {
+        "count": 25,
+        "inclusive_ms": 0.3159941667642367,
+        "exclusive_ms": 0.3159941667642367
+      },
+      "redis.command": {
+        "count": 42,
+        "inclusive_ms": 4.2635696657574345,
+        "exclusive_ms": 4.2635696657574345
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 0.08649333358334843,
+        "exclusive_ms": 0.08649333358334843
+      },
+      "factory.init": {
+        "count": 1,
+        "inclusive_ms": 79.81542383367923,
+        "exclusive_ms": 0.028104333371932928
+      },
+      "model.list_context": {
+        "count": 3,
+        "inclusive_ms": 6.129763833390219,
+        "exclusive_ms": 0.09429116668494923
+      },
+      "model.project": {
+        "count": 524,
+        "inclusive_ms": 22.54140050551238,
+        "exclusive_ms": 21.721518005657952
+      },
+      "results.construct_processor": {
+        "count": 1,
+        "inclusive_ms": 4.6831878333553805,
+        "exclusive_ms": 4.6831878333553805
+      }
+    },
+    "cache_hits_mean": 42,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "datamodel_fasnacht",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 242.41145799987862,
+    "p95_ms": 276.97354200063273,
+    "min_ms": 238.0475830004798,
+    "max_ms": 276.97354200063273,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 62119.0,
+    "query_count_median": 4.0,
+    "graphdb_http_median_ms": 118.80345850022422,
+    "spans_mean": {
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 246.90248633351075,
+        "exclusive_ms": 1.4063471668729715
+      },
+      "cache.get": {
+        "count": 33,
+        "inclusive_ms": 43.35077066631735,
+        "exclusive_ms": 23.20184317022722
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 23.682284833436523,
+        "exclusive_ms": 23.682284833436523
+      },
+      "cache.set": {
+        "count": 4,
+        "inclusive_ms": 1.9038748334120708,
+        "exclusive_ms": 1.4202634999188983
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.1971668334590504,
+        "exclusive_ms": 0.1971668334590504
+      },
+      "graphdb.query_decode": {
+        "count": 4,
+        "inclusive_ms": 131.42131266704382,
+        "exclusive_ms": 0.5040488341971164
+      },
+      "model.datamodel": {
+        "count": 1,
+        "inclusive_ms": 221.6166874997422,
+        "exclusive_ms": 6.850548499793756
+      },
+      "results.rdf_parse": {
+        "count": 2,
+        "inclusive_ms": 11.646437333335294,
+        "exclusive_ms": 11.646437333335294
+      },
+      "graphdb.http": {
+        "count": 4,
+        "inclusive_ms": 119.27082649951141,
+        "exclusive_ms": 119.27082649951141
+      },
+      "redis.command": {
+        "count": 37,
+        "inclusive_ms": 3.948681167609417,
+        "exclusive_ms": 3.948681167609417
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 3.1823125001816757,
+        "exclusive_ms": 3.1823125001816757
+      },
+      "model.list_context": {
+        "count": 1,
+        "inclusive_ms": 2.415291832979468,
+        "exclusive_ms": 0.07649333262331008
+      },
+      "model.project": {
+        "count": 293,
+        "inclusive_ms": 12.498913662208603,
+        "exclusive_ms": 11.634468995149897
+      },
+      "results.construct_processor": {
+        "count": 2,
+        "inclusive_ms": 39.88076366719421,
+        "exclusive_ms": 39.88076366719421
+      }
+    },
+    "cache_hits_mean": 33,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "datamodel_shared",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 121.54383299957772,
+    "p95_ms": 159.60262499993405,
+    "min_ms": 113.80229199949099,
+    "max_ms": 159.60262499993405,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 15390.0,
+    "query_count_median": 4.0,
+    "graphdb_http_median_ms": 49.73645800100712,
+    "spans_mean": {
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 126.54827783323223,
+        "exclusive_ms": 0.8444930003861373
+      },
+      "cache.get": {
+        "count": 9,
+        "inclusive_ms": 11.428264166170266,
+        "exclusive_ms": 6.464770500770101
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 31.111777999740298,
+        "exclusive_ms": 31.111777999740298
+      },
+      "cache.set": {
+        "count": 4,
+        "inclusive_ms": 1.2881044995083357,
+        "exclusive_ms": 0.794868166243153
+      },
+      "results.json": {
+        "count": 1,
+        "inclusive_ms": 0.0844928331389383,
+        "exclusive_ms": 0.0844928331389383
+      },
+      "graphdb.query_decode": {
+        "count": 4,
+        "inclusive_ms": 56.93546500015145,
+        "exclusive_ms": 0.4850001669183257
+      },
+      "model.datamodel": {
+        "count": 1,
+        "inclusive_ms": 94.50751399996686,
+        "exclusive_ms": 3.1627218349967734
+      },
+      "results.rdf_parse": {
+        "count": 2,
+        "inclusive_ms": 6.4606595002866625,
+        "exclusive_ms": 6.4606595002866625
+      },
+      "graphdb.http": {
+        "count": 4,
+        "inclusive_ms": 49.98980533294647,
+        "exclusive_ms": 49.98980533294647
+      },
+      "redis.command": {
+        "count": 13,
+        "inclusive_ms": 1.5619236673956038,
+        "exclusive_ms": 1.5619236673956038
+      },
+      "results.query_processor": {
+        "count": 2,
+        "inclusive_ms": 3.160201500122639,
+        "exclusive_ms": 3.160201500122639
+      },
+      "model.list_context": {
+        "count": 1,
+        "inclusive_ms": 1.989680499870398,
+        "exclusive_ms": 0.019610999819027104
+      },
+      "model.project": {
+        "count": 76,
+        "inclusive_ms": 4.599903830542947,
+        "exclusive_ms": 3.958827497172024
+      },
+      "results.construct_processor": {
+        "count": 2,
+        "inclusive_ms": 18.449124833296082,
+        "exclusive_ms": 18.449124833296082
+      }
+    },
+    "cache_hits_mean": 9,
+    "cache_misses_mean": 0
+  },
+  {
+    "run": "supplement",
+    "subject": "rosenth",
+    "case": "search_lucene_fields",
+    "mode": "instrumented",
+    "n": 6,
+    "median_ms": 41.33924999996452,
+    "p95_ms": 43.88587500034191,
+    "min_ms": 36.92516599949158,
+    "max_ms": 43.88587500034191,
+    "status": {
+      "200": 6
+    },
+    "bytes_median": 14191.0,
+    "query_count_median": 1.0,
+    "graphdb_http_median_ms": 5.666875500082824,
+    "spans_mean": {
+      "api.request": {
+        "count": 1,
+        "inclusive_ms": 41.063638666704115,
+        "exclusive_ms": 9.440472166716063
+      },
+      "cache.get": {
+        "count": 1,
+        "inclusive_ms": 0.34819433312804904,
+        "exclusive_ms": 0.14508316644423758
+      },
+      "auth.connection": {
+        "count": 1,
+        "inclusive_ms": 23.58031266658145,
+        "exclusive_ms": 23.58031266658145
+      },
+      "results.json": {
+        "count": 2,
+        "inclusive_ms": 0.06493049992665571,
+        "exclusive_ms": 0.06493049992665571
+      },
+      "graphdb.query_decode": {
+        "count": 1,
+        "inclusive_ms": 6.631451500197727,
+        "exclusive_ms": 0.13920150043607768
+      },
+      "search": {
+        "count": 1,
+        "inclusive_ms": 7.9779233334799455,
+        "exclusive_ms": 0.08863850007401197
+      },
+      "graphdb.http": {
+        "count": 1,
+        "inclusive_ms": 6.49224999976165,
+        "exclusive_ms": 6.49224999976165
+      },
+      "redis.command": {
+        "count": 1,
+        "inclusive_ms": 0.20311116668381146,
+        "exclusive_ms": 0.20311116668381146
+      },
+      "results.query_processor": {
+        "count": 1,
+        "inclusive_ms": 0.8726738333280082,
+        "exclusive_ms": 0.8726738333280082
+      },
+      "model.project": {
+        "count": 1,
+        "inclusive_ms": 0.3851594998801981,
+        "exclusive_ms": 0.03696516675214904
+      }
+    },
+    "cache_hits_mean": 1,
+    "cache_misses_mean": 0
+  }
+]

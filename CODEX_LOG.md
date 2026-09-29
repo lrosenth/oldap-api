@@ -1,3 +1,19 @@
+### Update 2026-09-29 23:47
+- Decisions: Activate measured oldaplib cache/project-read improvements locally, preserving API contracts and GraphDB data; no production deployment or published release.
+- Implementation: Installed unpublished optimized oldaplib wheel still versioned 0.7.22, backed up previous package/dist-info, and restarted native API through the existing writer gate. Added exact saved-catalog replay, anonymous process bootstrap outside timings, source hashes, and before/after JSON/CSV/report.
+- Results: 1,188 successful timed reads; public medium 515 to 97 ms, 25 summaries 758 to 112 ms, 100 summaries 548 to 148 ms. Redis calls 563 to 42 per resource. Both 34-case content comparison sets match; explicit named-graph fingerprints unchanged.
+- Open: Mixed-user load tests and later scale/Enterprise/framework decisions. Publish a normal versioned library release separately.
+- Risks/Assumptions: Warm, serial, small local dataset; both optimizations measured together. Standard API restart cleared only the object cache before warmup. Redis pools are bounded to 32 connections per process/configuration. See doc/performance/2026-09-29-optimization.md for limits and rollback identity.
+- Validation: 39 library/isolated writer-store tests, 10 API tests, and four benchmark tests pass; no destructive GraphDB test fixtures.
+
+### Update 2026-09-29 23:30
+- Decisions: Execute read-only performance steps 1–2 against the existing local deployment; unknown is the primary subject and authorized rosenth is a separate administrator comparison.
+- Implementation: Added a bounded sequential benchmark and offline guard/timing tests under tools/, with actual runtime inventory, explicit named-graph fingerprints, live HTTP and isolated Flask measurements, nested library/transport spans, and separate CPU profiles. Documented reproduction and measurement limits in doc/performance/README.md.
+- Results: Completed 1,188 timed HTTP-200 reads across baseline/supplement plus 34 matching live/isolated content comparisons. Explicit named-graph fingerprints unchanged. Resource reads show 563 cache hits, 524 Project.read calls and only three GraphDB queries; refined attribution identifies repeated Redis connection setup as the largest bucket. See doc/performance/2026-09-29-baseline.md and its CSV/JSON aggregates.
+- Open: Prioritize Redis pool reuse and request-scoped model/project reuse in step 3; concurrency, data growth, Enterprise and FastAPI remain unmeasured.
+- Validation: Four offline mutation-guard/method-wrapper/timing-accounting tests pass; no destructive integration suite.
+- Risks/Assumptions: Shared warm caches may be populated normally; no flush, service restart, GraphDB mutation or installed library changes. GraphDB HTTP time includes transport and engine waiting/evaluation. Local Fasnacht data are not representative of HMB scale.
+
 ### Update 2026-09-27 23:08
 - Decisions: Preserve existing deployments; add trusted server-owned mail destinations and opt-in SALSAH installation.
 - Implementation: Added server-owned frontend mail routing with exact Origin selection, internal durable job IDs, fail-closed validation, and legacy fallback. See doc/frontend-mail-routing.md.
