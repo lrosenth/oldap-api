@@ -1,3 +1,25 @@
+### Update 2026-09-30 01:15
+- Decisions: Keep the native laptop runtime unchanged and validate multi-worker recovery through the production-style Docker container boundary.
+- Implementation: Linked Docker worker configuration/recovery documentation in oldap-setup and updated project context. Real current API sources are exercised by isolated test-only injection routes in setup; no production routes or recovery-library logic changed.
+- Validation: Source-verified two/four-worker Docker recovery passes worker crash/replacement, durable blocking, container fencing, data preservation/rollback, fresh API startup and post-finish commit. Setup records 34 passing tests, syntax checks and JSON evidence.
+- Open: Build/rehearse the release image and measure on the eight-vCPU Docker VM. Native single-process recovery remains intentionally unchanged.
+- Risks/Assumptions: Synthetic fixture transactions test recovery infrastructure, not every resource business rule. No VM deployment or shared-data modification.
+
+### Update 2026-09-30 00:50
+- Decisions: Preserve shared cache across worker lifecycle, initialize process-local prefixes before readiness, and compare isolated read-only Gunicorn 1/2/4-worker deployments without changing the native service.
+- Implementation: Added writer-gated explicit clear-object-cache CLI, race-safe directory creation, startup tests, alternate benchmark port/multi-PID metrics, supervised temporary service and read-only test hook. Updated maintenance/runtime context and reports with JSON/CSV/source hashes.
+- Results: 2,830 matching HTTP-200 reads; at 16 readers, 1/2/4 workers achieve 14.46/18.26/19.35 requests/s and p95 783/443/306 ms. All seven tested workers pass cold bearer-token reads; RDF fingerprints unchanged. Test port released; native API/GraphDB process identities preserved.
+- Validation: 22 offline API tests, 12 read-tool tests and three isolated-Redis restart tests pass. Serial four-worker preflight lacked listener coverage and stopped safely; parallel preflight fixed coverage and the four-worker stage was rerun. Restart fixture import requires source PYTHONPATH; no library installation changed.
+- Open: Native writer recovery assumes one foreground process. Design/test process-group supervision, fencing and crash recovery before write-enabled multi-worker deployment; then compare 2/4 workers on the eight-vCPU VM with representative data.
+- Risks/Assumptions: Short closed-loop hot-read stages; fixed four threads per worker and no GraphDB queue attribution. Startup now requires GraphDB/anonymous access; restart no longer invalidates cache. Explicit invalidation needs drained readers/writers and was not run on shared services. Existing native service loads changes only at a future restart.
+
+### Update 2026-09-30 00:27
+- Decisions: Measure mixed anonymous readers against the existing native service; prioritize a controlled multi-process API experiment from the results.
+- Implementation: Added bounded live HTTP ramp/recovery harness, independent sessions, normalized content checks, read-only transport guard, process CPU/RSS sampling and explicit RDF fingerprint preservation. Added report, aggregate JSON/CSV and reproduction documentation.
+- Results: 2,083 matching HTTP-200 reads across 1/2/4/8/16/1 readers; at 16, 14.19 requests/s, 1,074 ms request p95, API 98.1%/GraphDB 59.6%/Redis 1.4% of one core. GraphDB fingerprint unchanged; nine offline benchmark tests pass.
+- Open: Remove unconditional per-worker cache clearing through an explicit invalidation lifecycle; verify cold-worker prefixes; compare Gunicorn 1/2/4 workers and then remaining model/serializer CPU work.
+- Risks/Assumptions: Fixed hot reference data, closed-loop think time, one short ramp, anonymous access only, no GraphDB queue attribution or HMB sizing. Recovery p95 differs from initial p95. No application/library code, service configuration, deployment or data changed.
+
 ### Update 2026-09-29 23:47
 - Decisions: Activate measured oldaplib cache/project-read improvements locally, preserving API contracts and GraphDB data; no production deployment or published release.
 - Implementation: Installed unpublished optimized oldaplib wheel still versioned 0.7.22, backed up previous package/dist-info, and restarted native API through the existing writer gate. Added exact saved-catalog replay, anonymous process bootstrap outside timings, source hashes, and before/after JSON/CSV/report.

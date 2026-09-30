@@ -1,8 +1,9 @@
 """Sequential read-only OLDAP baseline and isolated request profiling.
 
 Run with the native API's Python environment from the repository root. This
-diagnostic deliberately uses factory(), not create_app(): the latter flushes
-the shared cache. No service is restarted. Only existing data are selected.
+diagnostic uses factory() to isolate request profiling from normal process
+startup and prefix bootstrap. No service is restarted or cache cleared. Only
+existing data are selected.
 Tokens and response bodies are never written to measurement artifacts.
 """
 
@@ -100,7 +101,7 @@ class Recorder:
         setattr(owner, attribute, replacement)
 
 
-def install_transport_guard(recorder):
+def install_transport_guard(recorder, *, api_url=API):
     """Allow only local query/metadata and explicitly catalogued API reads.
 
     Validate SPARQL once per exact query outside measured transport time. The
@@ -146,7 +147,7 @@ def install_transport_guard(recorder):
         elif (
             parsed.scheme == "http"
             and parsed.hostname == "localhost"
-            and parsed.port == 8000
+            and parsed.port == urlsplit(api_url).port
         ):
             allowed_get = parsed.path in {
                 "/health",

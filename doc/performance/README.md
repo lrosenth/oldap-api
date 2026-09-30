@@ -1,5 +1,11 @@
 # Interactive read performance
 
+The separate Gunicorn 1/2/4-worker comparison and startup changes are in
+[2026-09-30-workers.md](2026-09-30-workers.md).
+
+The mixed-reader concurrency results and next worker experiment are in
+[2026-09-30-load.md](2026-09-30-load.md).
+
 The implemented optimizations and before/after results are in
 [2026-09-29-optimization.md](2026-09-29-optimization.md).
 
@@ -121,3 +127,123 @@ The harness records installed library source hashes, since unpublished local
 wheels can retain a version number. After a fresh native API restart it performs
 one ordinary anonymous login outside timings to populate process-local project
 prefixes. The bootstrap creates no refresh session and writes no RDF data.
+
+## Mixed-user live load test
+
+`tools/read_load.py` replays the saved reference catalog through the running API.
+It does not construct a Flask app, restart services, clear caches, or change RDF.
+Use the same native interpreter as above:
+
+```sh
+python tools/read_load.py --catalog /absolute/path/to/cases.json --output /absolute/path/to/new-load-run --seconds 60
+python -m unittest discover -s tools -p 'test_read*.py'
+```
+
+Stages use 1, 2, 4, 8, 16 anonymous users, followed by one recovery user. Each
+user has an independent HTTP session and executes sequential workflows with
+seeded 0.5–1.5 second think times. The repeating workflow mix is 30% sorted
+search plus 25 summaries, 30% resource opening, 20% archive navigation (children
+plus linked resource), 10% structured full-text search, 5% datamodel retrieval,
+and 5% hierarchical-list retrieval. Cases replay fixed reference resources;
+search results are not dynamically fed into the next request. This gives a
+reproducible hot-read workload, not a random sample of all content or UI traffic.
+Login and one preflight of each case occur outside measured stages.
+
+HTTP duration includes reading the response body but excludes JSON parsing and
+content hashing. Workflow duration includes those client checks but excludes
+think time. All responses must match preflight content after unordered-array
+and capability normalization. Ordering is not checked. Process CPU is derived
+from accumulated `ps` CPU time (100% = one core); RSS is sampled each second.
+Throughput uses the whole stage including startup, drain and sampler completion,
+so it is slightly conservative. Stages are separated by three seconds.
+
+A response error/content mismatch or any request exceeding five seconds stops
+new work; in-flight reads drain with bounded client timeouts. A stage p95 above
+two seconds prevents further ramping. Neither threshold is a product SLA. These
+limits protect the shared local service, but client timeouts do not cancel an
+already executing server query. Explicit named-graph fingerprints are compared
+before/after in a `finally` block. Artifacts include stage requests, workflows,
+process samples and summary; credentials and response bodies are not persisted.
+
+The ramp is closed-loop: slower responses reduce the offered request rate.
+Do not interpret virtual users as simultaneous requests, maximum supported
+users, or production capacity. No claim about larger datasets, cold caches,
+WAN/media transfer, multi-process deployment, or Enterprise follows from it.
+
+## Separate Gunicorn worker experiment
+
+`tools/worker_read_experiment.py` supervises temporary Gunicorn instances on
+`127.0.0.1:8100`, comparing 1, 2 and 4 `gthread` workers with four threads each.
+Run with the native API interpreter and the saved catalog:
+
+```sh
+python tools/worker_read_experiment.py --catalog /absolute/path/to/cases.json --output /absolute/path/to/new-worker-run --seconds 30
+```
+
+It loads the local private `.env.local` and the native loopback database/cache
+settings. The existing API on 8000 remains running and is sampled as a peer.
+The output directory must be new. Each worker must serve all eight workload
+cases with a token issued outside the test instance, before any login reaches
+that instance. Concurrent preflight clients ensure observed coverage rather than
+assuming fair distribution of serial connections. This also warms every worker. A test-only Gunicorn hook rejects
+all non-catalog HTTP operations and adds a worker PID header. It must never be
+used as the production configuration. No `--preload` is used: application
+initialization occurs independently in each worker.
+
+The same workload runs for 1, 8, 16 and 1 recovery reader per configuration.
+Every stage uses the chosen duration; stop rules from the ordinary load test
+still apply. The supervisor terminates only its own Gunicorn process group,
+waits for shutdown, and checks port release before moving to the next worker
+count. Explicit RDF fingerprints bracket each load run and the whole experiment.
+`--workers 4` can restrict a fresh run to one selected configuration.
+Raw logs are private and no token or response body is deliberately persisted.
+
+`read_load.py` also accepts `--api-url http://localhost:PORT` and `--users 1 8 16 1`.
+For Gunicorn it records every listener PID, individual process CPU/RSS and
+aggregate `api_total` CPU (master plus workers). Worker replacement during a
+stage fails sampling rather than silently omitting the new worker. Per-response
+worker identities allow inspection of keepalive distribution. Changing worker
+count also changes total thread capacity; this measures a deployment choice,
+not an isolated proof about the GIL. Closed-loop think time limits offered load.
+
+## Worker startup and explicit cache invalidation
+
+`create_app()` now preserves the shared object cache. Before readiness it uses
+an ordinary anonymous library Connection to populate process-local project
+prefixes, then discards that connection/token. Existing bearer tokens can
+therefore reach any freshly initialized worker. Startup requires GraphDB and
+the anonymous principal to be available. Authentication and mutable model
+instances remain request-local; no user Connection is retained in app state.
+
+An application restart is **no longer a cache invalidation operation**. When a
+schema/model deployment or out-of-band GraphDB edit requires full invalidation:
+
+1. Quiesce all API readers and writers using that cache, and prevent automatic
+   restart/traffic until maintenance completes. The writer gate alone does not
+   stop readers from repopulating stale cache entries.
+2. In the exact reviewed runtime environment (database/cache/writer URLs and
+   secrets), run `python -m flask --app oldap_api:create_app clear-object-cache`.
+   This explicit command holds the existing writer gate with zero wait, refuses
+   occupied/uncertain ownership, and relies on the library's cache/writer Redis
+   separation check. It clears the object cache only; do not use Redis FLUSHALL.
+3. Start workers and warm/verify reads. All processes should use matching library
+   and model versions. Concurrent mixed-version rollout was not validated here.
+
+The command is deliberately not run by the read benchmark. Existing selective
+cache invalidation in normal writes is unchanged. Creating upload/tmp directories
+is now race-safe when multiple processes start together.
+
+The native launchd recovery operator explicitly requires foreground services
+without child processes. These read-only Gunicorn experiments are outside its
+writer inventory. They are not authorization to replace the native writer
+service with Gunicorn: production multi-process write support requires its own
+supervision/fencing/recovery lifecycle review and tests.
+
+## Docker deployment follow-up
+
+`oldap-setup` now exposes worker/thread counts through Ansible and has an isolated
+real-API crash/replacement/recovery probe for two and four workers. Its existing
+Docker recovery removes whole writer containers and therefore covers their worker
+processes. The native macOS single-process restriction is separate and unchanged.
+See sibling `oldap-setup/docs/api-workers.md` for configuration, maintenance and
+acceptance limits. This does not automatically deploy the startup changes.

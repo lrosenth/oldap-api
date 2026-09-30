@@ -45,3 +45,14 @@ Fast user switching also leaves applications in the previous login session runni
 Implementation: `development_services.py`, shared inventory validation in
 `restart_api.py`. User-facing usage and scope are documented directly in Makefile.
 See `development-services-verification.json` for the local stop/start acceptance.
+
+## Worker startup and cache maintenance
+
+API process startup preserves the shared object cache and initializes project
+prefixes before accepting requests. Restarting a worker no longer invalidates
+Redis objects. For schema deployments or out-of-band database edits requiring
+full cache invalidation, quiesce all clients/workers and use the explicit
+`clear-object-cache` Flask command in the reviewed runtime environment. See
+[the maintenance procedure](performance/README.md#worker-startup-and-explicit-cache-invalidation).
+The native launchd writer-recovery topology still requires a single foreground
+API process; temporary read-only Gunicorn tests do not change that contract.

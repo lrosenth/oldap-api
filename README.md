@@ -216,3 +216,10 @@ docker exec \
 A successful result means the SMTP server accepted the message for delivery;
 confirm final delivery in the recipient inbox or spam folder. Avoid shell debug
 tracing while handling mail credentials.
+
+### API worker startup
+
+Workers initialize project prefixes before readiness and preserve the shared
+object cache. Restart is no longer cache invalidation. See the
+[explicit cache maintenance and worker experiment procedure](doc/performance/README.md#worker-startup-and-explicit-cache-invalidation)
+before schema deployments or changing the supervised process topology.

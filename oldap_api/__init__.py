@@ -1,13 +1,27 @@
+"""Build a process-local API without invalidating shared object caches."""
+
 import os
 from pathlib import Path
 from flask_cors import CORS
 import logging
+import click
+
+from oldaplib.src.connection import Connection
+from oldaplib.src.mutation_gate import mutation_gate
 
 from oldap_api.factory import factory
 from oldap_api.redis_config import validate_redis_database_separation
 from oldaplib.src.cachesingleton import CacheSingletonRedis
 
 def create_app():
+    """Initialize routes, configuration and project prefixes before serving.
+
+    Each process loads prefixes through the library's normal anonymous read
+    connection. The connection/token is discarded; request authentication keeps
+    creating independent connections. GraphDB and anonymous access must be
+    available at startup. Shared cache invalidation is an explicit CLI action,
+    never a side effect of worker startup or replacement.
+    """
     app = factory()
 
     cfg = os.getenv("APP_ENV", "Prod")
@@ -16,11 +30,11 @@ def create_app():
 
     uploaddir = Path(app.config['UPLOAD_FOLDER'])
     if not uploaddir.exists():
-        uploaddir.mkdir()
+        uploaddir.mkdir(parents=True, exist_ok=True)
 
     tmpdir = Path(app.config['TMP_FOLDER'])
     if not tmpdir.exists():
-        tmpdir.mkdir()
+        tmpdir.mkdir(parents=True, exist_ok=True)
 
     level_name = app.config.get("LOG_LEVEL", "INFO")
     level = logging.getLevelName(level_name)
@@ -55,8 +69,21 @@ def create_app():
          supports_credentials=bool(allowed_origins),
          expose_headers=["Content-Disposition"])
 
-    cache = CacheSingletonRedis()
-    cache.clear()
+    # Token-based connections skip prefix discovery. Bootstrap before accepting
+    # requests so a cold worker can serve a token issued by another process.
+    Connection(context_name="DEFAULT")
 
-    app.logger.info(f"Redis cache cleared.")
+    @app.cli.command("clear-object-cache")
+    def clear_object_cache():
+        """Invalidate only the object cache during a quiescent maintenance window.
+
+        Refuse an occupied/uncertain writer gate. CacheSingletonRedis also
+        checks separation from the writer database immediately before clearing.
+        Readers must be drained by the operator to prevent stale repopulation.
+        """
+        with mutation_gate(wait_seconds=0):
+            CacheSingletonRedis().clear()
+        click.echo("OLDAP object cache cleared; writer coordination preserved.")
+
+    app.logger.info("Project context initialized; shared object cache preserved.")
     return app
