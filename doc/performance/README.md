@@ -1,5 +1,11 @@
 # Interactive read performance
 
+The constructor-metadata optimization and controlled local comparison are in
+[2026-09-30-serializer.md](2026-09-30-serializer.md).
+
+The deployed Docker VM acceptance and read measurements are in
+[2026-09-30-vm.md](2026-09-30-vm.md).
+
 The separate Gunicorn 1/2/4-worker comparison and startup changes are in
 [2026-09-30-workers.md](2026-09-30-workers.md).
 
@@ -128,6 +134,16 @@ wheels can retain a version number. After a fresh native API restart it performs
 one ordinary anonymous login outside timings to populate process-local project
 prefixes. The bootstrap creates no refresh session and writes no RDF data.
 
+For a source-tree comparison, select the intended library through `PYTHONPATH`
+and use `--mode inprocess --mode instrumented` to exclude timings from the
+separately installed native API. Modes always execute in the standard order,
+with instrumentation last. Inventory records the imported source version/path
+and serializer hash separately from installed package-distribution metadata.
+`--verify-only` records normalized response digests for cross-run comparisons;
+tokens and complete payloads remain in memory. The temporary Gunicorn read
+experiment also verifies a serializer-source hash returned by each test worker,
+so an accidentally imported installed library cannot pass source acceptance.
+
 ## Mixed-user live load test
 
 `tools/read_load.py` replays the saved reference catalog through the running API.
@@ -169,6 +185,47 @@ The ramp is closed-loop: slower responses reduce the offered request rate.
 Do not interpret virtual users as simultaneous requests, maximum supported
 users, or production capacity. No claim about larger datasets, cold caches,
 WAN/media transfer, multi-process deployment, or Enterprise follows from it.
+
+## Existing Docker VM measurement
+
+`tools/read_vm.py` runs on the Linux Docker host with Python 3 and `requests`.
+Copy it together with `read_load.py`, `read_performance.py` and the private
+reference `cases.json` to a temporary directory accessible only to the operator.
+No Poetry environment, application import, dependency installation, container
+restart or configuration change is needed. Run:
+
+```sh
+python3 read_vm.py --catalog cases.json --output results --seconds 30
+```
+
+The script inspects the existing `oldap-api`, `graphdb` and `redis` containers,
+uses the API's private Docker address, and samples every API/master/worker and
+GraphDB/cache process through Linux `/proc`. Docker access and permission to
+read those process statistics are required. Process/container changes invalidate
+the comparison; these metrics include other traffic and background work.
+
+The request boundary allows only exact catalog bodies on known read routes and
+anonymous token issuance. Redirects and environment proxies are disabled. The
+only direct database request is a fixed SELECT over explicit named-graph data,
+before and after the run. No database credentials are loaded; a protected query
+endpoint fails rather than attempting other authentication or configuration.
+Existing data and permissions determine whether the catalog is usable. Missing
+resources, non-200 responses or changed response content stop acceptance rather
+than silently substituting a different workload.
+
+Each of the 17 reference cases receives one discarded warmup and 12 measured
+reads, followed by the same 1/2/4/8/16/1-reader workflow ramp. HTTP durations
+exclude JSON parsing/content hashing; workload durations include them. Existing
+latency/content stop rules apply. The fingerprint covers explicit named graphs,
+not inferred statements, repository settings or an independent default graph.
+Concurrent real-user writes can change it; a mismatch must be investigated,
+never repaired automatically by this tool.
+
+Keep raw files private, copy results back, then remove only the temporary run
+directory created for this measurement. Publish aggregate metrics, never tokens,
+response bodies or the private request catalog. VM measurements exclude public
+TLS/proxy/WAN latency and must not be treated as a controlled before/after
+comparison against a laptop with different data/hardware/thread settings.
 
 ## Separate Gunicorn worker experiment
 

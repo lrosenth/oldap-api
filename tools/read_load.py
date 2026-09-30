@@ -100,16 +100,19 @@ def process_ids(api_url=baseline.API):
     return result
 
 
-def run_stage(users, seconds, cases, sessions, references, pids):
+def run_stage(users, seconds, cases, sessions, references, pids, *, snapshot=None):
     """Run one drained stage, aborting new requests on errors or >5 s latency.
 
     Users have independent Sessions; results are merged only after futures finish.
     A stop prevents new work but allows already submitted reads to finish.
+    The optional snapshot callable supplies Linux/Docker metrics for VM runs;
+    the default retains local macOS process sampling.
     """
+    snapshot = snapshot or process_snapshot
     stop = threading.Event()
     start = time.perf_counter()
     deadline = start + seconds
-    initial = process_snapshot(pids)
+    initial = snapshot(pids)
     samples = []
 
     def user(index):
@@ -158,11 +161,11 @@ def run_stage(users, seconds, cases, sessions, references, pids):
         futures = [pool.submit(user, index) for index in range(users)]
         while not all(f.done() for f in futures):
             samples.append({"elapsed_s": time.perf_counter()-start,
-                            "processes": process_snapshot(pids)})
+                            "processes": snapshot(pids)})
             time.sleep(1)
         results = [f.result() for f in futures]
     elapsed = time.perf_counter()-start
-    final = process_snapshot(pids)
+    final = snapshot(pids)
     rows = [row for result, _ in results for row in result]
     flows = [row for _, result in results for row in result]
     cpu = {name: 100*(final[name]["cpu_seconds"]-initial[name]["cpu_seconds"])/elapsed

@@ -5,6 +5,8 @@ All workers use the normal WSGI application; hooks add only a read-route boundar
 and a PID response header so cold-worker coverage can be established.
 """
 import os
+import hashlib
+from pathlib import Path
 from flask import request
 
 
@@ -12,6 +14,10 @@ def post_worker_init(worker):
     """Apply the same compact JSON behavior as the native debug=False service."""
     app = worker.wsgi
     app.debug = False
+    import oldaplib
+    serializer_hash = hashlib.sha256(
+        (Path(oldaplib.__file__).parent / "src/helpers/serializer.py").read_bytes()
+    ).hexdigest()
 
     @app.before_request
     def read_only():
@@ -29,4 +35,5 @@ def post_worker_init(worker):
     def identify_worker(response):
         """Expose only the test worker PID for preflight coverage checks."""
         response.headers["X-Load-Worker"] = str(os.getpid())
+        response.headers["X-Load-Serializer"] = serializer_hash
         return response

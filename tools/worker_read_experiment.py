@@ -9,6 +9,7 @@ import argparse
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 import json
+import hashlib
 import os
 from pathlib import Path
 import signal
@@ -75,6 +76,10 @@ def main():
             # Issue a token in the orchestrator using the library's read-only
             # anonymous path. No login has reached any experimental worker.
             from oldaplib.src.connection import Connection
+            import oldaplib
+            serializer_hash = hashlib.sha256(
+                (Path(oldaplib.__file__).parent / "src/helpers/serializer.py").read_bytes()
+            ).hexdigest()
             token = Connection(context_name="DEFAULT").token
             command = [sys.executable, "-m", "gunicorn", "oldap_api.wsgi:app",
                        "--bind", "127.0.0.1:8100", "--workers", str(workers),
@@ -111,6 +116,8 @@ def main():
                                              headers={"Authorization": "Bearer "+token,
                                                       "Connection": "close"})
                         r.raise_for_status()
+                        if r.headers.get("X-Load-Serializer") != serializer_hash:
+                            raise RuntimeError("Worker serializer source differs from orchestrator")
                         return key, r.headers["X-Load-Worker"], content_hash(r.json())
 
                     keys = ("resource_media", "resource_linked_archive", "datamodel_fasnacht",
@@ -134,7 +141,8 @@ def main():
                             raise RuntimeError("Cold-worker coverage incomplete")
                     (directory / "cold-reads.json").write_text(json.dumps(
                         {"workers": {pid: sorted(keys) for pid, keys in coverage.items()},
-                         "reference_hashes": hashes}, indent=2))
+                         "reference_hashes": hashes,
+                         "serializer_sha256": serializer_hash}, indent=2))
                     print(f"{workers} workers: cold bearer reads and warmup verified", flush=True)
                     with (directory / "load.log").open("w") as load_log:
                         subprocess.run([sys.executable, str(baseline.ROOT / "tools/read_load.py"),

@@ -33,7 +33,6 @@ import time
 from urllib.parse import urlsplit
 
 import requests
-from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -235,10 +234,12 @@ def inventory():
         )
 
     import oldaplib
+    from oldaplib.src.version import __version__ as library_source_version
 
     library_root = Path(oldaplib.__file__).parent
     result = {
         "library_source": str(library_root),
+        "library_source_version": library_source_version,
         "library_source_hashes": {
             name: hashlib.sha256((library_root / "src" / name).read_bytes()).hexdigest()
             for name in (
@@ -247,6 +248,7 @@ def inventory():
                 "datamodel.py",
                 "objectfactory.py",
                 "mutation_gate.py",
+                "helpers/serializer.py",
             )
         },
         "at": datetime.now(timezone.utc).isoformat(),
@@ -564,6 +566,8 @@ def verify_responses(client, cases, connections):
                         "live_status": live_status,
                         "inprocess_status": local_status,
                         "content_equal": normalize(live) == normalize(local),
+                        "live_content_sha256": digest(normalize(live)),
+                        "inprocess_content_sha256": digest(normalize(local)),
                         "iri_order_equal": order(live) == order(local),
                     }
                 )
@@ -575,6 +579,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--samples", type=int, default=12)
+    parser.add_argument("--mode", action="append",
+                        choices=["live_http", "inprocess", "instrumented"],
+                        help="Select modes; profiling source trees can omit the installed live API")
     parser.add_argument("--discovery-only", action="store_true")
     parser.add_argument(
         "--catalog", type=Path, help="Replay a previously saved cases.json exactly"
@@ -591,6 +598,8 @@ def main():
     if not 1 <= args.samples <= 30:
         parser.error("Use 1..30 sequential samples")
     args.output.mkdir(parents=True, exist_ok=False, mode=0o700)
+    from dotenv import load_dotenv
+
     load_dotenv(ROOT / ".env.local", override=True)
     os.environ.update(
         OLDAP_TS_SERVER=DB,
@@ -727,7 +736,9 @@ def main():
         return
     rows = []
     stream = (args.output / "samples.jsonl").open("w")
-    for mode in ("live_http", "inprocess", "instrumented"):
+    # Keep instrumentation last even when options arrive in another order.
+    for mode in (m for m in ("live_http", "inprocess", "instrumented")
+                 if not args.mode or m in args.mode):
         if mode == "instrumented":
             install_spans(recorder)
         for name, connection in connections.items():

@@ -1,3 +1,17 @@
+### Update 2026-09-30 23:50
+- Decisions: Attribute a single library CPU optimization against an explicit 0.7.23 baseline, keeping native and production deployments unchanged.
+- Implementation: Added benchmark mode selection, imported source-version/serializer-hash inventory and normalized response hashes; test-only Gunicorn workers expose/verify serializer source identity. Published local A/B report, JSON/CSV and updated reproduction/context documentation. Existing VM measurement changes remain intact.
+- Validation: 101 focused offline checks pass (70 library, 14 API, 17 tools). 640 timed serial/instrumented reads and 1,768 HTTP load reads return 200; all workload responses and 34 full-catalog before/after comparisons match. Resource median 90.8→66.5 ms; 16-reader throughput 13.98→16.91 requests/s and p95 796→568 ms. Fingerprints unchanged (52,490 bindings); temporary port released and native service PIDs preserved.
+- Open: Publish updated oldaplib and update consumer environments through the usual workflow before VM remeasurement. Native API distribution on disk is still 0.7.22; source experiments intentionally bypass it.
+- Risks/Assumptions: Warm sequential A/B, fixed data/workflows, one Gunicorn worker/four threads; not a VM capacity prediction. Normalized model-array ordering differs from native in the same four baseline/candidate cases. No existing GraphDB mutation, package install, service restart, cache flush or release.
+
+### Update 2026-09-30 23:30
+- Decisions: Validate the user's deployed API with bounded anonymous reads; preserve GraphDB, current workers and service configuration. Keep exact laptop-catalog replay separate from full VM metadata batches.
+- Implementation: Added Linux/Docker read runner with exact request/body allowlist, disabled redirects/proxies, fixed SELECT fingerprints and process identity monitoring. Reused the existing workload engine through a snapshot callback; made dotenv a local-baseline-only import. Added safety tests and VM report/JSON/CSV.
+- Validation: 17 offline read-tool tests pass. VM v0.2.29 / oldaplib 0.7.23: 2,409 timed HTTP-200 reads, normalized content stable; full batches at 16 readers: 16.13 requests/s, median 232 ms, p95 649 ms. Public HTTPS health plus three representative reads pass. All fingerprints retain 50,396 bindings; containers/PIDs unchanged; temporary VM directory removed.
+- Open: Profile per-request model construction/deserialization/serialization; consider controlled worker comparison separately. No causal pre-deployment VM comparison or release-image write/recovery rehearsal performed.
+- Risks/Assumptions: Warm fixed anonymous reads, short closed-loop stages and different VM/laptop data. Original summary IRIs return only 15/60 resources; supplemental VM catalog verifies full 25/100. CPU/RSS include background work; timings exclude WAN/proxy/browser. No GraphDB update, cache flush or service restart.
+
 ### Update 2026-09-30 23:10
 - Decisions: Persist the API dependency lock in Git so the oldaplib release selection survives a fresh checkout.
 - Implementation: Ran `poetry update oldaplib --lock`; the lock now resolves oldaplib 0.7.23. Removed `/poetry.lock` from `.gitignore` and documented the lock workflow.
