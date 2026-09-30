@@ -1,0 +1,15 @@
+round,subject,case,samples_per_variant,before_median_ms,after_median_ms,reduction_percent
+initial,unknown,resource_media,20,65.878,55.358,15.97
+initial,unknown,summaries_25,20,79.231,69.046,12.85
+initial,unknown,summaries_100,20,112.237,101.608,9.47
+initial,unknown,datamodel_fasnacht,20,210.227,205.383,2.3
+initial,rosenth,resource_media,20,88.449,72.07,18.52
+initial,rosenth,summaries_25,20,104.406,92.194,11.7
+initial,rosenth,summaries_100,20,158.877,143.644,9.59
+initial,rosenth,datamodel_fasnacht,20,234.683,218.359,6.96
+repeat,unknown,resource_media,30,64.676,56.04,13.35
+repeat,unknown,summaries_25,30,78.933,69.538,11.9
+repeat,unknown,summaries_100,30,110.036,101.867,7.42
+repeat,rosenth,resource_media,30,80.983,72.951,9.92
+repeat,rosenth,summaries_25,30,100.989,93.897,7.02
+repeat,rosenth,summaries_100,30,157.135,147.756,5.97

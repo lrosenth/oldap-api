@@ -245,6 +245,7 @@ def inventory():
             for name in (
                 "cachesingleton.py",
                 "project.py",
+                "propertyclass.py",
                 "datamodel.py",
                 "objectfactory.py",
                 "mutation_gate.py",

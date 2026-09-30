@@ -53,6 +53,20 @@ class VmReadTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "identities changed"):
                 vm.process_snapshot({"api_1": 1})
 
+    def test_inventory_ignores_transient_helpers_but_keeps_all_workers(self):
+        listings = ["PID COMMAND\n10 gunicorn\n11 gunicorn\n12 gunicorn\n90 curl\n91 python\n",
+                    "PID COMMAND\n20 java\n92 sh\n", "PID COMMAND\n30 redis-server\n"]
+        with patch.object(vm.subprocess, "check_output", side_effect=listings):
+            actual = vm.process_ids()
+        self.assertEqual(actual, {"load_client": vm.os.getpid(), "api_10": 10,
+                                  "api_11": 11, "api_12": 12,
+                                  "graphdb_20": 20, "redis_30": 30})
+
+    def test_inventory_refuses_missing_service_processes(self):
+        with patch.object(vm.subprocess, "check_output", return_value="PID COMMAND\n90 curl\n"):
+            with self.assertRaisesRegex(RuntimeError, "No expected gunicorn"):
+                vm.process_ids()
+
     def test_summary_count_measures_resources_not_wrapper_keys(self):
         with vm.ReadSession(self.api, [self.case]) as session:
             with patch.object(session, "request") as request:

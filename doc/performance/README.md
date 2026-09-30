@@ -1,5 +1,11 @@
 # Interactive read performance
 
+The local project-identity projection and repeated source comparison are in
+[2026-10-01-project-identity.md](2026-10-01-project-identity.md).
+
+The released optimization's VM before/after comparison is in
+[2026-10-01-vm-serializer.md](2026-10-01-vm-serializer.md).
+
 The constructor-metadata optimization and controlled local comparison are in
 [2026-09-30-serializer.md](2026-09-30-serializer.md).
 
@@ -203,6 +209,10 @@ uses the API's private Docker address, and samples every API/master/worker and
 GraphDB/cache process through Linux `/proc`. Docker access and permission to
 read those process statistics are required. Process/container changes invalidate
 the comparison; these metrics include other traffic and background work.
+The sampler selects the deployed `gunicorn`, `java` and `redis-server` processes;
+transient healthcheck and `docker exec` helpers are excluded. A missing service
+or a changed worker PID still fails acceptance, with expected/observed IDs in
+the diagnostic. This prevents helper processes from masquerading as restarts.
 
 The request boundary allows only exact catalog bodies on known read routes and
 anonymous token issuance. Redirects and environment proxies are disabled. The

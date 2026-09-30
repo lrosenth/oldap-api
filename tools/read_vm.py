@@ -89,21 +89,36 @@ def docker_inventory():
 
 
 def process_ids():
-    """Identify all existing worker/master and database/cache processes."""
+    """Identify service processes, excluding transient healthcheck/exec helpers.
+
+    This runner targets the deployed Gunicorn/Java/Redis images. Require at
+    least one matching process per service; unsupported service commands fail
+    closed instead of silently dropping service metrics.
+    """
     result = {"load_client": os.getpid()}
-    for container, prefix in (("oldap-api", "api"), ("graphdb", "graphdb"), ("redis", "redis")):
+    for container, prefix, command in (("oldap-api", "api", "gunicorn"),
+                                        ("graphdb", "graphdb", "java"),
+                                        ("redis", "redis", "redis-server")):
         lines = subprocess.check_output(
-            ["docker", "top", container, "-eo", "pid"], text=True).splitlines()[1:]
+            ["docker", "top", container, "-eo", "pid,comm"], text=True).splitlines()[1:]
+        found = False
         for line in lines:
-            pid = int(line.strip())
+            pid_text, comm = line.split()
+            if comm != command:
+                continue
+            found = True
+            pid = int(pid_text)
             result[f"{prefix}_{pid}"] = pid
+        if not found:
+            raise RuntimeError(f"No expected {command} process in {container}")
     return result
 
 
 def process_snapshot(pids):
     """Read Linux cumulative CPU/RSS; fail if any service process is replaced."""
-    if process_ids() != pids:
-        raise RuntimeError("Service process identities changed during measurement")
+    current = process_ids()
+    if current != pids:
+        raise RuntimeError(f"Service process identities changed: expected {pids}, observed {current}")
     result = {}
     for name, pid in pids.items():
         fields = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()

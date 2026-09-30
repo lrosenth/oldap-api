@@ -1,3 +1,17 @@
+### Update 2026-10-01 00:43
+- Decisions: Retain a small project-identity projection; avoid broader model caching or generic copy changes. Gains are useful but below a consistent 15–20% across all endpoints.
+- Implementation: Added propertyclass.py to read-harness source hashes; documented two local source comparisons with JSON/CSV evidence and full-catalog equivalence. Production API behavior/configuration is unchanged.
+- Validation: 75 library, 14 API and 19 tool checks pass; 1,000 accepted timed reads return 200; 34 before/after contents match. Anonymous medium improves 13–16%; summaries improve 6–13% across users/rounds. Full Project copies 524→181; 3 GraphDB/42 Redis reads unchanged. All accepted RDF fingerprints unchanged (52,490 bindings).
+- Open: Normal library release/consumer dependency update, then read-only VM comparison with existing worker settings. No installation, restart, version bump or deployment performed.
+- Risks/Assumptions: Warm sequential laptop measurements, not concurrent production capacity. First direct-copy prototype discarded and excluded due closing source-inventory mismatch; final accepted source inventories stable. Existing user changes preserved.
+
+### Update 2026-10-01 00:27
+- Decisions: Verify deployed source identity, then replay the exact prior VM full-batch catalog at unchanged four-worker/two-thread settings; exclude incomplete measurements from acceptance.
+- Implementation: Fixed Docker sampling to identify Gunicorn/Java/Redis service processes instead of transient healthcheck/exec helpers; retain missing-service/PID-change failure and add expected/observed diagnostics. Added two regressions, updated measurement guide and published VM comparison JSON/CSV/report.
+- Validation: 19 offline read-tool checks pass. API 0.2.30 / oldaplib 0.7.24 serializer hash matches accepted source. Complete rerun: 1,132 timed HTTP-200 reads, stable content, all 17 references match previous baseline, full 25/100 summary cardinalities. At 16 readers: 16.13→17.03 requests/s, median 232→167 ms, p95 649→591 ms, API CPU 2.13→1.78 cores. Public HTTPS reads pass; RDF fingerprint (50,396 bindings), containers and service PIDs unchanged; temporary VM directory removed.
+- Open: Profile independent Project/model copying locally; retain current worker settings. Large-data/HMB sizing remains separate.
+- Risks/Assumptions: First attempt stopped during final recovery because unfiltered process inventory changed; original service PIDs and logs show no worker replacement. Exact transient helper was not captured. Accepted rerun preserves query/timing logic. Short warm anonymous sequential comparison, not maximum capacity or an SLA. No RDF writes, cache flush, application change or service restart during tests.
+
 ### Update 2026-09-30 23:50
 - Decisions: Attribute a single library CPU optimization against an explicit 0.7.23 baseline, keeping native and production deployments unchanged.
 - Implementation: Added benchmark mode selection, imported source-version/serializer-hash inventory and normalized response hashes; test-only Gunicorn workers expose/verify serializer source identity. Published local A/B report, JSON/CSV and updated reproduction/context documentation. Existing VM measurement changes remain intact.
