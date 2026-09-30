@@ -1,7 +1,6 @@
 /__pycache__
 /oldap_api/test/__pycache__
 /.coverage
-/poetry.lock
 /.idea/dataSources.xml
 /oldap_api/views/__pycache__/datamodelling_views.cpython-312.pyc
 /oldap_api/views/__pycache__/permset_views.cpython-312.pyc

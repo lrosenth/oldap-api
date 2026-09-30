@@ -1,3 +1,10 @@
+### Update 2026-09-30 23:10
+- Decisions: Persist the API dependency lock in Git so the oldaplib release selection survives a fresh checkout.
+- Implementation: Ran `poetry update oldaplib --lock`; the lock now resolves oldaplib 0.7.23. Removed `/poetry.lock` from `.gitignore` and documented the lock workflow.
+- Validation: `poetry check --lock` passes with existing Poetry metadata deprecation warnings.
+- Open: Commit/push the lock and documentation; deployment remains separate.
+- Risks/Assumptions: The previous lock was untracked, so a complete before/after dependency diff is unavailable. No installed environment, running service or Docker image changed. Runtime Docker pip installation still resolves wheel dependencies independently.
+
 ### Update 2026-09-30 01:15
 - Decisions: Keep the native laptop runtime unchanged and validate multi-worker recovery through the production-style Docker container boundary.
 - Implementation: Linked Docker worker configuration/recovery documentation in oldap-setup and updated project context. Real current API sources are exercised by isolated test-only injection routes in setup; no production routes or recovery-library logic changed.

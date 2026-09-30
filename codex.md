@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- Dependency workflow (2026-09-30): Track `poetry.lock` in Git; the API lock resolves oldaplib 0.7.23. Use targeted `poetry update oldaplib --lock` and validate with `poetry check --lock`. The Docker runtime currently installs the built wheel with pip, so its dependencies are still resolved separately from the Poetry lock.
+
 - Added server-owned frontend mail routing with exact Origin selection, internal durable job IDs, fail-closed validation, and legacy fallback. See doc/frontend-mail-routing.md.
 
 - Publication capabilities include optional automaticEditorialGrants from updated oldaplib. Deploy the library update before the simplified shared-assignment frontend; no new API command or policy key is required.
