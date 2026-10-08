@@ -1,5 +1,8 @@
 # Interactive read performance
 
+The deployed project-identity optimization is verified in
+[2026-10-01-vm-project-identity.md](2026-10-01-vm-project-identity.md).
+
 The local project-identity projection and repeated source comparison are in
 [2026-10-01-project-identity.md](2026-10-01-project-identity.md).
 

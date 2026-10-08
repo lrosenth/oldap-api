@@ -1,3 +1,16 @@
+### Update 2026-10-07 23:45
+- Decisions: Correct the structured-search result in oldaplib rather than filtering API response rows.
+- Implementation: Activated the sibling library fix for OPTIONAL/unbound equality via local 0.7.25 development wheel and make restart; writer gate released normally. Verified results/counts for parent, missing, absence and boolean filters with sorting through installed runtime.
+- Open: Publish new oldaplib version and update dependency lock before external rollout; see ../oldaplib/docs/search_optional_values.md.
+- Risks/Assumptions: No API source, lockfile, stored data or remote deployment changed. Installed local development wheel differs from published 0.7.25.
+
+### Update 2026-10-01 11:50
+- Decisions: Accept user-deployed project-identity optimization on the VM; retain four workers/two threads.
+- Implementation: Recorded deployed API 0.2.31 / oldaplib 0.7.25 source verification and read-only before/after evidence; updated context and relevant performance/worker documentation. No application code or deployment configuration changed.
+- Validation: 1,152 timed reads pass; all 17 baseline contents and public HTTPS checks match. Resource medians improve 10–13%, summaries 4–10%. At 16 readers: median/p95 167/591→143/559 ms, API CPU 1.78→1.57 cores. Existing 50,396-binding RDF fingerprint, containers and service PIDs unchanged; temporary VM files removed.
+- Open: Larger representative data and sustained mixed-user sizing remain separate; no worker maintenance indicated by this workload.
+- Risks/Assumptions: One sequential short warm anonymous comparison, not maximum capacity. Search/fresh-model gains not demonstrated; recovery p95 varies upward. Separate final verifier excludes the completed load-client process; within-run service-process guard passed. Existing local changes preserved.
+
 ### Update 2026-10-01 00:43
 - Decisions: Retain a small project-identity projection; avoid broader model caching or generic copy changes. Gains are useful but below a consistent 15–20% across all endpoints.
 - Implementation: Added propertyclass.py to read-harness source hashes; documented two local source comparisons with JSON/CSV evidence and full-catalog equivalence. Production API behavior/configuration is unchanged.
