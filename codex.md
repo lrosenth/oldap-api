@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- Media lookup error handling (2026-10-11): ID and IRI routes map OldapErrorNotFound to the existing generic HTTP 404 response, matching empty-result handling. Other lookup failures retain their status. This prevents absent assets from appearing as technical SIPI preflight failures; deploy a new API release to activate.
+
 - Membership-only role correction (2026-10-10): object creation copies only user roles with a non-null default DataPermission; explicit null/malformed object grants fail with OldapErrorValue. No membership/ACL data changes. Active in the native API via an unpublished 0.7.26 development wheel and guarded restart; publish a new release for external rollout. Regression tests: oldaplib/test/test_resource_default_roles.py.
 
 - Structured-search correction (2026-10-07): branch-local BOUND guards prevent missing optional properties from matching value comparisons in GraphDB; OR and NOT_EXISTS semantics remain intact. Active locally via an unpublished 0.7.25 development wheel and guarded API restart; a new release is required for external rollout. See ../oldaplib/docs/search_optional_values.md.

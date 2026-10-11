@@ -5032,6 +5032,10 @@ paths:
   /data/mediaobject/id/{id}:
     get:
       summary: Get a media object (class MediaObject) or a subclass thereof by object id
+      description: >
+        Missing media return HTTP 404 with message "MediaObject not found",
+        whether the lookup returns no result or raises a not-found error.
+        Other lookup errors retain their status; they are not treated as missing media.
       security:
         - AccessToken: [ ]
       parameters:
@@ -5145,6 +5149,10 @@ paths:
   /data/mediaobject/iri/{iri}:
     get:
       summary: Get a media object (class MediaObject) or a subclass thereof by object id
+      description: >
+        Missing media return HTTP 404 with message "MediaObject not found",
+        whether the lookup returns no result or raises a not-found error.
+        Other lookup errors retain their status; they are not treated as missing media.
       security:
         - AccessToken: [ ]
       parameters:

@@ -1,3 +1,9 @@
+### Update 2026-10-11 22:53
+- Decisions: Map OldapErrorNotFound from both media lookup routes to the existing generic 404 response; retain all other exception/status behavior. No blanket treatment of HTTP 400 as missing media.
+- Implementation: Added specific ID/IRI exception handlers and docstrings, documented the existing not-found contract in OpenAPI/master context, and added 10 isolated Flask regression cases for typed/empty not-found, validation errors, configuration failures and successful serialization.
+- Open: Release/deploy the API to Home; no version bump, image build or service restart performed. Investigate the requested asset UUID separately: a matching local import-owned asset directory contains original/001.jpg and derived/master.tif; this does not establish its presence in Home GraphDB.
+- Risks/Assumptions: 12 focused offline tests pass (including instance-read fast path); no database-mutating integration fixtures run. Focused Black, Poetry lock check and diff check pass; existing Poetry metadata deprecations remain. No media/GraphDB data modified.
+
 ### Update 2026-10-10 00:10
 - Decisions: User role membership without a default data permission must not become an implicit object grant. Explicit object grants require a valid DataPermission; no permissions are invented or membership records changed.
 - Implementation: Filter None defaults in ResourceInstanceFactory, allocate an independent default map per instance, and validate explicit constructor grants before conversion. Four offline regressions cover mixed/empty memberships, explicit grants and malformed/null inputs. Installed reviewed local 0.7.26 development wheel into the native API and used guarded make restart; writer gate released.

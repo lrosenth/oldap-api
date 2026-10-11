@@ -806,6 +806,7 @@ def text_search_response(project: str, resclass: str | None = None, allow_search
 @instance_bp.route('/mediaobject/id/<imageid>', methods=['GET'])
 @require_auth
 def media_object_by_id(imageid):
+    """Resolve an asset ID; missing media return 404, other lookup errors retain their status."""
     current_app.logger.info(f"/data/mediaobject/id/{imageid} with GET called")
 
     con = authenticated_connection()
@@ -815,6 +816,8 @@ def media_object_by_id(imageid):
         return jsonify({"message": str(error)}), 503
     except ArchiveConflict as error:
         return jsonify({"message": str(error)}), error.status
+    except OldapErrorNotFound:
+        return jsonify({"message": "MediaObject not found"}), 404
     except OldapError as error:
         current_app.logger.error(f"mediaobject_by_id: Retrieving MediaObject with id='{imageid}' failed: {str(error)}")
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
@@ -825,6 +828,7 @@ def media_object_by_id(imageid):
 @instance_bp.route('/mediaobject/iri/<path:imageiri>', methods=['GET'])
 @require_auth
 def media_object_by_iri(imageiri):
+    """Resolve a media IRI with the same not-found contract as the asset-ID route."""
     current_app.logger.info(f"/data/mediaobject/iri/{imageiri} with GET called")
     imageiri = unquote(imageiri)
     con = authenticated_connection()
@@ -834,6 +838,8 @@ def media_object_by_iri(imageiri):
         return jsonify({"message": str(error)}), 503
     except ArchiveConflict as error:
         return jsonify({"message": str(error)}), error.status
+    except OldapErrorNotFound:
+        return jsonify({"message": "MediaObject not found"}), 404
     except OldapError as error:
         return jsonify({"message": f"Retrieving MediaObject failed: {str(error)}"}), 400
     if not res:
