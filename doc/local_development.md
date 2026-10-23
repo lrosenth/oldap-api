@@ -38,6 +38,15 @@ recreated. On a partial failure, retain the resume file and use
 `make services-start` to restore dependencies; unresolved writer ownership still
 requires the regular recovery procedure.
 
+Missing saved container IDs now produce a diagnostic listing their names and short
+IDs before any container start is attempted. Repeating start cannot repair replaced
+identities: back up the private resume file, verify the intended replacements
+against the local Compose project/service, and reconcile IDs explicitly under the
+same development-control.lock. Never substitute names automatically. Existing
+containers can also retain a removed network ID after a Compose network replacement;
+inspect their state and explicitly reconnect only affected workers to the verified
+replacement network, preserving aliases. Neither repair requires a writer-lock reset.
+
 Frontends, IDEs, Jupyter, sync apps and other native applications remain manual.
 This is a development-service switch, not a guarantee of real-time audio latency.
 Fast user switching also leaves applications in the previous login session running.

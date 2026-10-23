@@ -33,6 +33,34 @@ LABELS = (
 )
 
 
+class MissingResumeContainers(RuntimeError):
+    """Saved container identities no longer exist; explicit reconciliation is needed."""
+
+
+def check_resume_containers(containers):
+    """Check exact IDs before starting any container; never substitute by name.
+
+    Only names and short IDs enter the diagnostic, not Docker configuration or
+    command stderr, which may contain credentials. Engine failures propagate.
+    """
+    existing = set(
+        command("docker", "ps", "-a", "--no-trunc", "--format", "{{.ID}}").splitlines()
+    )
+    missing = [item for item in containers if item["id"] not in existing]
+    if missing:
+        details = ", ".join(
+            f"{json.dumps(item.get('name', 'unnamed'), ensure_ascii=True)} ({item['id'][:12]})"
+            for item in missing
+        )
+        raise MissingResumeContainers(
+            "Saved Docker containers no longer exist: " + details + ". "
+            "Back up and explicitly reconcile development-state.json with the "
+            "intended local containers before retrying services-start. "
+            "Same-name replacements are not selected automatically. "
+            "The resume list was retained; no writer lock was reset."
+        )
+
+
 def command(*argv, timeout=90):
     """Run fixed local commands with bounded waits and no credential output."""
     # Ignore the user's selected remote Docker context for engine operations.
@@ -253,6 +281,7 @@ def start_services(client, state):
     ids = [item["id"] for item in state.get("containers", [])]
     if ids:
         # Never recreate an absent container or silently select a reused name.
+        check_resume_containers(state["containers"])
         command("docker", "inspect", "--format", "{{json .State}}", *ids)
         command("docker", "start", *ids, timeout=180)
         if not all(
@@ -304,6 +333,8 @@ def main():
                 print(f'{label}: {"loaded" if job(label) is not None else "stopped"}')
             print("Docker Desktop:", docker_status())
             print("Frontends: use Ctrl+C / npm run dev in their terminals.")
+    except MissingResumeContainers as exc:
+        parser.exit(1, str(exc) + "\n")
     except Exception:
         parser.exit(
             1,

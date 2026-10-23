@@ -1,3 +1,15 @@
+### Update 2026-10-20 12:32
+- Decisions: Adopt AGPL-3.0-only for oldap-api as approved by the user.
+- Implementation: Added official GNU AGPL v3 LICENSE, Poetry license metadata, README license scope and stable project context.
+- Open: Commit and publication remain outside this change.
+- Risks/Assumptions: User authorizes licensing the project; third-party dependencies retain their own terms. No runtime behavior changes. Validation: poetry check --lock passed (metadata deprecation warnings); wheel build passed and includes LICENSE plus AGPL-3.0-only metadata.
+
+### Update 2026-10-14 21:04
+- Decisions: Preserve exact-ID resume safety; report missing container identities explicitly instead of silently selecting replacements.
+- Implementation: Added container inventory preflight and a bounded, credential-free missing-ID diagnostic; two regressions cover refusal/state retention and successful exact-ID restore. Backed up the local resume journal, reconciled three verified Compose replacements under the control lock, and reconnected the two stopped workers to the replacement Compose network with their original aliases.
+- Open: No commit or remote deployment performed; generic failures other than missing IDs still use the existing redacted diagnostic.
+- Risks/Assumptions: Eight focused service tests pass. Local services-start completed after repair; no data/volumes deleted, containers recreated, or writer locks reset. Worker image versions were preserved.
+
 ### Update 2026-10-11 22:53
 - Decisions: Map OldapErrorNotFound from both media lookup routes to the existing generic 404 response; retain all other exception/status behavior. No blanket treatment of HTTP 400 as missing media.
 - Implementation: Added specific ID/IRI exception handlers and docstrings, documented the existing not-found contract in OpenAPI/master context, and added 10 isolated Flask regression cases for typed/empty not-found, validation errors, configuration failures and successful serialization.

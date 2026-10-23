@@ -84,3 +84,42 @@ def test_container_commands_pin_the_local_desktop_socket():
         assert argv[:2] == ("docker", "--host")
         assert argv[2].endswith("/.docker/run/docker.sock")
         assert argv[3] == "ps"
+
+
+def test_replaced_container_is_reported_without_starting_or_losing_state(tmp_path):
+    path = tmp_path / "development-state.json"
+    path.write_text("saved resume state")
+    state = {"containers": [{"id": "a" * 64, "name": "oldap-mediahelper"}]}
+    with (
+        patch.object(services, "LOCAL", tmp_path),
+        patch.object(services, "start_agent"),
+        patch.object(services, "wait_ready"),
+        patch.object(services, "docker_status", return_value="running"),
+        patch.object(services, "command", return_value="b" * 64 + "\n") as run,
+    ):
+        with pytest.raises(services.MissingResumeContainers, match="oldap-mediahelper"):
+            services.start_services(Mock(), state)
+    assert path.read_text() == "saved resume state"
+    run.assert_called_once_with(
+        "docker", "ps", "-a", "--no-trunc", "--format", "{{.ID}}"
+    )
+
+
+def test_exact_container_restore_clears_resume_file_only_after_running(tmp_path):
+    path = tmp_path / "development-state.json"
+    path.write_text("saved resume state")
+    state = {"containers": [{"id": "a" * 64, "name": "worker"}]}
+    with (
+        patch.object(services, "LOCAL", tmp_path),
+        patch.object(services, "start_agent"),
+        patch.object(services, "wait_ready"),
+        patch.object(services, "docker_status", return_value="running"),
+        patch.object(
+            services,
+            "command",
+            side_effect=["a" * 64 + "\n", "{}", "", '{"Running": true}\n'],
+        ) as run,
+    ):
+        services.start_services(Mock(), state)
+    assert not path.exists()
+    assert run.call_args_list[2].args == ("docker", "start", "a" * 64)

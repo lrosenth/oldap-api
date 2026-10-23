@@ -4,6 +4,7 @@ packages = [{ include = "oldap_api" }]
 include = [{ path = "oldap_api/exports/profile_data/*.json", format = ["sdist", "wheel"] }]
 version = "0.2.34"
 description = "Flask API for OLDAP"
+license = "AGPL-3.0-only"
 authors = ["ManuelRosenthaler <rosenthalermanuel@gmail.com>", "Lukas Rosenthaler <lukas.rosenthaler@pm.me>"]
 readme = "README.md"
 

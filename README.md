@@ -1,5 +1,15 @@
 # OLDAP API
 
+## License
+
+OLDAP API is licensed under the GNU Affero General Public License, version 3 only
+(SPDX: `AGPL-3.0-only`). See [LICENSE](LICENSE) for the full terms.
+
+Commercial use, hosting, and support are permitted under those terms. If you
+modify the program and let users interact with it remotely over a network,
+section 13 requires offering those users access to the Corresponding Source
+of your modified version. Dependencies remain subject to their own licenses.
+
 ## Running the API
 
 ### Environment variables that must be defined
