@@ -1241,14 +1241,14 @@ files = [
 
 [[package]]
 name = "oldaplib"
-version = "0.7.28"
+version = "0.7.29"
 description = "Open Media Access Server Library (Linked Open Data middleware/RESTApi)"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "oldaplib-0.7.28-py3-none-any.whl", hash = "sha256:f17b9a4e0e3e5f1b486e84eee6e8145ae7f9a1382ac102f322af6c07bebe7794"},
-    {file = "oldaplib-0.7.28.tar.gz", hash = "sha256:cdd87372b987122e30db82b64105506940eafb820aff0d5d7dd81cc07b2c3f5c"},
+    {file = "oldaplib-0.7.29-py3-none-any.whl", hash = "sha256:7c6c328b941186e004a86ea1f6d87159e54e52dc03c92f9d05ce6776d3886d2f"},
+    {file = "oldaplib-0.7.29.tar.gz", hash = "sha256:fa94a5210a3fee38e5493475ed3d1d6eefb893253a7109058e78823a923662a0"},
 ]
 
 [package.dependencies]
