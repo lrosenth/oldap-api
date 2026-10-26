@@ -4195,6 +4195,7 @@ paths:
                           - type: boolean
                           - type: "null"
                           - $ref: "#/components/schemas/ValueArray"
+                          - $ref: "#/components/schemas/DatingValue"
                           - type: object
                             additionalProperties: true
 
@@ -8656,10 +8657,43 @@ components:
             del:
               $ref: "#/components/schemas/AttachedToRoleDelete"
 
+    DatingValue:
+      description: >
+        Lossless Dating response, requested with Accept: application/json; dating=structured.
+        Prefer verbatimDate for display when present. Legacy clients retain string values.
+      type: object
+      required: [dateStart, dateEnd, datePrecision, inCalendar]
+      properties:
+        dateStart:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: integer
+        dateEnd:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: integer
+        datePrecision:
+          type: string
+        inCalendar:
+          type: string
+        iri:
+          type: string
+        verbatimDate:
+          type: string
+        before:
+          type: array
+          items:
+            type: string
+
     ValueArray:
       type: array
       items:
         oneOf:
+          - $ref: "#/components/schemas/DatingValue"
           - type: string
           - type: number
             format: integer
@@ -8880,6 +8914,7 @@ components:
           additionalProperties:
             oneOf:
               - $ref: '#/components/schemas/ValueArray'
+              - $ref: '#/components/schemas/DatingValue'
               - type: string
               - type: number
               - type: boolean
@@ -8983,6 +9018,7 @@ components:
       additionalProperties:
         oneOf:
           - $ref: "#/components/schemas/ValueArray"
+          - $ref: "#/components/schemas/DatingValue"
           - type: string
           - type: number
             format: integer

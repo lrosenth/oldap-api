@@ -1,3 +1,9 @@
+### Update 2026-10-26 00:50
+- Decisions: Make structured Dating opt-in via Accept so existing clients retain legacy response shapes.
+- Implementation: Updated OpenAPI DatingValue response contract. Shared serializer retains precision/calendar/verbatim uncertainty; search expands only requested Dating fields with reader-authorized batches of 100. Ten focused serialization/read/search tests pass, including legacy defaults, batching and unreadable omission. Restarted local API; live search and detail return full dates and uncertainty.
+- Open: Publish/deploy API with matching FasnachtsPage and harvester changes.
+- Risks/Assumptions: No ontology/oldaplib changes. Search expansion adds summary reads only for opted-in requested dates; existing /admin serialization is unchanged.
+
 ### Update 2026-10-20 12:32
 - Decisions: Adopt AGPL-3.0-only for oldap-api as approved by the user.
 - Implementation: Added official GNU AGPL v3 LICENSE, Poetry license metadata, README license scope and stable project context.

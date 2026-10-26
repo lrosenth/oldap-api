@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- Clients may request lossless Dating via `Accept: application/json; dating=structured`; legacy responses stay unchanged. Instance/media serialization retains precision, calendar and verbatim text. Search hydrates requested date links through bounded reader-authorized summaries. FasnachtsPage opts in centrally. See `doc/dating-json.md`; no ontology or oldaplib change.
+
 - License (2026-10-20): OLDAP API is explicitly AGPL-3.0-only. The root LICENSE contains the official GNU AGPL v3 text; README.md and tool.poetry.license declare version 3 only. Keep package metadata and licensing documentation consistent. This local declaration does not publish a release or change dependency licenses.
 
 - Media lookup error handling (2026-10-11): ID and IRI routes map OldapErrorNotFound to the existing generic HTTP 404 response, matching empty-result handling. Other lookup failures retain their status. This prevents absent assets from appearing as technical SIPI preflight failures; deploy a new API release to activate.

@@ -5,7 +5,8 @@ import re
 from typing import Any
 from urllib.parse import quote, unquote
 from uuid import uuid4
-from flask import request, jsonify, Blueprint, current_app
+from flask import request, jsonify, Blueprint, current_app, has_request_context
+from werkzeug.http import parse_options_header
 from oldap_api.authentication import authenticated_connection, require_auth
 from oldap_api.imports.authorization import (
     ImportPermissionDeniedError,
@@ -254,7 +255,38 @@ def _assert_staging_class_unchanged(expected_class, current_instance) -> None:
 
 
 
+def _structured_dating_requested() -> bool:
+    """Opt in without changing the legacy representation for existing clients."""
+    if not has_request_context():
+        return False
+    media_type, options = parse_options_header(request.headers.get('Accept', ''))
+    return media_type == 'application/json' and options.get('dating') == 'structured'
+
+
+def _dating_json(value: Dating) -> dict[str, Any]:
+    """Expose dating precision and verbatim uncertainty instead of a lossy string.
+
+    Preserve the surrounding scalar/list shape of each endpoint. Chronological
+    relations are IRI references, avoiding recursive expansion of the date graph.
+    """
+    data = value._as_dict()
+    result = {
+        'dateStart': data['dateStart'],
+        'dateEnd': data['dateEnd'],
+        'datePrecision': data['datePrecision'].name,
+        'inCalendar': data['inCalendar'].name,
+    }
+    for key in ('iri', 'verbatimDate'):
+        if key in data:
+            result[key] = str(data[key])
+    if data.get('before'):
+        result['before'] = sorted(str(item.iri) for item in data['before'] if item.iri)
+    return result
+
+
 def to_json_compatible_value(val):
+    if isinstance(val, Dating):
+        return _dating_json(val) if _structured_dating_requested() else str(val)
     if isinstance(val, dict):
         return {str(k): to_json_compatible_value(v) for k, v in val.items()}
     elif isinstance(val, list):
@@ -294,6 +326,8 @@ def _sanitize_instance_datatype(val: Any) -> Any:
     """Convert OLDAP values into the established instance JSON primitives."""
     if val is None:
         return None
+    if isinstance(val, Dating):
+        return _dating_json(val) if _structured_dating_requested() else str(val)
     if isinstance(val, LangString):
         return [str(langval) for langval in val]
     if isinstance(val, dict):
@@ -309,7 +343,7 @@ def _sanitize_instance_datatype(val: Any) -> Any:
 
 
 def _instance_read_json(read_result: ResourceReadResult) -> dict[str, Any]:
-    """Serialize one structured oldaplib read without changing its HTTP shape."""
+    """Serialize a read, retaining structured Dating when the client opts in."""
     asserted_types = [str(resource_type) for resource_type in read_result.asserted_types]
     asserted_type_set = set(asserted_types)
     inferred_types: list[str] = []
@@ -757,6 +791,42 @@ def parse_text_search_request(resclass: str | None = None,
     return params, None
 
 
+def _expand_search_dating(con, project: str, rows: list[dict], requested_properties) -> None:
+    """Hydrate requested Dating links in bounded, reader-authorized batches.
+
+    Mutates only dating fields; search order, scores and other metadata remain
+    unchanged. Missing/unreadable summaries remove the stale date reference.
+    """
+    if not rows or not requested_properties:
+        return
+    factory = ResourceInstanceFactory(con=con, project=project)
+    requested = {str(prop) for prop in requested_properties}
+    dating_properties = set()
+    for resource_class in {str(row['resclass']) for row in rows}:
+        instance_class = factory.createObjectInstance(resource_class)
+        dating_properties.update(
+            prop for prop, definition in instance_class.resolved_properties().items()
+            if str(prop) in requested and definition.datatype is None
+            and str(definition.toClass) == 'oldap:Dating'
+        )
+    if not dating_properties:
+        return
+    for offset in range(0, len(rows), 100):
+        batch = rows[offset:offset + 100]
+        summaries = factory.read_summaries(
+            iris=[Iri(row['iri']) for row in batch],
+            include_properties=dating_properties,
+        )
+        by_iri = {str(iri): _instance_read_json(summary) for iri, summary in summaries.items()}
+        for row in batch:
+            values = by_iri.get(str(row['iri']), {})
+            for prop in dating_properties:
+                key = str(prop)
+                row.pop(key, None)
+                if key in values:
+                    row[key] = values[key]
+
+
 def text_search_response(project: str, resclass: str | None = None, allow_search_fulltext: bool = False):
     route = f"/data/text/{project}" if allow_search_fulltext else f"/data/search/{project}"
     if resclass:
@@ -786,6 +856,8 @@ def text_search_response(project: str, resclass: str | None = None, allow_search
             res = ResourceInstance.search(con=con,
                                           project=Xsd_NCName(project, validate=True),
                                           **params)
+        if _structured_dating_requested() and not params['countOnly'] and isinstance(res, list):
+            _expand_search_dating(con, project, res, params.get('includeProperties'))
     except (MutationGateUnavailable, OldapErrorConfiguration) as error:
         return jsonify({"message": str(error)}), 503
     except ArchiveConflict as error:
