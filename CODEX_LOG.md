@@ -1,3 +1,44 @@
+### Update 2026-10-27 22:40
+- Decisions: Preserve HTTP API contracts and public oldaplib signatures and semantics throughout migration; internal transport/helper changes are preferred.
+- Implementation: Recorded compatibility acceptance criteria and mandatory documentation/discussion for unavoidable public exceptions, including harvester and oldap-tools caller mapping.
+- Open: Apply criteria to the revocation pilot and composed transaction/callback design.
+- Risks/Assumptions: One-request optimization must not silently weaken transaction-local reads or callbacks. Documentation only; no application or external-consumer changes.
+
+### Update 2026-10-27 22:36
+- Decisions: Prefer one atomic mutation request per business operation; distinguish stock SPARQL Update from a server command with assertions/results. Keep dynamic Python/callback migration explicit; no generic session or workflow framework introduced.
+- Implementation: Added AST inventory utility, source-hashed call-site snapshot and per-boundary migration table; analyzed real revocation, resource-hook, list, job and external-consumer flows. Extended isolated Fuseki probes for conditional batching.
+- Validation: Parsed 620 Python files in eight repositories; 86 unique boundary-function rows (including infrastructure and operational probes), all snapshot-linked. All 27 capability/batch checks passed; stale-guard no-op hazard and guarded concurrent one-winner behaviour reproduced. Syntax/diff checks passed; test servers stopped.
+- Open: Implement bounded revocation pilot with conflict/replay outcomes, then resource+audit+outbox and list/harvester composition. Existing double-start in list move and model-edit boundary need explicit treatment. Commit/push pending.
+- Risks/Assumptions: Static syntax inventory cannot prove arbitrary downstream/dynamic callers. Synthetic receipts lack production request-digest semantics. No OLDAP application code, real data, Redis or service configuration changed.
+
+### Update 2026-10-27 22:18
+- Decisions: Keep the first Jena step isolated and synthetic. Explicit RDF 1.2 reifier identity is the working direction; defer transaction architecture selection until a real operation is mapped.
+- Implementation: Installed checksum-verified Fuseki 6.2.0 outside Git using existing Java 25.0.2. Added reproducible Java TDB2 and Python-owned Fuseki HTTP probes plus report/results at ../oldaplib/docs/migration/j0-capability-probe.md.
+- Validation: Final run passed 21 runner checks (including four Java transaction check groups). Covered read-own-writes, concurrent isolation/claims, rollback, request atomicity, restart persistence, all three grant patterns, revocation, graph scope, repeated insertion and Turtle round trip. No listener remains on test port 3031; syntax/diff checks pass.
+- Open: Choose server-command versus multi-request transaction extension; test actual OLDAP workflows, failure recovery, inference and full text. Commit/push pending.
+- Risks/Assumptions: Initial harness expected 404 but observed unsupported-route 405; corrected and rerun. Persistence tests use graceful restart, not crash injection. Anonymous annotation shorthand changes identity semantics. No OLDAP services or data changed.
+
+### Update 2026-10-27 22:11
+- Decisions: Treat SHACL only as model description/read metadata, per user clarification. Prioritize multi-request transaction feasibility and RDF 1.2 grant identity before backend implementation.
+- Implementation: Added source-backed migration assessment at ../oldaplib/docs/migration/jena-assessment.md, covering transactions/recovery, RDF-star conversion, inference/graph scope, full text and model round trips; recorded phased acceptance gates and primary sources.
+- Validation: Inspected both repositories and setup templates; local RDFLib 7.6.0 default Turtle parser rejected legacy RDF-star and RDF 1.2 triple-term probes. No Fuseki runtime or live database test performed.
+- Open: Pin/install Jena and prove transaction and annotation contracts; choose transaction architecture, reifier identity and inference/search configuration.
+- Risks/Assumptions: Standard remote SPARQL calls do not preserve existing interactive transaction semantics; runtime GraphDB ruleset not verified. No application code, data or services changed by this assessment.
+
+### Update 2026-10-27 12:10
+- Decisions: Use a separate authenticated native Redis on 127.0.0.1:6381; cache DB 0 and writer DB 1 share AOF/fsync-always/noeviction. No autostart installed.
+- Implementation: Created private runtime configuration/data and ignored Redis-only .env.local. Updated native run targets to respect OLDAP_REDIS_URL. Added local lifecycle documentation.
+- Validation: Authenticated PING, unauthenticated rejection, DB isolation, WAITAOF and persistence across restart passed; probe removed. Existing Redis PIDs unchanged; git diff check passed.
+- Open: Fuseki, API endpoint/authentication configuration and isolated startup; commit/push pending.
+- Risks/Assumptions: Existing service-control/test targets still refer to original OLDAP; do not use them for Jena. Redis setup alone does not establish backend compatibility.
+
+### Update 2026-10-27 12:07
+- Decisions: Isolate Jena development in sibling worktrees with Python 3.13 environments; use current ontology development as the library baseline.
+- Implementation: Fast-forwarded the library migration branch from 0.4.27 to existing 0.7.29 history. Configured the API's editable sibling-library dependency and documented environment setup; retained PyCharm's in-project virtualenv setting.
+- Validation: Poetry installation and lock checks passed in both Python 3.13 environments; API import resolves to the sibling migration library (0.7.29). API metadata deprecation warnings remain.
+- Open: Separate Fuseki/Redis configuration, API ports and migration compatibility assessment; commit/push environment changes.
+- Risks/Assumptions: Local path dependency is for migration development, not distributable releases. No services started or existing database configuration changed.
+
 ### Update 2026-10-26 00:50
 - Decisions: Make structured Dating opt-in via Accept so existing clients retain legacy response shapes.
 - Implementation: Updated OpenAPI DatingValue response contract. Shared serializer retains precision/calendar/verbatim uncertainty; search expands only requested Dating fields with reader-authorized batches of 100. Ten focused serialization/read/search tests pass, including legacy defaults, batching and unreadable omission. Restarted local API; live search and detail return full dates and uncertainty.

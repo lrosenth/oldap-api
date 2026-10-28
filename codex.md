@@ -1,5 +1,23 @@
 # OLDAP API Codex Context
 
+- Migration compatibility requirement (2026-10-27): keep HTTP API contracts and public oldaplib signatures/returns/errors/transaction composition stable, including harvester/tool callers. Change internal helpers/transport first. Any unavoidable public break requires explicit user discussion plus old/new contract, caller inventory and coordinated migration documentation before implementation. See the public compatibility section of `../oldaplib/docs/migration/transaction-single-request-design.md`.
+
+- Single-request transaction audit (2026-10-27): `../oldaplib/docs/migration/transaction-single-request-design.md` inventories 620 Python files across eight repositories, including helpers/hooks and direct harvester/tool writers. Target one atomic mutation command; arbitrary Python intermediate reads/callbacks cannot be transparently buffered. Guarded data+revision+receipt updates pass isolated concurrency tests; false WHERE does not abort following updates. Proposed pilot: authentication revocation, then resource+audit+outbox composition. No production transaction port yet.
+
+- J0 capability probe (2026-10-27): Jena/Fuseki 6.2.0 with existing Java 25.0.2 passes synthetic TDB2 transactions and RDF 1.2 reifier tests; see `../oldaplib/docs/migration/j0-capability-probe.md`. Stock HTTP updates are atomic per request, not a replacement for Python interactive transactions. Repeated anonymous annotation shorthand creates distinct reifiers; explicit identity is required for current grant semantics. Test server stopped; transaction architecture selection is next.
+
+- Jena migration assessment (2026-10-27): see `../oldaplib/docs/migration/jena-assessment.md`. First feasibility gates are interactive remote transactions and RDF 1.2 permission reifiers. SHACL is model documentation/read metadata, not a runtime validator (user clarification); preserve model loading and Python constraints without introducing SHACL enforcement. Inference and full-text parity require explicit tests. Architecture is proposed, not yet selected or implemented.
+
+## Jena migration development environment
+
+- Native Jena Redis is configured on localhost:6381 (cache DB 0, durable writer DB 1), with private credentials and data outside Git. It is manually started, not managed by the original OLDAP service controllers. See `doc/jena-local-development.md`; Fuseki and API startup isolation remain pending.
+
+- Work on `migration/jena` in `/Users/rosenth/ProgDev/OLDAP-Jena`, with a separate Python 3.13 `.venv` in each repository.
+- Library baseline is `refactor/ontology` at 0.7.29, not the outdated library `main` (0.4.27); API baseline is `main` at 0.2.37.
+- The migration API uses the sibling `../oldaplib` as an editable Poetry dependency. Install with `poetry install` in the API and `poetry install --with dev` in the library.
+- This is a local development configuration; restore a published library dependency before producing distributable API releases.
+- Redis isolation and synthetic Jena capability tests are complete. Next: choose the transaction boundary using one real OLDAP operation; API port/startup isolation and full backend compatibility remain pending. Existing GraphDB service controls/configuration are not migration-environment setup commands.
+
 - Clients may request lossless Dating via `Accept: application/json; dating=structured`; legacy responses stay unchanged. Instance/media serialization retains precision, calendar and verbatim text. Search hydrates requested date links through bounded reader-authorized summaries. FasnachtsPage opts in centrally. See `doc/dating-json.md`; no ontology or oldaplib change.
 
 - License (2026-10-20): OLDAP API is explicitly AGPL-3.0-only. The root LICENSE contains the official GNU AGPL v3 text; README.md and tool.poetry.license declare version 3 only. Keep package metadata and licensing documentation consistent. This local declaration does not publish a release or change dependency licenses.

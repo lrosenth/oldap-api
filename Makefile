@@ -94,7 +94,7 @@ run: check-local-env
 	OLDAP_API_PORT=8000 \
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
-	OLDAP_REDIS_URL="redis://localhost:6379/0" \
+	OLDAP_REDIS_URL="$${OLDAP_REDIS_URL:-redis://localhost:6379/0}" \
 	OLDAP_STAGING_LOCK_REDIS_URL="$${OLDAP_STAGING_LOCK_REDIS_URL:-redis://localhost:6379/1}" \
 	APP_ENV="Dev" \
 	poetry run python oldap-api-app.py
@@ -108,7 +108,7 @@ run-prod: check-local-env
 	OLDAP_API_PORT=8000 \
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
-	OLDAP_REDIS_URL="redis://localhost:6379/0" \
+	OLDAP_REDIS_URL="$${OLDAP_REDIS_URL:-redis://localhost:6379/0}" \
 	OLDAP_STAGING_LOCK_REDIS_URL="$${OLDAP_STAGING_LOCK_REDIS_URL:-redis://localhost:6379/1}" \
 	APP_ENV="Prod" \
 	poetry run gunicorn oldap_api.wsgi:app -b 127.0.0.1:8000 --workers 1 --threads 4 --timeout 60 --access-logfile - --error-logfile -

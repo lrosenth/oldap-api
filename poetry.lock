@@ -1244,12 +1244,10 @@ name = "oldaplib"
 version = "0.7.29"
 description = "Open Media Access Server Library (Linked Open Data middleware/RESTApi)"
 optional = false
-python-versions = "<4.0,>=3.12"
+python-versions = ">=3.12,<4.0"
 groups = ["main"]
-files = [
-    {file = "oldaplib-0.7.29-py3-none-any.whl", hash = "sha256:7c6c328b941186e004a86ea1f6d87159e54e52dc03c92f9d05ce6776d3886d2f"},
-    {file = "oldaplib-0.7.29.tar.gz", hash = "sha256:fa94a5210a3fee38e5493475ed3d1d6eefb893253a7109058e78823a923662a0"},
-]
+files = []
+develop = true
 
 [package.dependencies]
 bcrypt = "5.0.0"
@@ -1269,6 +1267,10 @@ shapely = ">=2.1.2,<3.0.0"
 validators = ">=0.35.0,<0.36.0"
 xmlschema = ">=4.1.0,<5.0.0"
 yamale = ">=6.0.0,<7.0.0"
+
+[package.source]
+type = "directory"
+url = "../oldaplib"
 
 [[package]]
 name = "openapi-schema-validator"
@@ -2490,4 +2492,4 @@ ruamel = ["ruamel.yaml"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "092e484cb5d7f41460fbd3dcc27b597a82d8317c7de181bd38bab26cb27689af"
+content-hash = "deb783de441294acf57292558aaf45b63f6e278abd51addcb95fe47bee72e8aa"
