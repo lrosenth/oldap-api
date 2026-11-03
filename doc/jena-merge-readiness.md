@@ -1,6 +1,6 @@
 # API merge preparation — 2026-11-03
 
-**Merge gate remains open: the normal-speed full integration probe fails.**
+**The normal-speed full integration gate now passes; 1.0 packaging and deployment acceptance remain open.**
 
 Local checkpoint on `migration/jena`, paired with library commit `827bc56`.
 This is not a final 1.0 release or deployment approval. The coordinated sequence
@@ -68,16 +68,32 @@ not be republished. The OpenAPI top-level version is historically 0.1.0; synchro
 it with runtime/package/bump metadata during the 1.0 step.
 
 Review current consumers, final candidate images, home workflow/concurrency and
-backup/restore acceptance before merge/deployment. The old full probe returned COORDINATION_UNAVAILABLE
-(503) instead of STALE_REVIEW (409) after retrying an already-applied archive plan.
-Normal-speed repeats reproduced it; tracing or running the archive case alone
-masked it. Lightweight diagnostics identified the backend refusal as "Identity
-verification unavailable" on a model READ. The old probe hosted callbacks inside
-the API process, unlike the independently deployed verifier. Its lifecycle now
-uses a separate process. The separate-verifier full run also fails with 503 at the same stale-plan
-assertion. Process separation is therefore not a proven fix. The 409 assertion
-and application transaction semantics remain unchanged. Investigate the verifier
-transport/response failure under the normal full request sequence before marking
-this branch merge-ready. Do not weaken assertions or add automatic write retries.
-The passing traced run is diagnostic evidence, not final integration acceptance. Git main, release tags, remote
-branches, Docker Hub and production remain unchanged by this checkpoint.
+backup/restore acceptance before merge/deployment. Git main, release tags, remote
+branches, Docker Hub and production remain unchanged.
+
+## Resolved full-probe failure: HTTP connection churn
+
+The pre-fix normal full probe reproducibly returned COORDINATION_UNAVAILABLE
+(503) instead of the expected stale-plan 409. Tracing and shortened runs masked
+it. A previous diagnostic observed an unavailable identity callback; separating
+the verifier did not resolve the full sequence. Subsequent transport diagnostics
+identified the current failure precisely: Python's model READ raised `OSError`
+errno 49, `EADDRNOTAVAIL` ("Can't assign requested address"). More than 11,000
+TIME_WAIT sockets were observed. The older callback exception's own socket cause
+was not captured and should not be asserted retroactively.
+
+The library previously called `requests.post` for every SPARQL operation, opening
+and closing a fresh HTTP session each time. It now owns one reusable Session per
+JenaConnection. A real loopback HTTP/1.1 regression demonstrated 20 separate TCP
+connections before the fix and one afterward. Pools stay separate per connection;
+credentials remain request headers. Failed initialization and garbage collection
+close the pool without issuing database operations. Automatic HTTP retries remain
+disabled; BEGIN-only explicit-conflict retry and uncertain-write rules are intact.
+
+The complete untraced probe now passes all 162 checks, including the unchanged
+409 stale-adoption assertion, rollback, receipts, permissions, fulltext, media and
+native project transfer. No test sections were skipped. Also passed: 65 library
+offline tests plus six subtests, three owned HTTP/lifecycle tests, and 61 API
+offline tests plus 13 subtests. Source fingerprints and retained historical
+failures are in `jena-merge-api-results.json`. Java and GraphDB code are unchanged.
+This correction is local source work, not an update of home.org or production.
