@@ -33,7 +33,8 @@ from flask import (
     make_response,
 )
 from oldaplib.src.authentication import AuthorizationContext, TokenCodec
-from oldaplib.src.connection import Connection
+from oldap_api.backend import create_connection as Connection
+from oldaplib.src.iconnection import IConnection
 from oldaplib.src.enums.userattr import UserAttr
 from oldaplib.src.helpers.oldaperror import (
     OldapErrorNotFound,
@@ -65,7 +66,7 @@ def _token_codec() -> TokenCodec:
     return TokenCodec.from_environment()
 
 
-def _authentication_connection() -> Connection:
+def _authentication_connection() -> IConnection:
     """Create the privileged connection used for refresh and revocation."""
     userid = os.getenv("OLDAP_AUTH_ADMIN_USER")
     password = os.getenv("OLDAP_AUTH_ADMIN_PASSWORD")
@@ -252,7 +253,7 @@ def _password_reset_secret() -> str:
     return secret
 
 
-def _password_reset_connection() -> Connection:
+def _password_reset_connection() -> IConnection:
     userid = os.getenv("OLDAP_PASSWORD_RESET_ADMIN_USER")
     password = os.getenv("OLDAP_PASSWORD_RESET_ADMIN_PASSWORD")
     if not userid or not password:
@@ -266,7 +267,7 @@ def _password_reset_connection() -> Connection:
 
 
 def _resolve_password_reset_user(
-    con: Connection, data: dict
+    con: IConnection, data: dict
 ) -> tuple[User | None, str | None]:
     user_id = (data.get("userId") or "").strip()
     email = (data.get("email") or "").strip()

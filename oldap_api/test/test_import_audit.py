@@ -54,3 +54,45 @@ def test_audit_event_whitelists_fields_and_redacts_sensitive_values():
         job.active_claim_id,
     ):
         assert secret not in logger.message
+
+
+def test_failure_records_chain_locations_without_messages_or_source(caplog):
+    import logging
+    from oldap_api.imports.audit import log_import_failure
+
+    try:
+        try:
+            raise ValueError('private-query-and-token')
+        except ValueError as cause:
+            raise RuntimeError('private-response-body') from cause
+    except RuntimeError as error:
+        log_import_failure(logging.getLogger(__name__), error,
+                           endpoint='internal_import.record_import_validation_result',
+                           request_id='request-42')
+    assert 'RuntimeError' in caplog.text
+    assert 'ValueError' in caplog.text
+    assert 'test_failure_records_chain_locations_without_messages_or_source' in caplog.text
+    assert 'request-42' in caplog.text
+    assert 'private-query-and-token' not in caplog.text
+    assert 'private-response-body' not in caplog.text
+    assert 'raise RuntimeError' not in caplog.text
+
+
+def test_failure_respects_suppressed_context_and_cycles(caplog):
+    import logging
+    from oldap_api.imports.audit import log_import_failure
+
+    try:
+        try:
+            raise ValueError('secret')
+        except ValueError:
+            raise RuntimeError('hidden') from None
+    except RuntimeError as error:
+        log_import_failure(logging.getLogger(__name__), error,
+                           endpoint='test', request_id='request-43')
+    assert 'ValueError' not in caplog.text
+    error = RuntimeError('cycle')
+    error.__cause__ = error
+    log_import_failure(logging.getLogger(__name__), error,
+                       endpoint='test', request_id='request-44')
+    assert 'request-44' in caplog.text

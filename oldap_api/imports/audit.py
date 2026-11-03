@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Protocol
+import traceback
 
 from .domain import ImportJob
 
@@ -11,6 +12,8 @@ class AuditLogger(Protocol):
     """Minimal logger contract required by the import audit boundary."""
 
     def info(self, message: str, *args: object) -> None: ...
+
+    def error(self, message: str, *args: object) -> None: ...
 
 
 def log_import_event(
@@ -39,3 +42,27 @@ def log_import_event(
         job.state_version,
         request_id,
     )
+
+
+def log_import_failure(logger: AuditLogger, error: Exception, *, endpoint: str,
+                       request_id: str) -> None:
+    """Record exception types and code locations without exception contents.
+
+    Follow the bounded explicit/implicit cause chain, respecting suppressed
+    context. Never format exception messages, source lines, locals, request
+    bodies or headers: database and HTTP errors may contain private payloads.
+    The request ID correlates the public error with this server-only diagnostic.
+    """
+    chain = []
+    seen = set()
+    current = error
+    while current is not None and id(current) not in seen and len(chain) < 8:
+        seen.add(id(current))
+        frames = traceback.extract_tb(current.__traceback__)
+        locations = [f"{frame.filename.rsplit('/', 1)[-1]}:{frame.name}:{frame.lineno}"
+                     for frame in frames[-12:]]
+        chain.append({"type": type(current).__name__, "locations": locations})
+        current = (current.__cause__ if current.__cause__ is not None else
+                   None if current.__suppress_context__ else current.__context__)
+    logger.error("import_failure endpoint=%s requestId=%s exceptions=%s",
+                 endpoint, request_id, chain)

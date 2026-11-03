@@ -20,7 +20,7 @@ from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.helpers.irincname import IriOrNCName
 from oldaplib.src.helpers.observable_set import ObservableSet
 from oldaplib.src.helpers.oldaperror import OldapErrorValue, OldapError, OldapErrorAlreadyExists, OldapErrorNotFound, \
-    OldapErrorNoPermission, OldapErrorUpdateFailed
+    OldapErrorNoPermission, OldapErrorUpdateFailed, OldapErrorInconsistency
 from oldaplib.src.in_project import InProjectClass
 from oldaplib.src.user import User
 from oldaplib.src.xsd.iri import Iri
@@ -243,6 +243,8 @@ def delete_user(userid):
     try:
         user = User.read(con=con, userId=userid)
         user.delete()
+    except OldapErrorInconsistency as error:
+        return jsonify({"message": str(error)}), 409
     except OldapErrorValue as error:
         return jsonify({'message': str(error)}), 400
     except OldapErrorNotFound as error:
@@ -466,6 +468,8 @@ def modify_user(userid):
                 user.isActive = Xsd_boolean(isactive)
         try:
             user.update()
+        except OldapErrorInconsistency as error:
+            return jsonify({"message": str(error)}), 409
         except OldapErrorUpdateFailed as error:  # hard to test
             return jsonify({"message": str(error)}), 500
         except OldapErrorValue as error:

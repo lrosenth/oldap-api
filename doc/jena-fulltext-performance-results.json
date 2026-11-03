@@ -1,0 +1,199 @@
+{
+  "responses_equal": true,
+  "samples": [
+    {
+      "mode": "baseline",
+      "case": "title",
+      "milliseconds": [
+        3279.99,
+        3307.62,
+        3302.61
+      ],
+      "median_ms": 3302.61
+    },
+    {
+      "mode": "baseline",
+      "case": "title_count",
+      "milliseconds": [
+        3226.81,
+        3236.88,
+        3277.6
+      ],
+      "median_ms": 3236.88
+    },
+    {
+      "mode": "baseline",
+      "case": "media_words",
+      "milliseconds": [
+        1667.13,
+        1671.38,
+        1754.51
+      ],
+      "median_ms": 1671.38
+    },
+    {
+      "mode": "baseline",
+      "case": "linked_words",
+      "milliseconds": [
+        1745.86,
+        1784.46,
+        1740.67
+      ],
+      "median_ms": 1745.86
+    },
+    {
+      "mode": "baseline",
+      "case": "pdf",
+      "milliseconds": [
+        3277.75,
+        3274.17,
+        3228.57
+      ],
+      "median_ms": 3274.17
+    },
+    {
+      "mode": "baseline",
+      "case": "field_union",
+      "milliseconds": [
+        1832.73,
+        1845.07,
+        1865.52
+      ],
+      "median_ms": 1845.07
+    },
+    {
+      "mode": "early",
+      "case": "title",
+      "milliseconds": [
+        60.62,
+        59.12,
+        58.36
+      ],
+      "median_ms": 59.12
+    },
+    {
+      "mode": "early",
+      "case": "title_count",
+      "milliseconds": [
+        56.88,
+        55.43,
+        56.17
+      ],
+      "median_ms": 56.17
+    },
+    {
+      "mode": "early",
+      "case": "media_words",
+      "milliseconds": [
+        87.36,
+        86.73,
+        86.51
+      ],
+      "median_ms": 86.73
+    },
+    {
+      "mode": "early",
+      "case": "linked_words",
+      "milliseconds": [
+        143.42,
+        144.83,
+        140.65
+      ],
+      "median_ms": 143.42
+    },
+    {
+      "mode": "early",
+      "case": "pdf",
+      "milliseconds": [
+        61.65,
+        58.78,
+        57.16
+      ],
+      "median_ms": 58.78
+    },
+    {
+      "mode": "early",
+      "case": "field_union",
+      "milliseconds": [
+        137.72,
+        135.66,
+        134.09
+      ],
+      "median_ms": 135.66
+    },
+    {
+      "mode": "grouped",
+      "case": "title",
+      "milliseconds": [
+        54.02,
+        53.67,
+        53.48
+      ],
+      "median_ms": 53.67
+    },
+    {
+      "mode": "grouped",
+      "case": "title_count",
+      "milliseconds": [
+        50.89,
+        51.37,
+        51.77
+      ],
+      "median_ms": 51.37
+    },
+    {
+      "mode": "grouped",
+      "case": "media_words",
+      "milliseconds": [
+        80.99,
+        79.6,
+        81.45
+      ],
+      "median_ms": 80.99
+    },
+    {
+      "mode": "grouped",
+      "case": "linked_words",
+      "milliseconds": [
+        128.52,
+        128.03,
+        131.92
+      ],
+      "median_ms": 128.52
+    },
+    {
+      "mode": "grouped",
+      "case": "pdf",
+      "milliseconds": [
+        55.79,
+        55.3,
+        54.33
+      ],
+      "median_ms": 55.3
+    },
+    {
+      "mode": "grouped",
+      "case": "field_union",
+      "milliseconds": [
+        133.79,
+        133.37,
+        133.47
+      ],
+      "median_ms": 133.47
+    }
+  ],
+  "validation": {
+    "native_checks": 169,
+    "fulltext_checks": 26,
+    "export_checks": 23,
+    "offline_tests": 27,
+    "final_query_median_ms": 76,
+    "final_query_max_ms": 493,
+    "browser_both_word_orders": {
+      "total": 20,
+      "media": 14,
+      "objects": 5,
+      "events": 1
+    }
+  }
+}

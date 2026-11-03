@@ -25,9 +25,9 @@ help:
 	@echo "  bump-patch-level  Increase version number, patch level"
 	@echo "  bump-minor-lavel  Increase version number, minor level"
 	@echo "  bump-major-level  Increase version numer, major level"
-	@echo "  docker-build      Build docker image"
+	@echo "  docker-build      Disabled here; use the Jena candidate workflow"
 	@echo "  docker-run        Run the docker image"
-	@echo "  docker-push       Push latest version to docker-hub"
+	@echo "  docker-push       Disabled here; use the Jena candidate workflow"
 
 show-version:
 	@echo "VERSION=${VERSION}"
@@ -129,12 +129,8 @@ bump-major-level:
 	git push --follow-tags
 
 docker-build:
-	 docker buildx build \
-		--platform linux/amd64,linux/arm64 \
-		-t lrosenth/oldap-api:$(VERSION) \
-		-t lrosenth/oldap-api:latest \
-		--push .
-
+	@echo "Normal release publication is disabled in this migration checkout. Use oldap-setup/scripts/jena-images.py (see its README)." >&2
+	@exit 1
 docker-run: check-local-env
 	docker pull lrosenth/oldap-api:latest
 	docker run --rm -it \
@@ -153,5 +149,5 @@ docker-run: check-local-env
 	lrosenth/oldap-api:latest
 
 docker-push:
-	docker push lrosenth/oldap-api:$(VERSION)
-	docker push lrosenth/oldap-api:latest
+	@echo "Normal release publication is disabled in this migration checkout. Use oldap-setup/scripts/jena-images.py (see its README)." >&2
+	@exit 1

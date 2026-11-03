@@ -1,0 +1,480 @@
+{
+  "date": "2026-10-31",
+  "status": "passed",
+  "native_checks": 166,
+  "offline_tests": 27,
+  "api_acceptance": {
+    "status": "passed",
+    "checks": [
+      "Regular API startup selects Jena and bootstraps namespaces",
+      "Health reports Jena without contacting GraphDB",
+      "Private identity verification requires its service credential",
+      "Refresh cookie reloads user permissions through Jena",
+      "Existing credential login issues a token accepted by the Jena service",
+      "Full Fasnacht planning does not create the project",
+      "Full Fasnacht import creates every declared resource class",
+      "fasnacht:Place uses only the canonical isPartOf field",
+      "fasnacht:CarnivalThing uses only the canonical isPartOf field",
+      "Full Fasnacht archive assignment has no inverse axiom",
+      "Full Fasnacht replay plans zero changes",
+      "Real Fasnacht export passes canonical-part preflight",
+      "Real export preserves every non-part instance triple",
+      "Real export part pairs equal the exact forward/reversed union",
+      "Real export no longer contains hasPart instance assertions",
+      "Real export conversion replay leaves all instance triples unchanged",
+      "Real export API reverse lookup matches readable children 1",
+      "Real export API reverse lookup matches readable children 2",
+      "Real export API reverse lookup matches readable children 3",
+      "Real export API reverse lookup matches readable children 4",
+      "Real export API reverse lookup matches readable children 5",
+      "Real export single-resource API exposes the canonical parent field",
+      "Real export API comparison covers nonempty readable part relationships",
+      "Part-search diagnostic variants preserve exact API response bodies"
+    ]
+  },
+  "http_profile": {
+    "object_cache": "disabled",
+    "same_parent": true,
+    "cases": {
+      "rehearsal/current": {
+        "ms": [
+          523.58,
+          576.94,
+          497.494
+        ],
+        "median_ms": 523.58,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 8.105,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 7.548,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 484.116,
+              "query_hash": "436e8d5db9c0",
+              "chars": 16533,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 8.034,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 7.515,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 534.757,
+              "query_hash": "436e8d5db9c0",
+              "chars": 16533,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 5.188,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.897,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 470.213,
+              "query_hash": "436e8d5db9c0",
+              "chars": 16533,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "rehearsal/direct_control": {
+        "ms": [
+          28.599,
+          31.38,
+          26.83
+        ],
+        "median_ms": 28.599,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.85,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.146,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 5.351,
+              "query_hash": "b05e6240da8a",
+              "chars": 3225,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 5.441,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 6.188,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 5.55,
+              "query_hash": "b05e6240da8a",
+              "chars": 3225,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.343,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.188,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 4.634,
+              "query_hash": "b05e6240da8a",
+              "chars": 3225,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "rehearsal/bound_object": {
+        "ms": [
+          64.116,
+          67.809,
+          63.381
+        ],
+        "median_ms": 64.116,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.07,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.019,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 42.713,
+              "query_hash": "e42df1448a8f",
+              "chars": 16756,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.988,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.635,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 43.387,
+              "query_hash": "e42df1448a8f",
+              "chars": 16756,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.235,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.685,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 42.01,
+              "query_hash": "e42df1448a8f",
+              "chars": 16756,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "frontend/current": {
+        "ms": [
+          939.916,
+          911.309,
+          923.986
+        ],
+        "median_ms": 923.986,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.288,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.464,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 915.426,
+              "query_hash": "f22b455d1d0c",
+              "chars": 23618,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.62,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.151,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 886.092,
+              "query_hash": "f22b455d1d0c",
+              "chars": 23618,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.424,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.644,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 896.88,
+              "query_hash": "f22b455d1d0c",
+              "chars": 23618,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "frontend/direct_control": {
+        "ms": [
+          507.299,
+          510.639,
+          509.041
+        ],
+        "median_ms": 509.041,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.331,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.126,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 482.297,
+              "query_hash": "4c3e9ad042ab",
+              "chars": 10310,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.258,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.628,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 485.909,
+              "query_hash": "4c3e9ad042ab",
+              "chars": 10310,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.352,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.034,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 483.443,
+              "query_hash": "4c3e9ad042ab",
+              "chars": 10310,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "frontend/bound_object": {
+        "ms": [
+          557.8,
+          644.256,
+          620.495
+        ],
+        "median_ms": 620.495,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.361,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.84,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 532.61,
+              "query_hash": "518fbab8e288",
+              "chars": 23841,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 5.763,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.515,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 614.167,
+              "query_hash": "518fbab8e288",
+              "chars": 23841,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 6.374,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 5.761,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 579.442,
+              "query_hash": "518fbab8e288",
+              "chars": 23841,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      }
+    },
+    "note": "Query durations include transport/identity and may overlap; do not sum."
+  },
+  "limits": [
+    "One representative parent with two children; three sequential samples per variant.",
+    "Object cache disabled; warm local runs, no concurrency benchmark.",
+    "Original baseline comes from the preceding run on the same source/model, not an interleaved benchmark.",
+    "Direct-only and object-binding variants are diagnostics, not installed runtime semantics."
+  ]
+}

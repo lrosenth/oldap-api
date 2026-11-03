@@ -1,0 +1,59 @@
+{
+  "project": "chama",
+  "resourceIdentities": 54,
+  "resourceTypes": 17,
+  "comparisons": 112,
+  "differences": 35,
+  "statusDifferences": 0,
+  "differenceFields": {
+    "virtual:inferredTypes": 27,
+    "schema:hasPart": 1,
+    "chama:hasKnowledgeContribution": 8
+  },
+  "vocabularyGraphs": [
+    "urn:oldap:vocab:dcterms",
+    "urn:oldap:vocab:schema",
+    "urn:oldap:vocab:skos"
+  ],
+  "sourceSchemaBytes": 1505107,
+  "targetCache": "owned Redis, separate cache and coordination databases",
+  "sourceExportByteStable": true,
+  "sourceSchemaByteStable": true,
+  "sourceApiStable": true,
+  "sourceAdminByteStable": true,
+  "sourceProjectBytes": 120663,
+  "sourceProjectSha256": "94314ffadf4bac3bcf1b006f4b942a14c7406cea38d7f8aaffbd5d552073c406",
+  "statusCounts": {
+    "admin": {
+      "200": 56
+    },
+    "anonymous": {
+      "200": 34,
+      "404": 22
+    }
+  },
+  "projectConversion": {
+    "formatVersion": 1,
+    "sourceTextSha256": "94314ffadf4bac3bcf1b006f4b942a14c7406cea38d7f8aaffbd5d552073c406",
+    "ordinaryQuadsPreserved": 1732,
+    "parsedAnnotationOccurrences": 54,
+    "membershipReifiers": 54,
+    "orphanedMembershipReifiers": 0,
+    "assertedMembershipsAdded": 0,
+    "mode": "offline-review-only",
+    "outputSha256": "74501e0d3796baaedb1aa780474ee0854723608934ac5699e986109340f9f05d",
+    "roundTripVerified": true
+  },
+  "adminConversion": {
+    "formatVersion": 1,
+    "ordinaryQuadsPreserved": 225,
+    "parsedAnnotationOccurrences": 14,
+    "membershipReifiers": 14,
+    "orphanedMembershipReifiers": 2,
+    "assertedMembershipsAdded": 0,
+    "mode": "offline-review-only",
+    "roundTripVerified": true
+  },
+  "outcome": "Comparison completed; content parity not yet achieved (bounded entailment gaps).",
+  "date": "2026-10-29"
+}

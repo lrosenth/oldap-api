@@ -1,0 +1,31 @@
+{
+  "checks": [
+    "Public Jena identity receives usable SIPI capability",
+    "Real TIFF derivative delivered as JPEG",
+    "Signed HEAD and browser CORS succeed",
+    "Revoked public membership prevents new media capability issuance",
+    "Restored membership issues a usable renewed capability",
+    "invalid capability denied after successful image request",
+    "absent capability denied after successful image request",
+    "expired capability denied after successful image request",
+    "wrong-asset capability denied after successful image request",
+    "no-permission capability denied after successful image request"
+  ],
+  "asset": "bmg_archive_0024_001_stamm_1912_fotos_fasnacht_004",
+  "media_iri": "urn:uuid:3553c881-c53b-444a-ac8d-2995cf4966fe",
+  "source_sha256": "6d6735246f42a6cb726e1dbeee8748deb73304920bab391680f31a215acfe7a7",
+  "width": 1589,
+  "height": 2914,
+  "scope": "Signed image delivery only; anonymous fallback, PDF, uploads and production load excluded.",
+  "date": "2026-10-31",
+  "status": "passed",
+  "api_checks": 23,
+  "offline_tests": 2,
+  "source_hash_verified_after_cleanup": true,
+  "browser_checks": [
+    "Anonymous media detail displays the real lantern image",
+    "Zoom enlarges the image",
+    "Reset restores the initial view"
+  ],
+  "services_stopped": true
+}

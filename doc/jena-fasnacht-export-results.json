@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-30",
+  "status": "passed",
+  "checks": [
+    "Regular API startup selects Jena and bootstraps namespaces",
+    "Health reports Jena without contacting GraphDB",
+    "Private identity verification requires its service credential",
+    "Refresh cookie reloads user permissions through Jena",
+    "Existing credential login issues a token accepted by the Jena service",
+    "Full Fasnacht planning does not create the project",
+    "Full Fasnacht import creates every declared resource class",
+    "fasnacht:Place uses only the canonical isPartOf field",
+    "fasnacht:CarnivalThing uses only the canonical isPartOf field",
+    "Full Fasnacht archive assignment has no inverse axiom",
+    "Full Fasnacht replay plans zero changes",
+    "Real Fasnacht export passes canonical-part preflight",
+    "Real export preserves every non-part instance triple",
+    "Real export part pairs equal the exact forward/reversed union",
+    "Real export no longer contains hasPart instance assertions",
+    "Real export conversion replay leaves all instance triples unchanged",
+    "Real export API reverse lookup matches readable children 1",
+    "Real export API reverse lookup matches readable children 2",
+    "Real export API reverse lookup matches readable children 3",
+    "Real export API reverse lookup matches readable children 4",
+    "Real export API reverse lookup matches readable children 5",
+    "Real export single-resource API exposes the canonical parent field",
+    "Real export API comparison covers nonempty readable part relationships"
+  ],
+  "data": {
+    "before_triples": 38674,
+    "after_triples": 38674,
+    "legacy_hasPart": 2,
+    "canonical_pairs": 11,
+    "preserved_other_triples": 38663,
+    "audit_role_count": 9,
+    "readable_resources": 1548,
+    "account_restore": false,
+    "subject_links_preserved": 1,
+    "archive_assignments_preserved": 0
+  },
+  "api_parent_comparisons": 5,
+  "source_sha256": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+  "source_export_byte_stable": true,
+  "conversion": {
+    "formatVersion": 1,
+    "sourceTextSha256": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+    "ordinaryQuadsPreserved": 35829,
+    "parsedAnnotationOccurrences": 2919,
+    "membershipReifiers": 2919,
+    "orphanedMembershipReifiers": 0,
+    "assertedMembershipsAdded": 0,
+    "mode": "offline-review-only",
+    "outputSha256": "3dda058197d029e36e44cd85f71d042569aa3e8bb83be3a0a2f24a98feef4269",
+    "roundTripVerified": true
+  },
+  "limits": [
+    "Current local source, not production",
+    "Owned audit identity, no account restore or actual-user parity",
+    "Model/taxonomies from current YAML; old source model retained, not imported",
+    "No fulltext, media-binary or browser acceptance",
+    "Search timings need separate performance acceptance"
+  ]
+}

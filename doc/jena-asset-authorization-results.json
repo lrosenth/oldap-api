@@ -1,0 +1,36 @@
+{
+  "policy_observations": {
+    "signed_zero_permission_status": 403,
+    "invalid_token_public_original_status": 403
+  },
+  "checks": [
+    "JS55Oy9IH15k/derived: exact bytes, attachment, MIME, HEAD, range and CORS",
+    "JS55Oy9IH15k/original: exact bytes, attachment, MIME, HEAD, range and CORS",
+    "bmg_archive_0024_001_stamm_1912_fotos_fasnacht_004/original: exact bytes, attachment, MIME, HEAD, range and CORS",
+    "Authorized PDF inline delivery succeeds; anonymous API lookup returns 404",
+    "absent token cannot retrieve internal PDF",
+    "invalid token cannot retrieve internal PDF",
+    "expired token cannot retrieve internal PDF",
+    "other-asset token cannot retrieve internal PDF",
+    "Zero permission and invalid supplied tokens denied; tokenless public original still available"
+  ],
+  "pdf_iri": "urn:uuid:813a29d0-cbc3-41c3-b148-f0ad55dda343",
+  "source_sha256": {
+    "fasnacht/document/bmg/JS55Oy9IH15k/derived/document.pdf": "77c75576937e67415077bcb9df7d0f8952e2efaa07beedeac042109506c1e864",
+    "fasnacht/document/bmg/JS55Oy9IH15k/original/1948_bmg-protokolle.pdf": "77c75576937e67415077bcb9df7d0f8952e2efaa07beedeac042109506c1e864",
+    "fasnacht/image/bmg/bmg_archive_0024_001_stamm_1912_fotos_fasnacht_004/original/004.jpg": "e5ca5c52edca1dbc348098bf56cfe8c419b8b52919c569985bc798327ca2c87a"
+  },
+  "scope": "Installed mediahelper runtime with read-only repository source overlay and unchanged Caddy; invalid supplied capabilities fail closed. Tokenless public lookup retained.",
+  "status": "passed",
+  "date": "2026-10-31",
+  "api_checks": 23,
+  "image_checks": 10,
+  "mediahelper_suite": {
+    "passed": 374,
+    "skipped": 20,
+    "subtests_passed": 4
+  },
+  "source_hashes_verified_after_cleanup": true,
+  "owned_services_stopped": true,
+  "release_status": "Repository source overlay verified in installed container runtime; no rebuilt release or deployment"
+}

@@ -6,7 +6,7 @@ import os
 from uuid import uuid4
 
 from flask import Blueprint, Response, current_app, jsonify, request
-from oldaplib.src.connection import Connection
+from oldap_api.backend import create_connection as Connection, backend_name
 from oldaplib.src.helpers.oldaperror import OldapError
 
 from oldap_api.mobile_media.commit_lock import RedisMobileMediaCommitLock
@@ -38,7 +38,9 @@ def _outbox() -> GraphDbMobileMediaLifecycleOutbox:
             userId=user_id,
             credentials=password,
             context_name="DEFAULT",
-            issue_access_token=False,
+            # Jena authenticates internal HTTP operations with an access token.
+            # It remains inside the API; media workers receive no signing key.
+            issue_access_token=backend_name() == "jena",
         )
     )
 

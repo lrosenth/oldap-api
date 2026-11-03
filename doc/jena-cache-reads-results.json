@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-31",
+  "api_acceptance": {
+    "status": "passed",
+    "checks": [
+      "Regular API startup selects Jena and bootstraps namespaces",
+      "Health reports Jena without contacting GraphDB",
+      "Private identity verification requires its service credential",
+      "Refresh cookie reloads user permissions through Jena",
+      "Existing credential login issues a token accepted by the Jena service",
+      "Real Redis metadata cache is populated and hit during repeated search/detail reads",
+      "Warm shared cache does not transfer reader access to another identity",
+      "Warm read access does not authorize a write",
+      "Warm detail and search projection see committed value updates immediately",
+      "Object permission downgrade immediately removes warm detail/search/count results",
+      "Restored object permission immediately restores warm reads",
+      "Orphaned grant cannot retain access through a warm cache",
+      "Previously issued token immediately observes role removal with warm cache",
+      "Fresh login after role removal cannot read previously cached resources",
+      "Fresh login after role restoration sees the current authorized result",
+      "Account deactivation blocks new login and refresh despite warm cache",
+      "Existing access token retains the documented bounded lifetime after deactivation"
+    ]
+  },
+  "cache": {
+    "status": "passed",
+    "real_redis": true,
+    "cache_methods_mocked": false,
+    "warm_hits_before": 29,
+    "warm_hits_after": 74,
+    "cache_key_count": 19,
+    "scope": "Owned synthetic Jena/Redis; sequential API requests; no production cache or concurrent load."
+  },
+  "offline_tests": 16
+}

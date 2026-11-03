@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-30",
+  "status": "passed",
+  "total_api_checks": 162,
+  "archive_checks": [
+    "Archive API legacy model exposes the subject as an inferred assignment",
+    "Archive tools dry run plans the inverse removal",
+    "Archive API model update removes inverse metadata and keeps cardinality",
+    "Archive API model update removes the persisted OWL axiom",
+    "Archive API direct assignment response remains unchanged",
+    "Archive API no longer derives assignment from a subject link",
+    "Archive API model migration preserves every instance triple",
+    "Archive tools migration replay plans zero writes",
+    "Archive revisions include transaction-local permission changes"
+  ],
+  "backup_inspection": "Previous inverse metadata confirmed in datamodel.json and model.trig",
+  "scope": "Owned minimal demo model using the Fasnacht declaration; not full project migration",
+  "limits": [
+    "Object-cache I/O suppressed",
+    "Forward axiom only; inspect reverse and external axioms separately",
+    "No live system changes"
+  ]
+}

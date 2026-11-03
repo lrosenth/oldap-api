@@ -75,6 +75,7 @@ def test_search_batches_only_dates_and_omits_unreadable(monkeypatch):
                      data={str(prop): [Dating((1515,), verbatimDate='[um 1515]')]})
                     for iri in iris if str(iri) != 'urn:uuid:missing'}
     monkeypatch.setattr(views, 'ResourceInstanceFactory', Factory)
+    monkeypatch.setattr(views, '_search_may_include_dating', lambda *args: True)
     rows = [{'iri': f'urn:uuid:{i}', 'resclass': cls, 'schema:name': ['Title'],
              'fasnacht:dating': ['urn:uuid:date'], 'score': 3} for i in range(100)]
     rows.append(dict(rows[0], iri='urn:uuid:missing'))
@@ -83,3 +84,48 @@ def test_search_batches_only_dates_and_omits_unreadable(monkeypatch):
     assert rows[0]['fasnacht:dating'][0]['verbatimDate'] == '[um 1515]'
     assert all(row['schema:name'] == ['Title'] and row['score'] == 3 for row in rows)
     assert 'fasnacht:dating' not in rows[-1]
+
+
+def test_name_only_search_does_not_construct_factory(monkeypatch):
+    from oldap_api.views import instance_views as views
+    monkeypatch.setattr(views, '_search_may_include_dating', lambda *args: False)
+    def forbidden(**kwargs):
+        pytest.fail('No full model/factory is needed for non-Dating fields')
+    monkeypatch.setattr(views, 'ResourceInstanceFactory', forbidden)
+    rows = [{'iri': 'urn:item', 'resclass': 'shared:Thing', 'schema:name': ['Title'], 'score': 2}]
+    views._expand_search_dating(None, 'shared', rows, ['schema:name'])
+    assert rows == [{'iri': 'urn:item', 'resclass': 'shared:Thing', 'schema:name': ['Title'], 'score': 2}]
+
+
+def test_dating_precheck_uses_live_project_shared_and_inverse_declarations():
+    from rdflib import Dataset
+    from oldaplib.src.helpers.context import Context
+    from oldaplib.src.dtypes.namespaceiri import NamespaceIRI
+    from oldap_api.views import instance_views as views
+    context = Context(name='dating-precheck-test')
+    context['probe'] = NamespaceIRI('https://example.org/dating-probe/')
+    dataset = Dataset()
+    dataset.parse(data=context.turtle_context + """
+        probe:shacl {
+            probe:ParentShape sh:property [ sh:path probe:newDate ; sh:class oldap:Dating ] .
+            probe:ChildShape sh:node probe:ParentShape .
+            probe:InverseShape sh:property [ oldap:field probe:reverseDate ;
+                sh:path [ sh:inversePath probe:source ] ; sh:class oldap:Dating ] .
+            probe:TitleShape sh:path probe:title ; sh:datatype xsd:string .
+        }
+        shared:shacl { shared:ReusableDate sh:path shared:futureDate ; sh:class oldap:Dating . }
+        oldap:shacl { oldap:BaseDate sh:path oldap:futureDate ; sh:class oldap:Dating . }
+    """, format='trig')
+    class Connection:
+        context_name = 'dating-precheck-test'
+        def query(self, sparql):
+            return {'boolean': bool(dataset.query(sparql).askAnswer)}
+    con = Connection()
+    for prop in ['probe:newDate', 'probe:reverseDate', 'shared:futureDate', 'oldap:futureDate']:
+        assert views._search_may_include_dating(con, 'probe', [prop])
+    assert not views._search_may_include_dating(con, 'probe', ['probe:title', 'probe:missing'])
+    # New fields must work immediately, without a prebuilt field list or cache.
+    dataset.update(context.sparql_context + 'INSERT DATA { GRAPH probe:shacl { probe:Added sh:path probe:addedDate ; sh:class oldap:Dating . } }')
+    assert views._search_may_include_dating(con, 'probe', ['probe:addedDate'])
+    dataset.update(context.sparql_context + 'DELETE DATA { GRAPH probe:shacl { probe:Added sh:class oldap:Dating . } }')
+    assert not views._search_may_include_dating(con, 'probe', ['probe:addedDate'])

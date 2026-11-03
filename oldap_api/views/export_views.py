@@ -10,7 +10,8 @@ import re
 from uuid import uuid4
 
 from flask import Blueprint, Response, current_app, g, jsonify, request
-from oldaplib.src.connection import Connection
+from oldap_api.backend import create_connection as Connection, backend_name
+from oldaplib.src.iconnection import IConnection
 from oldaplib.src.helpers.oldaperror import OldapError
 
 from oldap_api.authentication import authenticated_connection, require_auth
@@ -122,7 +123,7 @@ def _service(
 
 
 def _internal_service() -> ExportWorkerService:
-    """Build the worker service with non-token-issuing OLDAP credentials."""
+    """Build the worker service with dedicated OLDAP credentials."""
 
     return ExportWorkerService(
         GraphDbExportJobRepository(_export_service_connection()),
@@ -130,8 +131,8 @@ def _internal_service() -> ExportWorkerService:
     )
 
 
-def _export_service_connection() -> Connection:
-    """Open the restricted non-token-issuing export service connection."""
+def _export_service_connection() -> IConnection:
+    """Open the restricted backend-authenticated export service connection."""
 
     user_id = os.getenv("OLDAP_EXPORT_SERVICE_USER")
     password = os.getenv("OLDAP_EXPORT_SERVICE_PASSWORD")
@@ -143,7 +144,9 @@ def _export_service_connection() -> Connection:
         userId=user_id,
         credentials=password,
         context_name="DEFAULT",
-        issue_access_token=False,
+        # Jena authenticates internal HTTP operations with an access token.
+        # It remains inside the API; media workers receive no signing key.
+        issue_access_token=backend_name() == "jena",
     )
 
 

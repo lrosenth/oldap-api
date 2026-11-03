@@ -4,9 +4,10 @@
 
 The migration worktrees live in `/Users/rosenth/ProgDev/OLDAP-Jena`.
 Both repositories have Python 3.13 environments; the API installs its sibling
-library as an editable Poetry dependency. Fuseki, API authentication, API port
-isolation and backend compatibility are not configured yet. Do not start the API
-or run the GraphDB integration suite as a Jena acceptance test.
+library as an editable Poetry dependency. The regular API now supports explicit Jena backend selection and isolated owned
+acceptance runs; see `jena-api-startup.md` for configuration and remaining gates.
+A persistent Jena API service is not configured. Do not run the GraphDB
+integration suite as a Jena acceptance test.
 
 ## Redis
 

@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-31",
+  "acceptance": {
+    "status": "passed",
+    "checks": [
+      "Regular API startup selects Jena and bootstraps namespaces",
+      "Health reports Jena without contacting GraphDB",
+      "Private identity verification requires its service credential",
+      "Refresh cookie reloads user permissions through Jena",
+      "Existing credential login issues a token accepted by the Jena service",
+      "Real Redis metadata cache is populated and hit during repeated search/detail reads",
+      "Warm shared cache does not transfer reader access to another identity",
+      "Warm read access does not authorize a write",
+      "Warm detail and search projection see committed value updates immediately",
+      "Object permission downgrade immediately removes warm detail/search/count results",
+      "Restored object permission immediately restores warm reads",
+      "Orphaned grant cannot retain access through a warm cache",
+      "Previously issued token immediately observes role removal with warm cache",
+      "Fresh login after role removal cannot read previously cached resources",
+      "Fresh login after role restoration sees the current authorized result",
+      "Warm concurrent baseline: all concurrent responses obey identity and phase visibility",
+      "Object grant revocation in progress: reads overlap the acknowledged permission change",
+      "Object grant revocation in progress: all concurrent responses obey identity and phase visibility",
+      "Object grant after confirmed revocation: all concurrent responses obey identity and phase visibility",
+      "Object grant after confirmed restoration: all concurrent responses obey identity and phase visibility",
+      "User role revocation in progress: reads overlap the acknowledged permission change",
+      "User role revocation in progress: all concurrent responses obey identity and phase visibility",
+      "User role after confirmed revocation: all concurrent responses obey identity and phase visibility",
+      "User role after confirmed restoration: all concurrent responses obey identity and phase visibility",
+      "Account deactivation blocks new login and refresh despite warm cache",
+      "Existing access token retains the documented bounded lifetime after deactivation"
+    ]
+  },
+  "concurrency": {
+    "status": "passed",
+    "clients": 4,
+    "identities": 2,
+    "request_count": 168,
+    "phases": [
+      {
+        "phase": "Warm concurrent baseline",
+        "requests": 24,
+        "overlapping_mutation": 0,
+        "visible_responses": 12,
+        "max_request_ms": 175.07
+      },
+      {
+        "phase": "Object grant revocation in progress",
+        "requests": 24,
+        "overlapping_mutation": 16,
+        "visible_responses": 6,
+        "max_request_ms": 164.837
+      },
+      {
+        "phase": "Object grant after confirmed revocation",
+        "requests": 24,
+        "overlapping_mutation": 0,
+        "visible_responses": 0,
+        "max_request_ms": 169.47
+      },
+      {
+        "phase": "Object grant after confirmed restoration",
+        "requests": 24,
+        "overlapping_mutation": 0,
+        "visible_responses": 12,
+        "max_request_ms": 174.839
+      },
+      {
+        "phase": "User role revocation in progress",
+        "requests": 24,
+        "overlapping_mutation": 13,
+        "visible_responses": 4,
+        "max_request_ms": 195.987
+      },
+      {
+        "phase": "User role after confirmed revocation",
+        "requests": 24,
+        "overlapping_mutation": 0,
+        "visible_responses": 0,
+        "max_request_ms": 153.593
+      },
+      {
+        "phase": "User role after confirmed restoration",
+        "requests": 24,
+        "overlapping_mutation": 0,
+        "visible_responses": 12,
+        "max_request_ms": 180.033
+      }
+    ],
+    "scope": "Owned warm Redis/Jena; bounded threaded HTTP acceptance, not production load capacity.",
+    "consistency": "Overlapping requests may see either committed state. All requests started after acknowledged revocation must deny access."
+  },
+  "cache": {
+    "status": "passed",
+    "real_redis": true,
+    "cache_methods_mocked": false,
+    "warm_hits_before": 29,
+    "warm_hits_after": 74,
+    "cache_key_count": 19,
+    "scope": "Owned synthetic Jena/Redis; sequential and bounded concurrent API requests; no production cache/load."
+  }
+}

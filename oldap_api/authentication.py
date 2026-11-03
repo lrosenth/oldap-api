@@ -5,7 +5,8 @@ from functools import wraps
 from typing import ParamSpec, TypeVar, cast
 
 from flask import Response, current_app, g, jsonify, request
-from oldaplib.src.connection import Connection
+from oldap_api.backend import create_connection as Connection
+from oldaplib.src.iconnection import IConnection
 from oldaplib.src.helpers.oldaperror import (
     OldapError,
     OldapErrorConfiguration,
@@ -67,7 +68,7 @@ def require_auth(view: Callable[P, R]) -> Callable[P, R | Response]:
     return wrapped
 
 
-def authenticated_connection() -> Connection:
+def authenticated_connection() -> IConnection:
     """Return the connection established by :func:`require_auth`.
 
     Raises:
@@ -77,4 +78,4 @@ def authenticated_connection() -> Connection:
     connection = getattr(g, _CONNECTION_KEY, None)
     if connection is None:
         raise RuntimeError("Authenticated connection requested outside require_auth")
-    return cast(Connection, connection)
+    return cast(IConnection, connection)
