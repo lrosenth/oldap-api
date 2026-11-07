@@ -1,3 +1,9 @@
+### Update 2026-11-07 00:59
+- Decisions: Avoid empty write transactions without weakening concurrent claims or replay protection.
+- Implementation: Added read-only prechecks for import/export claims, export expiry/audit purge and mobile lifecycle claims; documented internal query protocol and race behavior. 271 import/export/mobile/idle tests pass.
+- Open: Build/publish a new immutable API image and verify idle growth plus real jobs on home.
+- Risks/Assumptions: Positive prechecks repeat transactionally; work arriving after an empty read waits for the next poll. No deployment or public signature change.
+
 ### Update 2026-11-03 23:54
 - Decisions: Prepare 1.0.0rc1 for library/API/tools and the OLDAP Jena wrapper; final 1.0.0 waits for acceptance. Keep independent media/harvester versions and running environments unchanged.
 - Implementation: Checkpointed HTTP pooling (e62651a) and API evidence (44cecf7). Aligned runtime/package/bump/OpenAPI/wrapper metadata; API/tools use portable 1.x requirements. Poetry solver regenerated locks offline from existing packages plus the exact new library wheel, with no path/source entry; library lock now tracked. Setup pins candidate wrapper and supports existing isolated image tags with prerelease metadata. Fixed tools bump command typo; documented local wheel/editable workflows and artifact hashes.

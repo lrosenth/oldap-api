@@ -42,6 +42,9 @@ class FakeTransactionalConnection:
         self.aborted = 0
         self.updates: list[str] = []
 
+    def query(self, query):
+        return self.transaction_query(query)
+
     def transaction_start(self):
         self.started += 1
 
@@ -117,5 +120,5 @@ def test_graphdb_queue_does_not_write_while_an_unexpired_claim_exists():
     )
 
     assert claimed is None
-    assert connection.committed == 1
+    assert connection.started == connection.committed == 0
     assert connection.updates == []

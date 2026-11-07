@@ -446,6 +446,15 @@ ORDER BY DESC(?created) DESC(?job)
     ) -> ExportJob | None:
         """Atomically lease the oldest eligible cleanup or build task."""
 
+        # Empty polling must not create a durable Jena transaction receipt.
+        # This is only a hint: selection is repeated under the writer lock below.
+        if (
+            _select_claim_candidate(
+                self._all(transactional=False), supported_tasks, claimed_at
+            )
+            is None
+        ):
+            return None
         self._connection.transaction_start()
         try:
             jobs = self._all(transactional=True)
@@ -502,6 +511,9 @@ LIMIT 1
     def expire_next_ready(self, *, now: datetime) -> ExportJob | None:
         """Atomically move the oldest elapsed READY job to EXPIRED."""
 
+        # Recheck inside the transaction if the read-only hint finds work.
+        if _select_expired_ready(self._all(transactional=False), now) is None:
+            return None
         self._connection.transaction_start()
         try:
             candidate = _select_expired_ready(self._all(transactional=True), now)
@@ -551,6 +563,11 @@ LIMIT 1
     def purge_expired_audits(self, *, now: datetime) -> int:
         """Delete content-free DELETED job hulls after their audit deadline."""
 
+        if not any(
+            _audit_is_expired(job, now) for job in self._all(transactional=False)
+        ):
+            return 0
+        # The due set must be recomputed after BEGIN, never reused from the hint.
         self._connection.transaction_start()
         try:
             due = tuple(

@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- TDB growth maintenance (2026-11-07): Idle worker polling now checks eligibility with an ordinary read and repeats selection under the original transaction only when work may exist. Five empty-poll paths avoid durable Jena reservations/receipts; GraphDB benefits too. Public signatures and leases remain unchanged. See doc/idle-worker-polling.md. Locally tested; updated image/home deployment pending.
+
 - Coordinated 1.0 candidate (2026-11-03): core packages and OLDAP service wrapper now use 1.0.0rc1. API/tools depend on >=1.0.0rc1,<2.0.0 instead of a sibling path/0.x constraint. Poetry-generated portable locks use the exact candidate library wheel hash; library lock is now tracked. Existing development venvs were not reinstalled. Clean installed-wheel tests and rebuilt Java service pass. See ../oldap-setup/docs/jena-1.0rc1-preparation.md and results JSON. No publication, tag, merge or deployment; older dated version statements below describe historical checkpoints.
 
 - HTTP transport acceptance (2026-11-03): the full normal-speed probe now passes all 162 checks after sibling oldaplib reuses HTTP connections. The reproduced 503 was local TCP address exhaustion (errno 49); stale adoption again returns 409. See doc/jena-merge-readiness.md and source-fingerprinted evidence. Remaining gates are 1.0 packaging/consumer and home acceptance; no deployment.
