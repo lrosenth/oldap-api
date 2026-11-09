@@ -1,0 +1,91 @@
+{
+  "status": "passed",
+  "checks": [
+    "public case 0 application/json; dating=structured: complete response and order equal",
+    "public case 1 application/json; dating=structured: complete response and order equal",
+    "public case 2 application/json; dating=structured: complete response and order equal",
+    "public case 3 application/json; dating=structured: complete response and order equal",
+    "public case 4 application/json; dating=structured: complete response and order equal",
+    "public case 5 application/json; dating=structured: complete response and order equal",
+    "public case 6 application/json; dating=structured: complete response and order equal",
+    "public case 7 application/json; dating=structured: complete response and order equal",
+    "public case 7 application/json: complete response and order equal",
+    "public case 8 application/json; dating=structured: complete response and order equal",
+    "public case 9 application/json; dating=structured: complete response and order equal",
+    "public case 9 application/json: complete response and order equal",
+    "audit case 0 application/json; dating=structured: complete response and order equal",
+    "audit case 1 application/json; dating=structured: complete response and order equal",
+    "audit case 2 application/json; dating=structured: complete response and order equal",
+    "audit case 3 application/json; dating=structured: complete response and order equal",
+    "audit case 4 application/json; dating=structured: complete response and order equal",
+    "audit case 5 application/json; dating=structured: complete response and order equal",
+    "audit case 6 application/json; dating=structured: complete response and order equal",
+    "audit case 7 application/json; dating=structured: complete response and order equal",
+    "audit case 7 application/json: complete response and order equal",
+    "audit case 8 application/json; dating=structured: complete response and order equal",
+    "audit case 9 application/json; dating=structured: complete response and order equal",
+    "audit case 9 application/json: complete response and order equal",
+    "Native public/shared/creator dates, hidden/restricted/orphan-grant/missing omissions, absent date, dangling reference, Julian/decade/verbatim/before: equal"
+  ],
+  "differences": [],
+  "summary": {
+    "public": {
+      "baseline": {
+        "http_ms": 556.8292499956442,
+        "jena_ms": 295.51314449999995,
+        "backend_ms": 333.09737651143223,
+        "backend_bytes": 1135935.0
+      },
+      "candidate": {
+        "http_ms": 389.76793700567214,
+        "jena_ms": 192.5300615,
+        "backend_ms": 229.49350049748318,
+        "backend_bytes": 778711.0
+      }
+    },
+    "audit": {
+      "baseline": {
+        "http_ms": 1128.7344375014072,
+        "jena_ms": 856.4864775,
+        "backend_ms": 904.6446040374576,
+        "backend_bytes": 1143797.0
+      },
+      "candidate": {
+        "http_ms": 820.7952294978895,
+        "jena_ms": 614.735249,
+        "backend_ms": 660.0617504736874,
+        "backend_bytes": 783742.0
+      }
+    }
+  },
+  "known_decoder_issue": {
+    "stored_calendar": "JULIAN",
+    "decoded": [
+      {
+        "dateStart": [
+          1930,
+          2,
+          14
+        ],
+        "dateEnd": [
+          1930,
+          2,
+          14
+        ],
+        "datePrecision": "DAY",
+        "inCalendar": "GREGORIAN",
+        "iri": "urn:dating-experiment:julian"
+      }
+    ],
+    "candidate_matches_baseline": true
+  },
+  "method": {
+    "rows": {
+      "public": 437,
+      "audit": 442
+    },
+    "timed_samples_per_reader_variant": 4,
+    "order": "ABBA ABBA after warmups",
+    "scope": "owned local preview, warm sequential search; not production or full browser load"
+  }
+}

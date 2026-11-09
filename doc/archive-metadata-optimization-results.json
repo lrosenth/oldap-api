@@ -1,0 +1,375 @@
+{
+  "status": "passed",
+  "checks": [
+    "public case 0 application/json; dating=structured: complete response and order equal",
+    "public case 1 application/json; dating=structured: complete response and order equal",
+    "public case 2 application/json; dating=structured: complete response and order equal",
+    "public case 3 application/json; dating=structured: complete response and order equal",
+    "public case 4 application/json; dating=structured: complete response and order equal",
+    "public case 5 application/json; dating=structured: complete response and order equal",
+    "public case 6 application/json; dating=structured: complete response and order equal",
+    "public case 7 application/json; dating=structured: complete response and order equal",
+    "public case 7 application/json: complete response and order equal",
+    "public case 8 application/json; dating=structured: complete response and order equal",
+    "public case 9 application/json; dating=structured: complete response and order equal",
+    "public case 9 application/json: complete response and order equal",
+    "audit case 0 application/json; dating=structured: complete response and order equal",
+    "audit case 1 application/json; dating=structured: complete response and order equal",
+    "audit case 2 application/json; dating=structured: complete response and order equal",
+    "audit case 3 application/json; dating=structured: complete response and order equal",
+    "audit case 4 application/json; dating=structured: complete response and order equal",
+    "audit case 5 application/json; dating=structured: complete response and order equal",
+    "audit case 6 application/json; dating=structured: complete response and order equal",
+    "audit case 7 application/json; dating=structured: complete response and order equal",
+    "audit case 7 application/json: complete response and order equal",
+    "audit case 8 application/json; dating=structured: complete response and order equal",
+    "audit case 9 application/json; dating=structured: complete response and order equal",
+    "audit case 9 application/json: complete response and order equal",
+    "public: paging/count response equal",
+    "public: paging/count response equal",
+    "public: paging/count response equal",
+    "audit: paging/count response equal",
+    "audit: paging/count response equal",
+    "audit: paging/count response equal",
+    "Native subproperty/multiple asserted types, public/shared/creator dates, hidden/restricted/orphan-grant/missing omissions, absent date, dangling reference, Julian/decade/verbatim/before: equal"
+  ],
+  "differences": [],
+  "summary": {
+    "public": {
+      "0": {
+        "baseline": {
+          "http_ms": 104.24185400188435,
+          "jena_ms": 94.1049375,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 103.41504150710534,
+          "jena_ms": 93.764625,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 91.61429150117328,
+          "jena_ms": 81.719146,
+          "backend_calls": 3.0
+        }
+      },
+      "1": {
+        "baseline": {
+          "http_ms": 135.9673129991279,
+          "jena_ms": 84.101667,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 136.06362450082088,
+          "jena_ms": 84.859229,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 130.38693799899193,
+          "jena_ms": 78.572542,
+          "backend_calls": 3.0
+        }
+      },
+      "2": {
+        "baseline": {
+          "http_ms": 84.26047900138656,
+          "jena_ms": 73.85341700000001,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 83.93239600263769,
+          "jena_ms": 73.2100625,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 76.44333350617671,
+          "jena_ms": 65.897562,
+          "backend_calls": 3.0
+        }
+      },
+      "3": {
+        "baseline": {
+          "http_ms": 81.05260400043335,
+          "jena_ms": 71.05166700000001,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 80.80922900262522,
+          "jena_ms": 71.2630005,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 73.72352050151676,
+          "jena_ms": 64.2710625,
+          "backend_calls": 3.0
+        }
+      },
+      "4": {
+        "baseline": {
+          "http_ms": 95.93897949525854,
+          "jena_ms": 86.189626,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 96.57949999382254,
+          "jena_ms": 86.4457285,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 91.82549949764507,
+          "jena_ms": 80.6610415,
+          "backend_calls": 3.0
+        }
+      },
+      "5": {
+        "baseline": {
+          "http_ms": 93.42868750536582,
+          "jena_ms": 71.9221665,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 91.14912500081118,
+          "jena_ms": 71.32933399999999,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 81.85441650130088,
+          "jena_ms": 61.3579785,
+          "backend_calls": 3.0
+        }
+      },
+      "6": {
+        "baseline": {
+          "http_ms": 80.36847899347777,
+          "jena_ms": 70.716229,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 80.98985400283709,
+          "jena_ms": 71.300667,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 73.73577099497197,
+          "jena_ms": 64.215229,
+          "backend_calls": 3.0
+        }
+      },
+      "7": {
+        "baseline": {
+          "http_ms": 432.4533539911499,
+          "jena_ms": 218.2903755,
+          "backend_calls": 15.0
+        },
+        "scoped": {
+          "http_ms": 383.4846249956172,
+          "jena_ms": 202.54104,
+          "backend_calls": 10.0
+        },
+        "candidate": {
+          "http_ms": 366.6412495003897,
+          "jena_ms": 185.9995395,
+          "backend_calls": 10.0
+        }
+      },
+      "8": {
+        "baseline": {
+          "http_ms": 140.0657499980298,
+          "jena_ms": 87.624563,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 151.10260399524122,
+          "jena_ms": 93.1427085,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 136.80802100134315,
+          "jena_ms": 82.658833,
+          "backend_calls": 3.0
+        }
+      }
+    },
+    "audit": {
+      "0": {
+        "baseline": {
+          "http_ms": 450.80249999591615,
+          "jena_ms": 437.95379099999997,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 446.93922900478356,
+          "jena_ms": 434.2979795,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 112.50837499392219,
+          "jena_ms": 99.32652200000001,
+          "backend_calls": 3.0
+        }
+      },
+      "1": {
+        "baseline": {
+          "http_ms": 305.85741699906066,
+          "jena_ms": 250.99422900000002,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 315.5964374964242,
+          "jena_ms": 256.2300835,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 151.26937499735504,
+          "jena_ms": 89.06258349999999,
+          "backend_calls": 3.0
+        }
+      },
+      "2": {
+        "baseline": {
+          "http_ms": 242.36293750436744,
+          "jena_ms": 230.189208,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 242.69914600881748,
+          "jena_ms": 230.43202,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 82.46366700041108,
+          "jena_ms": 70.2573955,
+          "backend_calls": 3.0
+        }
+      },
+      "3": {
+        "baseline": {
+          "http_ms": 247.18189599661855,
+          "jena_ms": 234.73174949999998,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 243.05970850400627,
+          "jena_ms": 231.386021,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 81.9846460071858,
+          "jena_ms": 70.2161875,
+          "backend_calls": 3.0
+        }
+      },
+      "4": {
+        "baseline": {
+          "http_ms": 360.0182290028897,
+          "jena_ms": 341.044104,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 371.706500001892,
+          "jena_ms": 354.4828125,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 112.13449999922886,
+          "jena_ms": 98.060583,
+          "backend_calls": 3.0
+        }
+      },
+      "5": {
+        "baseline": {
+          "http_ms": 305.25256249529775,
+          "jena_ms": 280.5405,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 274.97970850527054,
+          "jena_ms": 252.56675,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 88.83362499909708,
+          "jena_ms": 67.15020849999999,
+          "backend_calls": 3.0
+        }
+      },
+      "6": {
+        "baseline": {
+          "http_ms": 284.37270849826746,
+          "jena_ms": 269.3877505,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 286.7470420023892,
+          "jena_ms": 274.00570849999997,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 88.8552289979998,
+          "jena_ms": 75.223521,
+          "backend_calls": 3.0
+        }
+      },
+      "7": {
+        "baseline": {
+          "http_ms": 773.5055204975652,
+          "jena_ms": 578.2553125,
+          "backend_calls": 15.0
+        },
+        "scoped": {
+          "http_ms": 803.4404790014378,
+          "jena_ms": 569.433167,
+          "backend_calls": 10.0
+        },
+        "candidate": {
+          "http_ms": 426.1187499942025,
+          "jena_ms": 242.612439,
+          "backend_calls": 10.0
+        }
+      },
+      "8": {
+        "baseline": {
+          "http_ms": 312.1757914996124,
+          "jena_ms": 251.97693750000002,
+          "backend_calls": 3.0
+        },
+        "scoped": {
+          "http_ms": 326.0191665031016,
+          "jena_ms": 249.301688,
+          "backend_calls": 3.0
+        },
+        "candidate": {
+          "http_ms": 142.3148539979593,
+          "jena_ms": 87.30239549999999,
+          "backend_calls": 3.0
+        }
+      }
+    }
+  },
+  "baseline_query_rewrites": 211,
+  "method": {
+    "run": "metadata-queries-02",
+    "scope": "owned warm sequential local preview; not production/page latency",
+    "cases": 9,
+    "readers": [
+      "public",
+      "audit"
+    ],
+    "timed_samples_per_case_reader_variant": 4,
+    "complete_timed_response_comparisons": 216,
+    "warmup_responses_compared": 54,
+    "baseline": "previous integrated date reader, no schema scope, previous ACL join"
+  },
+  "sum_of_case_medians_ms": {
+    "public": {
+      "baseline": 1247.777499986114,
+      "scoped": 1207.5259990015184,
+      "candidate": 1123.0330410035094
+    },
+    "audit": {
+      "baseline": 3281.5295624895953,
+      "scoped": 3311.1874170281226,
+      "candidate": 1286.4830209873617
+    }
+  }
+}

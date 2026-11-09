@@ -853,7 +853,7 @@ def _expand_search_dating(con, project: str, rows: list[dict], requested_propert
         return
     for offset in range(0, len(rows), 100):
         batch = rows[offset:offset + 100]
-        summaries = factory.read_summaries(
+        summaries = factory._read_search_dating(
             iris=[Iri(row['iri'], validate=False) for row in batch],
             include_properties=dating_properties,
         )
@@ -885,19 +885,21 @@ def text_search_response(project: str, resclass: str | None = None, allow_search
     con = authenticated_connection()
 
     try:
-        searchstr = params.pop('searchstr')
-        use_search_fulltext = params.pop('use_search_fulltext')
-        if use_search_fulltext:
-            res = ResourceInstance.search_fulltext(con=con,
-                                                   project=Xsd_NCName(project, validate=True),
-                                                   searchstr=searchstr,
-                                                   **params)
-        else:
-            res = ResourceInstance.search(con=con,
-                                          project=Xsd_NCName(project, validate=True),
-                                          **params)
-        if _structured_dating_requested() and not params['countOnly'] and isinstance(res, list):
-            _expand_search_dating(con, project, res, params.get('includeProperties'))
+        schema_scope = getattr(con, '_resource_schema_scope', nullcontext)
+        with schema_scope():
+            searchstr = params.pop('searchstr')
+            use_search_fulltext = params.pop('use_search_fulltext')
+            if use_search_fulltext:
+                res = ResourceInstance.search_fulltext(con=con,
+                                                       project=Xsd_NCName(project, validate=True),
+                                                       searchstr=searchstr,
+                                                       **params)
+            else:
+                res = ResourceInstance.search(con=con,
+                                              project=Xsd_NCName(project, validate=True),
+                                              **params)
+            if _structured_dating_requested() and not params['countOnly'] and isinstance(res, list):
+                _expand_search_dating(con, project, res, params.get('includeProperties'))
     except (MutationGateUnavailable, OldapErrorConfiguration) as error:
         return jsonify({"message": str(error)}), 503
     except ArchiveConflict as error:

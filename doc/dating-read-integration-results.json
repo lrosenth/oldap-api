@@ -1,0 +1,72 @@
+{
+  "status": "passed",
+  "checks": [
+    "public case 0 application/json; dating=structured: complete response and order equal",
+    "public case 1 application/json; dating=structured: complete response and order equal",
+    "public case 2 application/json; dating=structured: complete response and order equal",
+    "public case 3 application/json; dating=structured: complete response and order equal",
+    "public case 4 application/json; dating=structured: complete response and order equal",
+    "public case 5 application/json; dating=structured: complete response and order equal",
+    "public case 6 application/json; dating=structured: complete response and order equal",
+    "public case 7 application/json; dating=structured: complete response and order equal",
+    "public case 7 application/json: complete response and order equal",
+    "public case 8 application/json; dating=structured: complete response and order equal",
+    "public case 9 application/json; dating=structured: complete response and order equal",
+    "public case 9 application/json: complete response and order equal",
+    "audit case 0 application/json; dating=structured: complete response and order equal",
+    "audit case 1 application/json; dating=structured: complete response and order equal",
+    "audit case 2 application/json; dating=structured: complete response and order equal",
+    "audit case 3 application/json; dating=structured: complete response and order equal",
+    "audit case 4 application/json; dating=structured: complete response and order equal",
+    "audit case 5 application/json; dating=structured: complete response and order equal",
+    "audit case 6 application/json; dating=structured: complete response and order equal",
+    "audit case 7 application/json; dating=structured: complete response and order equal",
+    "audit case 7 application/json: complete response and order equal",
+    "audit case 8 application/json; dating=structured: complete response and order equal",
+    "audit case 9 application/json; dating=structured: complete response and order equal",
+    "audit case 9 application/json: complete response and order equal",
+    "Native subproperty/multiple asserted types, public/shared/creator dates, hidden/restricted/orphan-grant/missing omissions, absent date, dangling reference, Julian/decade/verbatim/before: equal"
+  ],
+  "differences": [],
+  "summary": {
+    "public": {
+      "baseline": {
+        "http_ms": 550.617520500964,
+        "jena_ms": 306.95206099999996,
+        "backend_ms": 342.19531148846727,
+        "backend_bytes": 1135935.0
+      },
+      "candidate": {
+        "http_ms": 413.66924999601906,
+        "jena_ms": 198.5865,
+        "backend_ms": 232.96324951661518,
+        "backend_bytes": 778711.0
+      }
+    },
+    "audit": {
+      "baseline": {
+        "http_ms": 1102.2094585059676,
+        "jena_ms": 843.4868535,
+        "backend_ms": 887.9046040237881,
+        "backend_bytes": 1143797.0
+      },
+      "candidate": {
+        "http_ms": 787.8571040055249,
+        "jena_ms": 576.354396,
+        "backend_ms": 620.2760834930814,
+        "backend_bytes": 783742.0
+      }
+    }
+  },
+  "method": {
+    "run": "dating-read-integrated-02",
+    "scope": "owned local native preview; warm sequential requests; same corrected decoder in both variants",
+    "samples_per_variant_reader": 4,
+    "rows": {
+      "public": 437,
+      "audit": 442
+    },
+    "backend_calls_per_request": 15,
+    "timed_response_equivalence_checks": 16
+  }
+}

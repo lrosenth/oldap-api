@@ -68,7 +68,7 @@ def test_search_batches_only_dates_and_omits_unreadable(monkeypatch):
                 prop: SimpleNamespace(datatype=None, toClass='oldap:Dating'),
                 Xsd_QName('schema:name', validate=False): SimpleNamespace(datatype='string'),
             })
-        def read_summaries(self, iris, include_properties):
+        def _read_search_dating(self, iris, include_properties):
             calls.append(len(iris))
             assert include_properties == {prop}
             return {iri: ResourceReadResult(resource_class=cls, asserted_types=(cls,), properties={},

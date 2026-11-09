@@ -1,0 +1,2124 @@
+{
+  "date": "2026-11-09",
+  "scope": "Read-only production samples and isolated local profiling; no runtime optimization/deployment",
+  "source_revisions": {
+    "oldaplib": "0cbfcf3187d86417597b4231c0948efcb6e81fe0",
+    "oldap-api": "dbdc053306681490034265dc5cda61a3c73395ec",
+    "FasnachtsPage": "69d12d47b77139af3a12593048490519a15c4225"
+  },
+  "fixture": {
+    "source": "comparison-source-20261102/source.trig",
+    "sha256": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+    "objects_events": 437,
+    "media_local": 665,
+    "media_production": 666,
+    "model": "Current migration YAML; synthetic fixture identities; not a byte-identical production clone"
+  },
+  "topology": {
+    "local": "Apple M5 Max, 18 logical CPUs, 36 GiB RAM; native Python 3.13 threaded Werkzeug, Jena 6.2.0/Java 25 probe, Xmx 8192 MiB",
+    "production": "VMware VM, 8 vCPUs presented as Xeon Gold 6226R; Gunicorn 4 workers/2 threads; no Docker CPU quota/cpuset on API/Jena; existing production service unchanged"
+  },
+  "browser": {
+    "local": {
+      "samples_ms": [
+        1003.7000000029802,
+        960.8999999910593,
+        1041.2000000029802
+      ],
+      "median_ms": 1003.7000000029802,
+      "samples": [
+        {
+          "sample": 0,
+          "ready_ms": 1003.7000000029802,
+          "polling_observed_ms": 1408,
+          "cpu": {
+            "TaskDuration_ms": 111.478,
+            "ScriptDuration_ms": 19.918000000000003,
+            "LayoutDuration_ms": 8.325000000000001,
+            "RecalcStyleDuration_ms": 3.213
+          },
+          "errors": [],
+          "tabs": [
+            "Alle 1102",
+            "Medien 665",
+            "Gegenst\u00e4nde 422",
+            "Anl\u00e4sse 15"
+          ]
+        },
+        {
+          "sample": 1,
+          "ready_ms": 960.8999999910593,
+          "polling_observed_ms": 1390,
+          "cpu": {
+            "TaskDuration_ms": 110.581,
+            "ScriptDuration_ms": 20.951999999999998,
+            "LayoutDuration_ms": 8.846,
+            "RecalcStyleDuration_ms": 3.218
+          },
+          "errors": [],
+          "tabs": [
+            "Alle 1102",
+            "Medien 665",
+            "Gegenst\u00e4nde 422",
+            "Anl\u00e4sse 15"
+          ]
+        },
+        {
+          "sample": 2,
+          "ready_ms": 1041.2000000029802,
+          "polling_observed_ms": 1446,
+          "cpu": {
+            "TaskDuration_ms": 113.803,
+            "ScriptDuration_ms": 19.178,
+            "LayoutDuration_ms": 11.719,
+            "RecalcStyleDuration_ms": 3.8800000000000003
+          },
+          "errors": [],
+          "tabs": [
+            "Alle 1102",
+            "Medien 665",
+            "Gegenst\u00e4nde 422",
+            "Anl\u00e4sse 15"
+          ]
+        }
+      ],
+      "waterfalls": [
+        [
+          {
+            "path": "/admin/auth/unknown",
+            "method": "POST",
+            "start_ms": 114.78116699999998,
+            "request_start_ms": 0.119,
+            "response_start_ms": 4.658,
+            "end_ms": 124.59833399999997,
+            "ttfb_ms": 4.539000000000001,
+            "duration_ms": 5.988,
+            "status": 200,
+            "bytes": 986
+          },
+          {
+            "path": "/admin/hlist/fasnacht/CarnivalEventTaxonomy",
+            "method": "GET",
+            "start_ms": 124.14987500000001,
+            "request_start_ms": 0.378,
+            "response_start_ms": 21.339,
+            "end_ms": 149.05208399999998,
+            "ttfb_ms": 20.961,
+            "duration_ms": 23.248,
+            "status": 200,
+            "bytes": 6314
+          },
+          {
+            "path": "/admin/hlist/fasnacht/ObjectTaxonomy",
+            "method": "GET",
+            "start_ms": 124.09454199999999,
+            "request_start_ms": 0.606,
+            "response_start_ms": 29.441,
+            "end_ms": 154.46495900000002,
+            "ttfb_ms": 28.834999999999997,
+            "duration_ms": 31.513,
+            "status": 200,
+            "bytes": 7911
+          },
+          {
+            "path": "/admin/hlist/fasnacht/OrganisationTaxonomy",
+            "method": "GET",
+            "start_ms": 124.53550000000001,
+            "request_start_ms": 0.112,
+            "response_start_ms": 39.775,
+            "end_ms": 164.71437500000002,
+            "ttfb_ms": 39.663,
+            "duration_ms": 41.547,
+            "status": 200,
+            "bytes": 7776
+          },
+          {
+            "path": "/admin/user/unknown",
+            "method": "GET",
+            "start_ms": 124.071125,
+            "request_start_ms": 0.228,
+            "response_start_ms": 197.018,
+            "end_ms": 322.863375,
+            "ttfb_ms": 196.79,
+            "duration_ms": 199.106,
+            "status": 200,
+            "bytes": 530
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Organisation",
+            "method": "POST",
+            "start_ms": 124.56183399999998,
+            "request_start_ms": 27.109,
+            "response_start_ms": 221.21,
+            "end_ms": 348.83000000000004,
+            "ttfb_ms": 194.101,
+            "duration_ms": 225.084,
+            "status": 200,
+            "bytes": 1548
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Person",
+            "method": "POST",
+            "start_ms": 124.556667,
+            "request_start_ms": 19.404,
+            "response_start_ms": 227.865,
+            "end_ms": 355.344959,
+            "ttfb_ms": 208.461,
+            "duration_ms": 231.287,
+            "status": 200,
+            "bytes": 4003
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ExternalSource",
+            "method": "POST",
+            "start_ms": 124.56700000000001,
+            "request_start_ms": 34.75,
+            "response_start_ms": 276.061,
+            "end_ms": 413.07925,
+            "ttfb_ms": 241.31099999999998,
+            "duration_ms": 289.162,
+            "status": 200,
+            "bytes": 185
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 124.55124999999998,
+            "request_start_ms": 0.079,
+            "response_start_ms": 287.32,
+            "end_ms": 418.22058400000003,
+            "ttfb_ms": 287.241,
+            "duration_ms": 289.602,
+            "status": 200,
+            "bytes": 478962
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Agent",
+            "method": "POST",
+            "start_ms": 124.54487499999999,
+            "request_start_ms": 0.088,
+            "response_start_ms": 288.35,
+            "end_ms": 418.73741700000005,
+            "ttfb_ms": 288.262,
+            "duration_ms": 289.948,
+            "status": 200,
+            "bytes": 5002
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveObject",
+            "method": "POST",
+            "start_ms": 124.57816700000001,
+            "request_start_ms": 189.469,
+            "response_start_ms": 341.473,
+            "end_ms": 474.944209,
+            "ttfb_ms": 152.00400000000002,
+            "duration_ms": 350.163,
+            "status": 200,
+            "bytes": 84399
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalEvent",
+            "method": "POST",
+            "start_ms": 124.58420899999999,
+            "request_start_ms": 214.964,
+            "response_start_ms": 361.602,
+            "end_ms": 496.233334,
+            "ttfb_ms": 146.63799999999998,
+            "duration_ms": 371.755,
+            "status": 200,
+            "bytes": 1653
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 124.59437500000001,
+            "request_start_ms": 272.264,
+            "response_start_ms": 456.084,
+            "end_ms": 599.827875,
+            "ttfb_ms": 183.82,
+            "duration_ms": 473.41,
+            "status": 200,
+            "bytes": 784088
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalThing",
+            "method": "POST",
+            "start_ms": 124.58920899999998,
+            "request_start_ms": 218.921,
+            "response_start_ms": 843.251,
+            "end_ms": 1005.75075,
+            "ttfb_ms": 624.3299999999999,
+            "duration_ms": 855.549,
+            "status": 200,
+            "bytes": 296529
+          }
+        ],
+        [
+          {
+            "path": "/admin/auth/unknown",
+            "method": "POST",
+            "start_ms": 102.95120799999995,
+            "request_start_ms": 0.178,
+            "response_start_ms": 4.653,
+            "end_ms": 112.35479200000009,
+            "ttfb_ms": 4.475,
+            "duration_ms": 5.835,
+            "status": 200,
+            "bytes": 986
+          },
+          {
+            "path": "/admin/hlist/fasnacht/ObjectTaxonomy",
+            "method": "GET",
+            "start_ms": 112.07799999999997,
+            "request_start_ms": 0.619,
+            "response_start_ms": 20.689,
+            "end_ms": 135.99183300000004,
+            "ttfb_ms": 20.07,
+            "duration_ms": 22.01,
+            "status": 200,
+            "bytes": 7911
+          },
+          {
+            "path": "/admin/hlist/fasnacht/CarnivalEventTaxonomy",
+            "method": "GET",
+            "start_ms": 112.085417,
+            "request_start_ms": 0.108,
+            "response_start_ms": 29.876,
+            "end_ms": 142.88562500000012,
+            "ttfb_ms": 29.768,
+            "duration_ms": 31.893,
+            "status": 200,
+            "bytes": 6314
+          },
+          {
+            "path": "/admin/hlist/fasnacht/OrganisationTaxonomy",
+            "method": "GET",
+            "start_ms": 112.2783750000001,
+            "request_start_ms": 0.117,
+            "response_start_ms": 40.341,
+            "end_ms": 153.98012500000004,
+            "ttfb_ms": 40.224000000000004,
+            "duration_ms": 42.816,
+            "status": 200,
+            "bytes": 7776
+          },
+          {
+            "path": "/admin/user/unknown",
+            "method": "GET",
+            "start_ms": 112.06091700000002,
+            "request_start_ms": 0.299,
+            "response_start_ms": 192.485,
+            "end_ms": 306.2168330000002,
+            "ttfb_ms": 192.186,
+            "duration_ms": 194.633,
+            "status": 200,
+            "bytes": 530
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Organisation",
+            "method": "POST",
+            "start_ms": 112.30258299999991,
+            "request_start_ms": 26.689,
+            "response_start_ms": 240.673,
+            "end_ms": 357.1637079999998,
+            "ttfb_ms": 213.984,
+            "duration_ms": 245.421,
+            "status": 200,
+            "bytes": 1548
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Person",
+            "method": "POST",
+            "start_ms": 112.2957080000001,
+            "request_start_ms": 18.312,
+            "response_start_ms": 248.695,
+            "end_ms": 364.0854579999998,
+            "ttfb_ms": 230.38299999999998,
+            "duration_ms": 251.984,
+            "status": 200,
+            "bytes": 4003
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ExternalSource",
+            "method": "POST",
+            "start_ms": 112.32837500000005,
+            "request_start_ms": 35.335,
+            "response_start_ms": 292.706,
+            "end_ms": 411.50079200000005,
+            "ttfb_ms": 257.37100000000004,
+            "duration_ms": 299.701,
+            "status": 200,
+            "bytes": 185
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Agent",
+            "method": "POST",
+            "start_ms": 112.28475000000003,
+            "request_start_ms": 0.103,
+            "response_start_ms": 301.955,
+            "end_ms": 416.16758300000015,
+            "ttfb_ms": 301.852,
+            "duration_ms": 304.301,
+            "status": 200,
+            "bytes": 5002
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 112.29033299999992,
+            "request_start_ms": 0.142,
+            "response_start_ms": 308.367,
+            "end_ms": 428.2064579999999,
+            "ttfb_ms": 308.225,
+            "duration_ms": 311.857,
+            "status": 200,
+            "bytes": 478962
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveObject",
+            "method": "POST",
+            "start_ms": 112.33458300000007,
+            "request_start_ms": 185.248,
+            "response_start_ms": 337.998,
+            "end_ms": 458.67929200000003,
+            "ttfb_ms": 152.75,
+            "duration_ms": 346.46,
+            "status": 200,
+            "bytes": 84399
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalEvent",
+            "method": "POST",
+            "start_ms": 112.34050000000002,
+            "request_start_ms": 233.339,
+            "response_start_ms": 363.643,
+            "end_ms": 488.266875,
+            "ttfb_ms": 130.30399999999997,
+            "duration_ms": 375.798,
+            "status": 200,
+            "bytes": 1653
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 112.3505419999999,
+            "request_start_ms": 275.247,
+            "response_start_ms": 458.44,
+            "end_ms": 598.5247080000001,
+            "ttfb_ms": 183.19299999999998,
+            "duration_ms": 483.166,
+            "status": 200,
+            "bytes": 784088
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalThing",
+            "method": "POST",
+            "start_ms": 112.34554200000002,
+            "request_start_ms": 235.993,
+            "response_start_ms": 811.108,
+            "end_ms": 962.4037500000002,
+            "ttfb_ms": 575.115,
+            "duration_ms": 827.115,
+            "status": 200,
+            "bytes": 296529
+          }
+        ],
+        [
+          {
+            "path": "/admin/auth/unknown",
+            "method": "POST",
+            "start_ms": 155.1234999999997,
+            "request_start_ms": 0.218,
+            "response_start_ms": 5.149,
+            "end_ms": 165.9214579999998,
+            "ttfb_ms": 4.931,
+            "duration_ms": 6.45,
+            "status": 200,
+            "bytes": 986
+          },
+          {
+            "path": "/admin/hlist/fasnacht/CarnivalEventTaxonomy",
+            "method": "GET",
+            "start_ms": 165.83512500000006,
+            "request_start_ms": 0.45,
+            "response_start_ms": 25.25,
+            "end_ms": 194.7401249999998,
+            "ttfb_ms": 24.8,
+            "duration_ms": 27.793,
+            "status": 200,
+            "bytes": 6314
+          },
+          {
+            "path": "/admin/hlist/fasnacht/ObjectTaxonomy",
+            "method": "GET",
+            "start_ms": 165.82983299999978,
+            "request_start_ms": 0.185,
+            "response_start_ms": 30.914,
+            "end_ms": 197.36016699999982,
+            "ttfb_ms": 30.729000000000003,
+            "duration_ms": 33.385,
+            "status": 200,
+            "bytes": 7911
+          },
+          {
+            "path": "/admin/hlist/fasnacht/OrganisationTaxonomy",
+            "method": "GET",
+            "start_ms": 165.84279199999992,
+            "request_start_ms": 0.141,
+            "response_start_ms": 37.415,
+            "end_ms": 204.99104199999965,
+            "ttfb_ms": 37.274,
+            "duration_ms": 40.734,
+            "status": 200,
+            "bytes": 7776
+          },
+          {
+            "path": "/admin/user/unknown",
+            "method": "GET",
+            "start_ms": 165.82154199999968,
+            "request_start_ms": 1.032,
+            "response_start_ms": 192.157,
+            "end_ms": 358.38316699999996,
+            "ttfb_ms": 191.125,
+            "duration_ms": 193.763,
+            "status": 200,
+            "bytes": 530
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Person",
+            "method": "POST",
+            "start_ms": 165.86124999999993,
+            "request_start_ms": 23.954,
+            "response_start_ms": 301.081,
+            "end_ms": 469.28420800000004,
+            "ttfb_ms": 277.127,
+            "duration_ms": 304.547,
+            "status": 200,
+            "bytes": 4003
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Agent",
+            "method": "POST",
+            "start_ms": 165.8492080000001,
+            "request_start_ms": 0.103,
+            "response_start_ms": 301.827,
+            "end_ms": 469.778417,
+            "ttfb_ms": 301.724,
+            "duration_ms": 304.829,
+            "status": 200,
+            "bytes": 5002
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ExternalSource",
+            "method": "POST",
+            "start_ms": 165.87191699999994,
+            "request_start_ms": 33.367,
+            "response_start_ms": 297.312,
+            "end_ms": 469.909083,
+            "ttfb_ms": 263.945,
+            "duration_ms": 304.572,
+            "status": 200,
+            "bytes": 185
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Organisation",
+            "method": "POST",
+            "start_ms": 165.86712499999976,
+            "request_start_ms": 27.654,
+            "response_start_ms": 299.177,
+            "end_ms": 470.11487499999976,
+            "ttfb_ms": 271.523,
+            "duration_ms": 304.716,
+            "status": 200,
+            "bytes": 1548
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 165.85541699999976,
+            "request_start_ms": 0.16,
+            "response_start_ms": 310.812,
+            "end_ms": 488.79937500000005,
+            "ttfb_ms": 310.652,
+            "duration_ms": 319.474,
+            "status": 200,
+            "bytes": 478962
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveObject",
+            "method": "POST",
+            "start_ms": 165.87754199999972,
+            "request_start_ms": 182.192,
+            "response_start_ms": 320.848,
+            "end_ms": 497.11974999999984,
+            "ttfb_ms": 138.656,
+            "duration_ms": 331.382,
+            "status": 200,
+            "bytes": 84399
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalEvent",
+            "method": "POST",
+            "start_ms": 165.88425000000007,
+            "request_start_ms": 291.879,
+            "response_start_ms": 428.104,
+            "end_ms": 606.6302499999997,
+            "ttfb_ms": 136.22499999999997,
+            "duration_ms": 440.919,
+            "status": 200,
+            "bytes": 1653
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 165.91649999999981,
+            "request_start_ms": 284.882,
+            "response_start_ms": 494.153,
+            "end_ms": 681.9617499999999,
+            "ttfb_ms": 209.27100000000002,
+            "duration_ms": 513.984,
+            "status": 200,
+            "bytes": 784088
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalThing",
+            "method": "POST",
+            "start_ms": 165.90958299999966,
+            "request_start_ms": 288.277,
+            "response_start_ms": 838.221,
+            "end_ms": 1042.640042,
+            "ttfb_ms": 549.944,
+            "duration_ms": 854.622,
+            "status": 200,
+            "bytes": 296529
+          }
+        ]
+      ]
+    },
+    "production": {
+      "samples_ms": [
+        4074.2000000029802,
+        3946.9000000059605,
+        4381.699999988079
+      ],
+      "median_ms": 4074.2000000029802,
+      "samples": [
+        {
+          "sample": 0,
+          "ready_ms": 4074.2000000029802,
+          "polling_observed_ms": 4547,
+          "cpu": {
+            "TaskDuration_ms": 164.469,
+            "ScriptDuration_ms": 23.817999999999998,
+            "LayoutDuration_ms": 9.664000000000001,
+            "RecalcStyleDuration_ms": 4.377
+          },
+          "errors": [],
+          "tabs": [
+            "Alle 1103",
+            "Medien 666",
+            "Gegenst\u00e4nde 422",
+            "Anl\u00e4sse 15"
+          ]
+        },
+        {
+          "sample": 1,
+          "ready_ms": 3946.9000000059605,
+          "polling_observed_ms": 3955,
+          "cpu": {
+            "TaskDuration_ms": 150.507,
+            "ScriptDuration_ms": 26.143,
+            "LayoutDuration_ms": 9.728,
+            "RecalcStyleDuration_ms": 3.505
+          },
+          "errors": [],
+          "tabs": [
+            "Alle 1103",
+            "Medien 666",
+            "Gegenst\u00e4nde 422",
+            "Anl\u00e4sse 15"
+          ]
+        },
+        {
+          "sample": 2,
+          "ready_ms": 4381.699999988079,
+          "polling_observed_ms": 4457,
+          "cpu": {
+            "TaskDuration_ms": 153.344,
+            "ScriptDuration_ms": 26.491,
+            "LayoutDuration_ms": 9.524,
+            "RecalcStyleDuration_ms": 3.741
+          },
+          "errors": [],
+          "tabs": [
+            "Alle 1103",
+            "Medien 666",
+            "Gegenst\u00e4nde 422",
+            "Anl\u00e4sse 15"
+          ]
+        }
+      ],
+      "waterfalls": [
+        [
+          {
+            "path": "/admin/auth/unknown",
+            "method": "POST",
+            "start_ms": 244.81808399999994,
+            "request_start_ms": 0.726,
+            "response_start_ms": 17.564,
+            "end_ms": 289.37116699999996,
+            "ttfb_ms": 16.838,
+            "duration_ms": 39.94,
+            "status": 200,
+            "bytes": 1088
+          },
+          {
+            "path": "/admin/hlist/fasnacht/ObjectTaxonomy",
+            "method": "GET",
+            "start_ms": 289.07979199999994,
+            "request_start_ms": 0.212,
+            "response_start_ms": 41.631,
+            "end_ms": 350.437125,
+            "ttfb_ms": 41.419,
+            "duration_ms": 58.716,
+            "status": 200,
+            "bytes": 8361
+          },
+          {
+            "path": "/admin/user/unknown",
+            "method": "GET",
+            "start_ms": 289.07087499999994,
+            "request_start_ms": 0.294,
+            "response_start_ms": 337.318,
+            "end_ms": 638.284375,
+            "ttfb_ms": 337.024,
+            "duration_ms": 347.944,
+            "status": 200,
+            "bytes": 521
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 289.11733399999997,
+            "request_start_ms": 0.225,
+            "response_start_ms": 2248.863,
+            "end_ms": 2597.282625,
+            "ttfb_ms": 2248.638,
+            "duration_ms": 2296.096,
+            "status": 200,
+            "bytes": 376715
+          },
+          {
+            "path": "/admin/hlist/fasnacht/CarnivalEventTaxonomy",
+            "method": "GET",
+            "start_ms": 289.086875,
+            "request_start_ms": 0.294,
+            "response_start_ms": 2433.166,
+            "end_ms": 2731.688417,
+            "ttfb_ms": 2432.8720000000003,
+            "duration_ms": 2443.57,
+            "status": 200,
+            "bytes": 6740
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveObject",
+            "method": "POST",
+            "start_ms": 289.32633400000003,
+            "request_start_ms": 0.301,
+            "response_start_ms": 2427.824,
+            "end_ms": 2733.4259589999997,
+            "ttfb_ms": 2427.523,
+            "duration_ms": 2442.656,
+            "status": 200,
+            "bytes": 69609
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalEvent",
+            "method": "POST",
+            "start_ms": 289.33808400000004,
+            "request_start_ms": 0.215,
+            "response_start_ms": 2456.459,
+            "end_ms": 2762.196709,
+            "ttfb_ms": 2456.2439999999997,
+            "duration_ms": 2472.097,
+            "status": 200,
+            "bytes": 1415
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Person",
+            "method": "POST",
+            "start_ms": 289.12766700000003,
+            "request_start_ms": 0.123,
+            "response_start_ms": 2509.221,
+            "end_ms": 2808.067209,
+            "ttfb_ms": 2509.098,
+            "duration_ms": 2519.744,
+            "status": 200,
+            "bytes": 3098
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Organisation",
+            "method": "POST",
+            "start_ms": 289.137042,
+            "request_start_ms": 0.2,
+            "response_start_ms": 2515.58,
+            "end_ms": 2820.486042,
+            "ttfb_ms": 2515.38,
+            "duration_ms": 2531.476,
+            "status": 200,
+            "bytes": 1256
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Agent",
+            "method": "POST",
+            "start_ms": 289.1020419999999,
+            "request_start_ms": 0.22,
+            "response_start_ms": 2526.143,
+            "end_ms": 2828.869209,
+            "ttfb_ms": 2525.9230000000002,
+            "duration_ms": 2540.124,
+            "status": 200,
+            "bytes": 3881
+          },
+          {
+            "path": "/admin/hlist/fasnacht/OrganisationTaxonomy",
+            "method": "GET",
+            "start_ms": 289.094125,
+            "request_start_ms": 0.237,
+            "response_start_ms": 2538.753,
+            "end_ms": 2843.018209,
+            "ttfb_ms": 2538.516,
+            "duration_ms": 2555.464,
+            "status": 200,
+            "bytes": 8307
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ExternalSource",
+            "method": "POST",
+            "start_ms": 289.14349999999996,
+            "request_start_ms": 0.159,
+            "response_start_ms": 3099.775,
+            "end_ms": 3408.4114999999997,
+            "ttfb_ms": 3099.616,
+            "duration_ms": 3118.463,
+            "status": 200,
+            "bytes": 181
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 289.36508399999997,
+            "request_start_ms": 0.258,
+            "response_start_ms": 3062.322,
+            "end_ms": 3420.215792,
+            "ttfb_ms": 3062.0640000000003,
+            "duration_ms": 3125.486,
+            "status": 200,
+            "bytes": 689050
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalThing",
+            "method": "POST",
+            "start_ms": 289.346167,
+            "request_start_ms": 0.231,
+            "response_start_ms": 3715.586,
+            "end_ms": 4075.5403749999996,
+            "ttfb_ms": 3715.3549999999996,
+            "duration_ms": 3748.252,
+            "status": 200,
+            "bytes": 202587
+          }
+        ],
+        [
+          {
+            "path": "/admin/auth/unknown",
+            "method": "POST",
+            "start_ms": 219.10120800000004,
+            "request_start_ms": 0.903,
+            "response_start_ms": 17.167,
+            "end_ms": 262.5842080000002,
+            "ttfb_ms": 16.264000000000003,
+            "duration_ms": 37.395,
+            "status": 200,
+            "bytes": 1065
+          },
+          {
+            "path": "/admin/hlist/fasnacht/CarnivalEventTaxonomy",
+            "method": "GET",
+            "start_ms": 262.2757500000007,
+            "request_start_ms": 0.395,
+            "response_start_ms": 42.498,
+            "end_ms": 320.1131660000001,
+            "ttfb_ms": 42.102999999999994,
+            "duration_ms": 55.363,
+            "status": 200,
+            "bytes": 6740
+          },
+          {
+            "path": "/admin/user/unknown",
+            "method": "GET",
+            "start_ms": 262.25591600000007,
+            "request_start_ms": 0.362,
+            "response_start_ms": 269.304,
+            "end_ms": 543.9535410000008,
+            "ttfb_ms": 268.94199999999995,
+            "duration_ms": 280.824,
+            "status": 200,
+            "bytes": 521
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveObject",
+            "method": "POST",
+            "start_ms": 262.55662500000017,
+            "request_start_ms": 0.362,
+            "response_start_ms": 2045.439,
+            "end_ms": 2339.1680000000006,
+            "ttfb_ms": 2045.077,
+            "duration_ms": 2074.156,
+            "status": 200,
+            "bytes": 69632
+          },
+          {
+            "path": "/admin/hlist/fasnacht/OrganisationTaxonomy",
+            "method": "GET",
+            "start_ms": 262.28300000000036,
+            "request_start_ms": 0.467,
+            "response_start_ms": 2082.427,
+            "end_ms": 2355.1625410000006,
+            "ttfb_ms": 2081.96,
+            "duration_ms": 2093.154,
+            "status": 200,
+            "bytes": 8307
+          },
+          {
+            "path": "/admin/hlist/fasnacht/ObjectTaxonomy",
+            "method": "GET",
+            "start_ms": 262.26716600000054,
+            "request_start_ms": 0.35,
+            "response_start_ms": 2127.492,
+            "end_ms": 2401.3376660000004,
+            "ttfb_ms": 2127.1420000000003,
+            "duration_ms": 2140.501,
+            "status": 200,
+            "bytes": 8361
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalEvent",
+            "method": "POST",
+            "start_ms": 262.56483300000036,
+            "request_start_ms": 0.391,
+            "response_start_ms": 2203.176,
+            "end_ms": 2478.1892500000004,
+            "ttfb_ms": 2202.785,
+            "duration_ms": 2214.9,
+            "status": 200,
+            "bytes": 1415
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 262.5797910000001,
+            "request_start_ms": 0.414,
+            "response_start_ms": 2222.293,
+            "end_ms": 2532.9323750000003,
+            "ttfb_ms": 2221.879,
+            "duration_ms": 2264.577,
+            "status": 200,
+            "bytes": 689027
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 262.52587500000027,
+            "request_start_ms": 0.306,
+            "response_start_ms": 2247.08,
+            "end_ms": 2540.9939160000004,
+            "ttfb_ms": 2246.774,
+            "duration_ms": 2269.815,
+            "status": 200,
+            "bytes": 376674
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Agent",
+            "method": "POST",
+            "start_ms": 262.2919160000001,
+            "request_start_ms": 0.34,
+            "response_start_ms": 2343.373,
+            "end_ms": 2618.343833,
+            "ttfb_ms": 2343.033,
+            "duration_ms": 2355.426,
+            "status": 200,
+            "bytes": 3881
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Person",
+            "method": "POST",
+            "start_ms": 262.53462500000023,
+            "request_start_ms": 0.398,
+            "response_start_ms": 2380.301,
+            "end_ms": 2654.640375,
+            "ttfb_ms": 2379.903,
+            "duration_ms": 2392.329,
+            "status": 200,
+            "bytes": 3121
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Organisation",
+            "method": "POST",
+            "start_ms": 262.5424579999999,
+            "request_start_ms": 0.85,
+            "response_start_ms": 2700.451,
+            "end_ms": 3199.6302080000005,
+            "ttfb_ms": 2699.601,
+            "duration_ms": 2936.147,
+            "status": 200,
+            "bytes": 1256
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ExternalSource",
+            "method": "POST",
+            "start_ms": 262.5495410000003,
+            "request_start_ms": 0.822,
+            "response_start_ms": 880.496,
+            "end_ms": 3201.955041,
+            "ttfb_ms": 879.674,
+            "duration_ms": 2938.908,
+            "status": 200,
+            "bytes": 181
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalThing",
+            "method": "POST",
+            "start_ms": 262.57275000000027,
+            "request_start_ms": 0.369,
+            "response_start_ms": 3612.094,
+            "end_ms": 3948.0750000000007,
+            "ttfb_ms": 3611.725,
+            "duration_ms": 3645.037,
+            "status": 200,
+            "bytes": 202619
+          }
+        ],
+        [
+          {
+            "path": "/admin/auth/unknown",
+            "method": "POST",
+            "start_ms": 171.65541600000142,
+            "request_start_ms": 0.641,
+            "response_start_ms": 12.869,
+            "end_ms": 208.0409580000014,
+            "ttfb_ms": 12.228,
+            "duration_ms": 31.795,
+            "status": 200,
+            "bytes": 1065
+          },
+          {
+            "path": "/admin/hlist/fasnacht/CarnivalEventTaxonomy",
+            "method": "GET",
+            "start_ms": 207.7686250000006,
+            "request_start_ms": 0.267,
+            "response_start_ms": 34.449,
+            "end_ms": 254.21320800000103,
+            "ttfb_ms": 34.181999999999995,
+            "duration_ms": 43.991,
+            "status": 200,
+            "bytes": 6740
+          },
+          {
+            "path": "/admin/hlist/fasnacht/ObjectTaxonomy",
+            "method": "GET",
+            "start_ms": 207.76300000000083,
+            "request_start_ms": 0.282,
+            "response_start_ms": 41.939,
+            "end_ms": 255.88908300000003,
+            "ttfb_ms": 41.657000000000004,
+            "duration_ms": 49.402,
+            "status": 200,
+            "bytes": 8370
+          },
+          {
+            "path": "/admin/user/unknown",
+            "method": "GET",
+            "start_ms": 207.75612499999988,
+            "request_start_ms": 0.333,
+            "response_start_ms": 251.005,
+            "end_ms": 468.8824999999997,
+            "ttfb_ms": 250.672,
+            "duration_ms": 258.947,
+            "status": 200,
+            "bytes": 521
+          },
+          {
+            "path": "/admin/hlist/fasnacht/OrganisationTaxonomy",
+            "method": "GET",
+            "start_ms": 207.7738330000011,
+            "request_start_ms": 0.21,
+            "response_start_ms": 274.685,
+            "end_ms": 492.9326250000013,
+            "ttfb_ms": 274.475,
+            "duration_ms": 284.312,
+            "status": 200,
+            "bytes": 8298
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 207.9677499999998,
+            "request_start_ms": 0.22,
+            "response_start_ms": 2293.024,
+            "end_ms": 2564.8409580000007,
+            "ttfb_ms": 2292.804,
+            "duration_ms": 2348.27,
+            "status": 200,
+            "bytes": 376683
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+            "method": "POST",
+            "start_ms": 208.03683300000012,
+            "request_start_ms": 0.275,
+            "response_start_ms": 2275.503,
+            "end_ms": 2583.1980000000003,
+            "ttfb_ms": 2275.228,
+            "duration_ms": 2371.482,
+            "status": 200,
+            "bytes": 689041
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Person",
+            "method": "POST",
+            "start_ms": 207.97370800000135,
+            "request_start_ms": 0.285,
+            "response_start_ms": 2396.705,
+            "end_ms": 2610.793375000001,
+            "ttfb_ms": 2396.42,
+            "duration_ms": 2403.319,
+            "status": 200,
+            "bytes": 3098
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalEvent",
+            "method": "POST",
+            "start_ms": 208.011708,
+            "request_start_ms": 0.291,
+            "response_start_ms": 2405.925,
+            "end_ms": 2625.242875,
+            "ttfb_ms": 2405.634,
+            "duration_ms": 2417.441,
+            "status": 200,
+            "bytes": 1415
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Organisation",
+            "method": "POST",
+            "start_ms": 207.97920800000065,
+            "request_start_ms": 0.235,
+            "response_start_ms": 2420.156,
+            "end_ms": 2636.9783750000006,
+            "ttfb_ms": 2419.921,
+            "duration_ms": 2428.625,
+            "status": 200,
+            "bytes": 1256
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:Agent",
+            "method": "POST",
+            "start_ms": 207.7814159999998,
+            "request_start_ms": 0.225,
+            "response_start_ms": 2498.64,
+            "end_ms": 2714.2792500000014,
+            "ttfb_ms": 2498.415,
+            "duration_ms": 2505.797,
+            "status": 200,
+            "bytes": 3904
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ExternalSource",
+            "method": "POST",
+            "start_ms": 207.99833300000137,
+            "request_start_ms": 0.338,
+            "response_start_ms": 2572.973,
+            "end_ms": 2793.1878750000014,
+            "ttfb_ms": 2572.6349999999998,
+            "duration_ms": 2584.883,
+            "status": 200,
+            "bytes": 181
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:ArchiveObject",
+            "method": "POST",
+            "start_ms": 208.00583300000108,
+            "request_start_ms": 0.339,
+            "response_start_ms": 2857.791,
+            "end_ms": 3086.109416000001,
+            "ttfb_ms": 2857.452,
+            "duration_ms": 2876.283,
+            "status": 200,
+            "bytes": 69609
+          },
+          {
+            "path": "/data/search/fasnacht/class/fasnacht:CarnivalThing",
+            "method": "POST",
+            "start_ms": 208.0249160000003,
+            "request_start_ms": 0.201,
+            "response_start_ms": 4095.688,
+            "end_ms": 4382.837000000001,
+            "ttfb_ms": 4095.487,
+            "duration_ms": 4132.709,
+            "status": 200,
+            "bytes": 202619
+          }
+        ]
+      ]
+    }
+  },
+  "sequential_searches": [
+    {
+      "case": 0,
+      "path": "/data/search/fasnacht/class/fasnacht:Agent",
+      "body": {
+        "includeProperties": [
+          "schema:familyName",
+          "schema:givenName",
+          "schema:name"
+        ],
+        "limit": 5000
+      },
+      "local": {
+        "http_ms": 89.3478750003851,
+        "api_ms": 88.32608350348892,
+        "backend_ms": 85.1163550032652,
+        "jena_ms": 79.01260450000001,
+        "authentication_ms": 3.4634790000000004,
+        "python_ms": 3.1909375029499643,
+        "transport_ms": 2.640271503265196,
+        "decode_ms": 0.043062005715910345,
+        "dating_ms": 3.2357919990317896
+      },
+      "local_rows": 26,
+      "local_response_bytes": 5002,
+      "backend_calls": 3,
+      "production": {
+        "case": 0,
+        "path": "/data/search/fasnacht/class/fasnacht:Agent",
+        "samples_ms": [
+          402.0674033090472,
+          395.4561073333025,
+          404.4257588684559
+        ],
+        "median_ms": 402.0674033090472,
+        "bytes": 3848,
+        "rows": 27
+      }
+    },
+    {
+      "case": 1,
+      "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+      "body": {
+        "includeProperties": [
+          "fasnacht:archiveMediaObjectOf",
+          "fasnacht:contributingAgent",
+          "shared:assetId",
+          "shared:serverUrl",
+          "shared:protocol",
+          "shared:mediaAccessMode",
+          "shared:mediaUrl",
+          "shared:thumbnailUrl",
+          "shared:originalMimeType",
+          "schema:position",
+          "dcterms:type"
+        ],
+        "limit": 5000
+      },
+      "local": {
+        "http_ms": 120.20627099991543,
+        "api_ms": 119.00920850166585,
+        "backend_ms": 78.09593749698251,
+        "jena_ms": 71.13874999999999,
+        "authentication_ms": 3.3901044999999996,
+        "python_ms": 41.49758300627582,
+        "transport_ms": 3.5978960045514583,
+        "decode_ms": 1.535895986307878,
+        "dating_ms": 4.156646005867515
+      },
+      "local_rows": 665,
+      "local_response_bytes": 478962,
+      "backend_calls": 3,
+      "production": {
+        "case": 1,
+        "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+        "samples_ms": [
+          413.0095196887851,
+          393.8600458204746,
+          400.8101336658001
+        ],
+        "median_ms": 400.8101336658001,
+        "bytes": 376432,
+        "rows": 666
+      }
+    },
+    {
+      "case": 2,
+      "path": "/data/search/fasnacht/class/fasnacht:Person",
+      "body": {
+        "includeProperties": [
+          "schema:familyName",
+          "schema:givenName",
+          "schema:name"
+        ],
+        "limit": 5000
+      },
+      "local": {
+        "http_ms": 68.03391600260511,
+        "api_ms": 67.04583299870137,
+        "backend_ms": 64.08754199946998,
+        "jena_ms": 58.173249999999996,
+        "authentication_ms": 3.3740629999999996,
+        "python_ms": 2.9807075115968473,
+        "transport_ms": 2.4958535064489435,
+        "decode_ms": 0.03718651714734733,
+        "dating_ms": 3.29033299931325
+      },
+      "local_rows": 20,
+      "local_response_bytes": 4003,
+      "backend_calls": 3,
+      "production": {
+        "case": 2,
+        "path": "/data/search/fasnacht/class/fasnacht:Person",
+        "samples_ms": [
+          336.4643221721053,
+          316.2655867636204,
+          336.9635595008731
+        ],
+        "median_ms": 336.4643221721053,
+        "bytes": 3065,
+        "rows": 21
+      }
+    },
+    {
+      "case": 3,
+      "path": "/data/search/fasnacht/class/fasnacht:Organisation",
+      "body": {
+        "includeProperties": [
+          "schema:name",
+          "fasnacht:organisationTaxonomy"
+        ],
+        "limit": 5000
+      },
+      "local": {
+        "http_ms": 69.1777500032913,
+        "api_ms": 68.28514600056224,
+        "backend_ms": 65.5741664886591,
+        "jena_ms": 59.6460835,
+        "authentication_ms": 3.385397,
+        "python_ms": 2.656936994753778,
+        "transport_ms": 2.5497289983795826,
+        "decode_ms": 0.02510499325580895,
+        "dating_ms": 3.373125000507571
+      },
+      "local_rows": 6,
+      "local_response_bytes": 1548,
+      "backend_calls": 3,
+      "production": {
+        "case": 3,
+        "path": "/data/search/fasnacht/class/fasnacht:Organisation",
+        "samples_ms": [
+          318.1845908984542,
+          325.9115759283304,
+          314.32509049773216
+        ],
+        "median_ms": 318.1845908984542,
+        "bytes": 1223,
+        "rows": 6
+      }
+    },
+    {
+      "case": 4,
+      "path": "/data/search/fasnacht/class/fasnacht:ExternalSource",
+      "body": {
+        "includeProperties": [
+          "schema:name",
+          "fasnacht:lastHarvest"
+        ],
+        "sortBy": [
+          "schema:name|asc"
+        ],
+        "limit": 5000
+      },
+      "local": {
+        "http_ms": 79.95487500011222,
+        "api_ms": 79.05845800269162,
+        "backend_ms": 76.51806200010469,
+        "jena_ms": 70.98416599999999,
+        "authentication_ms": 3.2136250000000004,
+        "python_ms": 2.540396002586931,
+        "transport_ms": 2.470875000104691,
+        "decode_ms": 0.020208499336149544,
+        "dating_ms": 3.328270999190863
+      },
+      "local_rows": 1,
+      "local_response_bytes": 185,
+      "backend_calls": 3,
+      "production": {
+        "case": 4,
+        "path": "/data/search/fasnacht/class/fasnacht:ExternalSource",
+        "samples_ms": [
+          445.37672866135836,
+          475.30169133096933,
+          504.2693056166172
+        ],
+        "median_ms": 475.30169133096933,
+        "bytes": 148,
+        "rows": 1
+      }
+    },
+    {
+      "case": 5,
+      "path": "/data/search/fasnacht/class/fasnacht:ArchiveObject",
+      "body": {
+        "includeProperties": [
+          "fasnacht:externalSource"
+        ],
+        "limit": 5000
+      },
+      "local": {
+        "http_ms": 70.64602049649693,
+        "api_ms": 69.67287500447128,
+        "backend_ms": 58.92239599052118,
+        "jena_ms": 52.878333,
+        "authentication_ms": 3.209625,
+        "python_ms": 10.750479013950098,
+        "transport_ms": 2.83443799052118,
+        "decode_ms": 0.5928545069764368,
+        "dating_ms": 3.185749999829568
+      },
+      "local_rows": 422,
+      "local_response_bytes": 84399,
+      "backend_calls": 3,
+      "production": {
+        "case": 5,
+        "path": "/data/search/fasnacht/class/fasnacht:ArchiveObject",
+        "samples_ms": [
+          379.3931705877185,
+          381.42446894198656,
+          414.46900367736816
+        ],
+        "median_ms": 381.42446894198656,
+        "bytes": 69530,
+        "rows": 422
+      }
+    },
+    {
+      "case": 6,
+      "path": "/data/search/fasnacht/class/fasnacht:CarnivalEvent",
+      "body": {
+        "includeProperties": [
+          "fasnacht:externalSource"
+        ],
+        "limit": 5000
+      },
+      "local": {
+        "http_ms": 66.29037500533741,
+        "api_ms": 65.4291250029928,
+        "backend_ms": 63.01054150389973,
+        "jena_ms": 57.3961045,
+        "authentication_ms": 3.256145,
+        "python_ms": 2.4185834990930744,
+        "transport_ms": 2.353895003899731,
+        "decode_ms": 0.023437496565748006,
+        "dating_ms": 2.9192290021455847
+      },
+      "local_rows": 15,
+      "local_response_bytes": 1653,
+      "backend_calls": 3,
+      "production": {
+        "case": 6,
+        "path": "/data/search/fasnacht/class/fasnacht:CarnivalEvent",
+        "samples_ms": [
+          438.9905370771885,
+          476.33737325668335,
+          446.24220859259367
+        ],
+        "median_ms": 446.24220859259367,
+        "bytes": 1382,
+        "rows": 15
+      }
+    },
+    {
+      "case": 7,
+      "path": "/data/search/fasnacht/class/fasnacht:CarnivalThing",
+      "body": {
+        "includeProperties": [
+          "schema:name",
+          "dcterms:type",
+          "fasnacht:dating",
+          "fasnacht:associatedOrganisation",
+          "fasnacht:currentCustodian",
+          "fasnacht:externalSource",
+          "dcterms:provenance"
+        ],
+        "sortBy": [
+          "schema:name|asc"
+        ],
+        "limit": 5000
+      },
+      "local": {
+        "http_ms": 480.53562449786114,
+        "api_ms": 479.3734375052736,
+        "backend_ms": 302.0955629981472,
+        "jena_ms": 269.404666,
+        "authentication_ms": 17.407831,
+        "python_ms": 171.36472999845864,
+        "transport_ms": 14.735544984701995,
+        "decode_ms": 53.549770993413404,
+        "dating_ms": 351.1766459996579
+      },
+      "local_rows": 437,
+      "local_response_bytes": 296529,
+      "backend_calls": 15,
+      "production": {
+        "case": 7,
+        "path": "/data/search/fasnacht/class/fasnacht:CarnivalThing",
+        "samples_ms": [
+          1870.3085575252771,
+          1557.496008463204,
+          1548.6452020704746
+        ],
+        "median_ms": 1557.496008463204,
+        "bytes": 202435,
+        "rows": 437
+      }
+    },
+    {
+      "case": 8,
+      "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+      "body": {
+        "includeProperties": [
+          "schema:name",
+          "schema:description",
+          "dcterms:type",
+          "fasnacht:contributingAgent",
+          "shared:mediaAccessMode",
+          "fasnacht:representationRole",
+          "fasnacht:archiveMediaObjectOf",
+          "schema:position",
+          "shared:originalMimeType"
+        ],
+        "limit": 5000
+      },
+      "local": {
+        "http_ms": 121.77502050326439,
+        "api_ms": 120.32547900162172,
+        "backend_ms": 82.532729000377,
+        "jena_ms": 73.50872899999999,
+        "authentication_ms": 3.6866675,
+        "python_ms": 38.40702101297211,
+        "transport_ms": 5.288123986701102,
+        "decode_ms": 2.3561869966215454,
+        "dating_ms": 4.1463125016889535
+      },
+      "local_rows": 665,
+      "local_response_bytes": 784088,
+      "backend_calls": 3,
+      "production": {
+        "case": 8,
+        "path": "/data/search/fasnacht/class/fasnacht:ArchiveMediaObject",
+        "samples_ms": [
+          419.42309495061636,
+          404.43453658372164,
+          397.05796260386705
+        ],
+        "median_ms": 404.43453658372164,
+        "bytes": 688596,
+        "rows": 666
+      }
+    }
+  ],
+  "aggregate_sequential_api_ms": {
+    "api_ms": 1185.585437273403,
+    "jena_ms": 808.13678075,
+    "python_ms": 291.81435253849486,
+    "authentication_ms": 45.82430175,
+    "transport_ms": 39.81000223490808
+  },
+  "aggregate_share_percent": {
+    "jena_ms": 68.16352118903758,
+    "python_ms": 24.613523695905585,
+    "authentication_ms": 3.8651201599933827,
+    "transport_ms": 3.357834955063442
+  },
+  "dating_projection_control": {
+    "scope": "Local diagnostic projection only; dates remain required in the real UI",
+    "samples": [
+      {
+        "variant": "with",
+        "ms": 461.89791698998306,
+        "rows": 437,
+        "bytes": 296529
+      },
+      {
+        "variant": "without",
+        "ms": 120.82066599396057,
+        "rows": 437,
+        "bytes": 163704
+      },
+      {
+        "variant": "without",
+        "ms": 120.95412499911617,
+        "rows": 437,
+        "bytes": 163704
+      },
+      {
+        "variant": "with",
+        "ms": 512.0455829892308,
+        "rows": 437,
+        "bytes": 296529
+      },
+      {
+        "variant": "with",
+        "ms": 454.5405410026433,
+        "rows": 437,
+        "bytes": 296529
+      },
+      {
+        "variant": "without",
+        "ms": 121.90312500752043,
+        "rows": 437,
+        "bytes": 163704
+      },
+      {
+        "variant": "without",
+        "ms": 121.02554200100712,
+        "rows": 437,
+        "bytes": 163704
+      },
+      {
+        "variant": "with",
+        "ms": 451.39554199704435,
+        "rows": 437,
+        "bytes": 296529
+      }
+    ],
+    "same_non_date_values_and_row_order": true,
+    "median_ms": {
+      "with": 458.2192289963132,
+      "without": 120.98983350006165
+    }
+  },
+  "python_profiles": {
+    "0": {
+      "top_self": [
+        {
+          "function": "~:0:<method 'recv_into' of '_socket.socket' objects>",
+          "calls": 4,
+          "self_ms": 81.18020800000001,
+          "cumulative_ms": 81.18020800000001
+        },
+        {
+          "function": "context.py:217:iri2qname",
+          "calls": 52,
+          "self_ms": 0.4566180000000001,
+          "cumulative_ms": 1.008706
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "calls": 4560,
+          "self_ms": 0.348213,
+          "cumulative_ms": 0.6528360000000001
+        },
+        {
+          "function": "~:0:<built-in method _io.open>",
+          "calls": 3,
+          "self_ms": 0.262667,
+          "cumulative_ms": 0.314292
+        },
+        {
+          "function": "arguments.py:100:validated_value",
+          "calls": 648,
+          "self_ms": 0.23827700000000002,
+          "cumulative_ms": 0.38271499999999997
+        },
+        {
+          "function": "~:0:<built-in method _scproxy._get_proxy_settings>",
+          "calls": 3,
+          "self_ms": 0.232625,
+          "cumulative_ms": 0.232625
+        },
+        {
+          "function": "~:0:<method '__exit__' of '_io._IOBase' objects>",
+          "calls": 3,
+          "self_ms": 0.190917,
+          "cumulative_ms": 0.190917
+        },
+        {
+          "function": "arguments.py:458:validate",
+          "calls": 54,
+          "self_ms": 0.17072,
+          "cumulative_ms": 0.717208
+        },
+        {
+          "function": "~:0:<built-in method _scproxy._get_proxies>",
+          "calls": 3,
+          "self_ms": 0.150333,
+          "cumulative_ms": 0.150333
+        },
+        {
+          "function": "~:0:<built-in method builtins.dir>",
+          "calls": 54,
+          "self_ms": 0.14329000000000003,
+          "cumulative_ms": 0.14329000000000003
+        },
+        {
+          "function": "~:0:<built-in method builtins.getattr>",
+          "calls": 1451,
+          "self_ms": 0.140094,
+          "cumulative_ms": 0.167746
+        },
+        {
+          "function": "schemas.py:1285:iter_errors",
+          "calls": 27,
+          "self_ms": 0.12399500000000001,
+          "cumulative_ms": 2.8117530000000004
+        }
+      ],
+      "top_cumulative": [
+        {
+          "function": "app.py:904:full_dispatch_request",
+          "calls": 1,
+          "self_ms": 0.004793,
+          "cumulative_ms": 90.78425000000001
+        },
+        {
+          "function": "app.py:879:dispatch_request",
+          "calls": 1,
+          "self_ms": 0.003791,
+          "cumulative_ms": 90.69175
+        },
+        {
+          "function": "authentication.py:50:wrapped",
+          "calls": 1,
+          "self_ms": 0.0033760000000000005,
+          "cumulative_ms": 90.680459
+        },
+        {
+          "function": "instance_views.py:968:search_instance",
+          "calls": 1,
+          "self_ms": 0.007500000000000001,
+          "cumulative_ms": 89.54504100000001
+        },
+        {
+          "function": "instance_views.py:870:text_search_response",
+          "calls": 1,
+          "self_ms": 0.035833000000000004,
+          "cumulative_ms": 89.53754100000002
+        },
+        {
+          "function": "jena_connection.py:150:query",
+          "calls": 3,
+          "self_ms": 0.016377000000000003,
+          "cumulative_ms": 84.94
+        },
+        {
+          "function": "jena_connection.py:97:_send",
+          "calls": 3,
+          "self_ms": 0.014877000000000001,
+          "cumulative_ms": 84.868166
+        },
+        {
+          "function": "sessions.py:695:post",
+          "calls": 3,
+          "self_ms": 0.006291000000000001,
+          "cumulative_ms": 84.80879200000001
+        },
+        {
+          "function": "profile_archive_page.py:43:http",
+          "calls": 3,
+          "self_ms": 0.036916000000000004,
+          "cumulative_ms": 84.802501
+        },
+        {
+          "function": "sessions.py:557:request",
+          "calls": 3,
+          "self_ms": 0.019379,
+          "cumulative_ms": 84.20833400000001
+        },
+        {
+          "function": "objectfactory.py:2679:search",
+          "calls": 1,
+          "self_ms": 0.08391,
+          "cumulative_ms": 84.15170900000001
+        },
+        {
+          "function": "sessions.py:752:send",
+          "calls": 3,
+          "self_ms": 0.027540000000000002,
+          "cumulative_ms": 82.85329100000001
+        },
+        {
+          "function": "adapters.py:634:send",
+          "calls": 3,
+          "self_ms": 0.022208000000000002,
+          "cumulative_ms": 82.625583
+        },
+        {
+          "function": "connectionpool.py:598:urlopen",
+          "calls": 3,
+          "self_ms": 0.020960000000000003,
+          "cumulative_ms": 82.263418
+        },
+        {
+          "function": "connectionpool.py:383:_make_request",
+          "calls": 3,
+          "self_ms": 0.017627000000000004,
+          "cumulative_ms": 82.128792
+        }
+      ]
+    },
+    "7": {
+      "top_self": [
+        {
+          "function": "~:0:<method 'recv_into' of '_socket.socket' objects>",
+          "calls": 151,
+          "self_ms": 260.296584,
+          "cumulative_ms": 0.0034590000000000003
+        },
+        {
+          "function": "copy.py:119:deepcopy",
+          "calls": 42704,
+          "self_ms": 56.768877,
+          "cumulative_ms": 94.064327
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "calls": 545548,
+          "self_ms": 37.096270000000004,
+          "cumulative_ms": 61.72842000000001
+        },
+        {
+          "function": "~:0:<method 'poll' of 'select.poll' objects>",
+          "calls": 15,
+          "self_ms": 36.276748000000005,
+          "cumulative_ms": 36.022417000000004
+        },
+        {
+          "function": "context.py:217:iri2qname",
+          "calls": 3624,
+          "self_ms": 31.549439,
+          "cumulative_ms": 64.25434100000001
+        },
+        {
+          "function": "construct_processor.py:59:process",
+          "calls": 5,
+          "self_ms": 27.094476000000004,
+          "cumulative_ms": 135.94070800000003
+        },
+        {
+          "function": "~:0:<method 'get' of 'dict' objects>",
+          "calls": 290248,
+          "self_ms": 21.306618000000004,
+          "cumulative_ms": 29.552377
+        },
+        {
+          "function": "xsd_qname.py:35:__init__",
+          "calls": 29871,
+          "self_ms": 14.53543,
+          "cumulative_ms": 37.899654000000005
+        },
+        {
+          "function": "<frozen abc>:117:__instancecheck__",
+          "calls": 163726,
+          "self_ms": 13.250959000000002,
+          "cumulative_ms": 24.366819000000003
+        },
+        {
+          "function": "term.py:167:__eq__",
+          "calls": 85023,
+          "self_ms": 12.690585,
+          "cumulative_ms": 12.690585
+        },
+        {
+          "function": "jsonld.py:247:_add_to_graph",
+          "calls": 8284,
+          "self_ms": 11.853006,
+          "cumulative_ms": 170.287623
+        },
+        {
+          "function": "~:0:<built-in method _abc._abc_instancecheck>",
+          "calls": 163726,
+          "self_ms": 11.067614,
+          "cumulative_ms": 11.11586
+        }
+      ],
+      "top_cumulative": [
+        {
+          "function": "app.py:904:full_dispatch_request",
+          "calls": 1,
+          "self_ms": 0.009876,
+          "cumulative_ms": 927.328625
+        },
+        {
+          "function": "app.py:879:dispatch_request",
+          "calls": 1,
+          "self_ms": 0.0032920000000000002,
+          "cumulative_ms": 923.9199160000001
+        },
+        {
+          "function": "authentication.py:50:wrapped",
+          "calls": 1,
+          "self_ms": 0.006793,
+          "cumulative_ms": 923.9157090000001
+        },
+        {
+          "function": "instance_views.py:968:search_instance",
+          "calls": 1,
+          "self_ms": 0.17733400000000002,
+          "cumulative_ms": 923.8733750000001
+        },
+        {
+          "function": "instance_views.py:870:text_search_response",
+          "calls": 1,
+          "self_ms": 0.191751,
+          "cumulative_ms": 923.695958
+        },
+        {
+          "function": "profile_archive_page.py:85:wrapper",
+          "calls": 16,
+          "self_ms": 0.068287,
+          "cumulative_ms": 738.4769990000001
+        },
+        {
+          "function": "instance_views.py:828:_expand_search_dating",
+          "calls": 1,
+          "self_ms": 1.3273570000000001,
+          "cumulative_ms": 737.512459
+        },
+        {
+          "function": "objectfactory.py:3992:read_summaries",
+          "calls": 5,
+          "self_ms": 0.9094610000000001,
+          "cumulative_ms": 571.734417
+        },
+        {
+          "function": "objectfactory.py:953:_read_resource_summaries_construct",
+          "calls": 5,
+          "self_ms": 0.05025400000000001,
+          "cumulative_ms": 518.44375
+        },
+        {
+          "function": "jena_connection.py:150:query",
+          "calls": 15,
+          "self_ms": 0.08617000000000001,
+          "cumulative_ms": 503.3910420000001
+        },
+        {
+          "function": "resource_transaction.py:215:resource_query",
+          "calls": 12,
+          "self_ms": 0.033124,
+          "cumulative_ms": 493.261416
+        },
+        {
+          "function": "jena_connection.py:97:_send",
+          "calls": 15,
+          "self_ms": 0.086163,
+          "cumulative_ms": 323.62079200000005
+        },
+        {
+          "function": "sessions.py:695:post",
+          "calls": 15,
+          "self_ms": 0.036038,
+          "cumulative_ms": 323.204248
+        },
+        {
+          "function": "profile_archive_page.py:43:http",
+          "calls": 15,
+          "self_ms": 0.202048,
+          "cumulative_ms": 323.16821
+        },
+        {
+          "function": "sessions.py:557:request",
+          "calls": 15,
+          "self_ms": 0.09674600000000001,
+          "cumulative_ms": 312.715209
+        }
+      ]
+    },
+    "8": {
+      "top_self": [
+        {
+          "function": "~:0:<method 'recv_into' of '_socket.socket' objects>",
+          "calls": 121,
+          "self_ms": 79.62778800000001,
+          "cumulative_ms": 0.0
+        },
+        {
+          "function": "context.py:217:iri2qname",
+          "calls": 3707,
+          "self_ms": 31.952005,
+          "cumulative_ms": 71.587393
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "calls": 126064,
+          "self_ms": 9.723097,
+          "cumulative_ms": 18.051317
+        },
+        {
+          "function": "xsd_anyuri.py:92:__str__",
+          "calls": 237470,
+          "self_ms": 8.213156000000001,
+          "cumulative_ms": 8.213156000000001
+        },
+        {
+          "function": "~:0:<method 'startswith' of 'str' objects>",
+          "calls": 122463,
+          "self_ms": 5.937982000000001,
+          "cumulative_ms": 5.937982000000001
+        },
+        {
+          "function": "instance_views.py:287:to_json_compatible_value",
+          "calls": 11350,
+          "self_ms": 5.49745,
+          "cumulative_ms": 14.179417
+        },
+        {
+          "function": "xsd_qname.py:35:__init__",
+          "calls": 7439,
+          "self_ms": 5.212851,
+          "cumulative_ms": 18.892967
+        },
+        {
+          "function": "<frozen abc>:117:__instancecheck__",
+          "calls": 61243,
+          "self_ms": 4.488885000000001,
+          "cumulative_ms": 8.276145
+        },
+        {
+          "function": "xsd_anyuri.py:50:__init__",
+          "calls": 5143,
+          "self_ms": 3.8077010000000002,
+          "cumulative_ms": 11.992917
+        },
+        {
+          "function": "~:0:<built-in method _abc._abc_instancecheck>",
+          "calls": 61243,
+          "self_ms": 3.760507,
+          "cumulative_ms": 3.7872600000000003
+        },
+        {
+          "function": "query_processor.py:70:__init__",
+          "calls": 1,
+          "self_ms": 2.996878,
+          "cumulative_ms": 88.501
+        },
+        {
+          "function": "~:0:<method 'replace' of 'str' objects>",
+          "calls": 21944,
+          "self_ms": 2.9268410000000005,
+          "cumulative_ms": 2.9268410000000005
+        }
+      ],
+      "top_cumulative": [
+        {
+          "function": "app.py:904:full_dispatch_request",
+          "calls": 1,
+          "self_ms": 0.002999,
+          "cumulative_ms": 201.50400000000002
+        },
+        {
+          "function": "app.py:879:dispatch_request",
+          "calls": 1,
+          "self_ms": 0.002876,
+          "cumulative_ms": 201.409209
+        },
+        {
+          "function": "authentication.py:50:wrapped",
+          "calls": 1,
+          "self_ms": 0.002501,
+          "cumulative_ms": 201.39866700000002
+        },
+        {
+          "function": "instance_views.py:968:search_instance",
+          "calls": 1,
+          "self_ms": 0.326583,
+          "cumulative_ms": 200.30100000000002
+        },
+        {
+          "function": "instance_views.py:870:text_search_response",
+          "calls": 1,
+          "self_ms": 0.359872,
+          "cumulative_ms": 199.97441700000002
+        },
+        {
+          "function": "objectfactory.py:2679:search",
+          "calls": 1,
+          "self_ms": 2.0035410000000002,
+          "cumulative_ms": 176.022125
+        },
+        {
+          "function": "query_processor.py:70:__init__",
+          "calls": 1,
+          "self_ms": 2.996878,
+          "cumulative_ms": 88.501
+        },
+        {
+          "function": "jena_connection.py:150:query",
+          "calls": 3,
+          "self_ms": 0.016458,
+          "cumulative_ms": 86.732708
+        },
+        {
+          "function": "jena_connection.py:97:_send",
+          "calls": 3,
+          "self_ms": 0.017831000000000003,
+          "cumulative_ms": 84.278167
+        },
+        {
+          "function": "sessions.py:695:post",
+          "calls": 3,
+          "self_ms": 0.006167000000000001,
+          "cumulative_ms": 84.085167
+        },
+        {
+          "function": "profile_archive_page.py:43:http",
+          "calls": 3,
+          "self_ms": 0.03858,
+          "cumulative_ms": 84.07900000000001
+        },
+        {
+          "function": "sessions.py:557:request",
+          "calls": 3,
+          "self_ms": 0.02146,
+          "cumulative_ms": 83.46816600000001
+        },
+        {
+          "function": "resource_transaction.py:215:resource_query",
+          "calls": 2,
+          "self_ms": 0.004125,
+          "cumulative_ms": 83.13358400000001
+        },
+        {
+          "function": "sessions.py:752:send",
+          "calls": 3,
+          "self_ms": 0.028458,
+          "cumulative_ms": 82.09375100000001
+        },
+        {
+          "function": "adapters.py:634:send",
+          "calls": 3,
+          "self_ms": 0.022334,
+          "cumulative_ms": 80.99241700000002
+        }
+      ]
+    }
+  },
+  "limits": [
+    "Fresh browser contexts but warm backends; not a cold-start or capacity benchmark.",
+    "Local query timing uses current shared engine through probe timing headers, not the production wrapper. Java dispatch includes parse/evaluation/serialization; it is not pure SPARQL evaluation time.",
+    "Shares sum serial local API processing time across nine searches; they are not additive shares of browser critical-path time.",
+    "CPU profiling runs are separate and slower; latency tables use four unprofiled samples after warmup.",
+    "Older fixture has one fewer medium/person and different date payloads; class sizes match for all 437 objects/events.",
+    "No permission checks bypassed; dates omitted only for a local diagnostic control, not in the application.",
+    "DOM mutation readiness removes locator-polling overhead; final waterfalls use monotonic request events because one preliminary browser wall-clock timing was inconsistent.",
+    "No endpoint, validation, cache policy, production configuration or public function signature changed."
+  ]
+}

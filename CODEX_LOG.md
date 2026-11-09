@@ -1,3 +1,45 @@
+### Update 2026-11-10 00:02
+- Decisions: Owner-requested local checkpoint of the home-accepted performance work on experiment/dating-read-performance; keep it separate from published main until coordinated promotion.
+- Implementation: Paired library checkpoint: 43a90ab. Reviewed and retained the focused dating reader, normalized calendar decoding, operation-scoped vocabulary discovery and ACL join changes with tests/profiling evidence. Revalidated 61 focused library/API tests using the API virtualenv and explicit sibling source paths; whitespace checks pass.
+- Open: Performance branch merge/push and coordinated API/library production promotion remain separate. Normal OLDAP worktrees are to follow published main; committing this branch does not change main or deployments.
+- Risks/Assumptions: Performance candidate 40e6a2f777e3 is deployed on home only; production API/library remain 1.0.0. No runtime changes or package/deployment operation in this checkpoint. The library venv lacks pytest; tests used the existing API venv without installing dependencies. Dependency deprecation warnings remain.
+
+### Update 2026-11-09 22:21
+- Decisions: Publish isolated candidate images and verify on home only; keep production/stable tags and namespace owner unchanged.
+- Implementation: API/Tools 40e6a2f777e3 accepted on AMD64/ARM64; dependency parity and 29 installed API tests per architecture pass. Home API/identity replaced; 27 live checks, 18 complete response comparisons and desktop/mobile smoke pass. Date medians public 1010 -> 653 ms, admin 2063 -> 786 ms. Setup adds recovery-lock/rollback protection and permits retired GraphDB absence in its checker.
+- Open: Home frontend retains duplicate searches; browser median ~2.7 s unchanged within noise. Review frontend alignment and user acceptance before any production rollout. Evidence: ../oldap-setup/docs/archive-performance-home-20261109.md.
+- Risks/Assumptions: Candidate snapshots include uncommitted source; no Git/PyPI release. Read-only home checks plus isolated packaged transactions, not live imports/writes. Known taxonomy alias normalized only for semantic comparison; retained rollback environment needs no RDF restore.
+
+### Update 2026-11-09 22:01
+- Decisions: Reuse schema graph names only within one read operation; optimize role joins without permission/result caching. Rejected class-placement-only change after neutral measurements.
+- Implementation: Bound schema reuse to search plus date expansion. Added three-variant owned benchmark with restored baseline joins, complete responses, native ACL fixtures, counts and nonzero paging comparisons. 103 focused tests pass; native 31 checks plus 270 response comparisons pass. Date search calls 15 -> 10; public/audit date medians 432 -> 367 / 774 -> 426 ms. Sum of nine case medians improves 10% public / 61% audit.
+- Open: Coordinated installed-image acceptance and home verification before production. See doc/archive-metadata-optimization.md.
+- Risks/Assumptions: Warm sequential local fixture, four samples per variant/case; sums are not page latency. Schema edits during a scoped read appear next operation; transactions bypass reuse. No push, publication or deployment.
+
+### Update 2026-11-09 21:49
+- Decisions: Integrate the focused reader and correct calendar decoding independently; preserve public signatures and RDF storage.
+- Implementation: Search date expansion now calls the explicit private library reader. Updated sequential baseline comparison and fixtures for subproperties/multiple types/Julian correctness; documented coordinated API/library release requirement. Native run: 24 HTTP comparisons, fixture group and 16 timed comparisons pass; public 551 -> 414 ms, audit 1102 -> 788 ms. Focused tests: 30 passed; broader tests: 13 passed, four failure reports reproduce on original HEAD.
+- Open: Joint installed-image acceptance and test deployment before production; older query-string test expectations remain separately unresolved. See doc/dating-read-integration.md.
+- Risks/Assumptions: Warm local fixture, sequential timings; no GraphDB live comparison. Calendar correction intentionally changes affected output metadata, not stored dates. No push/publication/deployment.
+
+### Update 2026-11-09 21:18
+- Decisions: Measure a focused search-date read before runtime adoption; preserve public contracts and RDF storage.
+- Implementation: Added owned sequential query-comparison runner, complete response/ACL/date checks and sanitized results. Public HTTP median 557 -> 390 ms; audit 1129 -> 821 ms; unchanged 15 backend calls. Native run passes 24 HTTP comparisons plus synthetic fixtures and 16 timed equivalence checks; Python tests 8 passed/2 expected failures.
+- Open: Explicit private integration and additional property-inheritance/multi-type coverage; separate Julian decoding correction. Evidence: doc/dating-read-experiment.md.
+- Risks/Assumptions: Warm local older export, four timing samples per reader/variant; not production or whole-page improvement. Experiment patch is sequential-only. No push/deployment or runtime activation.
+
+### Update 2026-11-09 21:01
+- Decisions: Isolate the dating-read performance experiment on local branch `experiment/dating-read-performance`, based on published mainline dbdc05330668.
+- Implementation: Created and selected the branch; preserved existing profiling artifacts and working-tree changes byte for byte. No runtime implementation change yet.
+- Open: Compare a focused, permission-preserving dating read with the current summary path; require equivalent structured results before adoption.
+- Risks/Assumptions: Keep ontology storage, public signatures and production unchanged. No branch push or deployment in this step.
+
+### Update 2026-11-09 20:53
+- Decisions: Diagnose current archive latency locally with exact production search payloads; production remains read-only and unchanged.
+- Implementation: Owned native Jena/Flask timing and separate CPU profiles; 3-sample local/production browser waterfalls with DOM readiness, 27 loopback production search reads and 8-request local dating control. Local/production medians 1.004/4.074 s; serial local search work 68% Jena, 25% Python. Added reusable API probe and linked findings.
+- Open: Class/ACL SELECT-plan comparisons, less repetitive date hydration, then fan-out/paging assessment; no runtime optimization yet.
+- Risks/Assumptions: Older near-matching fixture, warm backends and different host/server topology; local shares do not establish production percentages. Observer removes polling inflation; private raw queries/profiles retained.
+
 ### Update 2026-11-09 18:17
 - Decisions: Complete the approved final release; preserve existing tags and database namespace.
 - Implementation: Published exact core 1.0.0 wheels/images and app 0.2.8, mainline commits/tags; scoped production activation changes only API, identity and app. Evidence in oldap-setup/docs/oldap-1.0.0-release-results.json.
