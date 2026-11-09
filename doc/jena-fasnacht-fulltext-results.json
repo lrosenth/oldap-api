@@ -1,0 +1,191 @@
+{
+  "checks": [
+    "Owned project starts without a managed fulltext index",
+    "Nine YAML fields activate on the existing real project",
+    "Unchanged YAML replay plans no writes",
+    "Public title search finds real lantern records",
+    "Fulltext result and count agree",
+    "Sorted fulltext paging returns a subset",
+    "Prefix search includes exact-word hits",
+    "Quoted phrase search finds real titles",
+    "Aliases sharing a predicate do not duplicate results",
+    "Multiple words match independently of order",
+    "Every word is required",
+    "Configured relation path finds represented-object titles",
+    "Real export includes public extracted PDF text",
+    "Public PDF text is indexed from existing data",
+    "Audit reader finds internal PDF extracted text",
+    "Public PDF text search excludes the internal document",
+    "New model predicate becomes searchable by YAML configuration alone",
+    "Multiple words can match separate values of the same field",
+    "Revoked membership excludes indexed text despite orphan annotation",
+    "Restored membership restores search without reindexing",
+    "Private referenced text cannot reveal a public root through search",
+    "Audit reader may search the readable referenced title",
+    "Granting source visibility enables the linked fulltext hit",
+    "Revoked source membership hides linked hits and counts despite orphan grant",
+    "Original field map restored for browser testing",
+    "Concurrent class searches share configuration reads without conflicts"
+  ],
+  "queries": [
+    {
+      "field": "archiveObjectTitle",
+      "term": "Laterne",
+      "identity": "public",
+      "milliseconds": 3556,
+      "count": 21
+    },
+    {
+      "field": "archiveObjectTitle",
+      "term": "Laterne",
+      "identity": "public",
+      "milliseconds": 3417,
+      "count": 21
+    },
+    {
+      "field": "archiveObjectTitle",
+      "term": "Laterne",
+      "identity": "public",
+      "milliseconds": 3882,
+      "count": 2
+    },
+    {
+      "field": "archiveObjectTitle",
+      "term": "Later*",
+      "identity": "public",
+      "milliseconds": 3482,
+      "count": 28
+    },
+    {
+      "field": "archiveObjectTitle",
+      "term": "\"BMG Stamm\"",
+      "identity": "public",
+      "milliseconds": 3480,
+      "count": 29
+    },
+    {
+      "field": "archiveObjectTitle",
+      "term": "Laterne Stamm",
+      "identity": "public",
+      "milliseconds": 3552,
+      "count": 10
+    },
+    {
+      "field": "archiveObjectTitle",
+      "term": "Stamm Laterne",
+      "identity": "public",
+      "milliseconds": 3560,
+      "count": 10
+    },
+    {
+      "field": "archiveObjectTitle",
+      "term": "Laterne migrationabsentword",
+      "identity": "public",
+      "milliseconds": 71,
+      "count": 0
+    },
+    {
+      "field": "representedArchiveObjectTitle",
+      "term": "Laterne",
+      "identity": "public",
+      "milliseconds": 3522,
+      "count": 10
+    },
+    {
+      "field": "archiveMediaObjectText",
+      "term": "Stadtbuch",
+      "identity": "public",
+      "milliseconds": 3381,
+      "count": 49
+    },
+    {
+      "field": "archiveMediaObjectText",
+      "term": "migrationinternaldocument",
+      "identity": "audit",
+      "milliseconds": 7363,
+      "count": 1
+    },
+    {
+      "field": "archiveMediaObjectText",
+      "term": "migrationinternaldocument",
+      "identity": "public",
+      "milliseconds": 3354,
+      "count": 0
+    },
+    {
+      "field": "futureProjectText",
+      "term": "migrationfuturefield",
+      "identity": "public",
+      "milliseconds": 3335,
+      "count": 1
+    },
+    {
+      "field": "futureProjectText",
+      "term": "migrationfuturefield migrationsecondvalue",
+      "identity": "public",
+      "milliseconds": 3403,
+      "count": 1
+    },
+    {
+      "field": "futureProjectText",
+      "term": "migrationfuturefield",
+      "identity": "public",
+      "milliseconds": 3537,
+      "count": 0
+    },
+    {
+      "field": "futureProjectText",
+      "term": "migrationfuturefield",
+      "identity": "public",
+      "milliseconds": 3389,
+      "count": 0
+    },
+    {
+      "field": "futureProjectText",
+      "term": "migrationfuturefield",
+      "identity": "public",
+      "milliseconds": 3336,
+      "count": 1
+    },
+    {
+      "field": "representedArchiveObjectTitle",
+      "term": "Pr\u00fcfobjekt",
+      "identity": "public",
+      "milliseconds": 3601,
+      "count": 0
+    },
+    {
+      "field": "representedArchiveObjectTitle",
+      "term": "Pr\u00fcfobjekt",
+      "identity": "audit",
+      "milliseconds": 7552,
+      "count": 1
+    },
+    {
+      "field": "representedArchiveObjectTitle",
+      "term": "Pr\u00fcfobjekt",
+      "identity": "public",
+      "milliseconds": 3428,
+      "count": 1
+    },
+    {
+      "field": "representedArchiveObjectTitle",
+      "term": "Pr\u00fcfobjekt",
+      "identity": "public",
+      "milliseconds": 3612,
+      "count": 0
+    },
+    {
+      "field": "representedArchiveObjectTitle",
+      "term": "Pr\u00fcfobjekt",
+      "identity": "public",
+      "milliseconds": 3437,
+      "count": 0
+    }
+  ],
+  "initial_import_ms": 2525,
+  "public_pdf_query": "Stadtbuch",
+  "private_text_origin": "synthetic text on a real internal PDF in owned target",
+  "private_pdf_iri": "urn:uuid:813a29d0-cbc3-41c3-b148-f0ad55dda343",
+  "private_pdf_query": "migrationinternaldocument"
+}

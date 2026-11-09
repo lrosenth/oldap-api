@@ -1,0 +1,140 @@
+{
+  "status": "passed",
+  "response_comparisons": 60,
+  "source_unchanged": true,
+  "comparison": {
+    "metadata": {
+      "baseline": {
+        "median_ms": 111.11264547798783,
+        "samples": 4,
+        "backend_calls": [
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "optimized": {
+        "median_ms": 83.02129153162241,
+        "samples": 4,
+        "backend_calls": [
+          3,
+          3,
+          3,
+          3
+        ]
+      }
+    },
+    "count": {
+      "baseline": {
+        "median_ms": 81.99718757532537,
+        "samples": 4,
+        "backend_calls": [
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "optimized": {
+        "median_ms": 60.405458440072834,
+        "samples": 4,
+        "backend_calls": [
+          2,
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "dating": {
+      "baseline": {
+        "median_ms": 367.07227083388716,
+        "samples": 4,
+        "backend_calls": [
+          7,
+          7,
+          7,
+          7
+        ]
+      },
+      "optimized": {
+        "median_ms": 277.56231208331883,
+        "samples": 4,
+        "backend_calls": [
+          7,
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    "dating_count": {
+      "baseline": {
+        "median_ms": 135.3212499525398,
+        "samples": 4,
+        "backend_calls": [
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "optimized": {
+        "median_ms": 106.26704210881144,
+        "samples": 4,
+        "backend_calls": [
+          2,
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "fulltext": {
+      "baseline": {
+        "median_ms": 112.32045805081725,
+        "samples": 4,
+        "backend_calls": [
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "optimized": {
+        "median_ms": 58.192875469103456,
+        "samples": 4,
+        "backend_calls": [
+          4,
+          4,
+          4,
+          4
+        ]
+      }
+    },
+    "fulltext_count": {
+      "baseline": {
+        "median_ms": 86.64168743416667,
+        "samples": 4,
+        "backend_calls": [
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "optimized": {
+        "median_ms": 38.93422905821353,
+        "samples": 4,
+        "backend_calls": [
+          3,
+          3,
+          3,
+          3
+        ]
+      }
+    }
+  },
+  "method": "Same-target ABBA, four timed samples per case/plan; old versus reused datatype schema compilation. Both arms use final RDF-read changes and original SPARQL."
+}

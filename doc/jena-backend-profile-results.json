@@ -1,0 +1,3452 @@
+{
+  "status": "passed",
+  "samples": [
+    {
+      "case": "metadata",
+      "phase": "warmup",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 10.005166986957192,
+          "authentication_ms": 7.041875,
+          "dispatch_ms": 1.652041,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "480eeadecf69a5e3",
+          "ms": 148.0034589767456,
+          "authentication_ms": 6.554083,
+          "dispatch_ms": 139.751542,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "876691ae1ccf6b6d",
+          "ms": 8.691875031217933,
+          "authentication_ms": 6.741084,
+          "dispatch_ms": 0.729417,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "586e0f1668148881",
+          "ms": 7.9662499483674765,
+          "authentication_ms": 6.241917,
+          "dispatch_ms": 0.581375,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.1462909858673811,
+      "dating_ms": 58.57204180210829,
+      "api_dispatch_ms": 237.86179185844958,
+      "http_ms": 239.08108309842646,
+      "backend_http_ms": 174.6667509432882,
+      "authentication_ms": 26.578959,
+      "dispatch_ms": 142.714375,
+      "transport_residual_ms": 5.37341694328822,
+      "api_other_ms": 63.19504091516137
+    },
+    {
+      "case": "count",
+      "phase": "warmup",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 9.885708102956414,
+          "authentication_ms": 8.085792,
+          "dispatch_ms": 0.7495,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "d4ca69045425736d",
+          "ms": 74.66608309186995,
+          "authentication_ms": 6.750708,
+          "dispatch_ms": 66.854708,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.017208047211170197,
+      "api_dispatch_ms": 102.634749840945,
+      "http_ms": 103.64166693761945,
+      "backend_http_ms": 84.55179119482636,
+      "authentication_ms": 14.836500000000001,
+      "dispatch_ms": 67.604208,
+      "transport_residual_ms": 2.1110831948263638,
+      "api_other_ms": 18.08295864611864
+    },
+    {
+      "case": "dating",
+      "phase": "warmup",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 8.181334007531404,
+          "authentication_ms": 6.23075,
+          "dispatch_ms": 0.752125,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f20f1b6d9014e710",
+          "ms": 176.14529095590115,
+          "authentication_ms": 6.604583,
+          "dispatch_ms": 168.260916,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "876691ae1ccf6b6d",
+          "ms": 8.7479162029922,
+          "authentication_ms": 6.739209,
+          "dispatch_ms": 0.871875,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "586e0f1668148881",
+          "ms": 9.39320889301598,
+          "authentication_ms": 7.789459,
+          "dispatch_ms": 0.535333,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 8.213584078475833,
+          "authentication_ms": 6.41025,
+          "dispatch_ms": 0.688208,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "ffadbe1c6794bb9f",
+          "ms": 115.73362490162253,
+          "authentication_ms": 41.381833,
+          "dispatch_ms": 72.325917,
+          "bytes": 575377
+        }
+      ],
+      "decode_ms": 29.660208150744438,
+      "construct_ms": 18.235416850075126,
+      "dating_ms": 240.858375094831,
+      "api_dispatch_ms": 450.2539159730077,
+      "http_ms": 451.4138752128929,
+      "backend_http_ms": 326.4149590395391,
+      "authentication_ms": 75.15608399999999,
+      "dispatch_ms": 243.43437400000002,
+      "transport_residual_ms": 7.824501039539086,
+      "api_other_ms": 123.83895693346858
+    },
+    {
+      "case": "dating_count",
+      "phase": "warmup",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 7.531875045970082,
+          "authentication_ms": 5.767834,
+          "dispatch_ms": 0.758166,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "a5d2da0fa2fe1365",
+          "ms": 121.41075008548796,
+          "authentication_ms": 5.336333,
+          "dispatch_ms": 114.800708,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.017042038962244987,
+      "api_dispatch_ms": 148.46549998037517,
+      "http_ms": 149.46062490344048,
+      "backend_http_ms": 128.94262513145804,
+      "authentication_ms": 11.104167,
+      "dispatch_ms": 115.558874,
+      "transport_residual_ms": 2.279584131458037,
+      "api_other_ms": 19.522874848917127
+    },
+    {
+      "case": "fulltext",
+      "phase": "warmup",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.478124927729368,
+          "authentication_ms": 6.273042,
+          "dispatch_ms": 0.114417,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 7.572874892503023,
+          "authentication_ms": 5.503542,
+          "dispatch_ms": 1.075083,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "bf0178d1258daa2b",
+          "ms": 87.22679107449949,
+          "authentication_ms": 5.574458,
+          "dispatch_ms": 80.66625,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "5bebf1da85da3a07",
+          "ms": 8.143667131662369,
+          "authentication_ms": 5.836542,
+          "dispatch_ms": 0.668833,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "7eebafe5aa7de62e",
+          "ms": 9.313250193372369,
+          "authentication_ms": 7.540625,
+          "dispatch_ms": 0.628292,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.04150019958615303,
+      "dating_ms": 60.05216599442065,
+      "api_dispatch_ms": 197.2835420165211,
+      "http_ms": 198.37462506256998,
+      "backend_http_ms": 119.73470821976662,
+      "authentication_ms": 30.728209,
+      "dispatch_ms": 83.15287500000001,
+      "transport_residual_ms": 5.8536242197666155,
+      "api_other_ms": 77.54883379675448
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "warmup",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 8.128541987389326,
+          "authentication_ms": 6.922917,
+          "dispatch_ms": 0.079334,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 8.962624939158559,
+          "authentication_ms": 6.446125,
+          "dispatch_ms": 1.277375,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13097cf6178a993c",
+          "ms": 56.2738748267293,
+          "authentication_ms": 8.621416,
+          "dispatch_ms": 46.204375,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.02183392643928528,
+      "api_dispatch_ms": 113.37616690434515,
+      "http_ms": 114.5399168599397,
+      "backend_http_ms": 73.36504175327718,
+      "authentication_ms": 21.990458,
+      "dispatch_ms": 47.561084,
+      "transport_residual_ms": 3.8134997532771777,
+      "api_other_ms": 40.01112515106797
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 9.387166006490588,
+          "authentication_ms": 6.83725,
+          "dispatch_ms": 0.937042,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 96.94075002335012,
+          "authentication_ms": 8.845709,
+          "dispatch_ms": 86.729333,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 8.837834000587463,
+          "authentication_ms": 6.824042,
+          "dispatch_ms": 0.674959,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 8.369541028514504,
+          "authentication_ms": 6.4305,
+          "dispatch_ms": 0.678208,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.14675105921924114,
+      "dating_ms": 60.852625174447894,
+      "api_dispatch_ms": 192.45570804923773,
+      "http_ms": 193.8757081516087,
+      "backend_http_ms": 123.53529105894268,
+      "authentication_ms": 28.937501,
+      "dispatch_ms": 89.019542,
+      "transport_residual_ms": 5.578248058942677,
+      "api_other_ms": 68.92041699029505
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.632791996002197,
+          "authentication_ms": 5.790584,
+          "dispatch_ms": 0.747083,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 72.3693750333041,
+          "authentication_ms": 5.867375,
+          "dispatch_ms": 65.254584,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.019042054191231728,
+      "api_dispatch_ms": 98.64008286967874,
+      "http_ms": 99.62154203094542,
+      "backend_http_ms": 80.00216702930629,
+      "authentication_ms": 11.657959,
+      "dispatch_ms": 66.001667,
+      "transport_residual_ms": 2.3425410293062896,
+      "api_other_ms": 18.637915840372443
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 8.4583330899477,
+          "authentication_ms": 6.345958,
+          "dispatch_ms": 0.915917,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 134.92541713640094,
+          "authentication_ms": 5.734083,
+          "dispatch_ms": 127.986958,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 9.334207978099585,
+          "authentication_ms": 7.54925,
+          "dispatch_ms": 0.677458,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 8.188999956473708,
+          "authentication_ms": 6.619834,
+          "dispatch_ms": 0.552291,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.556708063930273,
+          "authentication_ms": 5.859667,
+          "dispatch_ms": 0.665875,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 89.59600003436208,
+          "authentication_ms": 8.8695,
+          "dispatch_ms": 78.482833,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 73.38537578471005,
+      "construct_ms": 18.02629209123552,
+      "dating_ms": 259.2097918968648,
+      "api_dispatch_ms": 425.6803330499679,
+      "http_ms": 426.9061249215156,
+      "backend_http_ms": 258.0596662592143,
+      "authentication_ms": 40.978292,
+      "dispatch_ms": 209.281332,
+      "transport_residual_ms": 7.80004225921428,
+      "api_other_ms": 167.6206667907536
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 8.13262490555644,
+          "authentication_ms": 6.047083,
+          "dispatch_ms": 0.894792,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 112.37441701814532,
+          "authentication_ms": 5.719083,
+          "dispatch_ms": 105.397333,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.018374063074588776,
+      "api_dispatch_ms": 140.15766698867083,
+      "http_ms": 141.1462500691414,
+      "backend_http_ms": 120.50704192370176,
+      "authentication_ms": 11.766166,
+      "dispatch_ms": 106.292125,
+      "transport_residual_ms": 2.448750923701766,
+      "api_other_ms": 19.650625064969063
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.884333910420537,
+          "authentication_ms": 5.826125,
+          "dispatch_ms": 0.100833,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 7.460791850462556,
+          "authentication_ms": 5.783583,
+          "dispatch_ms": 0.726833,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "bf0178d1258daa2b",
+          "ms": 59.156584087759256,
+          "authentication_ms": 5.577417,
+          "dispatch_ms": 52.4345,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "5bebf1da85da3a07",
+          "ms": 8.424084167927504,
+          "authentication_ms": 5.838708,
+          "dispatch_ms": 0.899209,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "7eebafe5aa7de62e",
+          "ms": 8.05670814588666,
+          "authentication_ms": 5.876208,
+          "dispatch_ms": 0.540709,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.04050089046359062,
+      "dating_ms": 53.6084589548409,
+      "api_dispatch_ms": 161.65091609582305,
+      "http_ms": 162.5923328101635,
+      "backend_http_ms": 89.98250216245651,
+      "authentication_ms": 28.902041,
+      "dispatch_ms": 54.702084,
+      "transport_residual_ms": 6.378377162456516,
+      "api_other_ms": 71.66841393336654
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.628500064834952,
+          "authentication_ms": 5.626375,
+          "dispatch_ms": 0.081792,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 7.812124909833074,
+          "authentication_ms": 6.070417,
+          "dispatch_ms": 0.733708,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13097cf6178a993c",
+          "ms": 39.90299999713898,
+          "authentication_ms": 5.634666,
+          "dispatch_ms": 33.292542,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.01700012944638729,
+      "api_dispatch_ms": 88.90045806765556,
+      "http_ms": 89.80629197321832,
+      "backend_http_ms": 54.343624971807,
+      "authentication_ms": 17.331458,
+      "dispatch_ms": 34.108042,
+      "transport_residual_ms": 2.9041249718070077,
+      "api_other_ms": 34.55683309584856
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 9.40775009803474,
+          "authentication_ms": 7.590541,
+          "dispatch_ms": 0.665,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 93.37099990807474,
+          "authentication_ms": 6.384292,
+          "dispatch_ms": 85.567208,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 8.600125089287758,
+          "authentication_ms": 6.521042,
+          "dispatch_ms": 0.885666,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 8.311915909871459,
+          "authentication_ms": 6.632834,
+          "dispatch_ms": 0.569542,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.13962388038635254,
+      "dating_ms": 59.29712485522032,
+      "api_dispatch_ms": 182.7474171295762,
+      "http_ms": 183.7374169845134,
+      "backend_http_ms": 119.6907910052687,
+      "authentication_ms": 27.128709,
+      "dispatch_ms": 87.687416,
+      "transport_residual_ms": 4.874666005268693,
+      "api_other_ms": 63.05662612430751
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.8795000445097685,
+          "authentication_ms": 6.04225,
+          "dispatch_ms": 0.747417,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 63.38700000196695,
+          "authentication_ms": 5.999958,
+          "dispatch_ms": 56.290834,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.021333107724785805,
+      "api_dispatch_ms": 91.0814581438899,
+      "http_ms": 92.03295805491507,
+      "backend_http_ms": 71.26650004647672,
+      "authentication_ms": 12.042208,
+      "dispatch_ms": 57.038250999999995,
+      "transport_residual_ms": 2.186041046476724,
+      "api_other_ms": 19.814958097413182
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.6879579573869705,
+          "authentication_ms": 5.937875,
+          "dispatch_ms": 0.678666,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 128.03741707466543,
+          "authentication_ms": 5.771042,
+          "dispatch_ms": 120.980875,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 8.505875011906028,
+          "authentication_ms": 6.50875,
+          "dispatch_ms": 0.868458,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.3100419249385595,
+          "authentication_ms": 5.768584,
+          "dispatch_ms": 0.503583,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.095708977431059,
+          "authentication_ms": 5.610167,
+          "dispatch_ms": 0.609084,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 69.19220788404346,
+          "authentication_ms": 5.51625,
+          "dispatch_ms": 61.849041,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 28.67200062610209,
+      "construct_ms": 47.13116702623665,
+      "dating_ms": 217.17770816758275,
+      "api_dispatch_ms": 376.7051249742508,
+      "http_ms": 377.8652080800384,
+      "backend_http_ms": 227.8292088303715,
+      "authentication_ms": 35.112668,
+      "dispatch_ms": 185.489707,
+      "transport_residual_ms": 7.226833830371504,
+      "api_other_ms": 148.8759161438793
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.92949995957315,
+          "authentication_ms": 6.283625,
+          "dispatch_ms": 0.638958,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 111.7204581387341,
+          "authentication_ms": 5.379375,
+          "dispatch_ms": 105.003917,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.016415957361459732,
+      "api_dispatch_ms": 138.95683293230832,
+      "http_ms": 139.9735000450164,
+      "backend_http_ms": 119.64995809830725,
+      "authentication_ms": 11.663,
+      "dispatch_ms": 105.642875,
+      "transport_residual_ms": 2.3440830983072516,
+      "api_other_ms": 19.306874834001064
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.226583082228899,
+          "authentication_ms": 6.087458,
+          "dispatch_ms": 0.097459,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 7.209000177681446,
+          "authentication_ms": 5.362625,
+          "dispatch_ms": 0.882125,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "bf0178d1258daa2b",
+          "ms": 52.03616712242365,
+          "authentication_ms": 5.56375,
+          "dispatch_ms": 45.401792,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "5bebf1da85da3a07",
+          "ms": 7.711833110079169,
+          "authentication_ms": 5.630458,
+          "dispatch_ms": 0.564625,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "7eebafe5aa7de62e",
+          "ms": 7.152291014790535,
+          "authentication_ms": 5.648167,
+          "dispatch_ms": 0.50325,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.03554089926183224,
+      "dating_ms": 52.406041882932186,
+      "api_dispatch_ms": 153.27887516468763,
+      "http_ms": 154.2387919034809,
+      "backend_http_ms": 81.3358745072037,
+      "authentication_ms": 28.292458,
+      "dispatch_ms": 47.449251000000004,
+      "transport_residual_ms": 5.594165507203698,
+      "api_other_ms": 71.94300065748394
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.395416963845491,
+          "authentication_ms": 6.115333,
+          "dispatch_ms": 0.082125,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 7.647417020052671,
+          "authentication_ms": 5.885125,
+          "dispatch_ms": 0.700209,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13097cf6178a993c",
+          "ms": 41.23170906677842,
+          "authentication_ms": 6.073959,
+          "dispatch_ms": 34.083209,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.01958315260708332,
+      "api_dispatch_ms": 93.61991588957608,
+      "http_ms": 94.62837502360344,
+      "backend_http_ms": 56.274543050676584,
+      "authentication_ms": 18.074417,
+      "dispatch_ms": 34.865542999999995,
+      "transport_residual_ms": 3.334583050676592,
+      "api_other_ms": 37.34537283889949
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.943417178466916,
+          "authentication_ms": 5.950084,
+          "dispatch_ms": 0.871208,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 76.46362483501434,
+          "authentication_ms": 5.897292,
+          "dispatch_ms": 69.374875,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.755790837109089,
+          "authentication_ms": 6.221958,
+          "dispatch_ms": 0.563209,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.172917015850544,
+          "authentication_ms": 5.733541,
+          "dispatch_ms": 0.472333,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.13375119306147099,
+      "dating_ms": 52.99233295954764,
+      "api_dispatch_ms": 156.2031249050051,
+      "http_ms": 157.19395806081593,
+      "backend_http_ms": 99.33574986644089,
+      "authentication_ms": 23.802875,
+      "dispatch_ms": 71.281625,
+      "transport_residual_ms": 4.251249866440887,
+      "api_other_ms": 56.867375038564205
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.871833000332117,
+          "authentication_ms": 5.418709,
+          "dispatch_ms": 0.627625,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 63.74162505380809,
+          "authentication_ms": 5.718333,
+          "dispatch_ms": 56.914667,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.01579197123646736,
+      "api_dispatch_ms": 87.96333381906152,
+      "http_ms": 88.84950005449355,
+      "backend_http_ms": 70.61345805414021,
+      "authentication_ms": 11.137042000000001,
+      "dispatch_ms": 57.542292,
+      "transport_residual_ms": 1.9341240541402058,
+      "api_other_ms": 17.349875764921308
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 8.154332870617509,
+          "authentication_ms": 6.183708,
+          "dispatch_ms": 0.838291,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 121.60966685041785,
+          "authentication_ms": 6.130709,
+          "dispatch_ms": 114.05775,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 10.89370809495449,
+          "authentication_ms": 8.284792,
+          "dispatch_ms": 0.6235,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 8.143458981066942,
+          "authentication_ms": 6.448042,
+          "dispatch_ms": 0.544417,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 11.202374938875437,
+          "authentication_ms": 9.175042,
+          "dispatch_ms": 0.661458,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 95.22241703234613,
+          "authentication_ms": 8.513041,
+          "dispatch_ms": 84.351667,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 30.79454181715846,
+      "construct_ms": 18.27283320017159,
+      "dating_ms": 233.92633302137256,
+      "api_dispatch_ms": 387.3956250026822,
+      "http_ms": 388.5622920934111,
+      "backend_http_ms": 255.22595876827836,
+      "authentication_ms": 44.735334,
+      "dispatch_ms": 201.07708300000002,
+      "transport_residual_ms": 9.41354176827835,
+      "api_other_ms": 132.16966623440385
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 8.540707873180509,
+          "authentication_ms": 6.49225,
+          "dispatch_ms": 0.867667,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 113.97104198113084,
+          "authentication_ms": 5.732125,
+          "dispatch_ms": 107.104416,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.018750084564089775,
+      "api_dispatch_ms": 143.07550014927983,
+      "http_ms": 144.3310840986669,
+      "backend_http_ms": 122.51174985431135,
+      "authentication_ms": 12.224375,
+      "dispatch_ms": 107.972083,
+      "transport_residual_ms": 2.3152918543113543,
+      "api_other_ms": 20.563750294968486
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 8.47125006839633,
+          "authentication_ms": 6.912833,
+          "dispatch_ms": 0.103875,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 8.467167150229216,
+          "authentication_ms": 6.200042,
+          "dispatch_ms": 1.143709,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "bf0178d1258daa2b",
+          "ms": 52.9442080296576,
+          "authentication_ms": 5.8995,
+          "dispatch_ms": 45.884833,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "5bebf1da85da3a07",
+          "ms": 9.224999928846955,
+          "authentication_ms": 7.413042,
+          "dispatch_ms": 0.6895,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "7eebafe5aa7de62e",
+          "ms": 8.42270883731544,
+          "authentication_ms": 6.6415,
+          "dispatch_ms": 0.590125,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.044042011722922325,
+      "dating_ms": 61.212082859128714,
+      "api_dispatch_ms": 225.0242920126766,
+      "http_ms": 226.20454104617238,
+      "backend_http_ms": 87.53033401444554,
+      "authentication_ms": 33.066917,
+      "dispatch_ms": 48.412042,
+      "transport_residual_ms": 6.051375014445547,
+      "api_other_ms": 137.49395799823105
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.3919580318033695,
+          "authentication_ms": 6.199416,
+          "dispatch_ms": 0.073125,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 8.279750123620033,
+          "authentication_ms": 6.357709,
+          "dispatch_ms": 0.791959,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13097cf6178a993c",
+          "ms": 42.75120794773102,
+          "authentication_ms": 6.136417,
+          "dispatch_ms": 35.457,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.019791768863797188,
+      "api_dispatch_ms": 95.41116701439023,
+      "http_ms": 96.3804591447115,
+      "backend_http_ms": 58.42291610315442,
+      "authentication_ms": 18.693542,
+      "dispatch_ms": 36.322084000000004,
+      "transport_residual_ms": 3.4072901031544163,
+      "api_other_ms": 36.98825091123581
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.355333073064685,
+          "authentication_ms": 5.665084,
+          "dispatch_ms": 0.683208,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 87.19320897944272,
+          "authentication_ms": 12.463375,
+          "dispatch_ms": 72.822417,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 8.403165964409709,
+          "authentication_ms": 6.321584,
+          "dispatch_ms": 0.837333,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 8.024082984775305,
+          "authentication_ms": 6.381875,
+          "dispatch_ms": 0.525459,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.1311260275542736,
+      "dating_ms": 55.92370894737542,
+      "api_dispatch_ms": 170.23012484423816,
+      "http_ms": 171.3485000655055,
+      "backend_http_ms": 110.97579100169241,
+      "authentication_ms": 30.831917999999998,
+      "dispatch_ms": 74.86841700000001,
+      "transport_residual_ms": 5.275456001692405,
+      "api_other_ms": 59.25433384254575
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.70183396525681,
+          "authentication_ms": 5.974667,
+          "dispatch_ms": 0.674834,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 63.64929210394621,
+          "authentication_ms": 5.740042,
+          "dispatch_ms": 56.84175,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.017540762200951576,
+      "api_dispatch_ms": 88.72833289206028,
+      "http_ms": 89.63562501594424,
+      "backend_http_ms": 71.35112606920302,
+      "authentication_ms": 11.714709,
+      "dispatch_ms": 57.516583999999995,
+      "transport_residual_ms": 2.1198330692030254,
+      "api_other_ms": 17.37720682285726
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.609750144183636,
+          "authentication_ms": 5.785584,
+          "dispatch_ms": 0.765125,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 123.64654219709337,
+          "authentication_ms": 5.691375,
+          "dispatch_ms": 116.7415,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 8.452625013887882,
+          "authentication_ms": 6.480959,
+          "dispatch_ms": 0.839458,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.34908296726644,
+          "authentication_ms": 5.868,
+          "dispatch_ms": 0.48475,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.072957931086421,
+          "authentication_ms": 5.613125,
+          "dispatch_ms": 0.58025,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 68.44745902344584,
+          "authentication_ms": 5.50525,
+          "dispatch_ms": 61.193,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 28.223665663972497,
+      "construct_ms": 17.303125001490116,
+      "dating_ms": 186.58104189671576,
+      "api_dispatch_ms": 341.51137503795326,
+      "http_ms": 342.66437496989965,
+      "backend_http_ms": 222.5784172769636,
+      "authentication_ms": 34.944293,
+      "dispatch_ms": 180.604083,
+      "transport_residual_ms": 7.030041276963573,
+      "api_other_ms": 118.93295776098967
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.445416878908873,
+          "authentication_ms": 5.759458,
+          "dispatch_ms": 0.644542,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 111.20916600339115,
+          "authentication_ms": 5.870541,
+          "dispatch_ms": 104.270416,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.018167076632380486,
+      "api_dispatch_ms": 139.04833304695785,
+      "http_ms": 140.00387489795685,
+      "backend_http_ms": 118.65458288230002,
+      "authentication_ms": 11.629999000000002,
+      "dispatch_ms": 104.914958,
+      "transport_residual_ms": 2.1096258823000227,
+      "api_other_ms": 20.39375016465783
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 9.248499991372228,
+          "authentication_ms": 5.791125,
+          "dispatch_ms": 2.396458,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 7.5937919318675995,
+          "authentication_ms": 5.695958,
+          "dispatch_ms": 0.907958,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "bf0178d1258daa2b",
+          "ms": 54.46012504398823,
+          "authentication_ms": 6.113375,
+          "dispatch_ms": 47.27375,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "5bebf1da85da3a07",
+          "ms": 38.307041861116886,
+          "authentication_ms": 35.640041,
+          "dispatch_ms": 1.027416,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "7eebafe5aa7de62e",
+          "ms": 7.704959018155932,
+          "authentication_ms": 6.094208,
+          "dispatch_ms": 0.530583,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.04333280958235264,
+      "dating_ms": 84.98720801435411,
+      "api_dispatch_ms": 190.45116705819964,
+      "http_ms": 191.44154200330377,
+      "backend_http_ms": 117.31441784650087,
+      "authentication_ms": 59.334706999999995,
+      "dispatch_ms": 52.136165,
+      "transport_residual_ms": 5.843545846500881,
+      "api_other_ms": 73.13674921169877
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.984792184084654,
+          "authentication_ms": 5.901625,
+          "dispatch_ms": 0.093792,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 7.7717499807477,
+          "authentication_ms": 6.086083,
+          "dispatch_ms": 0.681792,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13097cf6178a993c",
+          "ms": 38.27112494036555,
+          "authentication_ms": 5.841917,
+          "dispatch_ms": 31.424709,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.017416896298527718,
+      "api_dispatch_ms": 89.33629211969674,
+      "http_ms": 90.30962479300797,
+      "backend_http_ms": 53.02766710519791,
+      "authentication_ms": 17.829625,
+      "dispatch_ms": 32.200293,
+      "transport_residual_ms": 2.9977491051979044,
+      "api_other_ms": 36.30862501449883
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.390291895717382,
+          "authentication_ms": 5.806417,
+          "dispatch_ms": 0.656375,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 81.5465000923723,
+          "authentication_ms": 6.024333,
+          "dispatch_ms": 74.320334,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.430083816871047,
+          "authentication_ms": 5.872666,
+          "dispatch_ms": 0.562584,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.448582910001278,
+          "authentication_ms": 6.007292,
+          "dispatch_ms": 0.490209,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.13379030860960484,
+      "dating_ms": 52.88533307611942,
+      "api_dispatch_ms": 161.57154203392565,
+      "http_ms": 162.5194998923689,
+      "backend_http_ms": 103.815458714962,
+      "authentication_ms": 23.710708,
+      "dispatch_ms": 76.02950200000001,
+      "transport_residual_ms": 4.075248714962001,
+      "api_other_ms": 57.75608331896365
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.341500138863921,
+          "authentication_ms": 5.729708,
+          "dispatch_ms": 0.626042,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 63.81079112179577,
+          "authentication_ms": 5.951917,
+          "dispatch_ms": 56.77475,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.01570815220475197,
+      "api_dispatch_ms": 88.63841602578759,
+      "http_ms": 89.4917082041502,
+      "backend_http_ms": 71.1522912606597,
+      "authentication_ms": 11.681625,
+      "dispatch_ms": 57.400791999999996,
+      "transport_residual_ms": 2.0698742606597023,
+      "api_other_ms": 17.486124765127897
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 8.338249986991286,
+          "authentication_ms": 6.283875,
+          "dispatch_ms": 0.932166,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 129.84383292496204,
+          "authentication_ms": 5.562666,
+          "dispatch_ms": 123.117208,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 8.763583144173026,
+          "authentication_ms": 6.6125,
+          "dispatch_ms": 0.943834,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.476249942556024,
+          "authentication_ms": 5.871417,
+          "dispatch_ms": 0.513959,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.619374897330999,
+          "authentication_ms": 5.948167,
+          "dispatch_ms": 0.639,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 68.8841249793768,
+          "authentication_ms": 5.630792,
+          "dispatch_ms": 61.35325,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 28.931833570823073,
+      "construct_ms": 17.53508299589157,
+      "dating_ms": 189.44695894606411,
+      "api_dispatch_ms": 350.83570796996355,
+      "http_ms": 351.9462498370558,
+      "backend_http_ms": 230.92541587539017,
+      "authentication_ms": 35.909417,
+      "dispatch_ms": 187.499417,
+      "transport_residual_ms": 7.516581875390187,
+      "api_other_ms": 119.91029209457338
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.541541010141373,
+          "authentication_ms": 5.885333,
+          "dispatch_ms": 0.633958,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 113.00729191862047,
+          "authentication_ms": 5.892583,
+          "dispatch_ms": 105.918542,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.016458099707961082,
+      "api_dispatch_ms": 139.928667107597,
+      "http_ms": 140.91591583564878,
+      "backend_http_ms": 120.54883292876184,
+      "authentication_ms": 11.777916000000001,
+      "dispatch_ms": 106.55250000000001,
+      "transport_residual_ms": 2.218416928761826,
+      "api_other_ms": 19.379834178835154
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.37337488681078,
+          "authentication_ms": 6.08775,
+          "dispatch_ms": 0.112416,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 7.525458000600338,
+          "authentication_ms": 5.65575,
+          "dispatch_ms": 0.900583,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "bf0178d1258daa2b",
+          "ms": 52.88483388721943,
+          "authentication_ms": 6.230541,
+          "dispatch_ms": 45.682333,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "5bebf1da85da3a07",
+          "ms": 7.259709062054753,
+          "authentication_ms": 5.67775,
+          "dispatch_ms": 0.6125,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "7eebafe5aa7de62e",
+          "ms": 7.032332941889763,
+          "authentication_ms": 5.686667,
+          "dispatch_ms": 0.458,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.037206802517175674,
+      "dating_ms": 51.59266688860953,
+      "api_dispatch_ms": 153.97200011648238,
+      "http_ms": 154.90887500345707,
+      "backend_http_ms": 82.07570877857506,
+      "authentication_ms": 29.338458,
+      "dispatch_ms": 47.765832,
+      "transport_residual_ms": 4.971418778575057,
+      "api_other_ms": 71.89629133790731
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.9599999114871025,
+          "authentication_ms": 5.871792,
+          "dispatch_ms": 0.078625,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 6.930249975994229,
+          "authentication_ms": 5.331792,
+          "dispatch_ms": 0.700208,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13097cf6178a993c",
+          "ms": 38.17791701294482,
+          "authentication_ms": 5.700292,
+          "dispatch_ms": 31.54875,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.017333077266812325,
+      "api_dispatch_ms": 115.94216688536108,
+      "http_ms": 116.83966615237296,
+      "backend_http_ms": 52.06816690042615,
+      "authentication_ms": 16.903876,
+      "dispatch_ms": 32.327583,
+      "transport_residual_ms": 2.8367079004261555,
+      "api_other_ms": 63.873999984934926
+    },
+    {
+      "case": "metadata",
+      "phase": "profile",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 19.649125169962645,
+          "authentication_ms": 17.468125,
+          "dispatch_ms": 0.640291,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 90.77445790171623,
+          "authentication_ms": 17.305083,
+          "dispatch_ms": 71.790709,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 20.46637493185699,
+          "authentication_ms": 18.046875,
+          "dispatch_ms": 0.827833,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 20.198458805680275,
+          "authentication_ms": 18.236167,
+          "dispatch_ms": 0.492042,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.15329313464462757,
+      "dating_ms": 163.11149997636676,
+      "api_dispatch_ms": 340.96833295188844,
+      "http_ms": 342.52191707491875,
+      "backend_http_ms": 151.08841680921614,
+      "authentication_ms": 71.05625,
+      "dispatch_ms": 73.75087500000001,
+      "transport_residual_ms": 6.281291809216128,
+      "api_other_ms": 189.8799161426723
+    },
+    {
+      "case": "count",
+      "phase": "profile",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 20.0295839458704,
+          "authentication_ms": 17.816666,
+          "dispatch_ms": 0.636916,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 72.32137490063906,
+          "authentication_ms": 17.663917,
+          "dispatch_ms": 53.1095,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.024208100512623787,
+      "api_dispatch_ms": 151.88091597519815,
+      "http_ms": 153.40399998240173,
+      "backend_http_ms": 92.35095884650946,
+      "authentication_ms": 35.480583,
+      "dispatch_ms": 53.746415999999996,
+      "transport_residual_ms": 3.1239598465094573,
+      "api_other_ms": 59.52995712868869
+    },
+    {
+      "case": "dating",
+      "phase": "profile",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 20.770291797816753,
+          "authentication_ms": 18.445458,
+          "dispatch_ms": 0.686459,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 140.80066699534655,
+          "authentication_ms": 18.232667,
+          "dispatch_ms": 120.709625,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 21.16254181601107,
+          "authentication_ms": 18.635458,
+          "dispatch_ms": 0.817083,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 20.73487499728799,
+          "authentication_ms": 18.660833,
+          "dispatch_ms": 0.514583,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 21.166041027754545,
+          "authentication_ms": 18.705709,
+          "dispatch_ms": 0.689209,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 86.90100000239909,
+          "authentication_ms": 19.960292,
+          "dispatch_ms": 63.67725,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 106.48970794863999,
+      "construct_ms": 60.61649997718632,
+      "dating_ms": 481.3804170116782,
+      "api_dispatch_ms": 728.4637920092791,
+      "http_ms": 730.318957939744,
+      "backend_http_ms": 311.535416636616,
+      "authentication_ms": 112.640417,
+      "dispatch_ms": 187.094209,
+      "transport_residual_ms": 11.800790636615972,
+      "api_other_ms": 416.92837537266314
+    },
+    {
+      "case": "dating_count",
+      "phase": "profile",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 20.10566694661975,
+          "authentication_ms": 17.780541,
+          "dispatch_ms": 0.685125,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 124.78566588833928,
+          "authentication_ms": 17.956375,
+          "dispatch_ms": 105.152375,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.025042099878191948,
+      "api_dispatch_ms": 216.315665980801,
+      "http_ms": 217.8685839753598,
+      "backend_http_ms": 144.89133283495903,
+      "authentication_ms": 35.736916,
+      "dispatch_ms": 105.8375,
+      "transport_residual_ms": 3.3169168349590166,
+      "api_other_ms": 71.42433314584196
+    },
+    {
+      "case": "fulltext",
+      "phase": "profile",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 19.98354191891849,
+          "authentication_ms": 18.065042,
+          "dispatch_ms": 0.103708,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 20.44620900414884,
+          "authentication_ms": 18.136667,
+          "dispatch_ms": 0.836875,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "bf0178d1258daa2b",
+          "ms": 63.414292177185416,
+          "authentication_ms": 17.588,
+          "dispatch_ms": 44.228709,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "5bebf1da85da3a07",
+          "ms": 20.053833024576306,
+          "authentication_ms": 17.899083,
+          "dispatch_ms": 0.677458,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "7eebafe5aa7de62e",
+          "ms": 20.81074984744191,
+          "authentication_ms": 18.74125,
+          "dispatch_ms": 0.550875,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.055706826969981194,
+      "dating_ms": 194.56254201941192,
+      "api_dispatch_ms": 418.191583128646,
+      "http_ms": 419.9102921411395,
+      "backend_http_ms": 144.70862597227097,
+      "authentication_ms": 90.430042,
+      "dispatch_ms": 46.397625000000005,
+      "transport_residual_ms": 7.88095897227096,
+      "api_other_ms": 273.48295715637505
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "profile",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 20.8444579038769,
+          "authentication_ms": 18.609333,
+          "dispatch_ms": 0.081791,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "fdadd61668899821",
+          "ms": 21.03579114191234,
+          "authentication_ms": 18.777666,
+          "dispatch_ms": 0.701167,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13097cf6178a993c",
+          "ms": 50.31841713935137,
+          "authentication_ms": 17.706333,
+          "dispatch_ms": 31.071,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.028499867767095566,
+      "api_dispatch_ms": 214.82404205016792,
+      "http_ms": 216.4537920616567,
+      "backend_http_ms": 92.19866618514061,
+      "authentication_ms": 55.093332000000004,
+      "dispatch_ms": 31.853958000000002,
+      "transport_residual_ms": 5.251376185140604,
+      "api_other_ms": 122.62537586502731
+    }
+  ],
+  "profiles": {
+    "metadata": {
+      "top_self": [
+        {
+          "function": "~:0:<method 'recv_into' of '_socket.socket' objects>",
+          "calls": 18,
+          "self_ms": 74.65237300000001,
+          "cumulative_ms": 0.0
+        },
+        {
+          "function": "copy.py:119:deepcopy",
+          "calls": 21355,
+          "self_ms": 13.32609,
+          "cumulative_ms": 34.055992
+        },
+        {
+          "function": "<frozen _collections_abc>:916:__iter__",
+          "calls": 74689,
+          "self_ms": 11.276663000000001,
+          "cumulative_ms": 21.027898
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "calls": 115356,
+          "self_ms": 8.996381000000001,
+          "cumulative_ms": 14.524089
+        },
+        {
+          "function": "propertyclass.py:97:__init__",
+          "calls": 342,
+          "self_ms": 8.109526,
+          "cumulative_ms": 43.574424
+        },
+        {
+          "function": "groups.py:651:iter_components",
+          "calls": 29563,
+          "self_ms": 6.224305,
+          "cumulative_ms": 13.595013000000002
+        },
+        {
+          "function": "xsd_globals.py:392:iter_components",
+          "calls": 45402,
+          "self_ms": 6.2027790000000005,
+          "cumulative_ms": 48.736982000000005
+        },
+        {
+          "function": "attributes.py:650:iter_components",
+          "calls": 24957,
+          "self_ms": 5.864917000000001,
+          "cumulative_ms": 17.855937
+        },
+        {
+          "function": "serializer.py:90:decoder_hook",
+          "calls": 5588,
+          "self_ms": 5.209282,
+          "cumulative_ms": 103.671548
+        },
+        {
+          "function": "complex_types.py:675:iter_components",
+          "calls": 37647,
+          "self_ms": 5.058409000000001,
+          "cumulative_ms": 32.08229300000001
+        },
+        {
+          "function": "xsd_globals.py:335:<genexpr>",
+          "calls": 45402,
+          "self_ms": 4.863107,
+          "cumulative_ms": 53.600089000000004
+        },
+        {
+          "function": "builders.py:682:iter_globals",
+          "calls": 50431,
+          "self_ms": 4.437016,
+          "cumulative_ms": 16.618068
+        },
+        {
+          "function": "copy.py:248:_reconstruct",
+          "calls": 3785,
+          "self_ms": 4.372982,
+          "cumulative_ms": 22.93474
+        },
+        {
+          "function": "model.py:162:set_attributes",
+          "calls": 411,
+          "self_ms": 4.1061890000000005,
+          "cumulative_ms": 10.691275000000001
+        },
+        {
+          "function": "~:0:<built-in method builtins.any>",
+          "calls": 881,
+          "self_ms": 3.9156450000000005,
+          "cumulative_ms": 65.225999
+        },
+        {
+          "function": "~:0:<method 'get' of 'dict' objects>",
+          "calls": 53200,
+          "self_ms": 3.8056330000000003,
+          "cumulative_ms": 4.389036000000001
+        },
+        {
+          "function": "~:0:<built-in method builtins.getattr>",
+          "calls": 46890,
+          "self_ms": 3.7426000000000004,
+          "cumulative_ms": 4.196766
+        },
+        {
+          "function": "elements.py:1317:iter_components",
+          "calls": 29469,
+          "self_ms": 2.888519,
+          "cumulative_ms": 15.101603
+        },
+        {
+          "function": "<frozen _collections_abc>:1027:__iter__",
+          "calls": 19505,
+          "self_ms": 2.845017,
+          "cumulative_ms": 4.245075
+        },
+        {
+          "function": "<frozen abc>:117:__instancecheck__",
+          "calls": 29244,
+          "self_ms": 2.7974460000000003,
+          "cumulative_ms": 5.425578000000001
+        }
+      ],
+      "top_cumulative": [
+        {
+          "function": "app.py:904:full_dispatch_request",
+          "calls": 6,
+          "self_ms": 0.015254000000000002,
+          "cumulative_ms": 331.302667
+        },
+        {
+          "function": "app.py:879:dispatch_request",
+          "calls": 6,
+          "self_ms": 0.012621,
+          "cumulative_ms": 331.2135
+        },
+        {
+          "function": "authentication.py:50:wrapped",
+          "calls": 1,
+          "self_ms": 0.013459,
+          "cumulative_ms": 331.206375
+        },
+        {
+          "function": "instance_views.py:928:search_instance",
+          "calls": 1,
+          "self_ms": 0.0032500000000000003,
+          "cumulative_ms": 313.869208
+        },
+        {
+          "function": "instance_views.py:830:text_search_response",
+          "calls": 1,
+          "self_ms": 0.047833,
+          "cumulative_ms": 313.865958
+        },
+        {
+          "function": "profile_backend_search.py:98:wrapped",
+          "calls": 5,
+          "self_ms": 0.015585,
+          "cumulative_ms": 163.24825
+        },
+        {
+          "function": "instance_views.py:794:_expand_search_dating",
+          "calls": 1,
+          "self_ms": 0.028968,
+          "cumulative_ms": 163.10695900000002
+        },
+        {
+          "function": "project.py:51:wrapped",
+          "calls": 3,
+          "self_ms": 0.015792,
+          "cumulative_ms": 157.307667
+        },
+        {
+          "function": "objectfactory.py:3757:__init__",
+          "calls": 1,
+          "self_ms": 0.010207,
+          "cumulative_ms": 157.299042
+        },
+        {
+          "function": "jena_connection.py:129:query",
+          "calls": 4,
+          "self_ms": 0.041001,
+          "cumulative_ms": 152.62825
+        },
+        {
+          "function": "jena_connection.py:80:_send",
+          "calls": 4,
+          "self_ms": 0.025963000000000003,
+          "cumulative_ms": 152.28
+        },
+        {
+          "function": "api.py:117:post",
+          "calls": 4,
+          "self_ms": 0.015499000000000002,
+          "cumulative_ms": 152.171624
+        },
+        {
+          "function": "api.py:24:request",
+          "calls": 4,
+          "self_ms": 0.019998000000000002,
+          "cumulative_ms": 152.156125
+        },
+        {
+          "function": "profile_backend_search.py:55:http",
+          "calls": 4,
+          "self_ms": 0.050034,
+          "cumulative_ms": 151.95033300000003
+        },
+        {
+          "function": "sessions.py:557:request",
+          "calls": 4,
+          "self_ms": 0.028626000000000002,
+          "cumulative_ms": 151.075958
+        },
+        {
+          "function": "sessions.py:752:send",
+          "calls": 4,
+          "self_ms": 0.043876000000000005,
+          "cumulative_ms": 149.090041
+        },
+        {
+          "function": "adapters.py:634:send",
+          "calls": 4,
+          "self_ms": 0.029750000000000002,
+          "cumulative_ms": 148.724501
+        },
+        {
+          "function": "xsd_ncname.py:35:__init__",
+          "calls": 5981,
+          "self_ms": 1.777064,
+          "cumulative_ms": 148.375416
+        },
+        {
+          "function": "connectionpool.py:598:urlopen",
+          "calls": 4,
+          "self_ms": 0.030332,
+          "cumulative_ms": 148.078709
+        },
+        {
+          "function": "connectionpool.py:383:_make_request",
+          "calls": 4,
+          "self_ms": 0.022708,
+          "cumulative_ms": 147.93062500000002
+        }
+      ]
+    },
+    "count": {
+      "top_self": [
+        {
+          "function": "~:0:<method 'recv_into' of '_socket.socket' objects>",
+          "calls": 8,
+          "self_ms": 54.059958,
+          "cumulative_ms": 0.0
+        },
+        {
+          "function": "<frozen _collections_abc>:916:__iter__",
+          "calls": 47670,
+          "self_ms": 7.220693000000001,
+          "cumulative_ms": 13.684069000000001
+        },
+        {
+          "function": "groups.py:651:iter_components",
+          "calls": 18870,
+          "self_ms": 4.016825,
+          "cumulative_ms": 8.961584
+        },
+        {
+          "function": "xsd_globals.py:392:iter_components",
+          "calls": 28980,
+          "self_ms": 3.9277040000000008,
+          "cumulative_ms": 31.497649000000003
+        },
+        {
+          "function": "attributes.py:650:iter_components",
+          "calls": 15930,
+          "self_ms": 3.828412,
+          "cumulative_ms": 11.73907
+        },
+        {
+          "function": "complex_types.py:675:iter_components",
+          "calls": 24030,
+          "self_ms": 3.2475080000000003,
+          "cumulative_ms": 20.911243000000002
+        },
+        {
+          "function": "xsd_globals.py:335:<genexpr>",
+          "calls": 28980,
+          "self_ms": 3.095675,
+          "cumulative_ms": 34.593324
+        },
+        {
+          "function": "builders.py:682:iter_globals",
+          "calls": 32190,
+          "self_ms": 2.8280570000000003,
+          "cumulative_ms": 10.608965000000001
+        },
+        {
+          "function": "~:0:<built-in method builtins.any>",
+          "calls": 554,
+          "self_ms": 2.48423,
+          "cumulative_ms": 41.944877000000005
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "calls": 34402,
+          "self_ms": 2.2223070000000003,
+          "cumulative_ms": 3.452994
+        },
+        {
+          "function": "elements.py:1317:iter_components",
+          "calls": 18810,
+          "self_ms": 1.837183,
+          "cumulative_ms": 9.922848000000002
+        },
+        {
+          "function": "<frozen _collections_abc>:1027:__iter__",
+          "calls": 12450,
+          "self_ms": 1.832839,
+          "cumulative_ms": 2.7418620000000002
+        },
+        {
+          "function": "~:0:<built-in method builtins.getattr>",
+          "calls": 20038,
+          "self_ms": 1.6843530000000002,
+          "cumulative_ms": 1.9622610000000003
+        },
+        {
+          "function": "builders.py:381:__getitem__",
+          "calls": 34290,
+          "self_ms": 1.679729,
+          "cumulative_ms": 1.679729
+        },
+        {
+          "function": "~:0:<built-in method builtins.dir>",
+          "calls": 180,
+          "self_ms": 1.5532460000000001,
+          "cumulative_ms": 1.5532460000000001
+        },
+        {
+          "function": "~:0:<built-in method builtins.sorted>",
+          "calls": 2014,
+          "self_ms": 1.448627,
+          "cumulative_ms": 1.9676850000000004
+        },
+        {
+          "function": "builders.py:391:__iter__",
+          "calls": 34950,
+          "self_ms": 1.376351,
+          "cumulative_ms": 1.376351
+        },
+        {
+          "function": "schemas.py:878:iter_globals",
+          "calls": 120,
+          "self_ms": 1.230173,
+          "cumulative_ms": 5.183582
+        },
+        {
+          "function": "attributes.py:230:iter_components",
+          "calls": 18960,
+          "self_ms": 1.180801,
+          "cumulative_ms": 1.733899
+        },
+        {
+          "function": "xsdbase.py:72:_cached_properties",
+          "calls": 1380,
+          "self_ms": 1.08641,
+          "cumulative_ms": 3.578603
+        }
+      ],
+      "top_cumulative": [
+        {
+          "function": "app.py:904:full_dispatch_request",
+          "calls": 3,
+          "self_ms": 0.006752000000000001,
+          "cumulative_ms": 144.047125
+        },
+        {
+          "function": "app.py:879:dispatch_request",
+          "calls": 3,
+          "self_ms": 0.0037500000000000003,
+          "cumulative_ms": 143.96275
+        },
+        {
+          "function": "authentication.py:50:wrapped",
+          "calls": 1,
+          "self_ms": 0.002625,
+          "cumulative_ms": 143.95308300000002
+        },
+        {
+          "function": "instance_views.py:928:search_instance",
+          "calls": 1,
+          "self_ms": 0.0022080000000000003,
+          "cumulative_ms": 126.922125
+        },
+        {
+          "function": "instance_views.py:830:text_search_response",
+          "calls": 1,
+          "self_ms": 0.019167,
+          "cumulative_ms": 126.91991700000003
+        },
+        {
+          "function": "objectfactory.py:2660:search",
+          "calls": 1,
+          "self_ms": 0.023291000000000003,
+          "cumulative_ms": 107.406209
+        },
+        {
+          "function": "xsd_ncname.py:35:__init__",
+          "calls": 51,
+          "self_ms": 0.12937800000000002,
+          "cumulative_ms": 96.51849700000001
+        },
+        {
+          "function": "xsd_datatypes.py:144:validate",
+          "calls": 33,
+          "self_ms": 0.076456,
+          "cumulative_ms": 96.035037
+        },
+        {
+          "function": "resource_transaction.py:215:resource_query",
+          "calls": 2,
+          "self_ms": 0.004084,
+          "cumulative_ms": 93.11104200000001
+        },
+        {
+          "function": "jena_connection.py:129:query",
+          "calls": 2,
+          "self_ms": 0.020083,
+          "cumulative_ms": 93.10629200000001
+        },
+        {
+          "function": "jena_connection.py:80:_send",
+          "calls": 2,
+          "self_ms": 0.012414,
+          "cumulative_ms": 92.979958
+        },
+        {
+          "function": "api.py:117:post",
+          "calls": 2,
+          "self_ms": 0.007751000000000001,
+          "cumulative_ms": 92.92529300000001
+        },
+        {
+          "function": "api.py:24:request",
+          "calls": 2,
+          "self_ms": 0.010292,
+          "cumulative_ms": 92.91754200000001
+        },
+        {
+          "function": "profile_backend_search.py:55:http",
+          "calls": 2,
+          "self_ms": 0.026919000000000002,
+          "cumulative_ms": 92.81458400000001
+        },
+        {
+          "function": "sessions.py:557:request",
+          "calls": 2,
+          "self_ms": 0.014875000000000001,
+          "cumulative_ms": 92.34399900000001
+        },
+        {
+          "function": "sessions.py:752:send",
+          "calls": 2,
+          "self_ms": 0.025246,
+          "cumulative_ms": 91.31308200000001
+        },
+        {
+          "function": "adapters.py:634:send",
+          "calls": 2,
+          "self_ms": 0.017375,
+          "cumulative_ms": 91.14158400000001
+        },
+        {
+          "function": "connectionpool.py:598:urlopen",
+          "calls": 2,
+          "self_ms": 0.018878000000000002,
+          "cumulative_ms": 90.77300000000001
+        },
+        {
+          "function": "connectionpool.py:383:_make_request",
+          "calls": 2,
+          "self_ms": 0.012913,
+          "cumulative_ms": 90.686125
+        },
+        {
+          "function": "schemas.py:273:__init__",
+          "calls": 30,
+          "self_ms": 0.29038,
+          "cumulative_ms": 83.808749
+        }
+      ]
+    },
+    "dating": {
+      "top_self": [
+        {
+          "function": "~:0:<method 'recv_into' of '_socket.socket' objects>",
+          "calls": 97,
+          "self_ms": 189.064096,
+          "cumulative_ms": 0.0
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "calls": 341132,
+          "self_ms": 23.380925,
+          "cumulative_ms": 37.830867000000005
+        },
+        {
+          "function": "<frozen _collections_abc>:916:__iter__",
+          "calls": 108658,
+          "self_ms": 16.796809,
+          "cumulative_ms": 31.611354000000002
+        },
+        {
+          "function": "copy.py:119:deepcopy",
+          "calls": 21355,
+          "self_ms": 13.705377,
+          "cumulative_ms": 35.48827
+        },
+        {
+          "function": "~:0:<method 'get' of 'dict' objects>",
+          "calls": 170910,
+          "self_ms": 12.879365,
+          "cumulative_ms": 17.125893
+        },
+        {
+          "function": "construct_processor.py:59:process",
+          "calls": 1,
+          "self_ms": 12.216019000000001,
+          "cumulative_ms": 60.601958
+        },
+        {
+          "function": "jsonld.py:247:_add_to_graph",
+          "calls": 5901,
+          "self_ms": 9.560738,
+          "cumulative_ms": 103.18308300000001
+        },
+        {
+          "function": "xsd_globals.py:392:iter_components",
+          "calls": 65688,
+          "self_ms": 9.117374000000002,
+          "cumulative_ms": 72.006855
+        },
+        {
+          "function": "groups.py:651:iter_components",
+          "calls": 42772,
+          "self_ms": 9.111326000000002,
+          "cumulative_ms": 19.968632
+        },
+        {
+          "function": "attributes.py:650:iter_components",
+          "calls": 36108,
+          "self_ms": 8.743082000000001,
+          "cumulative_ms": 26.497928
+        },
+        {
+          "function": "propertyclass.py:97:__init__",
+          "calls": 342,
+          "self_ms": 8.136862,
+          "cumulative_ms": 44.134005
+        },
+        {
+          "function": "<frozen abc>:117:__instancecheck__",
+          "calls": 83657,
+          "self_ms": 7.589016000000001,
+          "cumulative_ms": 14.307316
+        },
+        {
+          "function": "complex_types.py:675:iter_components",
+          "calls": 54468,
+          "self_ms": 7.442494000000001,
+          "cumulative_ms": 47.505441000000005
+        },
+        {
+          "function": "xsd_qname.py:35:__init__",
+          "calls": 14685,
+          "self_ms": 7.253623000000001,
+          "cumulative_ms": 169.89704
+        },
+        {
+          "function": "xsd_globals.py:335:<genexpr>",
+          "calls": 65688,
+          "self_ms": 7.142036,
+          "cumulative_ms": 79.14889099999999
+        },
+        {
+          "function": "context.py:199:_get",
+          "calls": 40203,
+          "self_ms": 6.89586,
+          "cumulative_ms": 10.728792
+        },
+        {
+          "function": "memory.py:313:add",
+          "calls": 4799,
+          "self_ms": 6.640767,
+          "cumulative_ms": 23.043932
+        },
+        {
+          "function": "~:0:<built-in method _abc._abc_instancecheck>",
+          "calls": 83657,
+          "self_ms": 6.624759,
+          "cumulative_ms": 6.718300000000001
+        },
+        {
+          "function": "builders.py:682:iter_globals",
+          "calls": 72964,
+          "self_ms": 6.61312,
+          "cumulative_ms": 24.774719
+        },
+        {
+          "function": "term.py:167:__eq__",
+          "calls": 37962,
+          "self_ms": 6.490544,
+          "cumulative_ms": 6.490544
+        }
+      ],
+      "top_cumulative": [
+        {
+          "function": "app.py:904:full_dispatch_request",
+          "calls": 8,
+          "self_ms": 0.019463,
+          "cumulative_ms": 718.6833330000001
+        },
+        {
+          "function": "app.py:879:dispatch_request",
+          "calls": 8,
+          "self_ms": 0.018126000000000003,
+          "cumulative_ms": 718.584875
+        },
+        {
+          "function": "authentication.py:50:wrapped",
+          "calls": 1,
+          "self_ms": 0.006294,
+          "cumulative_ms": 718.576084
+        },
+        {
+          "function": "instance_views.py:928:search_instance",
+          "calls": 1,
+          "self_ms": 0.037000000000000005,
+          "cumulative_ms": 700.695417
+        },
+        {
+          "function": "instance_views.py:830:text_search_response",
+          "calls": 1,
+          "self_ms": 0.051957,
+          "cumulative_ms": 700.6584170000001
+        },
+        {
+          "function": "profile_backend_search.py:98:wrapped",
+          "calls": 8,
+          "self_ms": 0.094376,
+          "cumulative_ms": 481.537125
+        },
+        {
+          "function": "instance_views.py:794:_expand_search_dating",
+          "calls": 1,
+          "self_ms": 0.36819900000000005,
+          "cumulative_ms": 481.32554200000004
+        },
+        {
+          "function": "jena_connection.py:129:query",
+          "calls": 6,
+          "self_ms": 0.067664,
+          "cumulative_ms": 420.49154100000004
+        },
+        {
+          "function": "resource_transaction.py:215:resource_query",
+          "calls": 4,
+          "self_ms": 0.012456,
+          "cumulative_ms": 377.861416
+        },
+        {
+          "function": "jena_connection.py:80:_send",
+          "calls": 6,
+          "self_ms": 0.04516800000000001,
+          "cumulative_ms": 313.687918
+        },
+        {
+          "function": "api.py:117:post",
+          "calls": 6,
+          "self_ms": 0.028166,
+          "cumulative_ms": 313.46925000000005
+        },
+        {
+          "function": "api.py:24:request",
+          "calls": 6,
+          "self_ms": 0.036627,
+          "cumulative_ms": 313.44108400000005
+        },
+        {
+          "function": "profile_backend_search.py:55:http",
+          "calls": 6,
+          "self_ms": 0.09024900000000001,
+          "cumulative_ms": 313.08979200000005
+        },
+        {
+          "function": "sessions.py:557:request",
+          "calls": 6,
+          "self_ms": 0.050042,
+          "cumulative_ms": 311.510375
+        },
+        {
+          "function": "objectfactory.py:3972:read_summaries",
+          "calls": 1,
+          "self_ms": 0.246895,
+          "cumulative_ms": 309.384792
+        },
+        {
+          "function": "sessions.py:752:send",
+          "calls": 6,
+          "self_ms": 0.07258200000000001,
+          "cumulative_ms": 308.400125
+        },
+        {
+          "function": "adapters.py:634:send",
+          "calls": 6,
+          "self_ms": 0.047003,
+          "cumulative_ms": 307.050625
+        },
+        {
+          "function": "connectionpool.py:598:urlopen",
+          "calls": 6,
+          "self_ms": 0.052045,
+          "cumulative_ms": 305.766499
+        },
+        {
+          "function": "connectionpool.py:383:_make_request",
+          "calls": 6,
+          "self_ms": 0.039872,
+          "cumulative_ms": 305.51883200000003
+        },
+        {
+          "function": "objectfactory.py:934:_read_resource_summaries_construct",
+          "calls": 1,
+          "self_ms": 0.007169,
+          "cumulative_ms": 291.986709
+        }
+      ]
+    },
+    "dating_count": {
+      "top_self": [
+        {
+          "function": "~:0:<method 'recv_into' of '_socket.socket' objects>",
+          "calls": 7,
+          "self_ms": 106.310753,
+          "cumulative_ms": 0.0
+        },
+        {
+          "function": "<frozen _collections_abc>:916:__iter__",
+          "calls": 54026,
+          "self_ms": 8.255269,
+          "cumulative_ms": 15.331789
+        },
+        {
+          "function": "xsd_globals.py:392:iter_components",
+          "calls": 32844,
+          "self_ms": 4.51556,
+          "cumulative_ms": 35.445347000000005
+        },
+        {
+          "function": "groups.py:651:iter_components",
+          "calls": 21386,
+          "self_ms": 4.501313000000001,
+          "cumulative_ms": 9.793715
+        },
+        {
+          "function": "attributes.py:650:iter_components",
+          "calls": 18054,
+          "self_ms": 4.269231,
+          "cumulative_ms": 13.005186
+        },
+        {
+          "function": "complex_types.py:675:iter_components",
+          "calls": 27234,
+          "self_ms": 3.6953830000000005,
+          "cumulative_ms": 23.334906000000004
+        },
+        {
+          "function": "xsd_globals.py:335:<genexpr>",
+          "calls": 32844,
+          "self_ms": 3.5360900000000006,
+          "cumulative_ms": 38.981437
+        },
+        {
+          "function": "builders.py:682:iter_globals",
+          "calls": 36482,
+          "self_ms": 3.2289600000000003,
+          "cumulative_ms": 12.111309
+        },
+        {
+          "function": "~:0:<built-in method builtins.any>",
+          "calls": 622,
+          "self_ms": 2.795735,
+          "cumulative_ms": 46.833094
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "calls": 38855,
+          "self_ms": 2.744358,
+          "cumulative_ms": 4.1411750000000005
+        },
+        {
+          "function": "elements.py:1317:iter_components",
+          "calls": 21318,
+          "self_ms": 2.0938950000000003,
+          "cumulative_ms": 10.980566000000001
+        },
+        {
+          "function": "<frozen _collections_abc>:1027:__iter__",
+          "calls": 14110,
+          "self_ms": 2.073178,
+          "cumulative_ms": 3.080455
+        },
+        {
+          "function": "~:0:<built-in method builtins.getattr>",
+          "calls": 22695,
+          "self_ms": 1.9229680000000002,
+          "cumulative_ms": 2.2417830000000003
+        },
+        {
+          "function": "builders.py:381:__getitem__",
+          "calls": 38862,
+          "self_ms": 1.91348,
+          "cumulative_ms": 1.91348
+        },
+        {
+          "function": "~:0:<built-in method builtins.dir>",
+          "calls": 204,
+          "self_ms": 1.805913,
+          "cumulative_ms": 1.805913
+        },
+        {
+          "function": "builders.py:391:__iter__",
+          "calls": 39610,
+          "self_ms": 1.543317,
+          "cumulative_ms": 1.543317
+        },
+        {
+          "function": "schemas.py:878:iter_globals",
+          "calls": 136,
+          "self_ms": 1.408514,
+          "cumulative_ms": 5.930961
+        },
+        {
+          "function": "~:0:<built-in method builtins.sorted>",
+          "calls": 2282,
+          "self_ms": 1.405061,
+          "cumulative_ms": 2.004452
+        },
+        {
+          "function": "attributes.py:230:iter_components",
+          "calls": 21488,
+          "self_ms": 1.3493860000000002,
+          "cumulative_ms": 1.981665
+        },
+        {
+          "function": "arguments.py:458:validate",
+          "calls": 136,
+          "self_ms": 1.348043,
+          "cumulative_ms": 3.049745
+        }
+      ],
+      "top_cumulative": [
+        {
+          "function": "app.py:904:full_dispatch_request",
+          "calls": 4,
+          "self_ms": 0.009752,
+          "cumulative_ms": 208.60975000000002
+        },
+        {
+          "function": "app.py:879:dispatch_request",
+          "calls": 4,
+          "self_ms": 0.009245,
+          "cumulative_ms": 208.38833300000002
+        },
+        {
+          "function": "authentication.py:50:wrapped",
+          "calls": 2,
+          "self_ms": 0.0020840000000000003,
+          "cumulative_ms": 191.12912500000002
+        },
+        {
+          "function": "instance_views.py:928:search_instance",
+          "calls": 1,
+          "self_ms": 0.012248,
+          "cumulative_ms": 191.12800000000001
+        },
+        {
+          "function": "instance_views.py:830:text_search_response",
+          "calls": 1,
+          "self_ms": 0.024207,
+          "cumulative_ms": 160.413208
+        },
+        {
+          "function": "objectfactory.py:2660:search",
+          "calls": 1,
+          "self_ms": 0.014292000000000001,
+          "cumulative_ms": 159.907625
+        },
+        {
+          "function": "resource_transaction.py:215:resource_query",
+          "calls": 2,
+          "self_ms": 0.003917,
+          "cumulative_ms": 145.69658400000003
+        },
+        {
+          "function": "jena_connection.py:129:query",
+          "calls": 2,
+          "self_ms": 0.025082,
+          "cumulative_ms": 145.692292
+        },
+        {
+          "function": "jena_connection.py:80:_send",
+          "calls": 2,
+          "self_ms": 0.010709,
+          "cumulative_ms": 145.542459
+        },
+        {
+          "function": "api.py:117:post",
+          "calls": 2,
+          "self_ms": 0.011417000000000002,
+          "cumulative_ms": 145.510042
+        },
+        {
+          "function": "api.py:24:request",
+          "calls": 2,
+          "self_ms": 0.014624000000000002,
+          "cumulative_ms": 145.45316700000004
+        },
+        {
+          "function": "profile_backend_search.py:55:http",
+          "calls": 2,
+          "self_ms": 0.026414,
+          "cumulative_ms": 145.13933300000002
+        },
+        {
+          "function": "sessions.py:557:request",
+          "calls": 2,
+          "self_ms": 0.011875,
+          "cumulative_ms": 144.34437499999999
+        },
+        {
+          "function": "sessions.py:752:send",
+          "calls": 2,
+          "self_ms": 0.027122000000000004,
+          "cumulative_ms": 143.830917
+        },
+        {
+          "function": "adapters.py:634:send",
+          "calls": 2,
+          "self_ms": 0.018916,
+          "cumulative_ms": 143.533667
+        },
+        {
+          "function": "connectionpool.py:598:urlopen",
+          "calls": 2,
+          "self_ms": 0.015414000000000002,
+          "cumulative_ms": 143.26250000000002
+        },
+        {
+          "function": "connectionpool.py:383:_make_request",
+          "calls": 2,
+          "self_ms": 0.011956,
+          "cumulative_ms": 142.957166
+        },
+        {
+          "function": "xsd_ncname.py:35:__init__",
+          "calls": 55,
+          "self_ms": 0.05903200000000001,
+          "cumulative_ms": 98.921457
+        },
+        {
+          "function": "xsd_datatypes.py:144:validate",
+          "calls": 37,
+          "self_ms": 0.084342,
+          "cumulative_ms": 98.687628
+        },
+        {
+          "function": "schemas.py:273:__init__",
+          "calls": 34,
+          "self_ms": 0.364792,
+          "cumulative_ms": 87.812581
+        }
+      ]
+    },
+    "fulltext": {
+      "top_self": [
+        {
+          "function": "~:0:<method 'recv_into' of '_socket.socket' objects>",
+          "calls": 18,
+          "self_ms": 47.305749,
+          "cumulative_ms": 136.698333
+        },
+        {
+          "function": "copyreg.py:107:_slotnames",
+          "calls": 362,
+          "self_ms": 30.706501,
+          "cumulative_ms": 30.771839000000003
+        },
+        {
+          "function": "<frozen _collections_abc>:916:__iter__",
+          "calls": 117592,
+          "self_ms": 17.849795,
+          "cumulative_ms": 33.240145
+        },
+        {
+          "function": "copy.py:119:deepcopy",
+          "calls": 21355,
+          "self_ms": 13.744309000000001,
+          "cumulative_ms": 64.617569
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "calls": 140371,
+          "self_ms": 10.884036000000002,
+          "cumulative_ms": 17.045498000000002
+        },
+        {
+          "function": "groups.py:651:iter_components",
+          "calls": 46546,
+          "self_ms": 9.809613,
+          "cumulative_ms": 21.373109
+        },
+        {
+          "function": "xsd_globals.py:392:iter_components",
+          "calls": 71484,
+          "self_ms": 9.707434000000001,
+          "cumulative_ms": 76.980159
+        },
+        {
+          "function": "attributes.py:650:iter_components",
+          "calls": 39294,
+          "self_ms": 9.357719000000001,
+          "cumulative_ms": 28.333217
+        },
+        {
+          "function": "propertyclass.py:97:__init__",
+          "calls": 342,
+          "self_ms": 8.669218,
+          "cumulative_ms": 44.05642
+        },
+        {
+          "function": "complex_types.py:675:iter_components",
+          "calls": 59274,
+          "self_ms": 7.985693,
+          "cumulative_ms": 50.830171
+        },
+        {
+          "function": "xsd_globals.py:335:<genexpr>",
+          "calls": 71484,
+          "self_ms": 7.643960000000001,
+          "cumulative_ms": 84.62411900000001
+        },
+        {
+          "function": "builders.py:682:iter_globals",
+          "calls": 79402,
+          "self_ms": 6.978413,
+          "cumulative_ms": 26.162358
+        },
+        {
+          "function": "~:0:<built-in method builtins.any>",
+          "calls": 1360,
+          "self_ms": 6.332605000000001,
+          "cumulative_ms": 103.005915
+        },
+        {
+          "function": "~:0:<built-in method builtins.getattr>",
+          "calls": 64861,
+          "self_ms": 5.229428,
+          "cumulative_ms": 5.924271
+        },
+        {
+          "function": "serializer.py:90:decoder_hook",
+          "calls": 5588,
+          "self_ms": 5.192767,
+          "cumulative_ms": 134.877813
+        },
+        {
+          "function": "elements.py:1317:iter_components",
+          "calls": 46398,
+          "self_ms": 4.590263000000001,
+          "cumulative_ms": 23.861320000000003
+        },
+        {
+          "function": "<frozen _collections_abc>:1027:__iter__",
+          "calls": 30710,
+          "self_ms": 4.477927,
+          "cumulative_ms": 6.687039
+        },
+        {
+          "function": "builders.py:381:__getitem__",
+          "calls": 84582,
+          "self_ms": 4.134267,
+          "cumulative_ms": 4.134267
+        },
+        {
+          "function": "model.py:162:set_attributes",
+          "calls": 411,
+          "self_ms": 4.114154,
+          "cumulative_ms": 10.838701
+        },
+        {
+          "function": "copy.py:248:_reconstruct",
+          "calls": 3785,
+          "self_ms": 3.9449170000000002,
+          "cumulative_ms": 53.318545
+        }
+      ],
+      "top_cumulative": [
+        {
+          "function": "app.py:904:full_dispatch_request",
+          "calls": 7,
+          "self_ms": 0.020667,
+          "cumulative_ms": 408.52095800000006
+        },
+        {
+          "function": "app.py:879:dispatch_request",
+          "calls": 6,
+          "self_ms": 0.010248,
+          "cumulative_ms": 408.42875
+        },
+        {
+          "function": "authentication.py:50:wrapped",
+          "calls": 1,
+          "self_ms": 0.001291,
+          "cumulative_ms": 391.52825
+        },
+        {
+          "function": "instance_views.py:928:search_instance",
+          "calls": 1,
+          "self_ms": 0.010625,
+          "cumulative_ms": 391.52695900000003
+        },
+        {
+          "function": "instance_views.py:830:text_search_response",
+          "calls": 1,
+          "self_ms": 0.017254000000000002,
+          "cumulative_ms": 369.362709
+        },
+        {
+          "function": "xsd_ncname.py:35:__init__",
+          "calls": 5663,
+          "self_ms": 1.7248350000000001,
+          "cumulative_ms": 225.262437
+        },
+        {
+          "function": "xsd_datatypes.py:144:validate",
+          "calls": 91,
+          "self_ms": 0.18733400000000003,
+          "cumulative_ms": 219.020789
+        },
+        {
+          "function": "profile_backend_search.py:98:wrapped",
+          "calls": 5,
+          "self_ms": 0.013998,
+          "cumulative_ms": 194.59725
+        },
+        {
+          "function": "instance_views.py:794:_expand_search_dating",
+          "calls": 1,
+          "self_ms": 0.009002000000000001,
+          "cumulative_ms": 194.55979200000002
+        },
+        {
+          "function": "schemas.py:273:__init__",
+          "calls": 74,
+          "self_ms": 0.7731680000000001,
+          "cumulative_ms": 192.99582900000001
+        },
+        {
+          "function": "project.py:51:wrapped",
+          "calls": 3,
+          "self_ms": 0.006708,
+          "cumulative_ms": 188.661417
+        },
+        {
+          "function": "objectfactory.py:3757:__init__",
+          "calls": 1,
+          "self_ms": 0.009334,
+          "cumulative_ms": 188.65345800000003
+        },
+        {
+          "function": "datamodel.py:329:read",
+          "calls": 2,
+          "self_ms": 0.019208,
+          "cumulative_ms": 178.796125
+        },
+        {
+          "function": "objectfactory.py:2660:search",
+          "calls": 1,
+          "self_ms": 0.053166000000000005,
+          "cumulative_ms": 174.23808400000001
+        },
+        {
+          "function": "xsd_qname.py:35:__init__",
+          "calls": 2669,
+          "self_ms": 2.312096,
+          "cumulative_ms": 160.564713
+        },
+        {
+          "function": "jena_connection.py:80:_send",
+          "calls": 5,
+          "self_ms": 0.030291000000000002,
+          "cumulative_ms": 146.32220800000002
+        },
+        {
+          "function": "api.py:117:post",
+          "calls": 5,
+          "self_ms": 0.022292000000000003,
+          "cumulative_ms": 146.198416
+        },
+        {
+          "function": "api.py:24:request",
+          "calls": 5,
+          "self_ms": 0.029793,
+          "cumulative_ms": 146.13316600000002
+        },
+        {
+          "function": "profile_backend_search.py:55:http",
+          "calls": 5,
+          "self_ms": 0.067537,
+          "cumulative_ms": 145.6915
+        },
+        {
+          "function": "sessions.py:557:request",
+          "calls": 5,
+          "self_ms": 0.031289000000000004,
+          "cumulative_ms": 144.15191700000003
+        }
+      ]
+    },
+    "fulltext_count": {
+      "top_self": [
+        {
+          "function": "~:0:<method 'recv_into' of '_socket.socket' objects>",
+          "calls": 10,
+          "self_ms": 32.359501,
+          "cumulative_ms": 0.0
+        },
+        {
+          "function": "<frozen _collections_abc>:916:__iter__",
+          "calls": 90573,
+          "self_ms": 13.720912,
+          "cumulative_ms": 25.562165
+        },
+        {
+          "function": "xsd_globals.py:392:iter_components",
+          "calls": 55062,
+          "self_ms": 7.525119,
+          "cumulative_ms": 59.242025000000005
+        },
+        {
+          "function": "groups.py:651:iter_components",
+          "calls": 35853,
+          "self_ms": 7.5238890000000005,
+          "cumulative_ms": 16.494703
+        },
+        {
+          "function": "attributes.py:650:iter_components",
+          "calls": 30267,
+          "self_ms": 7.0833070000000005,
+          "cumulative_ms": 21.662385000000004
+        },
+        {
+          "function": "complex_types.py:675:iter_components",
+          "calls": 45657,
+          "self_ms": 6.151826,
+          "cumulative_ms": 38.984820000000006
+        },
+        {
+          "function": "xsd_globals.py:335:<genexpr>",
+          "calls": 55062,
+          "self_ms": 5.956554000000001,
+          "cumulative_ms": 65.19857900000001
+        },
+        {
+          "function": "builders.py:682:iter_globals",
+          "calls": 61161,
+          "self_ms": 5.384844,
+          "cumulative_ms": 20.149446
+        },
+        {
+          "function": "~:0:<built-in method builtins.any>",
+          "calls": 1033,
+          "self_ms": 4.725078000000001,
+          "cumulative_ms": 79.188772
+        },
+        {
+          "function": "~:0:<built-in method builtins.isinstance>",
+          "calls": 64983,
+          "self_ms": 4.462885000000001,
+          "cumulative_ms": 6.8417390000000005
+        },
+        {
+          "function": "elements.py:1317:iter_components",
+          "calls": 35739,
+          "self_ms": 3.601991,
+          "cumulative_ms": 18.426089
+        },
+        {
+          "function": "<frozen _collections_abc>:1027:__iter__",
+          "calls": 23655,
+          "self_ms": 3.4360740000000005,
+          "cumulative_ms": 5.151473
+        },
+        {
+          "function": "~:0:<built-in method builtins.getattr>",
+          "calls": 38016,
+          "self_ms": 3.2767290000000004,
+          "cumulative_ms": 3.8151910000000004
+        },
+        {
+          "function": "builders.py:381:__getitem__",
+          "calls": 65151,
+          "self_ms": 3.1748680000000005,
+          "cumulative_ms": 3.1748680000000005
+        },
+        {
+          "function": "~:0:<built-in method builtins.dir>",
+          "calls": 342,
+          "self_ms": 2.874569,
+          "cumulative_ms": 2.874569
+        },
+        {
+          "function": "models.py:267:advance",
+          "calls": 1482,
+          "self_ms": 2.7958730000000003,
+          "cumulative_ms": 7.002452
+        },
+        {
+          "function": "~:0:<method '__exit__' of '_io._IOBase' objects>",
+          "calls": 3,
+          "self_ms": 2.690876,
+          "cumulative_ms": 2.690876
+        },
+        {
+          "function": "builders.py:391:__iter__",
+          "calls": 66405,
+          "self_ms": 2.5947600000000004,
+          "cumulative_ms": 2.5947600000000004
+        },
+        {
+          "function": "~:0:<built-in method builtins.sorted>",
+          "calls": 3824,
+          "self_ms": 2.355322,
+          "cumulative_ms": 3.3515960000000002
+        },
+        {
+          "function": "schemas.py:878:iter_globals",
+          "calls": 228,
+          "self_ms": 2.3404700000000003,
+          "cumulative_ms": 9.908202000000001
+        }
+      ],
+      "top_cumulative": [
+        {
+          "function": "app.py:904:full_dispatch_request",
+          "calls": 5,
+          "self_ms": 0.013252000000000002,
+          "cumulative_ms": 206.54808300000002
+        },
+        {
+          "function": "app.py:879:dispatch_request",
+          "calls": 5,
+          "self_ms": 0.012544000000000001,
+          "cumulative_ms": 206.328125
+        },
+        {
+          "function": "authentication.py:50:wrapped",
+          "calls": 2,
+          "self_ms": 0.0027500000000000003,
+          "cumulative_ms": 189.35250000000002
+        },
+        {
+          "function": "instance_views.py:928:search_instance",
+          "calls": 1,
+          "self_ms": 0.015335000000000001,
+          "cumulative_ms": 189.350667
+        },
+        {
+          "function": "instance_views.py:830:text_search_response",
+          "calls": 1,
+          "self_ms": 0.014877000000000001,
+          "cumulative_ms": 166.545917
+        },
+        {
+          "function": "objectfactory.py:2660:search",
+          "calls": 1,
+          "self_ms": 0.032837000000000005,
+          "cumulative_ms": 166.0575
+        },
+        {
+          "function": "xsd_ncname.py:35:__init__",
+          "calls": 93,
+          "self_ms": 0.12103900000000001,
+          "cumulative_ms": 165.674874
+        },
+        {
+          "function": "xsd_datatypes.py:144:validate",
+          "calls": 72,
+          "self_ms": 0.166694,
+          "cumulative_ms": 159.384952
+        },
+        {
+          "function": "schemas.py:273:__init__",
+          "calls": 57,
+          "self_ms": 0.6270530000000001,
+          "cumulative_ms": 140.66846100000004
+        },
+        {
+          "function": "xsd_qname.py:35:__init__",
+          "calls": 34,
+          "self_ms": 0.09062600000000001,
+          "cumulative_ms": 104.362666
+        },
+        {
+          "function": "xsd_globals.py:537:build",
+          "calls": 228,
+          "self_ms": 0.41847100000000004,
+          "cumulative_ms": 97.205712
+        },
+        {
+          "function": "jena_connection.py:80:_send",
+          "calls": 3,
+          "self_ms": 0.019293,
+          "cumulative_ms": 95.970708
+        },
+        {
+          "function": "api.py:117:post",
+          "calls": 3,
+          "self_ms": 0.015208000000000001,
+          "cumulative_ms": 95.91025
+        },
+        {
+          "function": "api.py:24:request",
+          "calls": 3,
+          "self_ms": 0.025705000000000002,
+          "cumulative_ms": 95.847542
+        },
+        {
+          "function": "profile_backend_search.py:55:http",
+          "calls": 3,
+          "self_ms": 0.050333,
+          "cumulative_ms": 92.588876
+        },
+        {
+          "function": "sessions.py:557:request",
+          "calls": 3,
+          "self_ms": 0.018878000000000002,
+          "cumulative_ms": 91.549626
+        },
+        {
+          "function": "sessions.py:752:send",
+          "calls": 3,
+          "self_ms": 0.040167,
+          "cumulative_ms": 90.56887400000001
+        },
+        {
+          "function": "adapters.py:634:send",
+          "calls": 3,
+          "self_ms": 0.027165,
+          "cumulative_ms": 89.82650000000001
+        },
+        {
+          "function": "connectionpool.py:598:urlopen",
+          "calls": 3,
+          "self_ms": 0.023499,
+          "cumulative_ms": 89.376541
+        },
+        {
+          "function": "connectionpool.py:383:_make_request",
+          "calls": 3,
+          "self_ms": 0.020414,
+          "cumulative_ms": 89.008292
+        }
+      ]
+    }
+  },
+  "source_before": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+  "java": {
+    "maximum_heap_mib": 8192
+  },
+  "source_after": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+  "summary": {
+    "metadata": {
+      "http_ms": 171.3485000655055,
+      "api_dispatch_ms": 170.23012484423816,
+      "backend_http_ms": 110.97579100169241,
+      "authentication_ms": 27.128709,
+      "dispatch_ms": 76.02950200000001,
+      "transport_residual_ms": 4.874666005268693,
+      "api_other_ms": 59.25433384254575,
+      "decode_ms": 0.13379030860960484,
+      "construct_ms": 0,
+      "dating_ms": 55.92370894737542,
+      "backend_calls": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "count": {
+      "http_ms": 89.63562501594424,
+      "api_dispatch_ms": 88.72833289206028,
+      "backend_http_ms": 71.26650004647672,
+      "authentication_ms": 11.681625,
+      "dispatch_ms": 57.516583999999995,
+      "transport_residual_ms": 2.1198330692030254,
+      "api_other_ms": 17.486124765127897,
+      "decode_ms": 0.017540762200951576,
+      "construct_ms": 0,
+      "dating_ms": 0,
+      "backend_calls": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "dating": {
+      "http_ms": 377.8652080800384,
+      "api_dispatch_ms": 376.7051249742508,
+      "backend_http_ms": 230.92541587539017,
+      "authentication_ms": 35.909417,
+      "dispatch_ms": 187.499417,
+      "transport_residual_ms": 7.516581875390187,
+      "api_other_ms": 132.16966623440385,
+      "decode_ms": 28.931833570823073,
+      "construct_ms": 18.02629209123552,
+      "dating_ms": 217.17770816758275,
+      "backend_calls": [
+        6,
+        6,
+        6,
+        6,
+        6
+      ]
+    },
+    "dating_count": {
+      "http_ms": 140.91591583564878,
+      "api_dispatch_ms": 139.928667107597,
+      "backend_http_ms": 120.50704192370176,
+      "authentication_ms": 11.766166,
+      "dispatch_ms": 106.292125,
+      "transport_residual_ms": 2.3152918543113543,
+      "api_other_ms": 19.650625064969063,
+      "decode_ms": 0.018167076632380486,
+      "construct_ms": 0,
+      "dating_ms": 0,
+      "backend_calls": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "fulltext": {
+      "http_ms": 162.5923328101635,
+      "api_dispatch_ms": 161.65091609582305,
+      "backend_http_ms": 87.53033401444554,
+      "authentication_ms": 29.338458,
+      "dispatch_ms": 48.412042,
+      "transport_residual_ms": 5.843545846500881,
+      "api_other_ms": 71.94300065748394,
+      "decode_ms": 0.04050089046359062,
+      "construct_ms": 0,
+      "dating_ms": 53.6084589548409,
+      "backend_calls": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    "fulltext_count": {
+      "http_ms": 94.62837502360344,
+      "api_dispatch_ms": 93.61991588957608,
+      "backend_http_ms": 54.343624971807,
+      "authentication_ms": 17.829625,
+      "dispatch_ms": 34.108042,
+      "transport_residual_ms": 2.9977491051979044,
+      "api_other_ms": 36.98825091123581,
+      "decode_ms": 0.017416896298527718,
+      "construct_ms": 0,
+      "dating_ms": 0,
+      "backend_calls": [
+        3,
+        3,
+        3,
+        3,
+        3
+      ]
+    }
+  }
+}

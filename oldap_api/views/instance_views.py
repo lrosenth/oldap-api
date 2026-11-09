@@ -791,6 +791,40 @@ def parse_text_search_request(resclass: str | None = None,
     return params, None
 
 
+def _search_may_include_dating(con, project: str, requested_properties) -> bool:
+    """Check live model declarations before building a resource factory.
+
+    This deliberately over-approximates eligibility: any requested field declared
+    as Dating-valued in project/shared/base shapes keeps the existing full path.
+    Looking at declarations regardless of their owning class also covers inherited
+    and reusable properties without reimplementing model inheritance here. Inverse
+    modeled fields use oldap:field rather than their blank-node sh:path.
+
+    No result/permission cache is introduced. A positive answer does not authorize
+    any date: the normal model resolution and permission-aware hydration follow.
+
+    Args:
+        con: Authenticated connection with the project's namespace registered.
+        project: Project short name used by the completed search.
+        requested_properties: Requested property QNames or absolute IRIs.
+
+    Returns:
+        True when at least one requested field may need Dating hydration.
+    """
+    context = Context(name=con.context_name)
+    graph = Xsd_NCName(project, validate=True)
+    properties = ' '.join(Iri(str(prop), validate=True).toRdf for prop in requested_properties)
+    query = context.sparql_context + f"""
+        ASK
+        FROM {graph}:shacl FROM shared:shacl FROM oldap:shacl
+        WHERE {{
+            VALUES ?property {{ {properties} }}
+            ?field (sh:path|oldap:field) ?property ; sh:class oldap:Dating .
+        }}
+    """
+    return con.query(query)['boolean']
+
+
 def _expand_search_dating(con, project: str, rows: list[dict], requested_properties) -> None:
     """Hydrate requested Dating links in bounded, reader-authorized batches.
 
@@ -799,10 +833,16 @@ def _expand_search_dating(con, project: str, rows: list[dict], requested_propert
     """
     if not rows or not requested_properties:
         return
+    # Most searches request titles or other literals only. A small model lookup
+    # avoids deserializing both data models and preparing their list namespaces.
+    if not _search_may_include_dating(con, project, requested_properties):
+        return
     factory = ResourceInstanceFactory(con=con, project=project)
     requested = {str(prop) for prop in requested_properties}
     dating_properties = set()
-    for resource_class in {str(row['resclass']) for row in rows}:
+    # These class names come from RDF, already validated on write. Keep typed
+    # values so the factory does not validate them again as new string inputs.
+    for resource_class in {Xsd_QName(row['resclass'], validate=False) for row in rows}:
         instance_class = factory.createObjectInstance(resource_class)
         dating_properties.update(
             prop for prop, definition in instance_class.resolved_properties().items()
@@ -814,7 +854,7 @@ def _expand_search_dating(con, project: str, rows: list[dict], requested_propert
     for offset in range(0, len(rows), 100):
         batch = rows[offset:offset + 100]
         summaries = factory.read_summaries(
-            iris=[Iri(row['iri']) for row in batch],
+            iris=[Iri(row['iri'], validate=False) for row in batch],
             include_properties=dating_properties,
         )
         by_iri = {str(iri): _instance_read_json(summary) for iri, summary in summaries.items()}
@@ -1671,7 +1711,7 @@ def delete_instance(project, instiri):
         return jsonify({"message": "Instance successfully deleted"}), 200
     except StagingStructureError as error:
         return _staging_structure_error(error)
-    except OldapErrorInUse as error:
+    except (OldapErrorInUse, OldapErrorInconsistency) as error:
         return jsonify({"message": str(error)}), 409
     except OldapErrorNoPermission as error:
         return jsonify({"message": str(error)}), 403

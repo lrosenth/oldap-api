@@ -7,7 +7,7 @@ import re
 from uuid import uuid4
 
 from flask import Blueprint, Response, current_app, g, jsonify, request
-from oldaplib.src.connection import Connection
+from oldap_api.backend import create_connection as Connection, backend_name
 from oldaplib.src.helpers.oldaperror import OldapError
 
 from oldap_api.mobile_media.domain import (
@@ -28,7 +28,7 @@ REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 
 
 def _internal_service() -> MobileMediaCommitService:
-    """Build the commit service with non-token-issuing GraphDB credentials."""
+    """Build the commit service with dedicated backend credentials."""
 
     user_id = os.getenv("OLDAP_MOBILE_MEDIA_SERVICE_USER")
     password = os.getenv("OLDAP_MOBILE_MEDIA_SERVICE_PASSWORD")
@@ -40,7 +40,9 @@ def _internal_service() -> MobileMediaCommitService:
         userId=user_id,
         credentials=password,
         context_name="DEFAULT",
-        issue_access_token=False,
+        # Jena authenticates internal HTTP operations with an access token.
+        # It remains inside the API; media workers receive no signing key.
+        issue_access_token=backend_name() == "jena",
     )
     return MobileMediaCommitService(
         GraphDbMobileMediaRepository(connection),

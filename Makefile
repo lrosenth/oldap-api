@@ -25,9 +25,9 @@ help:
 	@echo "  bump-patch-level  Increase version number, patch level"
 	@echo "  bump-minor-lavel  Increase version number, minor level"
 	@echo "  bump-major-level  Increase version numer, major level"
-	@echo "  docker-build      Build docker image"
+	@echo "  docker-build      Disabled here; use the Jena candidate workflow"
 	@echo "  docker-run        Run the docker image"
-	@echo "  docker-push       Push latest version to docker-hub"
+	@echo "  docker-push       Disabled here; use the Jena candidate workflow"
 
 show-version:
 	@echo "VERSION=${VERSION}"
@@ -94,7 +94,7 @@ run: check-local-env
 	OLDAP_API_PORT=8000 \
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
-	OLDAP_REDIS_URL="redis://localhost:6379/0" \
+	OLDAP_REDIS_URL="$${OLDAP_REDIS_URL:-redis://localhost:6379/0}" \
 	OLDAP_STAGING_LOCK_REDIS_URL="$${OLDAP_STAGING_LOCK_REDIS_URL:-redis://localhost:6379/1}" \
 	APP_ENV="Dev" \
 	poetry run python oldap-api-app.py
@@ -108,7 +108,7 @@ run-prod: check-local-env
 	OLDAP_API_PORT=8000 \
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
 	OLDAP_UPLOAD_SERVER=http://localhost:8080 \
-	OLDAP_REDIS_URL="redis://localhost:6379/0" \
+	OLDAP_REDIS_URL="$${OLDAP_REDIS_URL:-redis://localhost:6379/0}" \
 	OLDAP_STAGING_LOCK_REDIS_URL="$${OLDAP_STAGING_LOCK_REDIS_URL:-redis://localhost:6379/1}" \
 	APP_ENV="Prod" \
 	poetry run gunicorn oldap_api.wsgi:app -b 127.0.0.1:8000 --workers 1 --threads 4 --timeout 60 --access-logfile - --error-logfile -
@@ -129,12 +129,8 @@ bump-major-level:
 	git push --follow-tags
 
 docker-build:
-	 docker buildx build \
-		--platform linux/amd64,linux/arm64 \
-		-t lrosenth/oldap-api:$(VERSION) \
-		-t lrosenth/oldap-api:latest \
-		--push .
-
+	@echo "Normal release publication is disabled in this migration checkout. Use oldap-setup/scripts/jena-images.py (see its README)." >&2
+	@exit 1
 docker-run: check-local-env
 	docker pull lrosenth/oldap-api:latest
 	docker run --rm -it \
@@ -153,5 +149,5 @@ docker-run: check-local-env
 	lrosenth/oldap-api:latest
 
 docker-push:
-	docker push lrosenth/oldap-api:$(VERSION)
-	docker push lrosenth/oldap-api:latest
+	@echo "Normal release publication is disabled in this migration checkout. Use oldap-setup/scripts/jena-images.py (see its README)." >&2
+	@exit 1

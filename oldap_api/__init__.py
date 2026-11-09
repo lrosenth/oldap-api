@@ -6,7 +6,7 @@ from flask_cors import CORS
 import logging
 import click
 
-from oldaplib.src.connection import Connection
+from oldap_api.backend import create_connection as Connection
 from oldaplib.src.mutation_gate import mutation_gate
 
 from oldap_api.factory import factory
@@ -18,8 +18,8 @@ def create_app():
 
     Each process loads prefixes through the library's normal anonymous read
     connection. The connection/token is discarded; request authentication keeps
-    creating independent connections. GraphDB and anonymous access must be
-    available at startup. Shared cache invalidation is an explicit CLI action,
+    creating independent connections. The selected backend and anonymous access
+    must be available at startup. Shared cache invalidation is an explicit CLI action,
     never a side effect of worker startup or replacement.
     """
     app = factory()

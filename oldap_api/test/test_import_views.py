@@ -241,3 +241,24 @@ def test_report_endpoint_is_private_and_never_exposes_records_token(monkeypatch)
     assert response.headers["Cache-Control"] == "private, no-store"
     assert response.json["importId"] == import_id
     assert "token" not in json.dumps(response.json).lower()
+
+
+def test_unavailable_logs_location_and_preserves_correlated_public_error(caplog):
+    from oldaplib.src.helpers.oldaperror import OldapErrorAlreadyExists
+
+    app = Flask(__name__)
+    with app.test_request_context('/internal/imports/test/validation-result',
+                                  headers={'X-Request-ID': 'diagnostic-42'}):
+        try:
+            raise OldapErrorAlreadyExists('private backend details')
+        except OldapErrorAlreadyExists as error:
+            response = import_views._handle_error(error)
+    assert response.status_code == 503
+    assert response.get_json() == {
+        'code': 'IMPORT_SERVICE_UNAVAILABLE',
+        'message': 'Import service unavailable.',
+        'requestId': 'diagnostic-42',
+    }
+    assert 'OldapErrorAlreadyExists' in caplog.text
+    assert 'diagnostic-42' in caplog.text
+    assert 'private backend details' not in caplog.text

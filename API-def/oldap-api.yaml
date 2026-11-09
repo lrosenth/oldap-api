@@ -5,11 +5,59 @@ jsonSchemaDialect: "https://spec.openapis.org/oas/3.1/dialect/base"
 info:
   title: OLDAP-API
   description: RESTful API for oldap
-  version: 0.1.0
+  version: 1.0.0rc1
 servers:
 - url: http://127.0.0.1:5000
   description: local server...
 paths:
+  /admin/fulltext/{project}:
+    parameters:
+      - name: project
+        in: path
+        required: true
+        schema: {type: string}
+    get:
+      summary: Read managed Jena fulltext configuration and revision
+      description: Requires a backend-bound Jena connection and fresh ADMIN_MODEL or ADMIN_OLDAP authorization. Returns 503 on GraphDB connections.
+      security: [{AccessToken: []}]
+      responses:
+        '200':
+          description: Active configuration or explicit absence; Cache-Control no-store
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ManagedFulltextState'}
+        '401': {description: Authentication required}
+        '403': {description: Current model administration permission required}
+        '404': {description: Project not found}
+        '503': {description: Backend unavailable or activation outcome uncertain}
+    put:
+      summary: Activate or replace managed Jena fulltext with a reviewed revision
+      description: Synchronous rebuild. No automatic retry after a timeout or uncertain result. The graph must match the authoritative project namespace. expectedRevision null asserts absence.
+      security: [{AccessToken: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [configuration, expectedRevision]
+              properties:
+                configuration: {$ref: '#/components/schemas/ManagedFulltextConfiguration'}
+                expectedRevision: {type: [string, 'null'], format: uuid}
+      responses:
+        '200':
+          description: Active configuration after rebuild, or unchanged configuration
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ManagedFulltextState'}
+        '400': {description: Invalid configuration or mismatched project graph}
+        '401': {description: Authentication required}
+        '403': {description: Current model administration permission required}
+        '404': {description: Project not found}
+        '409': {description: Stale revision or backend busy; inspect current state}
+        '413': {description: Request too large}
+        '503': {description: Backend unavailable or uncertain result; do not replay blindly}
   /admin/lucene/{project}:
     parameters:
       - name: project
@@ -765,6 +813,8 @@ paths:
           schema:
             type: string
       responses:
+        "409":
+          description: Ambiguous RDF 1.2 permission reifier describes multiple memberships; separate it before editing.
         "200":
           description: "OK"
           content:
@@ -968,6 +1018,8 @@ paths:
               minProperties: 1
         required: true
       responses:
+        "409":
+          description: Ambiguous RDF 1.2 permission reifier describes multiple memberships; separate it before editing.
         "200":
           description: "OK"
           content:
@@ -2328,6 +2380,14 @@ paths:
                     - type: "null"
                 lessThanOrEquals:
                   description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
+                inversePath:
+                  description: >-
+                    Single predicate used by a read-only SHACL inverse field. Requires
+                    toClass and cannot be combined with a datatype, inverseOf,
+                    equivalentProperty or subPropertyOf. The public field IRI stays unchanged.
                   oneOf:
                     - $ref: '#/components/schemas/Iri'
                     - type: "null"
@@ -4431,6 +4491,8 @@ paths:
             type: string
             format: iri
       responses:
+        "409":
+          description: Resource is in use or has an ambiguous RDF 1.2 permission reifier.
         "200":
           description: "OK"
           content:
@@ -6804,6 +6866,33 @@ components:
       required: true
       schema: {type: string, format: uuid}
   schemas:
+    ManagedFulltextConfiguration:
+      type: object
+      additionalProperties: false
+      required: [graph, fields]
+      properties:
+        graph: {type: string, format: uri}
+        fields:
+          type: object
+          minProperties: 1
+          maxProperties: 256
+          additionalProperties:
+            type: array
+            minItems: 1
+            maxItems: 16
+            items: {type: string, format: uri}
+    ManagedFulltextState:
+      type: object
+      additionalProperties: false
+      required: [project, configuration, revision, status]
+      properties:
+        project: {type: string}
+        configuration:
+          oneOf:
+            - {$ref: '#/components/schemas/ManagedFulltextConfiguration'}
+            - {type: 'null'}
+        revision: {type: [string, 'null'], format: uuid}
+        status: {type: string, enum: [absent, active]}
     PublicationCapabilities:
       type: object
       additionalProperties: false
@@ -9572,6 +9661,14 @@ components:
             - type: "null"
         lessThanOrEquals:
           description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
+          oneOf:
+            - $ref: '#/components/schemas/Iri'
+            - type: "null"
+        inversePath:
+          description: >-
+            Single predicate used by a read-only SHACL inverse field. Requires
+            toClass and cannot be combined with a datatype, inverseOf,
+            equivalentProperty or subPropertyOf. The public field IRI stays unchanged.
           oneOf:
             - $ref: '#/components/schemas/Iri'
             - type: "null"

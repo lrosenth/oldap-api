@@ -1,0 +1,1255 @@
+{
+  "status": "passed",
+  "size": 12000,
+  "page_size": 100,
+  "checks": [
+    "Count query omits sort-value joins",
+    "public/fulltext/legacy-window/None/0 HTTP 200",
+    "public: omitted Jena text limit reproduces incomplete count",
+    "public/metadata/page-size/100/0 HTTP 200",
+    "public/metadata/100: exact sorted resource IDs",
+    "public/metadata/100/baseline: full response parity",
+    "public/metadata/100: full first-page response parity",
+    "public/metadata/page-size/100/0 HTTP 200",
+    "public/metadata/100: exact sorted resource IDs",
+    "public/metadata/100/optimized: full response parity",
+    "public/metadata/100: full first-page response parity",
+    "public/metadata/page-size/100/0 HTTP 200",
+    "public/metadata/100: exact sorted resource IDs",
+    "public/metadata/100/optimized: full response parity",
+    "public/metadata/100: full first-page response parity",
+    "public/metadata/page-size/100/0 HTTP 200",
+    "public/metadata/100: exact sorted resource IDs",
+    "public/metadata/100/baseline: full response parity",
+    "public/metadata/100: full first-page response parity",
+    "public/metadata/page-boundary/100/100 HTTP 200",
+    "public/metadata/100: correct 100-row boundary including empty end",
+    "public/metadata/page-boundary/100/5000 HTTP 200",
+    "public/metadata/5000: correct 100-row boundary including empty end",
+    "public/metadata/page-boundary/100/5900 HTTP 200",
+    "public/metadata/5900: correct 100-row boundary including empty end",
+    "public/metadata/page-boundary/100/6000 HTTP 200",
+    "public/metadata/6000: correct 100-row boundary including empty end",
+    "Count query omits sort-value joins",
+    "public/metadata/count/100/5000 HTTP 200",
+    "public/metadata: total independent of page and sort",
+    "Count query omits sort-value joins",
+    "public/metadata/count/100/5000 HTTP 200",
+    "public/metadata: total independent of page and sort",
+    "public/dating/page-size/100/0 HTTP 200",
+    "public/dating/100: exact sorted resource IDs",
+    "public/dating/100/baseline: full response parity",
+    "public/dating/100: full first-page response parity",
+    "public/dating/100: structured dates remain readable",
+    "public/dating/page-size/100/0 HTTP 200",
+    "public/dating/100: exact sorted resource IDs",
+    "public/dating/100/optimized: full response parity",
+    "public/dating/100: full first-page response parity",
+    "public/dating/100: structured dates remain readable",
+    "public/dating/page-size/100/0 HTTP 200",
+    "public/dating/100: exact sorted resource IDs",
+    "public/dating/100/optimized: full response parity",
+    "public/dating/100: full first-page response parity",
+    "public/dating/100: structured dates remain readable",
+    "public/dating/page-size/100/0 HTTP 200",
+    "public/dating/100: exact sorted resource IDs",
+    "public/dating/100/baseline: full response parity",
+    "public/dating/100: full first-page response parity",
+    "public/dating/100: structured dates remain readable",
+    "public/dating/page-boundary/100/100 HTTP 200",
+    "public/dating/100: correct 100-row boundary including empty end",
+    "public/dating/page-boundary/100/2900 HTTP 200",
+    "public/dating/2900: correct 100-row boundary including empty end",
+    "public/dating/page-boundary/100/3000 HTTP 200",
+    "public/dating/3000: correct 100-row boundary including empty end",
+    "public/dating/page-boundary/100/5000 HTTP 200",
+    "public/dating/5000: correct 100-row boundary including empty end",
+    "Count query omits sort-value joins",
+    "public/dating/count/100/5000 HTTP 200",
+    "public/dating: total independent of page and sort",
+    "Count query omits sort-value joins",
+    "public/dating/count/100/5000 HTTP 200",
+    "public/dating: total independent of page and sort",
+    "public/fulltext/page-size/100/0 HTTP 200",
+    "public/fulltext/100: exact sorted resource IDs",
+    "public/fulltext/100/baseline: full response parity",
+    "public/fulltext/100: full first-page response parity",
+    "public/fulltext/page-size/100/0 HTTP 200",
+    "public/fulltext/100: exact sorted resource IDs",
+    "public/fulltext/100/optimized: full response parity",
+    "public/fulltext/100: full first-page response parity",
+    "public/fulltext/page-size/100/0 HTTP 200",
+    "public/fulltext/100: exact sorted resource IDs",
+    "public/fulltext/100/optimized: full response parity",
+    "public/fulltext/100: full first-page response parity",
+    "public/fulltext/page-size/100/0 HTTP 200",
+    "public/fulltext/100: exact sorted resource IDs",
+    "public/fulltext/100/baseline: full response parity",
+    "public/fulltext/100: full first-page response parity",
+    "public/fulltext/page-boundary/100/100 HTTP 200",
+    "public/fulltext/100: correct 100-row boundary including empty end",
+    "public/fulltext/page-boundary/100/5000 HTTP 200",
+    "public/fulltext/5000: correct 100-row boundary including empty end",
+    "public/fulltext/page-boundary/100/5900 HTTP 200",
+    "public/fulltext/5900: correct 100-row boundary including empty end",
+    "public/fulltext/page-boundary/100/6000 HTTP 200",
+    "public/fulltext/6000: correct 100-row boundary including empty end",
+    "Count query omits sort-value joins",
+    "public/fulltext/count/100/5000 HTTP 200",
+    "public/fulltext: total independent of page and sort",
+    "Count query omits sort-value joins",
+    "public/fulltext/count/100/5000 HTTP 200",
+    "public/fulltext: total independent of page and sort",
+    "Count query omits sort-value joins",
+    "audit/fulltext/legacy-window/None/0 HTTP 200",
+    "audit: omitted Jena text limit reproduces incomplete count",
+    "audit/metadata/page-size/100/0 HTTP 200",
+    "audit/metadata/100: exact sorted resource IDs",
+    "audit/metadata/100/baseline: full response parity",
+    "audit/metadata/100: full first-page response parity",
+    "audit/metadata/page-size/100/0 HTTP 200",
+    "audit/metadata/100: exact sorted resource IDs",
+    "audit/metadata/100/optimized: full response parity",
+    "audit/metadata/100: full first-page response parity",
+    "audit/metadata/page-size/100/0 HTTP 200",
+    "audit/metadata/100: exact sorted resource IDs",
+    "audit/metadata/100/optimized: full response parity",
+    "audit/metadata/100: full first-page response parity",
+    "audit/metadata/page-size/100/0 HTTP 200",
+    "audit/metadata/100: exact sorted resource IDs",
+    "audit/metadata/100/baseline: full response parity",
+    "audit/metadata/100: full first-page response parity",
+    "audit/metadata/page-boundary/100/100 HTTP 200",
+    "audit/metadata/100: correct 100-row boundary including empty end",
+    "audit/metadata/page-boundary/100/5000 HTTP 200",
+    "audit/metadata/5000: correct 100-row boundary including empty end",
+    "audit/metadata/page-boundary/100/8900 HTTP 200",
+    "audit/metadata/8900: correct 100-row boundary including empty end",
+    "audit/metadata/page-boundary/100/9000 HTTP 200",
+    "audit/metadata/9000: correct 100-row boundary including empty end",
+    "Count query omits sort-value joins",
+    "audit/metadata/count/100/5000 HTTP 200",
+    "audit/metadata: total independent of page and sort",
+    "Count query omits sort-value joins",
+    "audit/metadata/count/100/5000 HTTP 200",
+    "audit/metadata: total independent of page and sort",
+    "audit/dating/page-size/100/0 HTTP 200",
+    "audit/dating/100: exact sorted resource IDs",
+    "audit/dating/100/baseline: full response parity",
+    "audit/dating/100: full first-page response parity",
+    "audit/dating/100: structured dates remain readable",
+    "audit/dating/page-size/100/0 HTTP 200",
+    "audit/dating/100: exact sorted resource IDs",
+    "audit/dating/100/optimized: full response parity",
+    "audit/dating/100: full first-page response parity",
+    "audit/dating/100: structured dates remain readable",
+    "audit/dating/page-size/100/0 HTTP 200",
+    "audit/dating/100: exact sorted resource IDs",
+    "audit/dating/100/optimized: full response parity",
+    "audit/dating/100: full first-page response parity",
+    "audit/dating/100: structured dates remain readable",
+    "audit/dating/page-size/100/0 HTTP 200",
+    "audit/dating/100: exact sorted resource IDs",
+    "audit/dating/100/baseline: full response parity",
+    "audit/dating/100: full first-page response parity",
+    "audit/dating/100: structured dates remain readable",
+    "audit/dating/page-boundary/100/100 HTTP 200",
+    "audit/dating/100: correct 100-row boundary including empty end",
+    "audit/dating/page-boundary/100/4500 HTTP 200",
+    "audit/dating/4500: correct 100-row boundary including empty end",
+    "audit/dating/page-boundary/100/4560 HTTP 200",
+    "audit/dating/4560: correct 100-row boundary including empty end",
+    "audit/dating/page-boundary/100/5000 HTTP 200",
+    "audit/dating/5000: correct 100-row boundary including empty end",
+    "Count query omits sort-value joins",
+    "audit/dating/count/100/5000 HTTP 200",
+    "audit/dating: total independent of page and sort",
+    "Count query omits sort-value joins",
+    "audit/dating/count/100/5000 HTTP 200",
+    "audit/dating: total independent of page and sort",
+    "audit/fulltext/page-size/100/0 HTTP 200",
+    "audit/fulltext/100: exact sorted resource IDs",
+    "audit/fulltext/100/baseline: full response parity",
+    "audit/fulltext/100: full first-page response parity",
+    "audit/fulltext/page-size/100/0 HTTP 200",
+    "audit/fulltext/100: exact sorted resource IDs",
+    "audit/fulltext/100/optimized: full response parity",
+    "audit/fulltext/100: full first-page response parity",
+    "audit/fulltext/page-size/100/0 HTTP 200",
+    "audit/fulltext/100: exact sorted resource IDs",
+    "audit/fulltext/100/optimized: full response parity",
+    "audit/fulltext/100: full first-page response parity",
+    "audit/fulltext/page-size/100/0 HTTP 200",
+    "audit/fulltext/100: exact sorted resource IDs",
+    "audit/fulltext/100/baseline: full response parity",
+    "audit/fulltext/100: full first-page response parity",
+    "audit/fulltext/page-boundary/100/100 HTTP 200",
+    "audit/fulltext/100: correct 100-row boundary including empty end",
+    "audit/fulltext/page-boundary/100/5000 HTTP 200",
+    "audit/fulltext/5000: correct 100-row boundary including empty end",
+    "audit/fulltext/page-boundary/100/8900 HTTP 200",
+    "audit/fulltext/8900: correct 100-row boundary including empty end",
+    "audit/fulltext/page-boundary/100/9000 HTTP 200",
+    "audit/fulltext/9000: correct 100-row boundary including empty end",
+    "Count query omits sort-value joins",
+    "audit/fulltext/count/100/5000 HTTP 200",
+    "audit/fulltext: total independent of page and sort",
+    "Count query omits sort-value joins",
+    "audit/fulltext/count/100/5000 HTTP 200",
+    "audit/fulltext: total independent of page and sort",
+    "public/metadata/revocation/100/0 HTTP 200",
+    "public: fresh first page excludes revoked assertion and refills to 100",
+    "audit/metadata/revocation/100/0 HTTP 200",
+    "audit: fresh first page excludes revoked assertion and refills to 100"
+  ],
+  "samples": [
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "legacy-window",
+      "limit": null,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        649.96
+      ],
+      "ms": 702.27,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 5000
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        3314.04
+      ],
+      "dating_ms": 55.72,
+      "ms": 3399.06,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        444.63
+      ],
+      "dating_ms": 56.4,
+      "ms": 530.6,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        451.82
+      ],
+      "dating_ms": 56.47,
+      "ms": 536.29,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        3108.12
+      ],
+      "dating_ms": 79.59,
+      "ms": 3216.2,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 100,
+      "plan": "optimized",
+      "query_ms": [
+        445.68
+      ],
+      "dating_ms": 54.01,
+      "ms": 527.73,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        448.8
+      ],
+      "dating_ms": 51.86,
+      "ms": 527.02,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 5900,
+      "plan": "optimized",
+      "query_ms": [
+        443.53
+      ],
+      "dating_ms": 52.48,
+      "ms": 523.4,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 6000,
+      "plan": "optimized",
+      "query_ms": [
+        434.9
+      ],
+      "dating_ms": 0.0,
+      "ms": 459.53,
+      "bytes": 3,
+      "http_status": 200,
+      "returned_count": 0
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        307.76
+      ],
+      "ms": 334.3,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 6000
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        297.44
+      ],
+      "ms": 324.05,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 6000
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        5392.1
+      ],
+      "construct_ms": [
+        88.36
+      ],
+      "dating_ms": 172.21,
+      "ms": 5597.02,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        1060.48
+      ],
+      "construct_ms": [
+        78.12
+      ],
+      "dating_ms": 161.25,
+      "ms": 1284.5,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        1062.1
+      ],
+      "construct_ms": [
+        81.12
+      ],
+      "dating_ms": 163.83,
+      "ms": 1257.26,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        5369.53
+      ],
+      "construct_ms": [
+        88.54
+      ],
+      "dating_ms": 172.71,
+      "ms": 5574.96,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 100,
+      "plan": "optimized",
+      "query_ms": [
+        1063.89
+      ],
+      "construct_ms": [
+        82.94
+      ],
+      "dating_ms": 201.47,
+      "ms": 1298.88,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 2900,
+      "plan": "optimized",
+      "query_ms": [
+        1061.37
+      ],
+      "construct_ms": [
+        78.6
+      ],
+      "dating_ms": 160.64,
+      "ms": 1257.45,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 3000,
+      "plan": "optimized",
+      "query_ms": [
+        1054.65
+      ],
+      "dating_ms": 0.0,
+      "ms": 1084.41,
+      "bytes": 3,
+      "http_status": 200,
+      "returned_count": 0
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        1064.63
+      ],
+      "dating_ms": 0.0,
+      "ms": 1095.35,
+      "bytes": 3,
+      "http_status": 200,
+      "returned_count": 0
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        993.8
+      ],
+      "ms": 1024.01,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 3000
+    },
+    {
+      "identity": "public",
+      "case": "dating",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        996.95
+      ],
+      "ms": 1027.74,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 3000
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        3232.51
+      ],
+      "dating_ms": 53.66,
+      "ms": 3339.71,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        649.87
+      ],
+      "dating_ms": 53.93,
+      "ms": 785.82,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        644.81
+      ],
+      "dating_ms": 53.93,
+      "ms": 753.27,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        3237.7
+      ],
+      "dating_ms": 53.18,
+      "ms": 3342.63,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 100,
+      "plan": "optimized",
+      "query_ms": [
+        647.38
+      ],
+      "dating_ms": 53.28,
+      "ms": 751.36,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        649.86
+      ],
+      "dating_ms": 52.31,
+      "ms": 754.09,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 5900,
+      "plan": "optimized",
+      "query_ms": [
+        646.17
+      ],
+      "dating_ms": 52.4,
+      "ms": 779.49,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 6000,
+      "plan": "optimized",
+      "query_ms": [
+        642.55
+      ],
+      "dating_ms": 0.0,
+      "ms": 692.23,
+      "bytes": 3,
+      "http_status": 200,
+      "returned_count": 0
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        508.91
+      ],
+      "ms": 558.74,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 6000
+    },
+    {
+      "identity": "public",
+      "case": "fulltext",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        510.13
+      ],
+      "ms": 561.26,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 6000
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "legacy-window",
+      "limit": null,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        1753.4
+      ],
+      "ms": 1836.41,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 7500
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        4050.23
+      ],
+      "dating_ms": 76.02,
+      "ms": 4177.0,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        1479.44
+      ],
+      "dating_ms": 75.43,
+      "ms": 1604.32,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        1589.66
+      ],
+      "dating_ms": 79.6,
+      "ms": 1719.11,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        4121.45
+      ],
+      "dating_ms": 103.24,
+      "ms": 4276.79,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 100,
+      "plan": "optimized",
+      "query_ms": [
+        1470.64
+      ],
+      "dating_ms": 77.26,
+      "ms": 1597.91,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        1499.06
+      ],
+      "dating_ms": 77.37,
+      "ms": 1626.31,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 8900,
+      "plan": "optimized",
+      "query_ms": [
+        1452.53
+      ],
+      "dating_ms": 76.62,
+      "ms": 1578.37,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 9000,
+      "plan": "optimized",
+      "query_ms": [
+        1504.24
+      ],
+      "dating_ms": 0.0,
+      "ms": 1577.95,
+      "bytes": 3,
+      "http_status": 200,
+      "returned_count": 0
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        1337.12
+      ],
+      "ms": 1387.24,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 9000
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        1314.59
+      ],
+      "ms": 1363.54,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 9000
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        7193.89
+      ],
+      "construct_ms": [
+        108.7
+      ],
+      "dating_ms": 224.43,
+      "ms": 7476.33,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        2332.95
+      ],
+      "construct_ms": [
+        102.22
+      ],
+      "dating_ms": 246.74,
+      "ms": 2636.67,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        2336.75
+      ],
+      "construct_ms": [
+        101.99
+      ],
+      "dating_ms": 216.75,
+      "ms": 2607.29,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        7225.0
+      ],
+      "construct_ms": [
+        139.75
+      ],
+      "dating_ms": 254.64,
+      "ms": 7533.49,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 100,
+      "plan": "optimized",
+      "query_ms": [
+        2427.32
+      ],
+      "construct_ms": [
+        101.68
+      ],
+      "dating_ms": 215.62,
+      "ms": 2697.33,
+      "bytes": 40703,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 4500,
+      "plan": "optimized",
+      "query_ms": [
+        2376.12
+      ],
+      "construct_ms": [
+        102.64
+      ],
+      "dating_ms": 212.69,
+      "ms": 2642.4,
+      "bytes": 24423,
+      "http_status": 200,
+      "returned_count": 60
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 4560,
+      "plan": "optimized",
+      "query_ms": [
+        2346.9
+      ],
+      "dating_ms": 0.0,
+      "ms": 2398.72,
+      "bytes": 3,
+      "http_status": 200,
+      "returned_count": 0
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        2373.49
+      ],
+      "dating_ms": 0.0,
+      "ms": 2426.87,
+      "bytes": 3,
+      "http_status": 200,
+      "returned_count": 0
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        2362.17
+      ],
+      "ms": 2415.16,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 4560
+    },
+    {
+      "identity": "audit",
+      "case": "dating",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        2312.46
+      ],
+      "ms": 2365.75,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 4560
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        4789.79
+      ],
+      "dating_ms": 75.22,
+      "ms": 4954.67,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        2255.49
+      ],
+      "dating_ms": 77.6,
+      "ms": 2417.27,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        2252.06
+      ],
+      "dating_ms": 79.41,
+      "ms": 2416.77,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "page-size",
+      "limit": 100,
+      "offset": 0,
+      "plan": "baseline",
+      "query_ms": [
+        4827.42
+      ],
+      "dating_ms": 77.28,
+      "ms": 5024.12,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 100,
+      "plan": "optimized",
+      "query_ms": [
+        2257.8
+      ],
+      "dating_ms": 77.85,
+      "ms": 2421.0,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        2256.01
+      ],
+      "dating_ms": 75.32,
+      "ms": 2418.47,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 8900,
+      "plan": "optimized",
+      "query_ms": [
+        2261.29
+      ],
+      "dating_ms": 76.22,
+      "ms": 2423.77,
+      "bytes": 17903,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "page-boundary",
+      "limit": 100,
+      "offset": 9000,
+      "plan": "optimized",
+      "query_ms": [
+        2248.37
+      ],
+      "dating_ms": 0.0,
+      "ms": 2331.68,
+      "bytes": 3,
+      "http_status": 200,
+      "returned_count": 0
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        2110.61
+      ],
+      "ms": 2222.02,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 9000
+    },
+    {
+      "identity": "audit",
+      "case": "fulltext",
+      "phase": "count",
+      "limit": 100,
+      "offset": 5000,
+      "plan": "optimized",
+      "query_ms": [
+        2083.39
+      ],
+      "ms": 2167.71,
+      "bytes": 20,
+      "http_status": 200,
+      "returned_count": 9000
+    },
+    {
+      "identity": "public",
+      "case": "metadata",
+      "phase": "revocation",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        435.75
+      ],
+      "dating_ms": 51.44,
+      "ms": 521.58,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    },
+    {
+      "identity": "audit",
+      "case": "metadata",
+      "phase": "revocation",
+      "limit": 100,
+      "offset": 0,
+      "plan": "optimized",
+      "query_ms": [
+        1495.18
+      ],
+      "dating_ms": 75.2,
+      "ms": 1621.02,
+      "bytes": 15303,
+      "http_status": 200,
+      "returned_count": 100
+    }
+  ],
+  "baseline_sha256": "80f976c500bd51f708a00f9ef3de4ecbb0f9fd938e611f4855ca5c463416c626",
+  "optimized_sha256": "0ae96a1687536d971efd4277aed003d8b5ddc59af143078b88fd9b1cfe90d851"
+}

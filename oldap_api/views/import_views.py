@@ -8,7 +8,7 @@ import re
 from uuid import uuid4
 
 from flask import Blueprint, Response, current_app, g, jsonify, request
-from oldaplib.src.connection import Connection
+from oldap_api.backend import create_connection as Connection, backend_name
 from oldaplib.src.helpers.oldaperror import OldapError
 
 from oldap_api.authentication import authenticated_connection, require_auth
@@ -20,7 +20,7 @@ from oldap_api.imports.authorization import (
     OldapImportTargetInspector,
 )
 from oldap_api.imports.capabilities import UploadCapabilityIssuer
-from oldap_api.imports.audit import log_import_event
+from oldap_api.imports.audit import log_import_event, log_import_failure
 from oldap_api.imports.internal_auth import require_import_service
 from oldap_api.imports.domain import (
     ImportDomainError,
@@ -69,12 +69,12 @@ def _service(connection) -> ImportJobService:
 
 
 def _internal_service() -> ImportJobService:
-    """Build a service with dedicated non-token GraphDB credentials."""
+    """Build a service with dedicated backend credentials."""
     return _service(_import_service_connection())
 
 
 def _import_service_connection():
-    """Create the dedicated non-token-issuing OLDAP service connection."""
+    """Create the dedicated backend-authenticated OLDAP service connection."""
     import os
 
     user_id = os.getenv("OLDAP_IMPORT_SERVICE_USER")
@@ -87,7 +87,9 @@ def _import_service_connection():
         userId=user_id,
         credentials=password,
         context_name="DEFAULT",
-        issue_access_token=False,
+        # Jena authenticates internal HTTP operations with an access token.
+        # It remains inside the API; media workers receive no signing key.
+        issue_access_token=backend_name() == "jena",
     )
 
 
@@ -127,11 +129,18 @@ def _request_id() -> str:
     return value
 
 
+def _unavailable(error: Exception, code: str, message: str) -> Response:
+    """Keep the HTTP contract while retaining private-safe failure locations."""
+    log_import_failure(current_app.logger, error, endpoint=request.endpoint or "unknown",
+                       request_id=_request_id())
+    return _error(503, code, message)
+
+
 def _handle_error(error: Exception) -> Response:
     if isinstance(error, FrontendRequestError):
         return _error(400, "FRONTEND_INVALID", str(error))
     if isinstance(error, StagingAreaServiceUnavailable):
-        return _error(503, "IMPORT_SERVICE_UNAVAILABLE", "Import service unavailable.")
+        return _unavailable(error, "IMPORT_SERVICE_UNAVAILABLE", "Import service unavailable.")
     if isinstance(error, ImportNotFoundError):
         return _error(404, error.code, str(error))
     if isinstance(error, ImportPermissionDeniedError):
@@ -141,7 +150,7 @@ def _handle_error(error: Exception) -> Response:
     if isinstance(error, ImportQuotaExceededError):
         return _error(409, error.code, str(error))
     if isinstance(error, ImportQuotaNotConfiguredError):
-        return _error(503, error.code, str(error))
+        return _unavailable(error, error.code, str(error))
     if isinstance(error, ImportDomainError):
         return _error(409, error.code, str(error))
     if isinstance(error, ImportPayloadTooLargeError):
@@ -149,11 +158,11 @@ def _handle_error(error: Exception) -> Response:
     if isinstance(error, ImportReportNotReadyError):
         return _error(409, error.code, str(error))
     if isinstance(error, ImportRecordUnavailableError):
-        return _error(503, error.code, str(error))
+        return _unavailable(error, error.code, str(error))
     if isinstance(error, ImportValidationError):
         return _error(400, error.code, str(error))
     if isinstance(error, (OldapError, RuntimeError)):
-        return _error(503, "IMPORT_SERVICE_UNAVAILABLE", "Import service unavailable.")
+        return _unavailable(error, "IMPORT_SERVICE_UNAVAILABLE", "Import service unavailable.")
     raise error
 
 

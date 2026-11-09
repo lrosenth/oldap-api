@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-31",
+  "status": "metadata_browser_checks_passed_with_open_gates",
+  "backend": "Owned Jena/Fuseki and Redis; real converted Fasnacht export",
+  "frontend": "Existing FasnachtsPage Vite instance on an isolated origin; no frontend runtime changes",
+  "checks": [
+    "Anonymous login and populated archive overview",
+    "Public counts: 1102 total, 665 media, 422 objects, 15 events",
+    "Media expansion 48 to 96 items",
+    "Event title sort switches from BMG Fasnacht 1908 first to St. Jakobsfest Basel 1909 first",
+    "Fasnacht 1912 shows the two expected public children",
+    "Child navigation shows Laterne BMG Stamm 1912, its parent, and its child",
+    "Private synthetic child returns 404 anonymously",
+    "Audit login succeeds and parent shows private child in alphabetical order",
+    "Audit identity can open private child detail",
+    "Logout restores two-child public parent view without private title"
+  ],
+  "test_only_changes": [
+    "Anonymous fixture gets oldap:Unknown role",
+    "Missing Chama namespace from source role is provisioned as an admin project stub",
+    "One private browser child created through the ordinary instance API; no imported instance modified"
+  ],
+  "open": [
+    "Media binaries/capability deployment absent; viewer shows access error",
+    "Fulltext not activated in this export fixture",
+    "20 readable ArchiveUnits but zero original direct fasnacht:archiveUnit assignments; assignment UI acceptance remains open",
+    "Full production identity/role mapping not restored",
+    "Denied detail displays raw HTTP 404 message; wording improvement remains open"
+  ],
+  "screenshots": [
+    "public-parts.png",
+    "audit-parts.png",
+    "public-after-logout.png"
+  ]
+}

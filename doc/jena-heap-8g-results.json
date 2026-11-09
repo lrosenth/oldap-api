@@ -1,0 +1,3164 @@
+{
+  "status": "passed",
+  "scope": "Public real-data reads; existing GraphDB/API versus owned configurable-heap Jena/threaded API. Unequal service topology, not an engine-only or production-capacity comparison.",
+  "samples": [
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 1,
+      "ms": 94.786,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 1,
+      "ms": 163.289,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 1,
+      "ms": 88.785,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 1,
+      "ms": 36.526,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 1,
+      "ms": 148.692,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 1,
+      "ms": 385.086,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 1,
+      "ms": 139.361,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 1,
+      "ms": 53.582,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 1,
+      "ms": 74.7,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 1,
+      "ms": 161.32,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 1,
+      "ms": 88.126,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 1,
+      "ms": 37.232,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 1,
+      "ms": 74.143,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 1,
+      "ms": 160.659,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 1,
+      "ms": 90.761,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 1,
+      "ms": 35.751,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 1,
+      "ms": 145.605,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 1,
+      "ms": 352.479,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 1,
+      "ms": 142.359,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 1,
+      "ms": 47.95,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 1,
+      "ms": 71.982,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 1,
+      "ms": 203.935,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 1,
+      "ms": 86.904,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 1,
+      "ms": 36.016,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 151.918,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 4,
+      "ms": 60.152,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 4,
+      "ms": 233.988,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 75.87,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 335.646,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 4,
+      "ms": 272.724,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 4,
+      "ms": 524.199,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 331.817,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 378.099,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 258.469,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 353.077,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 4,
+      "ms": 283.489,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 771.555,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 88.912,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 771.08,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 4,
+      "ms": 94.554,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 4,
+      "ms": 232.588,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 70.494,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 163.105,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 60.635,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 4,
+      "ms": 547.281,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 331.378,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 350.742,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 256.207,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 316.441,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 4,
+      "ms": 215.659,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 4,
+      "ms": 492.23,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 273.716,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 202.172,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 4,
+      "ms": 92.998,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 4,
+      "ms": 270.557,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 116.508,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 142.818,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 67.423,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 138.129,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 4,
+      "ms": 67.515,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 369.247,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 279.321,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 339.402,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 4,
+      "ms": 217.71,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 4,
+      "ms": 507.322,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 296.103,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 316.123,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 223.744,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 4,
+      "ms": 272.175,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 107.113,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 196.707,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 121.884,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 151.662,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 4,
+      "ms": 72.795,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 4,
+      "ms": 218.456,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 72.915,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 372.221,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 4,
+      "ms": 269.385,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 4,
+      "ms": 548.182,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 330.293,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 329.209,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 232.154,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 350.278,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 4,
+      "ms": 234.493,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 145.197,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 52.779,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 149.462,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 4,
+      "ms": 55.448,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 4,
+      "ms": 224.079,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 71.835,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 154.719,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 71.899,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 4,
+      "ms": 541.132,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 328.002,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 345.536,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 264.608,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 339.26,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 4,
+      "ms": 239.43,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 4,
+      "ms": 518.113,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 272.856,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 167.611,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 4,
+      "ms": 90.248,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 4,
+      "ms": 241.954,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 90.871,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 141.257,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 52.344,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 144.831,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 4,
+      "ms": 63.321,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 339.361,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 231.552,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 4,
+      "ms": 350.087,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 4,
+      "ms": 233.261,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 4,
+      "ms": 568.443,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 351.266,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 361.53,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 273.438,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 4,
+      "ms": 256.315,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 4,
+      "ms": 105.46,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 4,
+      "ms": 189.242,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 4,
+      "ms": 110.121,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 264.844,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 132.457,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 336.889,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 156.566,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 241.687,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 99.412,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 270.606,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 118.891,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 635.525,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 298.707,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 810.414,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 384.651,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 634.988,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 438.342,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 660.186,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 387.649,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 865.048,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 461.17,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 642.128,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 474.176,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 666.15,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 521.415,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 917.038,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 547.16,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 414.769,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 147.117,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 309.695,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 133.2,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 298.104,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 158.259,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 365.841,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 124.958,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 847.606,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 683.533,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 849.907,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 650.962,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 921.442,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 705.661,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 862.983,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 713.983,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 705.911,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 504.995,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 747.947,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 470.515,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 896.42,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 559.331,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 719.913,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 453.923,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 587.227,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 386.712,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 823.669,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 493.756,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 631.066,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 424.553,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 638.624,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 431.261,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 284.973,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 138.308,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 351.625,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 159.372,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 300.641,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 137.938,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 296.17,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 134.182,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 402.984,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 113.304,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 242.64,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 134.994,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 281.739,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 135.195,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 354.902,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 116.641,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 921.63,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 503.644,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 600.79,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 431.854,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 578.452,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 494.661,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 866.127,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 561.51,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 671.357,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 501.952,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 581.684,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 476.492,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 827.623,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 475.424,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 669.252,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 499.502,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 257.616,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 100.35,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 292.014,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 145.237,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 352.827,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 133.349,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 278.839,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 70.223,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 279.765,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 114.733,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 333.561,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 125.013,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 275.081,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 133.138,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 260.786,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 132.828,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 676.621,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 410.657,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 831.226,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 541.6,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 637.445,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 464.815,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 687.729,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 504.972,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 933.489,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 517.49,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 613.875,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 480.13,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 560.989,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 513.539,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 845.383,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 592.403,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 373.986,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 151.091,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 302.059,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 161.117,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 300.314,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 163.076,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 419.098,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 116.336,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 252.405,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 93.847,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 938.502,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 87.417,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 947.29,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 132.184,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 334.267,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 118.202,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 714.863,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 437.2,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 745.966,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 471.248,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 887.543,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 413.778,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 732.439,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 468.911,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 708.707,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 469.726,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 850.151,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 524.37,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 688.018,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 440.04,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 696.922,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 409.244,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 300.49,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 100.894,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 350.408,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 132.83,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 277.272,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 134.234,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 293.442,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 158.25,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 344.79,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 101.569,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 285.54,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 112.766,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 263.262,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 145.384,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 390.258,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 113.788,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 911.967,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 538.001,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 645.758,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 430.218,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 602.821,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 355.518,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 910.646,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 493.248,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 688.082,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 479.809,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 688.189,
+      "http_status": 200,
+      "bytes": 23135
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "readers": 8,
+      "ms": 352.404,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "readers": 8,
+      "ms": 837.707,
+      "http_status": 200,
+      "bytes": 51081
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 544.245,
+      "http_status": 200,
+      "bytes": 19
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 686.896,
+      "http_status": 200,
+      "bytes": 998
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 488.188,
+      "http_status": 200,
+      "bytes": 17
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 299.182,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 136.058,
+      "http_status": 200,
+      "bytes": 12
+    },
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "readers": 8,
+      "ms": 286.519,
+      "http_status": 200,
+      "bytes": 19534
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "readers": 8,
+      "ms": 105.044,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "readers": 8,
+      "ms": 375.331,
+      "http_status": 200,
+      "bytes": 34946
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "readers": 8,
+      "ms": 145.579,
+      "http_status": 200,
+      "bytes": 14
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "readers": 8,
+      "ms": 297.747,
+      "http_status": 200,
+      "bytes": 832
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "readers": 8,
+      "ms": 105.061,
+      "http_status": 200,
+      "bytes": 12
+    }
+  ],
+  "waves": [
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.0950495412107557,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.16369808302260935,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.08895737491548061,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.03665858297608793,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.14892850001342595,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.3853454578202218,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.13958154199644923,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.05370654189027846,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.07482929201796651,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.1614509578794241,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.08829845814034343,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.037361124996095896,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.07433612481690943,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.16106237517669797,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.09096312499605119,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.03589379182085395,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.14582916698418558,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.35275254189036787,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.14253620896488428,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.04808612517081201,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.07211975008249283,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.20409275009296834,
+      "requests": 1
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "seconds": 0.08705883286893368,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "seconds": 0.03615325014106929,
+      "requests": 1
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.2349744588136673,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.5255068747792393,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.3788031251169741,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.7720161250326782,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.2334991660900414,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.5484846669714898,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.4928729578386992,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.27159191691316664,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.14360037492588162,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.3698596248868853,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.5078122499398887,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.2729940409772098,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.21937470883131027,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.5491923340596259,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.35106383403763175,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.150133749935776,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.22502066590823233,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.54185412498191,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.5189232500270009,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.24288170807994902,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.14663408300839365,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.3512924590613693,
+      "requests": 4
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "seconds": 0.5691975830122828,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "seconds": 0.25738100009039044,
+      "requests": 4
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.3391842080745846,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.8131168340332806,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.9183792499825358,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.4164739998523146,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.9242787498515099,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.8980888749938458,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.8252466251142323,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.35281270812265575,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.4044692078605294,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.9228546658996493,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.8288254169747233,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.35430479096248746,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.335799542022869,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.8335026251152158,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.9348262920975685,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.4212689578998834,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.9495056250598282,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.8884891250636429,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.8516247500665486,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.3515921668149531,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.3925335418898612,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.9130673750769347,
+      "requests": 8
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "seconds": 0.8386411250103265,
+      "requests": 8
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "seconds": 0.3772804168984294,
+      "requests": 8
+    }
+  ],
+  "comparisons": {
+    "metadata": {
+      "equal_except_engine_score": true,
+      "full_response_equal": true,
+      "backends": {
+        "graphdb": {
+          "status": 200,
+          "count_or_rows": 100,
+          "fingerprint": "e71f183dd53b331a52653d118105de5d06f776b18f7d000590364475a0333b17"
+        },
+        "jena": {
+          "status": 200,
+          "count_or_rows": 100,
+          "fingerprint": "e71f183dd53b331a52653d118105de5d06f776b18f7d000590364475a0333b17"
+        }
+      }
+    },
+    "count": {
+      "equal_except_engine_score": true,
+      "full_response_equal": true,
+      "backends": {
+        "graphdb": {
+          "status": 200,
+          "count_or_rows": 422,
+          "fingerprint": "a23cf33f8c059e6791655b7bec1b20ad0e428b180d8a965dc249e216928e73d5"
+        },
+        "jena": {
+          "status": 200,
+          "count_or_rows": 422,
+          "fingerprint": "a23cf33f8c059e6791655b7bec1b20ad0e428b180d8a965dc249e216928e73d5"
+        }
+      }
+    },
+    "dating": {
+      "equal_except_engine_score": true,
+      "full_response_equal": true,
+      "backends": {
+        "graphdb": {
+          "status": 200,
+          "count_or_rows": 100,
+          "fingerprint": "d44a92b3bfc3f45149e40b337f13b6dd920d44b38a7b000843cabc4ef7fcf607"
+        },
+        "jena": {
+          "status": 200,
+          "count_or_rows": 100,
+          "fingerprint": "d44a92b3bfc3f45149e40b337f13b6dd920d44b38a7b000843cabc4ef7fcf607"
+        }
+      }
+    },
+    "dating_count": {
+      "equal_except_engine_score": true,
+      "full_response_equal": true,
+      "backends": {
+        "graphdb": {
+          "status": 200,
+          "count_or_rows": 229,
+          "fingerprint": "79128f2d0a900beb890057635fa429e56c37d5c036af57b9276a1d08d19e73b3"
+        },
+        "jena": {
+          "status": 200,
+          "count_or_rows": 229,
+          "fingerprint": "79128f2d0a900beb890057635fa429e56c37d5c036af57b9276a1d08d19e73b3"
+        }
+      }
+    },
+    "fulltext": {
+      "equal_except_engine_score": true,
+      "full_response_equal": false,
+      "backends": {
+        "graphdb": {
+          "status": 200,
+          "count_or_rows": 5,
+          "fingerprint": "359c46f41b0bf29371ce3dae60ee348438a19bd3b32301f4376309a988a04fd2"
+        },
+        "jena": {
+          "status": 200,
+          "count_or_rows": 5,
+          "fingerprint": "0d740fff8c1e76e251b95bea2ba2464627af6205a6006cad83c43fa27f498f61"
+        }
+      }
+    },
+    "fulltext_count": {
+      "equal_except_engine_score": true,
+      "full_response_equal": true,
+      "backends": {
+        "graphdb": {
+          "status": 200,
+          "count_or_rows": 5,
+          "fingerprint": "e0eb7e7d7e4482e888962c80be82cab90113c57979a097fb76ede8ef94869c55"
+        },
+        "jena": {
+          "status": 200,
+          "count_or_rows": 5,
+          "fingerprint": "e0eb7e7d7e4482e888962c80be82cab90113c57979a097fb76ede8ef94869c55"
+        }
+      }
+    }
+  },
+  "page_size": 100,
+  "java": {
+    "maximum_heap_mib": 8192
+  },
+  "source_before": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+  "source_after": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+  "summary": [
+    {
+      "backend": "graphdb",
+      "readers": 1,
+      "requests": 12,
+      "median_ms": 62.782,
+      "p95_ms": 148.692,
+      "requests_per_second": 13.970516285168301
+    },
+    {
+      "backend": "graphdb",
+      "readers": 4,
+      "requests": 48,
+      "median_ms": 130.0065,
+      "p95_ms": 272.175,
+      "requests_per_second": 15.14146864078716
+    },
+    {
+      "backend": "graphdb",
+      "readers": 8,
+      "requests": 96,
+      "median_ms": 259.201,
+      "p95_ms": 849.907,
+      "requests_per_second": 17.083358504022996
+    },
+    {
+      "backend": "jena",
+      "readers": 1,
+      "requests": 12,
+      "median_ms": 151.50900000000001,
+      "p95_ms": 385.086,
+      "requests_per_second": 5.808894043640981
+    },
+    {
+      "backend": "jena",
+      "readers": 4,
+      "requests": 48,
+      "median_ms": 330.8355,
+      "p95_ms": 547.281,
+      "requests_per_second": 8.413874143381797
+    },
+    {
+      "backend": "jena",
+      "readers": 8,
+      "requests": 96,
+      "median_ms": 569.981,
+      "p95_ms": 910.646,
+      "requests_per_second": 9.171977770959174
+    }
+  ],
+  "case_summary": [
+    {
+      "backend": "graphdb",
+      "case": "metadata",
+      "samples": 2,
+      "median_ms": 84.4645
+    },
+    {
+      "backend": "graphdb",
+      "case": "count",
+      "samples": 2,
+      "median_ms": 36.1385
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating",
+      "samples": 2,
+      "median_ms": 147.1485
+    },
+    {
+      "backend": "graphdb",
+      "case": "dating_count",
+      "samples": 2,
+      "median_ms": 50.766000000000005
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext",
+      "samples": 2,
+      "median_ms": 73.34100000000001
+    },
+    {
+      "backend": "graphdb",
+      "case": "fulltext_count",
+      "samples": 2,
+      "median_ms": 36.623999999999995
+    },
+    {
+      "backend": "jena",
+      "case": "metadata",
+      "samples": 2,
+      "median_ms": 161.974
+    },
+    {
+      "backend": "jena",
+      "case": "count",
+      "samples": 2,
+      "median_ms": 89.773
+    },
+    {
+      "backend": "jena",
+      "case": "dating",
+      "samples": 2,
+      "median_ms": 368.7825
+    },
+    {
+      "backend": "jena",
+      "case": "dating_count",
+      "samples": 2,
+      "median_ms": 140.86
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext",
+      "samples": 2,
+      "median_ms": 182.6275
+    },
+    {
+      "backend": "jena",
+      "case": "fulltext_count",
+      "samples": 2,
+      "median_ms": 87.515
+    }
+  ]
+}

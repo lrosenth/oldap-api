@@ -1,0 +1,2916 @@
+{
+  "status": "passed",
+  "samples": [
+    {
+      "case": "metadata",
+      "phase": "warmup",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 7.464792113751173,
+          "authentication_ms": 5.750625,
+          "dispatch_ms": 0.803125,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "480eeadecf69a5e3",
+          "ms": 142.82175013795495,
+          "authentication_ms": 5.488042,
+          "dispatch_ms": 136.285459,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "876691ae1ccf6b6d",
+          "ms": 7.538375211879611,
+          "authentication_ms": 5.901125,
+          "dispatch_ms": 0.62425,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "586e0f1668148881",
+          "ms": 7.397749926894903,
+          "authentication_ms": 5.937375,
+          "dispatch_ms": 0.505542,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.12933416292071342,
+      "dating_ms": 52.490249974653125,
+      "api_dispatch_ms": 221.00879112258554,
+      "http_ms": 221.86433291062713,
+      "backend_http_ms": 165.22266739048064,
+      "authentication_ms": 23.077167000000003,
+      "dispatch_ms": 138.218376,
+      "transport_residual_ms": 3.9271243904806283,
+      "api_other_ms": 55.7861237321049
+    },
+    {
+      "case": "count",
+      "phase": "warmup",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 8.362082997336984,
+          "authentication_ms": 5.750333,
+          "dispatch_ms": 0.734458,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "d4ca69045425736d",
+          "ms": 83.79262499511242,
+          "authentication_ms": 5.87825,
+          "dispatch_ms": 76.888083,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.017082784324884415,
+      "api_dispatch_ms": 109.9194590933621,
+      "http_ms": 110.80779205076396,
+      "backend_http_ms": 92.1547079924494,
+      "authentication_ms": 11.628583,
+      "dispatch_ms": 77.622541,
+      "transport_residual_ms": 2.9035839924493985,
+      "api_other_ms": 17.76475110091269
+    },
+    {
+      "case": "dating",
+      "phase": "warmup",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 7.233208045363426,
+          "authentication_ms": 5.493708,
+          "dispatch_ms": 0.723375,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f20f1b6d9014e710",
+          "ms": 160.77199997380376,
+          "authentication_ms": 6.005166,
+          "dispatch_ms": 153.628667,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "876691ae1ccf6b6d",
+          "ms": 8.215958019718528,
+          "authentication_ms": 6.2025,
+          "dispatch_ms": 0.821459,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "586e0f1668148881",
+          "ms": 7.902499986812472,
+          "authentication_ms": 6.283583,
+          "dispatch_ms": 0.537917,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 8.841332979500294,
+          "authentication_ms": 7.251,
+          "dispatch_ms": 0.657167,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "ffadbe1c6794bb9f",
+          "ms": 81.06916700489819,
+          "authentication_ms": 5.611417,
+          "dispatch_ms": 73.507833,
+          "bytes": 575377
+        }
+      ],
+      "decode_ms": 29.21420894563198,
+      "construct_ms": 17.477500019595027,
+      "dating_ms": 201.13374991342425,
+      "api_dispatch_ms": 391.9292502105236,
+      "http_ms": 393.05999991483986,
+      "backend_http_ms": 274.03416601009667,
+      "authentication_ms": 36.847374,
+      "dispatch_ms": 229.876418,
+      "transport_residual_ms": 7.310374010096666,
+      "api_other_ms": 117.89508420042694
+    },
+    {
+      "case": "dating_count",
+      "phase": "warmup",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "ddde6f3be2d24896",
+          "ms": 7.475458085536957,
+          "authentication_ms": 5.84275,
+          "dispatch_ms": 0.6795,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "a5d2da0fa2fe1365",
+          "ms": 123.76258405856788,
+          "authentication_ms": 5.623458,
+          "dispatch_ms": 117.099666,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.016041798517107964,
+      "api_dispatch_ms": 151.2102079577744,
+      "http_ms": 152.2702919319272,
+      "backend_http_ms": 131.23804214410484,
+      "authentication_ms": 11.466208,
+      "dispatch_ms": 117.779166,
+      "transport_residual_ms": 1.9926681441048402,
+      "api_other_ms": 19.972165813669562
+    },
+    {
+      "case": "fulltext",
+      "phase": "warmup",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.2202919982373714,
+          "authentication_ms": 5.738541,
+          "dispatch_ms": 0.101125,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.346499944105744,
+          "authentication_ms": 5.43675,
+          "dispatch_ms": 1.033375,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 91.5161669254303,
+          "authentication_ms": 5.486291,
+          "dispatch_ms": 84.7825,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "b461ba8b49ddff4a",
+          "ms": 8.1173749640584,
+          "authentication_ms": 6.115542,
+          "dispatch_ms": 0.861916,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "d42976bb60464e01",
+          "ms": 7.950957864522934,
+          "authentication_ms": 6.351542,
+          "dispatch_ms": 0.568042,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.0359145924448967,
+      "dating_ms": 54.9366669729352,
+      "api_dispatch_ms": 221.83279204182327,
+      "http_ms": 222.86537499167025,
+      "backend_http_ms": 122.15129169635475,
+      "authentication_ms": 29.128666,
+      "dispatch_ms": 87.346958,
+      "transport_residual_ms": 5.6756676963547505,
+      "api_other_ms": 99.68150034546852
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "warmup",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.092125015333295,
+          "authentication_ms": 6.064708,
+          "dispatch_ms": 0.095417,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.5041670352220535,
+          "authentication_ms": 5.855208,
+          "dispatch_ms": 0.737584,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 41.39258386567235,
+          "authentication_ms": 5.863834,
+          "dispatch_ms": 34.590333,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.01587485894560814,
+      "api_dispatch_ms": 89.55529192462564,
+      "http_ms": 90.5427080579102,
+      "backend_http_ms": 55.9888759162277,
+      "authentication_ms": 17.78375,
+      "dispatch_ms": 35.423334000000004,
+      "transport_residual_ms": 2.7817919162276965,
+      "api_other_ms": 33.56641600839794
+    },
+    {
+      "case": "metadata",
+      "phase": "warmup",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.293124916031957,
+          "authentication_ms": 5.713959,
+          "dispatch_ms": 0.659542,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 83.42958288267255,
+          "authentication_ms": 5.837375,
+          "dispatch_ms": 76.504541,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4b0ef2454b61bc9c",
+          "ms": 8.11062497086823,
+          "authentication_ms": 6.304583,
+          "dispatch_ms": 0.769209,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.12533273547887802,
+      "dating_ms": 11.414250126108527,
+      "api_dispatch_ms": 120.07520813494921,
+      "http_ms": 121.08850013464689,
+      "backend_http_ms": 98.83333276957273,
+      "authentication_ms": 17.855916999999998,
+      "dispatch_ms": 77.93329200000001,
+      "transport_residual_ms": 3.044123769572721,
+      "api_other_ms": 21.241875365376472
+    },
+    {
+      "case": "count",
+      "phase": "warmup",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.730040932074189,
+          "authentication_ms": 6.020459,
+          "dispatch_ms": 0.690125,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 70.70850022137165,
+          "authentication_ms": 5.61225,
+          "dispatch_ms": 64.019958,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.0160830095410347,
+      "api_dispatch_ms": 95.12033313512802,
+      "http_ms": 96.04662493802607,
+      "backend_http_ms": 78.43854115344584,
+      "authentication_ms": 11.632709,
+      "dispatch_ms": 64.710083,
+      "transport_residual_ms": 2.095749153445837,
+      "api_other_ms": 16.68179198168218
+    },
+    {
+      "case": "dating",
+      "phase": "warmup",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.785415975376964,
+          "authentication_ms": 6.044792,
+          "dispatch_ms": 0.791958,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 131.91520795226097,
+          "authentication_ms": 5.3635,
+          "dispatch_ms": 125.421125,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "87277cb30e99adee",
+          "ms": 7.955957902595401,
+          "authentication_ms": 5.923583,
+          "dispatch_ms": 0.898791,
+          "bytes": 41
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.172957994043827,
+          "authentication_ms": 5.658041,
+          "dispatch_ms": 0.67375,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.085958030074835,
+          "authentication_ms": 5.715792,
+          "dispatch_ms": 0.47675,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.9124160800129175,
+          "authentication_ms": 5.458667,
+          "dispatch_ms": 0.595875,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 71.481249993667,
+          "authentication_ms": 5.272208,
+          "dispatch_ms": 64.619791,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 29.520127223804593,
+      "construct_ms": 16.51158300228417,
+      "dating_ms": 198.46566603519022,
+      "api_dispatch_ms": 360.3575420565903,
+      "http_ms": 361.4641670137644,
+      "backend_http_ms": 240.30916392803192,
+      "authentication_ms": 39.436583,
+      "dispatch_ms": 193.47804000000002,
+      "transport_residual_ms": 7.394540928031915,
+      "api_other_ms": 120.0483781285584
+    },
+    {
+      "case": "dating_count",
+      "phase": "warmup",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.175666047260165,
+          "authentication_ms": 5.549625,
+          "dispatch_ms": 0.689167,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 120.4916660208255,
+          "authentication_ms": 5.689416,
+          "dispatch_ms": 113.710959,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.01554097980260849,
+      "api_dispatch_ms": 147.52312493510544,
+      "http_ms": 148.4570000320673,
+      "backend_http_ms": 127.66733206808567,
+      "authentication_ms": 11.239041,
+      "dispatch_ms": 114.400126,
+      "transport_residual_ms": 2.02816506808567,
+      "api_other_ms": 19.855792867019773
+    },
+    {
+      "case": "fulltext",
+      "phase": "warmup",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.3923340532928705,
+          "authentication_ms": 6.177292,
+          "dispatch_ms": 0.1015,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.293958915397525,
+          "authentication_ms": 5.397917,
+          "dispatch_ms": 0.953708,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 56.14037509076297,
+          "authentication_ms": 5.518875,
+          "dispatch_ms": 49.64525,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "57694316c5cb4fa1",
+          "ms": 7.555041927844286,
+          "authentication_ms": 5.806541,
+          "dispatch_ms": 0.763791,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.027623958885669708,
+      "dating_ms": 10.616458021104336,
+      "api_dispatch_ms": 115.70879211649299,
+      "http_ms": 116.68004211969674,
+      "backend_http_ms": 78.38170998729765,
+      "authentication_ms": 22.900624999999998,
+      "dispatch_ms": 51.464248999999995,
+      "transport_residual_ms": 4.016835987297661,
+      "api_other_ms": 37.32708212919533
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "warmup",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 34.07045896165073,
+          "authentication_ms": 33.05425,
+          "dispatch_ms": 0.070875,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.026375038549304,
+          "authentication_ms": 5.381458,
+          "dispatch_ms": 0.641375,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 43.53283392265439,
+          "authentication_ms": 6.116208,
+          "dispatch_ms": 36.319917,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.01741829328238964,
+      "api_dispatch_ms": 117.0890829525888,
+      "http_ms": 117.88245802745223,
+      "backend_http_ms": 84.62966792285442,
+      "authentication_ms": 44.551916000000006,
+      "dispatch_ms": 37.032166999999994,
+      "transport_residual_ms": 3.045584922854424,
+      "api_other_ms": 32.45941502973437
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.761667016893625,
+          "authentication_ms": 5.795041,
+          "dispatch_ms": 0.877542,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 80.5964998435229,
+          "authentication_ms": 5.347917,
+          "dispatch_ms": 74.201,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.411791943013668,
+          "authentication_ms": 5.870334,
+          "dispatch_ms": 0.59,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.1829999797046185,
+          "authentication_ms": 5.677791,
+          "dispatch_ms": 0.529375,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.1334594562649727,
+      "dating_ms": 52.06233402714133,
+      "api_dispatch_ms": 158.70783291757107,
+      "http_ms": 159.70404096879065,
+      "backend_http_ms": 102.95295878313482,
+      "authentication_ms": 22.691083,
+      "dispatch_ms": 76.19791699999999,
+      "transport_residual_ms": 4.0639587831348365,
+      "api_other_ms": 55.75487413443625
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.769458064809442,
+          "authentication_ms": 5.287208,
+          "dispatch_ms": 0.641916,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 64.2477918881923,
+          "authentication_ms": 6.687708,
+          "dispatch_ms": 56.5625,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.014333054423332214,
+      "api_dispatch_ms": 86.67291607707739,
+      "http_ms": 87.5355419702828,
+      "backend_http_ms": 71.01724995300174,
+      "authentication_ms": 11.974916,
+      "dispatch_ms": 57.204416,
+      "transport_residual_ms": 1.8379179530017353,
+      "api_other_ms": 15.655666124075651
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.743458030745387,
+          "authentication_ms": 5.814583,
+          "dispatch_ms": 0.906042,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 130.1806669216603,
+          "authentication_ms": 5.439,
+          "dispatch_ms": 123.605291,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 8.17112484946847,
+          "authentication_ms": 5.924417,
+          "dispatch_ms": 0.99275,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.107167039066553,
+          "authentication_ms": 5.745917,
+          "dispatch_ms": 0.47225,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.229250157251954,
+          "authentication_ms": 5.712084,
+          "dispatch_ms": 0.642458,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 68.71083378791809,
+          "authentication_ms": 5.247166,
+          "dispatch_ms": 61.902042,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 29.961956664919853,
+      "construct_ms": 16.970874974504113,
+      "dating_ms": 186.41475006006658,
+      "api_dispatch_ms": 346.11858311109245,
+      "http_ms": 347.15941711328924,
+      "backend_http_ms": 229.14250078611076,
+      "authentication_ms": 33.883167,
+      "dispatch_ms": 188.52083299999998,
+      "transport_residual_ms": 6.738500786110762,
+      "api_other_ms": 116.97608232498169
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.248041918501258,
+          "authentication_ms": 5.565042,
+          "dispatch_ms": 0.670125,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 118.30933392047882,
+          "authentication_ms": 5.873,
+          "dispatch_ms": 111.257166,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.01570815220475197,
+      "api_dispatch_ms": 145.81404207274318,
+      "http_ms": 146.78512490354478,
+      "backend_http_ms": 125.55737583898008,
+      "authentication_ms": 11.438042,
+      "dispatch_ms": 111.927291,
+      "transport_residual_ms": 2.192042838980086,
+      "api_other_ms": 20.2566662337631
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.6105420012027025,
+          "authentication_ms": 6.44925,
+          "dispatch_ms": 0.094792,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.802166976034641,
+          "authentication_ms": 5.870292,
+          "dispatch_ms": 0.943625,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 54.78024994954467,
+          "authentication_ms": 5.671209,
+          "dispatch_ms": 48.039208,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "b461ba8b49ddff4a",
+          "ms": 7.573333103209734,
+          "authentication_ms": 6.064125,
+          "dispatch_ms": 0.586291,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "d42976bb60464e01",
+          "ms": 7.257708115503192,
+          "authentication_ms": 5.792541,
+          "dispatch_ms": 0.527708,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.03754161298274994,
+      "dating_ms": 52.106082905083895,
+      "api_dispatch_ms": 156.2141659669578,
+      "http_ms": 157.22441696561873,
+      "backend_http_ms": 85.02400014549494,
+      "authentication_ms": 29.847417,
+      "dispatch_ms": 50.191624000000004,
+      "transport_residual_ms": 4.984959145494933,
+      "api_other_ms": 71.19016582146287
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.933499990031123,
+          "authentication_ms": 6.919083,
+          "dispatch_ms": 0.080958,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.122041890397668,
+          "authentication_ms": 5.530459,
+          "dispatch_ms": 0.679959,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 38.896291982382536,
+          "authentication_ms": 5.345625,
+          "dispatch_ms": 32.581459,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.016582896932959557,
+      "api_dispatch_ms": 86.75508410669863,
+      "http_ms": 87.66791690140963,
+      "backend_http_ms": 53.95183386281133,
+      "authentication_ms": 17.795167,
+      "dispatch_ms": 33.342376,
+      "transport_residual_ms": 2.814290862811326,
+      "api_other_ms": 32.803250243887305
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 33.71520899236202,
+          "authentication_ms": 32.167,
+          "dispatch_ms": 0.6165,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 84.82933300547302,
+          "authentication_ms": 5.485708,
+          "dispatch_ms": 78.196167,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4b0ef2454b61bc9c",
+          "ms": 7.830499904230237,
+          "authentication_ms": 5.845,
+          "dispatch_ms": 0.909375,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.12595811858773232,
+      "dating_ms": 11.017000069841743,
+      "api_dispatch_ms": 147.9562921449542,
+      "http_ms": 148.88133318163455,
+      "backend_http_ms": 126.37504190206528,
+      "authentication_ms": 43.497708,
+      "dispatch_ms": 79.722042,
+      "transport_residual_ms": 3.1552919020652723,
+      "api_other_ms": 21.581250242888927
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.349624997004867,
+          "authentication_ms": 5.775667,
+          "dispatch_ms": 0.666625,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 61.37775001116097,
+          "authentication_ms": 5.212667,
+          "dispatch_ms": 55.222333,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.01962576061487198,
+      "api_dispatch_ms": 84.86974984407425,
+      "http_ms": 85.74949996545911,
+      "backend_http_ms": 68.72737500816584,
+      "authentication_ms": 10.988334,
+      "dispatch_ms": 55.888958,
+      "transport_residual_ms": 1.8500830081658322,
+      "api_other_ms": 16.142374835908413
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.313624955713749,
+          "authentication_ms": 5.594334,
+          "dispatch_ms": 0.666208,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 128.68141708895564,
+          "authentication_ms": 5.358875,
+          "dispatch_ms": 122.211291,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "87277cb30e99adee",
+          "ms": 8.49162507802248,
+          "authentication_ms": 6.480708,
+          "dispatch_ms": 0.91275,
+          "bytes": 41
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 6.8687498569488525,
+          "authentication_ms": 5.462167,
+          "dispatch_ms": 0.584625,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.048333063721657,
+          "authentication_ms": 5.643458,
+          "dispatch_ms": 0.476084,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.3029580526053905,
+          "authentication_ms": 5.777417,
+          "dispatch_ms": 0.630333,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 69.12275007925928,
+          "authentication_ms": 5.198417,
+          "dispatch_ms": 62.355334,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 28.74187519773841,
+      "construct_ms": 17.019249964505434,
+      "dating_ms": 196.36541698127985,
+      "api_dispatch_ms": 354.4128332287073,
+      "http_ms": 355.4590418934822,
+      "backend_http_ms": 234.82945817522705,
+      "authentication_ms": 39.515376,
+      "dispatch_ms": 187.836625,
+      "transport_residual_ms": 7.477457175227045,
+      "api_other_ms": 119.58337505348027
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.201416185125709,
+          "authentication_ms": 5.617166,
+          "dispatch_ms": 0.642083,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 117.25895805284381,
+          "authentication_ms": 5.914167,
+          "dispatch_ms": 110.297709,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.016875099390745163,
+      "api_dispatch_ms": 143.8923340756446,
+      "http_ms": 144.8445830028504,
+      "backend_http_ms": 124.46037423796952,
+      "authentication_ms": 11.531333,
+      "dispatch_ms": 110.939792,
+      "transport_residual_ms": 1.989249237969517,
+      "api_other_ms": 19.431959837675095
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.078791968524456,
+          "authentication_ms": 6.006292,
+          "dispatch_ms": 0.089125,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.427167147397995,
+          "authentication_ms": 5.411834,
+          "dispatch_ms": 0.873875,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 57.89533304050565,
+          "authentication_ms": 5.742291,
+          "dispatch_ms": 51.077791,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "57694316c5cb4fa1",
+          "ms": 8.417208911851048,
+          "authentication_ms": 6.35925,
+          "dispatch_ms": 0.932,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.02666679210960865,
+      "dating_ms": 11.77745801396668,
+      "api_dispatch_ms": 117.74841602891684,
+      "http_ms": 118.70662495493889,
+      "backend_http_ms": 80.81850106827915,
+      "authentication_ms": 23.519667,
+      "dispatch_ms": 52.972791,
+      "transport_residual_ms": 4.326043068279148,
+      "api_other_ms": 36.92991496063769
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.334417033940554,
+          "authentication_ms": 5.356833,
+          "dispatch_ms": 0.087792,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 6.964332889765501,
+          "authentication_ms": 5.418375,
+          "dispatch_ms": 0.705875,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 38.987542036920786,
+          "authentication_ms": 5.303917,
+          "dispatch_ms": 32.77575,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.01708301715552807,
+      "api_dispatch_ms": 85.17779200337827,
+      "http_ms": 86.03533287532628,
+      "backend_http_ms": 52.28629196062684,
+      "authentication_ms": 16.079125,
+      "dispatch_ms": 33.569417,
+      "transport_residual_ms": 2.6377499606268344,
+      "api_other_ms": 32.89150004275143
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.171625038608909,
+          "authentication_ms": 5.592542,
+          "dispatch_ms": 0.611791,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 82.21199992112815,
+          "authentication_ms": 5.952,
+          "dispatch_ms": 75.1525,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4b0ef2454b61bc9c",
+          "ms": 7.9710830468684435,
+          "authentication_ms": 5.881708,
+          "dispatch_ms": 0.975458,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.1270831562578678,
+      "dating_ms": 11.283457977697253,
+      "api_dispatch_ms": 118.62508300691843,
+      "http_ms": 119.5350841153413,
+      "backend_http_ms": 97.3547080066055,
+      "authentication_ms": 17.42625,
+      "dispatch_ms": 76.739749,
+      "transport_residual_ms": 3.1887090066055066,
+      "api_other_ms": 21.270375000312924
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.99533405713737,
+          "authentication_ms": 5.574917,
+          "dispatch_ms": 0.647375,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 60.33479212783277,
+          "authentication_ms": 5.236916,
+          "dispatch_ms": 54.007084,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.016541918739676476,
+      "api_dispatch_ms": 82.81991607509553,
+      "http_ms": 83.63270806148648,
+      "backend_http_ms": 67.33012618497014,
+      "authentication_ms": 10.811833,
+      "dispatch_ms": 54.654458999999996,
+      "transport_residual_ms": 1.8638341849701447,
+      "api_other_ms": 15.489789890125394
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.376499939709902,
+          "authentication_ms": 5.837208,
+          "dispatch_ms": 0.650625,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 129.45274985395372,
+          "authentication_ms": 5.238,
+          "dispatch_ms": 123.1425,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "87277cb30e99adee",
+          "ms": 7.730166893452406,
+          "authentication_ms": 5.794333,
+          "dispatch_ms": 0.884917,
+          "bytes": 41
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.3964581824839115,
+          "authentication_ms": 5.960584,
+          "dispatch_ms": 0.575625,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.145749870687723,
+          "authentication_ms": 5.69875,
+          "dispatch_ms": 0.494666,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.844040937721729,
+          "authentication_ms": 5.435,
+          "dispatch_ms": 0.598834,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 68.14216705970466,
+          "authentication_ms": 6.351875,
+          "dispatch_ms": 60.254167,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 27.956500183790922,
+      "construct_ms": 17.18679186888039,
+      "dating_ms": 218.80970895290375,
+      "api_dispatch_ms": 377.8707077726722,
+      "http_ms": 378.8989169988781,
+      "backend_http_ms": 234.08783273771405,
+      "authentication_ms": 40.31575,
+      "dispatch_ms": 186.601334,
+      "transport_residual_ms": 7.170748737714035,
+      "api_other_ms": 143.78287503495812
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.370667066425085,
+          "authentication_ms": 5.61725,
+          "dispatch_ms": 0.639584,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 116.66029202751815,
+          "authentication_ms": 5.263417,
+          "dispatch_ms": 110.188958,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.016500940546393394,
+      "api_dispatch_ms": 142.84908398985863,
+      "http_ms": 143.8036251347512,
+      "backend_http_ms": 124.03095909394324,
+      "authentication_ms": 10.880666999999999,
+      "dispatch_ms": 110.828542,
+      "transport_residual_ms": 2.321750093943237,
+      "api_other_ms": 18.81812489591539
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.122999988496304,
+          "authentication_ms": 5.980958,
+          "dispatch_ms": 0.091292,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.1130001451820135,
+          "authentication_ms": 5.291125,
+          "dispatch_ms": 0.951125,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 57.872083969414234,
+          "authentication_ms": 5.786209,
+          "dispatch_ms": 51.139875,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "57694316c5cb4fa1",
+          "ms": 7.889291038736701,
+          "authentication_ms": 6.220958,
+          "dispatch_ms": 0.680542,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.028084032237529755,
+      "dating_ms": 10.736499913036823,
+      "api_dispatch_ms": 116.69929092749953,
+      "http_ms": 117.63037485070527,
+      "backend_http_ms": 79.99737514182925,
+      "authentication_ms": 23.27925,
+      "dispatch_ms": 52.86283400000001,
+      "transport_residual_ms": 3.855291141829241,
+      "api_other_ms": 36.70191578567028
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.4885420724749565,
+          "authentication_ms": 5.541292,
+          "dispatch_ms": 0.070584,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.049374980852008,
+          "authentication_ms": 5.62475,
+          "dispatch_ms": 0.62325,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 39.939916925504804,
+          "authentication_ms": 5.523791,
+          "dispatch_ms": 33.510041,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.016958918422460556,
+      "api_dispatch_ms": 85.58629103936255,
+      "http_ms": 86.40066697262228,
+      "backend_http_ms": 53.47783397883177,
+      "authentication_ms": 16.689833,
+      "dispatch_ms": 34.203875000000004,
+      "transport_residual_ms": 2.5841259788317643,
+      "api_other_ms": 32.10845706053078
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.919750012457371,
+          "authentication_ms": 5.499917,
+          "dispatch_ms": 0.614917,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 77.53316592425108,
+          "authentication_ms": 5.469333,
+          "dispatch_ms": 71.087875,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.593417074531317,
+          "authentication_ms": 6.088209,
+          "dispatch_ms": 0.557542,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 6.908708950504661,
+          "authentication_ms": 5.59925,
+          "dispatch_ms": 0.439375,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.13304105959832668,
+      "dating_ms": 51.08537501655519,
+      "api_dispatch_ms": 153.03220809437335,
+      "http_ms": 153.99716701358557,
+      "backend_http_ms": 98.95504196174443,
+      "authentication_ms": 22.656709,
+      "dispatch_ms": 72.699709,
+      "transport_residual_ms": 3.5986239617444227,
+      "api_other_ms": 54.07716613262892
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.737333023920655,
+          "authentication_ms": 5.338667,
+          "dispatch_ms": 0.595,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 59.700582874938846,
+          "authentication_ms": 5.535416,
+          "dispatch_ms": 53.2115,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.016207806766033173,
+      "api_dispatch_ms": 83.50766613148153,
+      "http_ms": 84.33445799164474,
+      "backend_http_ms": 66.4379158988595,
+      "authentication_ms": 10.874082999999999,
+      "dispatch_ms": 53.8065,
+      "transport_residual_ms": 1.7573328988595023,
+      "api_other_ms": 17.069750232622027
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.005124818533659,
+          "authentication_ms": 5.437041,
+          "dispatch_ms": 0.657333,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 128.05770803242922,
+          "authentication_ms": 5.74375,
+          "dispatch_ms": 121.165625,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.0342079270631075,
+          "authentication_ms": 5.584,
+          "dispatch_ms": 0.564917,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.2749999817460775,
+          "authentication_ms": 5.864875,
+          "dispatch_ms": 0.491,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.1172090247273445,
+          "authentication_ms": 5.679083,
+          "dispatch_ms": 0.595584,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 67.15879216790199,
+          "authentication_ms": 5.344166,
+          "dispatch_ms": 60.096959,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 56.23783357441425,
+      "construct_ms": 17.293417127802968,
+      "dating_ms": 210.22216696292162,
+      "api_dispatch_ms": 367.1686251182109,
+      "http_ms": 368.22883295826614,
+      "backend_http_ms": 223.6480419524014,
+      "authentication_ms": 33.652915,
+      "dispatch_ms": 183.571418,
+      "transport_residual_ms": 6.423708952401398,
+      "api_other_ms": 143.5205831658095
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.227374939247966,
+          "authentication_ms": 5.705708,
+          "dispatch_ms": 0.613958,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 117.06383293494582,
+          "authentication_ms": 5.283417,
+          "dispatch_ms": 110.613167,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.017709098756313324,
+      "api_dispatch_ms": 143.65449990145862,
+      "http_ms": 144.6267501451075,
+      "backend_http_ms": 124.29120787419379,
+      "authentication_ms": 10.989125,
+      "dispatch_ms": 111.227125,
+      "transport_residual_ms": 2.0749578741937853,
+      "api_other_ms": 19.363292027264833
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.681291153654456,
+          "authentication_ms": 5.625083,
+          "dispatch_ms": 0.084917,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 6.979750003665686,
+          "authentication_ms": 5.471541,
+          "dispatch_ms": 0.646792,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 53.254874888807535,
+          "authentication_ms": 5.5845,
+          "dispatch_ms": 46.766833,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "b461ba8b49ddff4a",
+          "ms": 7.198750041425228,
+          "authentication_ms": 5.692625,
+          "dispatch_ms": 0.577834,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "d42976bb60464e01",
+          "ms": 6.967750145122409,
+          "authentication_ms": 5.684375,
+          "dispatch_ms": 0.422042,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.0364591833204031,
+      "dating_ms": 50.88770808652043,
+      "api_dispatch_ms": 151.15179191343486,
+      "http_ms": 152.11024996824563,
+      "backend_http_ms": 81.08241623267531,
+      "authentication_ms": 28.058124,
+      "dispatch_ms": 48.498418,
+      "transport_residual_ms": 4.525874232675314,
+      "api_other_ms": 70.06937568075955
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.229375023394823,
+          "authentication_ms": 5.355333,
+          "dispatch_ms": 0.069292,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.5523341074585915,
+          "authentication_ms": 6.114417,
+          "dispatch_ms": 0.626208,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 37.41258382797241,
+          "authentication_ms": 5.405041,
+          "dispatch_ms": 30.936666,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.01774984411895275,
+      "api_dispatch_ms": 83.42037489637733,
+      "http_ms": 84.26754199899733,
+      "backend_http_ms": 51.19429295882583,
+      "authentication_ms": 16.874791000000002,
+      "dispatch_ms": 31.632165999999998,
+      "transport_residual_ms": 2.6873359588258268,
+      "api_other_ms": 32.2260819375515
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.935541983693838,
+          "authentication_ms": 5.533584,
+          "dispatch_ms": 0.594959,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 77.6750419754535,
+          "authentication_ms": 5.276792,
+          "dispatch_ms": 71.448667,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.503833156079054,
+          "authentication_ms": 6.009667,
+          "dispatch_ms": 0.532083,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.033416070044041,
+          "authentication_ms": 5.619417,
+          "dispatch_ms": 0.47875,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.136291841045022,
+      "dating_ms": 51.38066690415144,
+      "api_dispatch_ms": 153.68637512438,
+      "http_ms": 154.63416697457433,
+      "backend_http_ms": 99.14783318527043,
+      "authentication_ms": 22.43946,
+      "dispatch_ms": 73.054459,
+      "transport_residual_ms": 3.6539141852704375,
+      "api_other_ms": 54.538541939109564
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.028082851320505,
+          "authentication_ms": 5.501833,
+          "dispatch_ms": 0.639167,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 62.87725013680756,
+          "authentication_ms": 5.37725,
+          "dispatch_ms": 56.574666,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.01700012944638729,
+      "api_dispatch_ms": 87.67699985764921,
+      "http_ms": 88.55362515896559,
+      "backend_http_ms": 69.90533298812807,
+      "authentication_ms": 10.879083000000001,
+      "dispatch_ms": 57.213833,
+      "transport_residual_ms": 1.8124169881280636,
+      "api_other_ms": 17.77166686952114
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.202374981716275,
+          "authentication_ms": 5.628667,
+          "dispatch_ms": 0.691083,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 128.05904098786414,
+          "authentication_ms": 6.072708,
+          "dispatch_ms": 120.8265,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.22583313472569,
+          "authentication_ms": 5.745333,
+          "dispatch_ms": 0.56325,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.11883301846683,
+          "authentication_ms": 5.739291,
+          "dispatch_ms": 0.466,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.9028339348733425,
+          "authentication_ms": 5.48725,
+          "dispatch_ms": 0.614417,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 66.84770807623863,
+          "authentication_ms": 5.520667,
+          "dispatch_ms": 59.571041,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 28.08645903132856,
+      "construct_ms": 47.525125090032816,
+      "dating_ms": 211.86633384786546,
+      "api_dispatch_ms": 369.5126250386238,
+      "http_ms": 370.52145786583424,
+      "backend_http_ms": 223.3566241338849,
+      "authentication_ms": 34.193916,
+      "dispatch_ms": 182.732291,
+      "transport_residual_ms": 6.430417133884902,
+      "api_other_ms": 146.1560009047389
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.271832786500454,
+          "authentication_ms": 5.781541,
+          "dispatch_ms": 0.59925,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 114.62033400312066,
+          "authentication_ms": 5.234333,
+          "dispatch_ms": 108.219,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.01691700890660286,
+      "api_dispatch_ms": 140.80274989828467,
+      "http_ms": 141.74737501889467,
+      "backend_http_ms": 121.89216678962111,
+      "authentication_ms": 11.015874,
+      "dispatch_ms": 108.81824999999999,
+      "transport_residual_ms": 2.058042789621126,
+      "api_other_ms": 18.91058310866356
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.242333143949509,
+          "authentication_ms": 6.1925,
+          "dispatch_ms": 0.086875,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.421750109642744,
+          "authentication_ms": 5.703791,
+          "dispatch_ms": 0.707041,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 58.82120807655156,
+          "authentication_ms": 6.008,
+          "dispatch_ms": 51.724834,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "b461ba8b49ddff4a",
+          "ms": 8.836542023345828,
+          "authentication_ms": 7.006542,
+          "dispatch_ms": 0.758834,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "d42976bb60464e01",
+          "ms": 7.929665967822075,
+          "authentication_ms": 6.184083,
+          "dispatch_ms": 0.574916,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.04299893043935299,
+      "dating_ms": 58.08466696180403,
+      "api_dispatch_ms": 165.8957079052925,
+      "http_ms": 166.94883396849036,
+      "backend_http_ms": 90.25149932131171,
+      "authentication_ms": 31.094915999999998,
+      "dispatch_ms": 53.8525,
+      "transport_residual_ms": 5.304083321311715,
+      "api_other_ms": 75.6442085839808
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.194833131507039,
+          "authentication_ms": 6.106958,
+          "dispatch_ms": 0.096291,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 8.51816707290709,
+          "authentication_ms": 6.793916,
+          "dispatch_ms": 0.720792,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 39.65170797891915,
+          "authentication_ms": 5.622583,
+          "dispatch_ms": 32.77625,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.01800013706088066,
+      "api_dispatch_ms": 95.10708297602832,
+      "http_ms": 96.06541693210602,
+      "backend_http_ms": 55.36470818333328,
+      "authentication_ms": 18.523457,
+      "dispatch_ms": 33.593332999999994,
+      "transport_residual_ms": 3.247918183333283,
+      "api_other_ms": 39.742374792695045
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 8.499790914356709,
+          "authentication_ms": 6.788,
+          "dispatch_ms": 0.74775,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 79.06508282758296,
+          "authentication_ms": 5.571542,
+          "dispatch_ms": 72.304125,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4b0ef2454b61bc9c",
+          "ms": 7.9084159806370735,
+          "authentication_ms": 6.312542,
+          "dispatch_ms": 0.663875,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.12670899741351604,
+      "dating_ms": 10.905958013609052,
+      "api_dispatch_ms": 117.99279181286693,
+      "http_ms": 118.96391701884568,
+      "backend_http_ms": 95.47328972257674,
+      "authentication_ms": 18.672083999999998,
+      "dispatch_ms": 73.71575,
+      "transport_residual_ms": 3.0854557225767394,
+      "api_other_ms": 22.51950209029019
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.231416879221797,
+          "authentication_ms": 5.64475,
+          "dispatch_ms": 0.626833,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 61.502625001594424,
+          "authentication_ms": 6.265916,
+          "dispatch_ms": 54.210916,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.0167088583111763,
+      "api_dispatch_ms": 85.57704207487404,
+      "http_ms": 86.41108288429677,
+      "backend_http_ms": 68.73404188081622,
+      "authentication_ms": 11.910665999999999,
+      "dispatch_ms": 54.837748999999995,
+      "transport_residual_ms": 1.985626880816227,
+      "api_other_ms": 16.843000194057822
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 8.064707973971963,
+          "authentication_ms": 6.369375,
+          "dispatch_ms": 0.639791,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 125.41187508031726,
+          "authentication_ms": 5.518958,
+          "dispatch_ms": 118.754917,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "87277cb30e99adee",
+          "ms": 7.603249978274107,
+          "authentication_ms": 5.884292,
+          "dispatch_ms": 0.694584,
+          "bytes": 41
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.328708888962865,
+          "authentication_ms": 5.856792,
+          "dispatch_ms": 0.569,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.869707886129618,
+          "authentication_ms": 6.321,
+          "dispatch_ms": 0.518584,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.8113749623298645,
+          "authentication_ms": 6.15625,
+          "dispatch_ms": 0.648333,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 67.69641698338091,
+          "authentication_ms": 5.781,
+          "dispatch_ms": 60.2625,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 30.080793192610145,
+      "construct_ms": 17.430542036890984,
+      "dating_ms": 201.08970906585455,
+      "api_dispatch_ms": 357.3785829357803,
+      "http_ms": 358.45908406190574,
+      "backend_http_ms": 231.7860417533666,
+      "authentication_ms": 41.887667,
+      "dispatch_ms": 182.08770900000002,
+      "transport_residual_ms": 7.810665753366578,
+      "api_other_ms": 125.5925411824137
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.70045886747539,
+          "authentication_ms": 5.92325,
+          "dispatch_ms": 0.6705,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 114.665542030707,
+          "authentication_ms": 6.030459,
+          "dispatch_ms": 107.478125,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.02345908433198929,
+      "api_dispatch_ms": 143.65274994634092,
+      "http_ms": 144.65645886957645,
+      "backend_http_ms": 122.36600089818239,
+      "authentication_ms": 11.953709,
+      "dispatch_ms": 108.14862500000001,
+      "transport_residual_ms": 2.263666898182379,
+      "api_other_ms": 21.286749048158526
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.427041884511709,
+          "authentication_ms": 6.231916,
+          "dispatch_ms": 0.089458,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.399917114526033,
+          "authentication_ms": 5.714291,
+          "dispatch_ms": 0.685041,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 53.41266584582627,
+          "authentication_ms": 5.317917,
+          "dispatch_ms": 46.930416,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "57694316c5cb4fa1",
+          "ms": 7.0821670815348625,
+          "authentication_ms": 5.496333,
+          "dispatch_ms": 0.670166,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.025624176487326622,
+      "dating_ms": 10.132165858522058,
+      "api_dispatch_ms": 151.54720819555223,
+      "http_ms": 152.4937499780208,
+      "backend_http_ms": 75.32179192639887,
+      "authentication_ms": 22.760457,
+      "dispatch_ms": 48.375081,
+      "transport_residual_ms": 4.186253926398869,
+      "api_other_ms": 76.22541626915336
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.1365419533103704,
+          "authentication_ms": 5.246625,
+          "dispatch_ms": 0.078458,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 6.6462920513004065,
+          "authentication_ms": 5.21475,
+          "dispatch_ms": 0.612709,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 37.44929097592831,
+          "authentication_ms": 5.447417,
+          "dispatch_ms": 31.083792,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.01737498678267002,
+      "api_dispatch_ms": 83.16925005055964,
+      "http_ms": 84.02250008657575,
+      "backend_http_ms": 50.23212498053908,
+      "authentication_ms": 15.908792,
+      "dispatch_ms": 31.774959,
+      "transport_residual_ms": 2.548373980539086,
+      "api_other_ms": 32.93712507002056
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.9252499379217625,
+          "authentication_ms": 5.5005,
+          "dispatch_ms": 0.581417,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 76.17279188707471,
+          "authentication_ms": 5.19625,
+          "dispatch_ms": 70.019292,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4b0ef2454b61bc9c",
+          "ms": 7.206582929939032,
+          "authentication_ms": 5.640042,
+          "dispatch_ms": 0.633,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.1139987725764513,
+      "dating_ms": 10.04116702824831,
+      "api_dispatch_ms": 110.94649997539818,
+      "http_ms": 111.89029086381197,
+      "backend_http_ms": 90.3046247549355,
+      "authentication_ms": 16.336792,
+      "dispatch_ms": 71.23370899999999,
+      "transport_residual_ms": 2.73412375493551,
+      "api_other_ms": 20.64187522046268
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.761666154488921,
+          "authentication_ms": 5.453125,
+          "dispatch_ms": 0.541958,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 59.329000068828464,
+          "authentication_ms": 5.533583,
+          "dispatch_ms": 52.248167,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.016957754269242287,
+      "api_dispatch_ms": 81.59379102289677,
+      "http_ms": 82.36341597512364,
+      "backend_http_ms": 66.09066622331738,
+      "authentication_ms": 10.986708,
+      "dispatch_ms": 52.790125,
+      "transport_residual_ms": 2.3138332233173813,
+      "api_other_ms": 15.503124799579382
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.872457917779684,
+          "authentication_ms": 5.432916,
+          "dispatch_ms": 0.592959,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 125.8510418701917,
+          "authentication_ms": 5.309916,
+          "dispatch_ms": 119.554792,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "87277cb30e99adee",
+          "ms": 7.227333029732108,
+          "authentication_ms": 5.636167,
+          "dispatch_ms": 0.645042,
+          "bytes": 41
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 6.823915988206863,
+          "authentication_ms": 5.563792,
+          "dispatch_ms": 0.48825,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 7.79845891520381,
+          "authentication_ms": 6.347125,
+          "dispatch_ms": 0.505,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 6.972708040848374,
+          "authentication_ms": 5.451208,
+          "dispatch_ms": 0.653459,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 68.00249987281859,
+          "authentication_ms": 5.707292,
+          "dispatch_ms": 60.629792,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 29.199793003499508,
+      "construct_ms": 17.311166040599346,
+      "dating_ms": 195.07141690701246,
+      "api_dispatch_ms": 349.75179214961827,
+      "http_ms": 350.79383314587176,
+      "backend_http_ms": 229.54841563478112,
+      "authentication_ms": 39.448416,
+      "dispatch_ms": 183.069294,
+      "transport_residual_ms": 7.0307056347811,
+      "api_other_ms": 120.20337651483715
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.531999843195081,
+          "authentication_ms": 5.834,
+          "dispatch_ms": 0.686083,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 117.8732078988105,
+          "authentication_ms": 5.558417,
+          "dispatch_ms": 111.259125,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.01845788210630417,
+      "api_dispatch_ms": 145.30287496745586,
+      "http_ms": 146.324000088498,
+      "backend_http_ms": 125.40520774200559,
+      "authentication_ms": 11.392417,
+      "dispatch_ms": 111.945208,
+      "transport_residual_ms": 2.067582742005598,
+      "api_other_ms": 19.897667225450277
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.978707853704691,
+          "authentication_ms": 5.914833,
+          "dispatch_ms": 0.086917,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.251707836985588,
+          "authentication_ms": 5.649833,
+          "dispatch_ms": 0.678542,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 53.06891701184213,
+          "authentication_ms": 5.653459,
+          "dispatch_ms": 46.437834,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "57694316c5cb4fa1",
+          "ms": 7.52420793287456,
+          "authentication_ms": 5.886292,
+          "dispatch_ms": 0.659958,
+          "bytes": 42
+        }
+      ],
+      "decode_ms": 0.027708010748028755,
+      "dating_ms": 10.325292125344276,
+      "api_dispatch_ms": 111.89216701313853,
+      "http_ms": 112.87720897234976,
+      "backend_http_ms": 74.82354063540697,
+      "authentication_ms": 23.104416999999998,
+      "dispatch_ms": 47.863251000000005,
+      "transport_residual_ms": 3.8558726354069677,
+      "api_other_ms": 37.06862637773156
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "plan": "optimized",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.649875013157725,
+          "authentication_ms": 6.040292,
+          "dispatch_ms": 0.066875,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.269625086337328,
+          "authentication_ms": 5.403125,
+          "dispatch_ms": 0.667917,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 37.641708040609956,
+          "authentication_ms": 5.50675,
+          "dispatch_ms": 31.152875,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.023000873625278473,
+      "api_dispatch_ms": 85.97050001844764,
+      "http_ms": 86.7599998600781,
+      "backend_http_ms": 52.56120814010501,
+      "authentication_ms": 16.950167,
+      "dispatch_ms": 31.887667,
+      "transport_residual_ms": 3.7233741401050082,
+      "api_other_ms": 33.40929187834263
+    },
+    {
+      "case": "metadata",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.97625002451241,
+          "authentication_ms": 6.278417,
+          "dispatch_ms": 0.675583,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "4ca45b92d6f2878b",
+          "ms": 80.16937505453825,
+          "authentication_ms": 6.071417,
+          "dispatch_ms": 72.860583,
+          "bytes": 35789
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.704166928306222,
+          "authentication_ms": 6.067,
+          "dispatch_ms": 0.601375,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 9.287707973271608,
+          "authentication_ms": 7.475084,
+          "dispatch_ms": 0.510166,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.13670814223587513,
+      "dating_ms": 60.29054196551442,
+      "api_dispatch_ms": 197.28154106996953,
+      "http_ms": 198.28879204578698,
+      "backend_http_ms": 105.13749998062849,
+      "authentication_ms": 25.891918,
+      "dispatch_ms": 74.64770700000001,
+      "transport_residual_ms": 4.597874980628475,
+      "api_other_ms": 92.14404108934104
+    },
+    {
+      "case": "count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.863417034968734,
+          "authentication_ms": 6.187,
+          "dispatch_ms": 0.659375,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "9ef8dbe0e7bb39b3",
+          "ms": 62.52666679210961,
+          "authentication_ms": 5.805083,
+          "dispatch_ms": 55.70375,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.017791753634810448,
+      "api_dispatch_ms": 86.50266705080867,
+      "http_ms": 87.47208304703236,
+      "backend_http_ms": 70.39008382707834,
+      "authentication_ms": 11.992083000000001,
+      "dispatch_ms": 56.363125,
+      "transport_residual_ms": 2.034875827078345,
+      "api_other_ms": 16.112583223730326
+    },
+    {
+      "case": "dating",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.6027908362448215,
+          "authentication_ms": 5.844041,
+          "dispatch_ms": 0.668958,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "5b0ecf1927b631a7",
+          "ms": 130.0526661798358,
+          "authentication_ms": 5.898584,
+          "dispatch_ms": 122.915541,
+          "bytes": 42623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "17df8cf33f41215c",
+          "ms": 7.382708135992289,
+          "authentication_ms": 5.754291,
+          "dispatch_ms": 0.602292,
+          "bytes": 1216
+        },
+        {
+          "operation": "READ",
+          "query_hash": "8f392a3b4a870f23",
+          "ms": 8.286250056698918,
+          "authentication_ms": 6.685875,
+          "dispatch_ms": 0.516791,
+          "bytes": 93
+        },
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.914083078503609,
+          "authentication_ms": 6.088291,
+          "dispatch_ms": 0.704625,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "63821b853f0dd2b0",
+          "ms": 67.24304100498557,
+          "authentication_ms": 5.752042,
+          "dispatch_ms": 59.795209,
+          "bytes": 575509
+        }
+      ],
+      "decode_ms": 30.779457883909345,
+      "construct_ms": 16.87562488950789,
+      "dating_ms": 190.28774998150766,
+      "api_dispatch_ms": 352.05354099161923,
+      "http_ms": 353.1965420115739,
+      "backend_http_ms": 228.481539292261,
+      "authentication_ms": 36.023124,
+      "dispatch_ms": 185.203416,
+      "transport_residual_ms": 7.2549992922610045,
+      "api_other_ms": 123.57200169935822
+    },
+    {
+      "case": "dating_count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "READ",
+          "query_hash": "b592354d79d27d3d",
+          "ms": 7.339583011344075,
+          "authentication_ms": 5.692,
+          "dispatch_ms": 0.639083,
+          "bytes": 623
+        },
+        {
+          "operation": "READ",
+          "query_hash": "f7e1c271db7a9d2d",
+          "ms": 114.78574993088841,
+          "authentication_ms": 5.652334,
+          "dispatch_ms": 108.144542,
+          "bytes": 225
+        }
+      ],
+      "decode_ms": 0.01791701652109623,
+      "api_dispatch_ms": 142.44783390313387,
+      "http_ms": 143.43195804394782,
+      "backend_http_ms": 122.12533294223249,
+      "authentication_ms": 11.344334,
+      "dispatch_ms": 108.783625,
+      "transport_residual_ms": 1.9973739422324854,
+      "api_other_ms": 20.32250096090138
+    },
+    {
+      "case": "fulltext",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 7.044124882668257,
+          "authentication_ms": 6.0255,
+          "dispatch_ms": 0.072167,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.700667018070817,
+          "authentication_ms": 6.030292,
+          "dispatch_ms": 0.647667,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "ef247620ec6cdb8e",
+          "ms": 73.53058317676187,
+          "authentication_ms": 6.068041,
+          "dispatch_ms": 66.101375,
+          "bytes": 2225
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "b461ba8b49ddff4a",
+          "ms": 9.476792067289352,
+          "authentication_ms": 7.724458,
+          "dispatch_ms": 0.615916,
+          "bytes": 1216
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "d42976bb60464e01",
+          "ms": 8.536666864529252,
+          "authentication_ms": 6.906958,
+          "dispatch_ms": 0.519792,
+          "bytes": 93
+        }
+      ],
+      "decode_ms": 0.049165915697813034,
+      "dating_ms": 60.06279215216637,
+      "api_dispatch_ms": 183.76750010065734,
+      "http_ms": 184.81775000691414,
+      "backend_http_ms": 106.28883400931954,
+      "authentication_ms": 32.755249,
+      "dispatch_ms": 67.956917,
+      "transport_residual_ms": 5.5766680093195475,
+      "api_other_ms": 77.4786660913378
+    },
+    {
+      "case": "fulltext_count",
+      "phase": "timing",
+      "plan": "baseline",
+      "calls": [
+        {
+          "operation": "FULLTEXT_STATE",
+          "query_hash": "40dea133efd99ff5",
+          "ms": 6.800208007916808,
+          "authentication_ms": 5.775791,
+          "dispatch_ms": 0.073208,
+          "bytes": 1087
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "13323ac8993d18c4",
+          "ms": 7.173457881435752,
+          "authentication_ms": 5.655917,
+          "dispatch_ms": 0.628959,
+          "bytes": 623
+        },
+        {
+          "operation": "FULLTEXT_READ",
+          "query_hash": "4b9d1a9393e98a0e",
+          "ms": 38.36662485264242,
+          "authentication_ms": 5.2995,
+          "dispatch_ms": 32.050834,
+          "bytes": 223
+        }
+      ],
+      "decode_ms": 0.01816614530980587,
+      "api_dispatch_ms": 86.46437502466142,
+      "http_ms": 87.4120001681149,
+      "backend_http_ms": 52.34029074199498,
+      "authentication_ms": 16.731208,
+      "dispatch_ms": 32.753001000000005,
+      "transport_residual_ms": 2.856081741994977,
+      "api_other_ms": 34.124084282666445
+    }
+  ],
+  "profiles": {},
+  "source_before": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+  "java": {
+    "maximum_heap_mib": 8192
+  },
+  "live_model_checks": "Future/inherited declaration, inverse field and immediate removal pass",
+  "source_after": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+  "summary": {
+    "metadata": {
+      "http_ms": 119.24950056709349,
+      "api_dispatch_ms": 118.30893740989268,
+      "backend_http_ms": 96.41399886459112,
+      "authentication_ms": 18.049166999999997,
+      "dispatch_ms": 75.2277495,
+      "transport_residual_ms": 3.120373812321006,
+      "api_other_ms": 21.425812621600926,
+      "decode_ms": 0.12633355800062418,
+      "construct_ms": 0.0,
+      "dating_ms": 10.961479041725397,
+      "backend_calls": [
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    "count": {
+      "http_ms": 84.6911040134728,
+      "api_dispatch_ms": 83.84483295958489,
+      "backend_http_ms": 68.02875059656799,
+      "authentication_ms": 10.987521000000001,
+      "dispatch_ms": 54.746103999999995,
+      "transport_residual_ms": 1.9247305328931859,
+      "api_other_ms": 15.822749817743897,
+      "decode_ms": 0.016833306290209293,
+      "construct_ms": 0.0,
+      "dating_ms": 0.0,
+      "backend_calls": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "dating": {
+      "http_ms": 356.959062977694,
+      "api_dispatch_ms": 355.8957080822438,
+      "backend_http_ms": 232.93693724554032,
+      "authentication_ms": 39.915563000000006,
+      "dispatch_ms": 184.835314,
+      "transport_residual_ms": 7.32410295647054,
+      "api_other_ms": 122.89795884862542,
+      "decode_ms": 28.97083410061896,
+      "construct_ms": 17.24897895473987,
+      "dating_ms": 198.7275630235672,
+      "backend_calls": [
+        7,
+        7,
+        7,
+        7
+      ]
+    },
+    "dating_count": {
+      "http_ms": 144.75052093621343,
+      "api_dispatch_ms": 143.77254201099277,
+      "backend_http_ms": 124.24566666595638,
+      "authentication_ms": 11.461875,
+      "dispatch_ms": 110.88416699999999,
+      "transport_residual_ms": 2.1656248200939885,
+      "api_other_ms": 19.664813531562686,
+      "decode_ms": 0.017666490748524666,
+      "construct_ms": 0.0,
+      "dating_ms": 0.0,
+      "backend_calls": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "fulltext": {
+      "http_ms": 118.16849990282208,
+      "api_dispatch_ms": 117.22385347820818,
+      "backend_http_ms": 77.65958353411406,
+      "authentication_ms": 23.1918335,
+      "dispatch_ms": 50.61895750000001,
+      "transport_residual_ms": 4.0210632809029185,
+      "api_other_ms": 36.999270669184625,
+      "decode_ms": 0.027187401428818703,
+      "construct_ms": 0.0,
+      "dating_ms": 10.53089601919055,
+      "backend_calls": [
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "fulltext_count": {
+      "http_ms": 86.21799992397428,
+      "api_dispatch_ms": 85.38204152137041,
+      "backend_http_ms": 52.423750050365925,
+      "authentication_ms": 16.384479,
+      "dispatch_ms": 32.728542000000004,
+      "transport_residual_ms": 2.6109379697292994,
+      "api_other_ms": 32.914312556385994,
+      "decode_ms": 0.017229001969099045,
+      "construct_ms": 0.0,
+      "dating_ms": 0.0,
+      "backend_calls": [
+        3,
+        3,
+        3,
+        3
+      ]
+    }
+  },
+  "comparison": {
+    "metadata": {
+      "baseline": {
+        "median_ms": 157.1691039716825,
+        "samples": 4,
+        "backend_calls": [
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "optimized": {
+        "median_ms": 119.24950056709349,
+        "samples": 4,
+        "backend_calls": [
+          3,
+          3,
+          3,
+          3
+        ]
+      }
+    },
+    "count": {
+      "baseline": {
+        "median_ms": 87.50381250865757,
+        "samples": 4,
+        "backend_calls": [
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "optimized": {
+        "median_ms": 84.6911040134728,
+        "samples": 4,
+        "backend_calls": [
+          2,
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "dating": {
+      "baseline": {
+        "median_ms": 360.71268748492,
+        "samples": 4,
+        "backend_calls": [
+          6,
+          6,
+          6,
+          6
+        ]
+      },
+      "optimized": {
+        "median_ms": 356.959062977694,
+        "samples": 4,
+        "backend_calls": [
+          7,
+          7,
+          7,
+          7
+        ]
+      }
+    },
+    "dating_count": {
+      "baseline": {
+        "median_ms": 144.02935409452766,
+        "samples": 4,
+        "backend_calls": [
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "optimized": {
+        "median_ms": 144.75052093621343,
+        "samples": 4,
+        "backend_calls": [
+          2,
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "fulltext": {
+      "baseline": {
+        "median_ms": 162.08662546705455,
+        "samples": 4,
+        "backend_calls": [
+          5,
+          5,
+          5,
+          5
+        ]
+      },
+      "optimized": {
+        "median_ms": 118.16849990282208,
+        "samples": 4,
+        "backend_calls": [
+          4,
+          4,
+          4,
+          4
+        ]
+      }
+    },
+    "fulltext_count": {
+      "baseline": {
+        "median_ms": 87.53995853476226,
+        "samples": 4,
+        "backend_calls": [
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "optimized": {
+        "median_ms": 86.21799992397428,
+        "samples": 4,
+        "backend_calls": [
+          3,
+          3,
+          3,
+          3
+        ]
+      }
+    }
+  }
+}

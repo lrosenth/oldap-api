@@ -1,0 +1,472 @@
+{
+  "date": "2026-10-31",
+  "api_acceptance": {
+    "status": "passed",
+    "checks": [
+      "Regular API startup selects Jena and bootstraps namespaces",
+      "Health reports Jena without contacting GraphDB",
+      "Private identity verification requires its service credential",
+      "Refresh cookie reloads user permissions through Jena",
+      "Existing credential login issues a token accepted by the Jena service",
+      "Full Fasnacht planning does not create the project",
+      "Full Fasnacht import creates every declared resource class",
+      "fasnacht:Place uses only the canonical isPartOf field",
+      "fasnacht:CarnivalThing uses only the canonical isPartOf field",
+      "Full Fasnacht archive assignment has no inverse axiom",
+      "Full Fasnacht replay plans zero changes",
+      "Real Fasnacht export passes canonical-part preflight",
+      "Real export preserves every non-part instance triple",
+      "Real export part pairs equal the exact forward/reversed union",
+      "Real export no longer contains hasPart instance assertions",
+      "Real export conversion replay leaves all instance triples unchanged",
+      "Real export API reverse lookup matches readable children 1",
+      "Real export API reverse lookup matches readable children 2",
+      "Real export API reverse lookup matches readable children 3",
+      "Real export API reverse lookup matches readable children 4",
+      "Real export API reverse lookup matches readable children 5",
+      "Real export single-resource API exposes the canonical parent field",
+      "Real export API comparison covers nonempty readable part relationships",
+      "Part-search diagnostic variants preserve exact API response bodies"
+    ]
+  },
+  "profile": {
+    "object_cache": "disabled",
+    "same_parent": true,
+    "cases": {
+      "rehearsal/current": {
+        "ms": [
+          456.089,
+          451.879,
+          451.924
+        ],
+        "median_ms": 451.924,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.288,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.863,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 433.836,
+              "query_hash": "436e8d5db9c0",
+              "chars": 16533,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.536,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.755,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 430.299,
+              "query_hash": "436e8d5db9c0",
+              "chars": 16533,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.724,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.031,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 430.16,
+              "query_hash": "436e8d5db9c0",
+              "chars": 16533,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "rehearsal/direct_control": {
+        "ms": [
+          26.666,
+          24.222,
+          24.121
+        ],
+        "median_ms": 24.222,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 5.037,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.619,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 4.984,
+              "query_hash": "b05e6240da8a",
+              "chars": 3225,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 3.768,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.677,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 4.465,
+              "query_hash": "b05e6240da8a",
+              "chars": 3225,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.025,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.351,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 4.54,
+              "query_hash": "b05e6240da8a",
+              "chars": 3225,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "rehearsal/bound_object": {
+        "ms": [
+          60.035,
+          61.968,
+          60.271
+        ],
+        "median_ms": 60.271,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 3.829,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.632,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 40.219,
+              "query_hash": "e42df1448a8f",
+              "chars": 16756,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.015,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.492,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 41.47,
+              "query_hash": "e42df1448a8f",
+              "chars": 16756,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 3.934,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.811,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 39.788,
+              "query_hash": "e42df1448a8f",
+              "chars": 16756,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "frontend/current": {
+        "ms": [
+          946.074,
+          935.518,
+          945.527
+        ],
+        "median_ms": 945.527,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 3.998,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.541,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 922.507,
+              "query_hash": "cf5a828fd7c4",
+              "chars": 23618,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 5.031,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.126,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 909.889,
+              "query_hash": "cf5a828fd7c4",
+              "chars": 23618,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 5.419,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.374,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 917.281,
+              "query_hash": "cf5a828fd7c4",
+              "chars": 23618,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "frontend/direct_control": {
+        "ms": [
+          494.924,
+          488.193,
+          483.864
+        ],
+        "median_ms": 488.193,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.92,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.131,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 461.033,
+              "query_hash": "990104f6328f",
+              "chars": 10310,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 5.118,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.782,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 457.591,
+              "query_hash": "990104f6328f",
+              "chars": 10310,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.745,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.367,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 458.397,
+              "query_hash": "990104f6328f",
+              "chars": 10310,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "frontend/bound_object": {
+        "ms": [
+          531.502,
+          528.617,
+          529.642
+        ],
+        "median_ms": 529.642,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.541,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.823,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 505.602,
+              "query_hash": "8e58b48e02fb",
+              "chars": 23841,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.334,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.149,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 503.32,
+              "query_hash": "8e58b48e02fb",
+              "chars": 23841,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.788,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.586,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 504.654,
+              "query_hash": "8e58b48e02fb",
+              "chars": 23841,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      }
+    },
+    "note": "Query durations include transport/identity and may overlap; do not sum."
+  },
+  "limits": "Same source/model as preceding runs, sequential warm local HTTP samples, object cache disabled; no concurrent load."
+}

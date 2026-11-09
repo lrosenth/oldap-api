@@ -40,7 +40,9 @@ WORKER_ID_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 
 
 class LifecycleConnection(Protocol):
-    """Minimal active-transaction surface used by the outbox."""
+    """Read-only eligibility plus active-transaction surface used by the outbox."""
+
+    def query(self, query: str) -> Any: ...
 
     def transaction_start(self) -> None: ...
 
@@ -245,6 +247,10 @@ WHERE {{
         claimed_at = (now or datetime.now(UTC)).astimezone(UTC)
         lease_expires_at = claimed_at + timedelta(seconds=self._lease_seconds)
         claim_id = str(uuid4())
+        # A read-only empty result avoids permanent reservation/commit receipts.
+        # Never claim from these rows: another worker can win before BEGIN.
+        if not _bindings(self._connection.query(_claim_candidate_query(claimed_at))):
+            return None
         self._connection.transaction_start()
         try:
             rows = _bindings(

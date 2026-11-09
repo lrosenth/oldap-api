@@ -1,0 +1,504 @@
+{
+  "date": "2026-10-31",
+  "scope": "one representative parent, real local Fasnacht export, two children, three sequential samples per variant; no production optimization applied",
+  "http": {
+    "object_cache": "disabled",
+    "same_parent": true,
+    "cases": {
+      "rehearsal/baseline": {
+        "ms": [
+          7355.204,
+          7403.96,
+          7268.002
+        ],
+        "median_ms": 7355.204,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.523,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.055,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 7333.334,
+              "query_hash": "a75802f98eb1",
+              "chars": 9677,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 5.146,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.948,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 7379.633,
+              "query_hash": "a75802f98eb1",
+              "chars": 9677,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.353,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.117,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 7246.278,
+              "query_hash": "a75802f98eb1",
+              "chars": 9677,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "rehearsal/direct_control": {
+        "ms": [
+          6865.383,
+          7076.518,
+          6997.787
+        ],
+        "median_ms": 6997.787,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.603,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.727,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 6843.195,
+              "query_hash": "a02dc0c81751",
+              "chars": 3080,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.411,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.195,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 7054.586,
+              "query_hash": "a02dc0c81751",
+              "chars": 3080,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.43,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.764,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 6975.989,
+              "query_hash": "a02dc0c81751",
+              "chars": 3080,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "rehearsal/bound_object": {
+        "ms": [
+          6948.282,
+          6946.708,
+          6969.776
+        ],
+        "median_ms": 6948.282,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.471,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.605,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 6925.927,
+              "query_hash": "2fabea4e46e6",
+              "chars": 9900,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.509,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.695,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 6924.3,
+              "query_hash": "2fabea4e46e6",
+              "chars": 9900,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.428,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.298,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 6947.219,
+              "query_hash": "2fabea4e46e6",
+              "chars": 9900,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "frontend/baseline": {
+        "ms": [
+          3053.793,
+          3053.706,
+          3060.392
+        ],
+        "median_ms": 3053.793,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.567,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.056,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 3027.11,
+              "query_hash": "9ea885226c17",
+              "chars": 16762,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.589,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.068,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 3028.351,
+              "query_hash": "9ea885226c17",
+              "chars": 16762,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.725,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.821,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 3031.643,
+              "query_hash": "9ea885226c17",
+              "chars": 16762,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "frontend/direct_control": {
+        "ms": [
+          2643.632,
+          2680.401,
+          2668.613
+        ],
+        "median_ms": 2668.613,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.473,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.007,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 2618.345,
+              "query_hash": "631a820c2209",
+              "chars": 10165,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 5.546,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.993,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 2653.387,
+              "query_hash": "631a820c2209",
+              "chars": 10165,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.72,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.348,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 2642.893,
+              "query_hash": "631a820c2209",
+              "chars": 10165,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      },
+      "frontend/bound_object": {
+        "ms": [
+          2779.351,
+          2641.024,
+          2641.084
+        ],
+        "median_ms": 2641.084,
+        "result_count": 2,
+        "query_traces": [
+          [
+            {
+              "ms": 4.592,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.571,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 2753.856,
+              "query_hash": "810a04752736",
+              "chars": 16985,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.424,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 4.146,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 2615.596,
+              "query_hash": "810a04752736",
+              "chars": 16985,
+              "resource_search": true
+            }
+          ],
+          [
+            {
+              "ms": 4.377,
+              "query_hash": "d446aac8b33b",
+              "chars": 2258,
+              "resource_search": false
+            },
+            {
+              "ms": 3.913,
+              "query_hash": "c9d33b8516e5",
+              "chars": 1944,
+              "resource_search": false
+            },
+            {
+              "ms": 2615.787,
+              "query_hash": "810a04752736",
+              "chars": 16985,
+              "resource_search": true
+            }
+          ]
+        ],
+        "same_response": true
+      }
+    },
+    "note": "Query durations include transport/identity and may overlap; do not sum."
+  },
+  "native": {
+    "rehearsal-baseline.rq": {
+      "samples_ms": [
+        6868.170542,
+        6220.043,
+        6393.270209
+      ],
+      "result_hashes": [
+        "fdff06137cfe40704d9ed46fbc613a83e058e4da6a68106565e4ea3f92714401",
+        "fdff06137cfe40704d9ed46fbc613a83e058e4da6a68106565e4ea3f92714401",
+        "fdff06137cfe40704d9ed46fbc613a83e058e4da6a68106565e4ea3f92714401"
+      ],
+      "median_ms": 6393.270209
+    },
+    "rehearsal-candidate.rq": {
+      "samples_ms": [
+        372.778542,
+        352.416959,
+        349.176625
+      ],
+      "result_hashes": [
+        "fdff06137cfe40704d9ed46fbc613a83e058e4da6a68106565e4ea3f92714401",
+        "fdff06137cfe40704d9ed46fbc613a83e058e4da6a68106565e4ea3f92714401",
+        "fdff06137cfe40704d9ed46fbc613a83e058e4da6a68106565e4ea3f92714401"
+      ],
+      "median_ms": 352.416959
+    },
+    "frontend-baseline.rq": {
+      "samples_ms": [
+        2596.093375,
+        2714.155417,
+        2590.234792
+      ],
+      "result_hashes": [
+        "1edd5701f990a4c6fa1ac2662b90a66c47907801e4b477ce450deb261406e9f1",
+        "1edd5701f990a4c6fa1ac2662b90a66c47907801e4b477ce450deb261406e9f1",
+        "1edd5701f990a4c6fa1ac2662b90a66c47907801e4b477ce450deb261406e9f1"
+      ],
+      "median_ms": 2596.093375
+    },
+    "frontend-candidate.rq": {
+      "samples_ms": [
+        757.404875,
+        755.980458,
+        758.481334
+      ],
+      "result_hashes": [
+        "1edd5701f990a4c6fa1ac2662b90a66c47907801e4b477ce450deb261406e9f1",
+        "1edd5701f990a4c6fa1ac2662b90a66c47907801e4b477ce450deb261406e9f1",
+        "1edd5701f990a4c6fa1ac2662b90a66c47907801e4b477ce450deb261406e9f1"
+      ],
+      "median_ms": 757.404875
+    }
+  },
+  "same_native_results": true,
+  "limits": [
+    "Object cache suppressed; JVM/data caches warm across tests",
+    "Native candidate timings exclude HTTP/authentication overhead",
+    "No OR/NOT_EXISTS/multiple-filter equivalence acceptance yet",
+    "Not a load/concurrency benchmark"
+  ]
+}

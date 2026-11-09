@@ -143,6 +143,7 @@ def read_datamodel(project):
             **({"maxInclusive": dm[prop].maxInclusive.value} if dm[prop].maxInclusive is not None else {}),
             **({"lessThan": str(dm[prop].lessThan)} if dm[prop].lessThan is not None else {}),
             **({"lessThanOrEquals": str(dm[prop].lessThanOrEquals)} if dm[prop].lessThanOrEquals is not None else {}),
+            **({"inversePath": str(dm[prop].inversePath)} if dm[prop].inversePath is not None else {}),
             **({"inverseOf": str(dm[prop].inverseOf)} if dm[prop].inverseOf is not None else {}),
             **({"equivalentProperty": str(dm[prop].equivalentProperty)} if dm[prop].equivalentProperty is not None else {}),
             **({"maxCount": dm[prop].maxCount.value} if dm[prop].maxCount is not None else {}),
@@ -193,6 +194,7 @@ def read_datamodel(project):
                 **({"maxInclusive": prop.maxInclusive.value} if prop.maxInclusive is not None else {}),
                 **({"lessThan": str(prop.lessThan)} if prop.lessThan is not None else {}),
                 **({"lessThanOrEquals": str(prop.lessThanOrEquals)} if prop.lessThanOrEquals is not None else {}),
+                **({"inversePath": str(prop.inversePath)} if prop.inversePath is not None else {}),
                 **({"inverseOf": str(prop.inverseOf)} if prop.inverseOf is not None else {}),
                 **({"equivalentProperty": str(prop.equivalentProperty)} if prop.equivalentProperty is not None else {}),
                 **({"maxCount": prop.maxCount.value} if prop.maxCount is not None else {}),
@@ -399,7 +401,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     known_json_fields = {"iri", "type", "subPropertyOf", "appliesToProperty", "class", "datatype", "name",
                          "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern",
                          "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals",
-                         "inverseOf", "equivalentProperty", "maxCount", "minCount", "order", "group", "editor"}
+                         "inversePath", "inverseOf", "equivalentProperty", "maxCount", "minCount", "order", "group", "editor"}
 
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
@@ -424,6 +426,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     maxInclusive = data.get("maxInclusive", None)  # Maximaler Wert (inklusive) für einen numerischen Datentyp der Property z.B. Datum/int/float...
     lessThan = data.get("lessThan", None)  # Der (numerische) Wert muss kleiner sein als der durch die gegenebe IRI referenzierten Property z.B. Iri("myproj:deathDate")
     lessThanOrEquals = data.get("lessThanOrEquals", None)  # Der (numerische) Wert muss kleiner oder gleich sein als der durch die gegenebe IRI referenzierten Property z.B. Iri("myproj:deathDate")
+    inversePath = data.get("inversePath", None)
     inverseOf = data.get("inverseOf", None)
     equivalentProperty = data.get("equivalentProperty", None)
     maxCount = data.get("maxCount", None)
@@ -468,6 +471,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         maxInclusive=maxInclusive,
         lessThan=lessThan,
         lessThanOrEquals=lessThanOrEquals,
+        inversePath=inversePath,
         inverseOf=inverseOf,
         equivalentProperty=equivalentProperty,
         maxCount=maxCount,
@@ -485,7 +489,7 @@ def add_resource_to_datamodel(project, resource):
     known_property_fields = {"type", "iri", "subPropertyOf", "appliesToProperty", "class", "datatype", "name",
                              "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength",
                              "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
-                             "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty",
+                             "lessThan", "lessThanOrEquals", "inversePath", "inverseOf", "equivalentProperty",
                              "maxCount", "minCount", "order", "group", "editor"}
     mandatory_property_fields = {"iri"}
 
@@ -777,7 +781,7 @@ def add_standalone_property_to_datamodel(project, property):
     known_property_fields = {"type", "iri", "subPropertyOf", "appliesToProperty", "class", "datatype", "name",
                              "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength",
                              "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
-                             "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty",
+                             "lessThan", "lessThanOrEquals", "inversePath", "inverseOf", "equivalentProperty",
                              "maxCount", "minCount", "order", "group", "editor"}
     mandatory_property_fields = {'iri', 'appliesToProperty'}
 
@@ -848,7 +852,7 @@ def add_property_to_resource(project, resource, property):
     known_json_fields = {"type", "subPropertyOf", "class", "datatype", "name",
                          "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength",
                          "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
-                         "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty",
+                         "lessThan", "lessThanOrEquals", "inversePath", "inverseOf", "equivalentProperty",
                          "maxCount", "minCount", "order", "group", "editor"}
 
     if request.is_json:
@@ -1207,7 +1211,7 @@ def modify_assertion_property(project, property):
     known_json_fields = {"iri", "subPropertyOf", "type", "class", "datatype", "name", "description", "languageIn",
                          "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive",
                          "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals",
-                         "inverseOf", "equivalentProperty"}
+                         "inversePath", "inverseOf", "equivalentProperty"}
 
     con = authenticated_connection()
 
@@ -1246,7 +1250,7 @@ def modify_attribute_in_prop(project, resiri, propiri):
     known_json_fields = {"maxCount", "minCount", "order", "group", "editor","iri", "subPropertyOf", "type", "class",
                          "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength",
                          "maxLength", "pattern", "minExclusive", "minInclusive","maxExclusive", "maxInclusive",
-                         "lessThan", "lessThanOrEquals", "inverseOf", "equivalentProperty"}
+                         "lessThan", "lessThanOrEquals", "inversePath", "inverseOf", "equivalentProperty"}
 
     con = authenticated_connection()
 

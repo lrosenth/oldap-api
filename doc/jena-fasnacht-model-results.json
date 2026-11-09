@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-30",
+  "status": "passed",
+  "checks": [
+    "Regular API startup selects Jena and bootstraps namespaces",
+    "Health reports Jena without contacting GraphDB",
+    "Private identity verification requires its service credential",
+    "Refresh cookie reloads user permissions through Jena",
+    "Existing credential login issues a token accepted by the Jena service",
+    "Full Fasnacht planning does not create the project",
+    "Full Fasnacht import creates every declared resource class",
+    "fasnacht:Place uses only the canonical isPartOf field",
+    "fasnacht:CarnivalThing uses only the canonical isPartOf field",
+    "Full Fasnacht archive assignment has no inverse axiom",
+    "Full Fasnacht replay plans zero changes",
+    "Full-model reverse API lookup returns only the readable child",
+    "Full-model conversion removes legacy hasPart data"
+  ],
+  "model_counts": {
+    "classes": 16,
+    "property_declarations": 88,
+    "taxonomies": 10,
+    "external_registrations": 3
+  },
+  "planned_api_operations": 224,
+  "source_sha256": "ded3fdd560fbf70b7d81bd57123939a8871be4699f98409ef49cee29c8c1a215",
+  "taxonomy_sha256": {
+    "CreativeCommons": "0e5705cd4f79a50dd3aa69594f009b371ca7849a3e7db79a5456c4f3c9b372b0",
+    "ObjectTaxonomy": "dfec1c375fc0064874f4c3d9b9967e761fb96f144dcad01509047d45d2ff4823",
+    "LocationTaxonomy": "31167903ec55454019555ccde258f1cb067c351ea7d636077bb15c186f613ef9",
+    "StoryKeywords": "9bd6e0735d872c847821bcc2707cefe23c582443f7940c1e902abb0381082ec4",
+    "OrganisationTaxonomy": "8d870f540b4e64565a0646d902b4572ad1bed6da77ac3486691dc9251307104f",
+    "CarnivalEventTaxonomy": "53a7af2a1e8c0825bc2fc8be5572f82a5bfff47b2a1f22d585ac2194b6f904aa",
+    "CarnivalGroupingTaxonomy": "acf5014315834f487b31ab08da73e527ea556d26382c0333acb98d243fc8df0b",
+    "PublicationStatus": "8880b6942454f5a4539a35930045c232f735fd7bbdc79d55875b3d5f1ab7f752",
+    "CarnivalPracticeTaxonomy": "8fa727966ef80822af5ec64a11103c6032723f13b09d9e4785dbc4287f38a303",
+    "MediumRepresentationTaxonomy": "2a64fc7ed160882af68abe6dea724ae0b9e7d2f6d9c5cae17632e48b8a11f34a"
+  },
+  "scope": "Complete source model and taxonomies; owned synthetic instance data; fresh target",
+  "excluded": [
+    "GraphDB Lucene connectors",
+    "Jena fulltext activation",
+    "Actual source-instance transfer",
+    "In-place obsolete model cleanup",
+    "Production cache and browser acceptance"
+  ]
+}

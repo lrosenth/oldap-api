@@ -323,6 +323,20 @@ ORDER BY DESC(?created) DESC(?job)
         claimed_at: datetime,
         lease_expires_at: datetime,
     ) -> ImportJob | None:
+        """Lease eligible work atomically; an idle queue uses only a read.
+
+        Eligibility observed before BEGIN is only a hint. Recompute it inside
+        the transaction so a concurrent worker cannot cause a stale claim.
+        """
+        # Empty polling must not create a durable Jena transaction receipt.
+        # This is only a hint: selection is repeated under the writer lock below.
+        if (
+            _select_claim_candidate(
+                self._all(transactional=False), supported_tasks, claimed_at
+            )
+            is None
+        ):
+            return None
         self._connection.transaction_start()
         try:
             jobs = self._all(transactional=True)

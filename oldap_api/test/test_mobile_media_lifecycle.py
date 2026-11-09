@@ -72,6 +72,9 @@ class Connection:
         self.committed = 0
         self.aborted = 0
 
+    def query(self, query):
+        return self.query_results.pop(0)
+
     def transaction_start(self):
         self.started += 1
 
@@ -203,7 +206,7 @@ def test_contradictory_or_malformed_receipt_aborts_normalization() -> None:
 def test_claim_is_leased_transactionally_and_reclaimable_after_expiry(
     monkeypatch,
 ) -> None:
-    connection = Connection([_bindings([_claim_row()])])
+    connection = Connection([_bindings([_claim_row()]), _bindings([_claim_row()])])
     monkeypatch.setattr("oldap_api.mobile_media.lifecycle.uuid4", lambda: CLAIM)
 
     claim = GraphDbMobileMediaLifecycleOutbox(connection, lease_seconds=30).claim_next(

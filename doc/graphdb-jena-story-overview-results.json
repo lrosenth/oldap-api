@@ -1,0 +1,459 @@
+{
+  "status": "passed",
+  "samples": [
+    {
+      "backend": "graphdb",
+      "search_ms": 58.308625128120184,
+      "keywords_ms": 53.13799995929003,
+      "summaries_ms": 79.78200004436076,
+      "text_ready_ms": 58.48366697318852,
+      "media_metadata_ready_ms": 138.30366707406938,
+      "all_metadata_ready_ms": 138.36020906455815
+    },
+    {
+      "backend": "jena",
+      "search_ms": 86.66112483479083,
+      "keywords_ms": 10.191375156864524,
+      "summaries_ms": 71.32587512023747,
+      "text_ready_ms": 86.84908295981586,
+      "media_metadata_ready_ms": 158.20966684259474,
+      "all_metadata_ready_ms": 158.29220786690712
+    },
+    {
+      "backend": "jena",
+      "search_ms": 86.28241601400077,
+      "keywords_ms": 9.854374919086695,
+      "summaries_ms": 71.46975002251565,
+      "text_ready_ms": 86.45212487317622,
+      "media_metadata_ready_ms": 157.95712498947978,
+      "all_metadata_ready_ms": 158.04679202847183
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 59.38308406621218,
+      "keywords_ms": 54.43016602657735,
+      "summaries_ms": 74.94179205968976,
+      "text_ready_ms": 59.66383288614452,
+      "media_metadata_ready_ms": 134.64387482963502,
+      "all_metadata_ready_ms": 134.699665941298
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 44.37595792114735,
+      "keywords_ms": 44.59962481632829,
+      "summaries_ms": 89.596499921754,
+      "text_ready_ms": 44.55062514171004,
+      "media_metadata_ready_ms": 134.22233308665454,
+      "all_metadata_ready_ms": 134.34583297930658
+    },
+    {
+      "backend": "jena",
+      "search_ms": 90.7111659180373,
+      "keywords_ms": 14.54495801590383,
+      "summaries_ms": 70.22850005887449,
+      "text_ready_ms": 91.00412484258413,
+      "media_metadata_ready_ms": 161.26687498763204,
+      "all_metadata_ready_ms": 161.36974981054664
+    },
+    {
+      "backend": "jena",
+      "search_ms": 85.87966719642282,
+      "keywords_ms": 8.840791881084442,
+      "summaries_ms": 82.64058292843401,
+      "text_ready_ms": 86.0508328769356,
+      "media_metadata_ready_ms": 168.72525005601346,
+      "all_metadata_ready_ms": 168.82370808161795
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 56.06862506829202,
+      "keywords_ms": 53.304499946534634,
+      "summaries_ms": 77.51962495967746,
+      "text_ready_ms": 56.35758303105831,
+      "media_metadata_ready_ms": 133.91716592013836,
+      "all_metadata_ready_ms": 133.9788748882711
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 40.94383283518255,
+      "keywords_ms": 40.9175839740783,
+      "summaries_ms": 79.34895786456764,
+      "text_ready_ms": 41.114750085398555,
+      "media_metadata_ready_ms": 120.50150008872151,
+      "all_metadata_ready_ms": 120.55841693654656
+    },
+    {
+      "backend": "jena",
+      "search_ms": 88.64616602659225,
+      "keywords_ms": 14.560541836544871,
+      "summaries_ms": 69.21466696076095,
+      "text_ready_ms": 88.91958300955594,
+      "media_metadata_ready_ms": 158.1659580115229,
+      "all_metadata_ready_ms": 158.2525409758091
+    },
+    {
+      "backend": "jena",
+      "search_ms": 84.54291592352092,
+      "keywords_ms": 11.922457953915,
+      "summaries_ms": 68.61624983139336,
+      "text_ready_ms": 84.72479204647243,
+      "media_metadata_ready_ms": 153.3742919564247,
+      "all_metadata_ready_ms": 153.46758300438523
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 60.22037495858967,
+      "keywords_ms": 60.11312501505017,
+      "summaries_ms": 81.60016592592001,
+      "text_ready_ms": 60.37216610275209,
+      "media_metadata_ready_ms": 142.0053751207888,
+      "all_metadata_ready_ms": 142.06587499938905
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 43.33929205313325,
+      "keywords_ms": 38.78400009125471,
+      "summaries_ms": 82.64354197308421,
+      "text_ready_ms": 43.51137508638203,
+      "media_metadata_ready_ms": 126.22962496243417,
+      "all_metadata_ready_ms": 126.3495001476258
+    },
+    {
+      "backend": "jena",
+      "search_ms": 89.84287502244115,
+      "keywords_ms": 15.46350005082786,
+      "summaries_ms": 118.33504098467529,
+      "text_ready_ms": 90.36883316002786,
+      "media_metadata_ready_ms": 208.74083321541548,
+      "all_metadata_ready_ms": 208.86966702528298
+    },
+    {
+      "backend": "jena",
+      "search_ms": 83.82254093885422,
+      "keywords_ms": 9.931375039741397,
+      "summaries_ms": 71.2777089793235,
+      "text_ready_ms": 84.00291693396866,
+      "media_metadata_ready_ms": 155.31537495553493,
+      "all_metadata_ready_ms": 155.41887492872775
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 64.18412504717708,
+      "keywords_ms": 59.46541600860655,
+      "summaries_ms": 76.62833295762539,
+      "text_ready_ms": 64.37370809726417,
+      "media_metadata_ready_ms": 141.03941596113145,
+      "all_metadata_ready_ms": 141.09937497414649
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 38.39354193769395,
+      "keywords_ms": 38.973750080913305,
+      "summaries_ms": 84.06712487339973,
+      "text_ready_ms": 38.690792163833976,
+      "media_metadata_ready_ms": 122.81041708774865,
+      "all_metadata_ready_ms": 122.91237502358854
+    },
+    {
+      "backend": "jena",
+      "search_ms": 83.46312516368926,
+      "keywords_ms": 12.173583032563329,
+      "summaries_ms": 69.79208393022418,
+      "text_ready_ms": 83.7674590293318,
+      "media_metadata_ready_ms": 153.59249990433455,
+      "all_metadata_ready_ms": 153.6831669509411
+    },
+    {
+      "backend": "jena",
+      "search_ms": 82.46125001460314,
+      "keywords_ms": 9.35425003990531,
+      "summaries_ms": 69.2055830731988,
+      "text_ready_ms": 82.63620780780911,
+      "media_metadata_ready_ms": 151.87420789152384,
+      "all_metadata_ready_ms": 151.95708279497921
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 60.96879090182483,
+      "keywords_ms": 56.31479108706117,
+      "summaries_ms": 76.5147500205785,
+      "text_ready_ms": 61.21329194866121,
+      "media_metadata_ready_ms": 137.76462501846254,
+      "all_metadata_ready_ms": 137.81816698610783
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 37.316582864150405,
+      "keywords_ms": 35.07533296942711,
+      "summaries_ms": 75.50345780327916,
+      "text_ready_ms": 37.50420897267759,
+      "media_metadata_ready_ms": 113.08020888827741,
+      "all_metadata_ready_ms": 113.2014999166131
+    },
+    {
+      "backend": "jena",
+      "search_ms": 86.40737505629659,
+      "keywords_ms": 13.228124938905239,
+      "summaries_ms": 71.31866691634059,
+      "text_ready_ms": 86.69162495061755,
+      "media_metadata_ready_ms": 158.04341691546142,
+      "all_metadata_ready_ms": 158.13570795580745
+    },
+    {
+      "backend": "jena",
+      "search_ms": 83.18612514995039,
+      "keywords_ms": 9.896625066176057,
+      "summaries_ms": 69.79558290913701,
+      "text_ready_ms": 83.36583292111754,
+      "media_metadata_ready_ms": 153.19416602142155,
+      "all_metadata_ready_ms": 153.28270802274346
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 57.67162493430078,
+      "keywords_ms": 57.864374946802855,
+      "summaries_ms": 76.70762483030558,
+      "text_ready_ms": 57.82312504015863,
+      "media_metadata_ready_ms": 134.5672500319779,
+      "all_metadata_ready_ms": 134.62604116648436
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 35.48029204830527,
+      "keywords_ms": 33.11325004324317,
+      "summaries_ms": 74.5227918960154,
+      "text_ready_ms": 35.6543748639524,
+      "media_metadata_ready_ms": 110.23108288645744,
+      "all_metadata_ready_ms": 110.32020789571106
+    },
+    {
+      "backend": "jena",
+      "search_ms": 87.12091692723334,
+      "keywords_ms": 14.202875085175037,
+      "summaries_ms": 71.27441698685288,
+      "text_ready_ms": 87.36558305099607,
+      "media_metadata_ready_ms": 158.676166087389,
+      "all_metadata_ready_ms": 158.7700410746038
+    },
+    {
+      "backend": "jena",
+      "search_ms": 83.58383318409324,
+      "keywords_ms": 8.906165836378932,
+      "summaries_ms": 69.6906668599695,
+      "text_ready_ms": 83.78020883537829,
+      "media_metadata_ready_ms": 153.5059588495642,
+      "all_metadata_ready_ms": 153.60362501814961
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 59.664374915882945,
+      "keywords_ms": 59.9520830437541,
+      "summaries_ms": 781.4517919905484,
+      "text_ready_ms": 59.907417045906186,
+      "media_metadata_ready_ms": 841.4187079761177,
+      "all_metadata_ready_ms": 841.53504204005
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 41.15358297713101,
+      "keywords_ms": 41.7750000488013,
+      "summaries_ms": 78.12562515027821,
+      "text_ready_ms": 41.95270803757012,
+      "media_metadata_ready_ms": 120.19470799714327,
+      "all_metadata_ready_ms": 120.34237501211464
+    },
+    {
+      "backend": "jena",
+      "search_ms": 87.26275013759732,
+      "keywords_ms": 13.078541960567236,
+      "summaries_ms": 69.29908297024667,
+      "text_ready_ms": 87.55266712978482,
+      "media_metadata_ready_ms": 156.88345907256007,
+      "all_metadata_ready_ms": 156.96829208172858
+    },
+    {
+      "backend": "jena",
+      "search_ms": 81.01529208943248,
+      "keywords_ms": 8.999832905828953,
+      "summaries_ms": 67.44275009259582,
+      "text_ready_ms": 81.29050000570714,
+      "media_metadata_ready_ms": 148.76354183070362,
+      "all_metadata_ready_ms": 148.83924997411668
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 57.483334094285965,
+      "keywords_ms": 57.6820420101285,
+      "summaries_ms": 75.23183315061033,
+      "text_ready_ms": 57.63579090125859,
+      "media_metadata_ready_ms": 132.90379103273153,
+      "all_metadata_ready_ms": 132.95991602353752
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 40.613124845549464,
+      "keywords_ms": 40.61183310113847,
+      "summaries_ms": 76.19133405387402,
+      "text_ready_ms": 40.78274988569319,
+      "media_metadata_ready_ms": 117.01304093003273,
+      "all_metadata_ready_ms": 117.07766586914659
+    },
+    {
+      "backend": "jena",
+      "search_ms": 88.88287516310811,
+      "keywords_ms": 16.008625039830804,
+      "summaries_ms": 70.54779096506536,
+      "text_ready_ms": 89.26449995487928,
+      "media_metadata_ready_ms": 159.84750003553927,
+      "all_metadata_ready_ms": 159.93729094043374
+    },
+    {
+      "backend": "jena",
+      "search_ms": 79.22762492671609,
+      "keywords_ms": 8.301417110487819,
+      "summaries_ms": 69.53220791183412,
+      "text_ready_ms": 79.49187490157783,
+      "media_metadata_ready_ms": 149.0556658245623,
+      "all_metadata_ready_ms": 149.15116596966982
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 57.85154108889401,
+      "keywords_ms": 57.95312509872019,
+      "summaries_ms": 79.27791704423726,
+      "text_ready_ms": 58.120833011344075,
+      "media_metadata_ready_ms": 137.43333308957517,
+      "all_metadata_ready_ms": 137.58804113604128
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 37.24304190836847,
+      "keywords_ms": 37.66545793041587,
+      "summaries_ms": 74.68804204836488,
+      "text_ready_ms": 37.542124977335334,
+      "media_metadata_ready_ms": 112.3046251013875,
+      "all_metadata_ready_ms": 112.44891700334847
+    },
+    {
+      "backend": "jena",
+      "search_ms": 120.48300006426871,
+      "keywords_ms": 50.62729213386774,
+      "summaries_ms": 67.86033418029547,
+      "text_ready_ms": 120.77425001189113,
+      "media_metadata_ready_ms": 188.66545800119638,
+      "all_metadata_ready_ms": 188.74154100194573
+    },
+    {
+      "backend": "jena",
+      "search_ms": 81.0629588086158,
+      "keywords_ms": 9.733916958793998,
+      "summaries_ms": 68.59008315950632,
+      "text_ready_ms": 81.31620893254876,
+      "media_metadata_ready_ms": 149.93924996815622,
+      "all_metadata_ready_ms": 150.02320893108845
+    },
+    {
+      "backend": "graphdb",
+      "search_ms": 60.40887511335313,
+      "keywords_ms": 56.12600012682378,
+      "summaries_ms": 77.22683320753276,
+      "text_ready_ms": 60.681500006467104,
+      "media_metadata_ready_ms": 137.943415902555,
+      "all_metadata_ready_ms": 137.99820793792605
+    }
+  ],
+  "scope": "Compare the public story overview API dependency chain on owned Jena and GraphDB.\n\nMirrors the current FasnachtsPage unfiltered overview: concurrent story/keyword\nreads, followed by batches of lead-image summaries. Excludes login, image bytes,\nviewport capability issuance and browser rendering. Existing source is read-only.\nRun with the same CLI as probe_backend_comparison.py; output contains no bodies.\n",
+  "source_before": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+  "first_observed": [
+    {
+      "backend": "graphdb",
+      "search_ms": 44.41975010558963,
+      "keywords_ms": 44.36887498013675,
+      "summaries_ms": 85.08333307690918,
+      "text_ready_ms": 44.759250013157725,
+      "media_metadata_ready_ms": 130.12662483379245,
+      "all_metadata_ready_ms": 130.2706659771502
+    },
+    {
+      "backend": "jena",
+      "search_ms": 125.4449998959899,
+      "keywords_ms": 15.00470913015306,
+      "summaries_ms": 79.91070905700326,
+      "text_ready_ms": 125.69666700437665,
+      "media_metadata_ready_ms": 205.64312511123717,
+      "all_metadata_ready_ms": 205.75058413669467
+    }
+  ],
+  "counts": {
+    "graphdb": {
+      "stories": 28,
+      "lead_image_iris": 28,
+      "summary_batches": 1
+    },
+    "jena": {
+      "stories": 28,
+      "lead_image_iris": 28,
+      "summary_batches": 1
+    }
+  },
+  "parity": {
+    "stories": true,
+    "keywords": false,
+    "summaries": true
+  },
+  "fingerprints": {
+    "graphdb": {
+      "stories": "abf284622b976dc43bc6387f5b66367ffbde3ef675080c5614022f4628db0b6e",
+      "keywords": "d4e4f3d97d82a4e12718e13b28f2d3213b0718715156e833122334a1f3529ca8",
+      "summaries": "d66c07e3159dc401b9da1e7bc55be4508212f7986c1ec8b18ec934fb3a45048b"
+    },
+    "jena": {
+      "stories": "abf284622b976dc43bc6387f5b66367ffbde3ef675080c5614022f4628db0b6e",
+      "keywords": "3d9d2ec7cafebf5c12dce508b727e3eef9ee19b4c6cbb01f1d76c7cbc916aa42",
+      "summaries": "d66c07e3159dc401b9da1e7bc55be4508212f7986c1ec8b18ec934fb3a45048b"
+    }
+  },
+  "keyword_difference_paths": [
+    "/contributor",
+    "/created",
+    "/creator",
+    "/modified",
+    "/nodes/0/contributor",
+    "/nodes/0/created",
+    "/nodes/0/creator",
+    "/nodes/0/modified",
+    "/nodes/1/contributor",
+    "/nodes/1/created",
+    "/nodes/1/creator",
+    "/nodes/1/modified",
+    "/nodes/2/contributor",
+    "/nodes/2/created",
+    "/nodes/2/creator",
+    "/nodes/2/modified",
+    "/nodes/3/contributor",
+    "/nodes/3/created",
+    "/nodes/3/creator",
+    "/nodes/3/modified"
+  ],
+  "keyword_content_equal": true,
+  "source_after": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6",
+  "summary": {
+    "graphdb": {
+      "search_ms": 56.77597958128899,
+      "keywords_ms": 53.22124995291233,
+      "summaries_ms": 77.37322908360511,
+      "text_ready_ms": 56.99668696615845,
+      "media_metadata_ready_ms": 134.06974950339645,
+      "all_metadata_ready_ms": 134.16235393378884
+    },
+    "jena": {
+      "search_ms": 86.0810416052118,
+      "keywords_ms": 11.056916555389762,
+      "summaries_ms": 69.7938334196806,
+      "text_ready_ms": 86.25147887505591,
+      "media_metadata_ready_ms": 157.42029203101993,
+      "all_metadata_ready_ms": 157.5075420551002
+    }
+  },
+  "java_heap_mib": 8192
+}

@@ -7,6 +7,8 @@ from datetime import datetime, UTC
 
 
 def factory():
+    from oldap_api.backend import validate_backend
+    validate_backend()
     from oldap_api.frontend_links import registry
 
     registry()  # Reject invalid trusted mail destinations before serving requests.
@@ -20,6 +22,16 @@ def factory():
     # Health check
     @app.route("/health", methods=["GET"])
     def health():
+        from oldap_api.backend import backend_name
+        if backend_name() == 'jena':
+            from oldap_api.backend import create_connection
+            try:
+                create_connection().query('ASK {}')
+                state = 'reachable'
+            except Exception:
+                state = 'unreachable'
+            return jsonify(status='ok' if state == 'reachable' else 'degraded',
+                           version=f'v{__version__}', services={'jena': state}), 200
         graphdb_url = os.getenv("OLDAP_TS_SERVER", "http://localhost:7200")
 
         try:
@@ -51,6 +63,9 @@ def factory():
             200,
         )
 
+    from oldap_api.views.jena_identity_views import jena_identity_bp
+    app.register_blueprint(jena_identity_bp)
+    from oldap_api.views import fulltext_views
     from oldap_api.views import lucene_views
     from oldap_api.views import auth_views
     from oldap_api.views import user_views
@@ -66,6 +81,7 @@ def factory():
     from oldap_api.views import mobile_media_views
     from oldap_api.views import mobile_media_lifecycle_views
 
+    app.register_blueprint(fulltext_views.fulltext_bp)
     app.register_blueprint(lucene_views.lucene_bp)
     app.register_blueprint(auth_views.auth_bp)
     app.register_blueprint(auth_views.mobile_auth_bp)

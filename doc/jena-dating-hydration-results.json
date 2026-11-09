@@ -1,0 +1,378 @@
+{
+  "date": "2026-11-01",
+  "comparison": "Same owned target; previous CONSTRUCT processor snapshot versus local QName memoization; identical current SPARQL in both modes. Two repetitions per HTTP shape; no cProfile during timing.",
+  "responses_equal": true,
+  "samples": [
+    {
+      "mode": "baseline",
+      "case": "media",
+      "repeat": 0,
+      "search_queries_ms": [
+        95.14
+      ],
+      "dating_ms": 54.93,
+      "total_ms": 232.37,
+      "count": 665
+    },
+    {
+      "mode": "baseline",
+      "case": "media",
+      "repeat": 1,
+      "search_queries_ms": [
+        85.64
+      ],
+      "dating_ms": 53.33,
+      "total_ms": 240.63,
+      "count": 665
+    },
+    {
+      "mode": "baseline",
+      "case": "objects",
+      "repeat": 0,
+      "search_queries_ms": [
+        530.76
+      ],
+      "construct_queries_ms": [
+        116.11,
+        119.42,
+        146.37,
+        113.92,
+        50.79
+      ],
+      "construct_processing_ms": [
+        73.33,
+        73.31,
+        74.0,
+        74.13,
+        27.71
+      ],
+      "dating_ms": 1013.22,
+      "total_ms": 1601.46,
+      "count": 437
+    },
+    {
+      "mode": "baseline",
+      "case": "objects",
+      "repeat": 1,
+      "search_queries_ms": [
+        536.41
+      ],
+      "construct_queries_ms": [
+        111.39,
+        115.77,
+        109.99,
+        110.53,
+        47.91
+      ],
+      "construct_processing_ms": [
+        73.55,
+        72.31,
+        72.52,
+        71.76,
+        27.03
+      ],
+      "dating_ms": 994.04,
+      "total_ms": 1590.88,
+      "count": 437
+    },
+    {
+      "mode": "baseline",
+      "case": "sources",
+      "repeat": 0,
+      "search_queries_ms": [
+        64.6
+      ],
+      "dating_ms": 58.17,
+      "total_ms": 155.72,
+      "count": 422
+    },
+    {
+      "mode": "baseline",
+      "case": "sources",
+      "repeat": 1,
+      "search_queries_ms": [
+        88.68
+      ],
+      "dating_ms": 53.03,
+      "total_ms": 177.4,
+      "count": 422
+    },
+    {
+      "mode": "baseline",
+      "case": "dating",
+      "repeat": 0,
+      "search_queries_ms": [
+        660.47
+      ],
+      "construct_queries_ms": [
+        23.07
+      ],
+      "construct_processing_ms": [
+        9.33
+      ],
+      "dating_ms": 133.51,
+      "total_ms": 833.72,
+      "count": 13
+    },
+    {
+      "mode": "baseline",
+      "case": "dating",
+      "repeat": 1,
+      "search_queries_ms": [
+        658.78
+      ],
+      "construct_queries_ms": [
+        23.62
+      ],
+      "construct_processing_ms": [
+        9.35
+      ],
+      "dating_ms": 99.97,
+      "total_ms": 797.89,
+      "count": 13
+    },
+    {
+      "mode": "baseline",
+      "case": "dating_count",
+      "repeat": 0,
+      "search_queries_ms": [
+        178.09
+      ],
+      "total_ms": 200.43,
+      "count": 13
+    },
+    {
+      "mode": "baseline",
+      "case": "dating_count",
+      "repeat": 1,
+      "search_queries_ms": [
+        174.51
+      ],
+      "total_ms": 198.07,
+      "count": 13
+    },
+    {
+      "mode": "baseline",
+      "case": "dating_text",
+      "repeat": 0,
+      "search_queries_ms": [
+        41.35
+      ],
+      "construct_queries_ms": [
+        12.69
+      ],
+      "construct_processing_ms": [
+        1.46
+      ],
+      "dating_ms": 76.32,
+      "total_ms": 178.82,
+      "count": 2
+    },
+    {
+      "mode": "baseline",
+      "case": "dating_text",
+      "repeat": 1,
+      "search_queries_ms": [
+        48.57
+      ],
+      "construct_queries_ms": [
+        11.74
+      ],
+      "construct_processing_ms": [
+        1.49
+      ],
+      "dating_ms": 80.17,
+      "total_ms": 187.62,
+      "count": 2
+    },
+    {
+      "mode": "optimized",
+      "case": "media",
+      "repeat": 0,
+      "search_queries_ms": [
+        114.12
+      ],
+      "dating_ms": 53.97,
+      "total_ms": 278.36,
+      "count": 665
+    },
+    {
+      "mode": "optimized",
+      "case": "media",
+      "repeat": 1,
+      "search_queries_ms": [
+        83.41
+      ],
+      "dating_ms": 51.52,
+      "total_ms": 212.68,
+      "count": 665
+    },
+    {
+      "mode": "optimized",
+      "case": "objects",
+      "repeat": 0,
+      "search_queries_ms": [
+        525.98
+      ],
+      "construct_queries_ms": [
+        133.14,
+        116.64,
+        142.05,
+        111.38,
+        47.48
+      ],
+      "construct_processing_ms": [
+        21.22,
+        16.48,
+        17.11,
+        15.99,
+        6.36
+      ],
+      "dating_ms": 787.12,
+      "total_ms": 1368.54,
+      "count": 437
+    },
+    {
+      "mode": "optimized",
+      "case": "objects",
+      "repeat": 1,
+      "search_queries_ms": [
+        560.69
+      ],
+      "construct_queries_ms": [
+        111.37,
+        152.31,
+        109.59,
+        110.65,
+        45.91
+      ],
+      "construct_processing_ms": [
+        16.81,
+        16.61,
+        16.33,
+        16.01,
+        6.72
+      ],
+      "dating_ms": 742.61,
+      "total_ms": 1360.62,
+      "count": 437
+    },
+    {
+      "mode": "optimized",
+      "case": "sources",
+      "repeat": 0,
+      "search_queries_ms": [
+        63.76
+      ],
+      "dating_ms": 51.94,
+      "total_ms": 146.59,
+      "count": 422
+    },
+    {
+      "mode": "optimized",
+      "case": "sources",
+      "repeat": 1,
+      "search_queries_ms": [
+        63.54
+      ],
+      "dating_ms": 51.14,
+      "total_ms": 146.56,
+      "count": 422
+    },
+    {
+      "mode": "optimized",
+      "case": "dating",
+      "repeat": 0,
+      "search_queries_ms": [
+        672.24
+      ],
+      "construct_queries_ms": [
+        23.46
+      ],
+      "construct_processing_ms": [
+        2.21
+      ],
+      "dating_ms": 93.21,
+      "total_ms": 854.5,
+      "count": 13
+    },
+    {
+      "mode": "optimized",
+      "case": "dating",
+      "repeat": 1,
+      "search_queries_ms": [
+        647.12
+      ],
+      "construct_queries_ms": [
+        22.53
+      ],
+      "construct_processing_ms": [
+        2.17
+      ],
+      "dating_ms": 91.23,
+      "total_ms": 777.02,
+      "count": 13
+    },
+    {
+      "mode": "optimized",
+      "case": "dating_count",
+      "repeat": 0,
+      "search_queries_ms": [
+        174.16
+      ],
+      "total_ms": 195.8,
+      "count": 13
+    },
+    {
+      "mode": "optimized",
+      "case": "dating_count",
+      "repeat": 1,
+      "search_queries_ms": [
+        174.34
+      ],
+      "total_ms": 196.99,
+      "count": 13
+    },
+    {
+      "mode": "optimized",
+      "case": "dating_text",
+      "repeat": 0,
+      "search_queries_ms": [
+        43.21
+      ],
+      "construct_queries_ms": [
+        12.38
+      ],
+      "construct_processing_ms": [
+        0.5
+      ],
+      "dating_ms": 79.19,
+      "total_ms": 184.42,
+      "count": 2
+    },
+    {
+      "mode": "optimized",
+      "case": "dating_text",
+      "repeat": 1,
+      "search_queries_ms": [
+        42.02
+      ],
+      "construct_queries_ms": [
+        46.06
+      ],
+      "construct_processing_ms": [
+        0.48
+      ],
+      "dating_ms": 112.5,
+      "total_ms": 216.27,
+      "count": 2
+    }
+  ],
+  "native_checks": 188,
+  "native_status": "passed",
+  "fulltext_api_checks": 30,
+  "export_api_checks": 23,
+  "export_status": "passed",
+  "offline_tests": 49,
+  "source_sha256": "237fcf17a601db3ff25a784d9166bbfe6f94003069025ab0bd0f81978ead80d6"
+}

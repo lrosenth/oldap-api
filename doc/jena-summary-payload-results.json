@@ -1,0 +1,332 @@
+{
+  "runs": [
+    {
+      "run": "summary-role-api-01",
+      "status": "passed",
+      "responses": 60,
+      "source_unchanged": true,
+      "comparison": {
+        "metadata": {
+          "baseline": {
+            "median_ms": 81.91670791711658,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          },
+          "optimized": {
+            "median_ms": 80.21141646895558,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          }
+        },
+        "count": {
+          "baseline": {
+            "median_ms": 61.76956242416054,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          },
+          "optimized": {
+            "median_ms": 60.37889595609158,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "dating": {
+          "baseline": {
+            "median_ms": 305.716437404044,
+            "samples": 4,
+            "backend_calls": [
+              7,
+              7,
+              7,
+              7
+            ]
+          },
+          "optimized": {
+            "median_ms": 230.9115625685081,
+            "samples": 4,
+            "backend_calls": [
+              7,
+              7,
+              7,
+              7
+            ]
+          }
+        },
+        "dating_count": {
+          "baseline": {
+            "median_ms": 110.49979156814516,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          },
+          "optimized": {
+            "median_ms": 108.88006235472858,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "fulltext": {
+          "baseline": {
+            "median_ms": 57.7932083979249,
+            "samples": 4,
+            "backend_calls": [
+              4,
+              4,
+              4,
+              4
+            ]
+          },
+          "optimized": {
+            "median_ms": 58.74325043987483,
+            "samples": 4,
+            "backend_calls": [
+              4,
+              4,
+              4,
+              4
+            ]
+          }
+        },
+        "fulltext_count": {
+          "baseline": {
+            "median_ms": 41.28131258767098,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          },
+          "optimized": {
+            "median_ms": 39.752687443979084,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          }
+        }
+      },
+      "dating_spans": {
+        "baseline": {
+          "decode_ms": 28.59658212400973,
+          "construct_ms": 16.90331264398992,
+          "dispatch_ms": 179.4710205,
+          "api_other_ms": 110.85283395368606,
+          "largest_response_bytes": 575509.0
+        },
+        "optimized": {
+          "decode_ms": 12.743354658596218,
+          "construct_ms": 9.525375091470778,
+          "dispatch_ms": 154.8056245,
+          "api_other_ms": 62.68202140927315,
+          "largest_response_bytes": 195509.0
+        }
+      }
+    },
+    {
+      "run": "summary-role-api-02",
+      "status": "passed",
+      "responses": 60,
+      "source_unchanged": true,
+      "comparison": {
+        "metadata": {
+          "baseline": {
+            "median_ms": 84.55893758218735,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          },
+          "optimized": {
+            "median_ms": 84.23016662709415,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          }
+        },
+        "count": {
+          "baseline": {
+            "median_ms": 60.351708554662764,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          },
+          "optimized": {
+            "median_ms": 61.11218745354563,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "dating": {
+          "baseline": {
+            "median_ms": 319.88587498199195,
+            "samples": 4,
+            "backend_calls": [
+              7,
+              7,
+              7,
+              7
+            ]
+          },
+          "optimized": {
+            "median_ms": 240.89222948532552,
+            "samples": 4,
+            "backend_calls": [
+              7,
+              7,
+              7,
+              7
+            ]
+          }
+        },
+        "dating_count": {
+          "baseline": {
+            "median_ms": 111.84239550493658,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          },
+          "optimized": {
+            "median_ms": 111.26468703150749,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "fulltext": {
+          "baseline": {
+            "median_ms": 61.414395458996296,
+            "samples": 4,
+            "backend_calls": [
+              4,
+              4,
+              4,
+              4
+            ]
+          },
+          "optimized": {
+            "median_ms": 61.17631308734417,
+            "samples": 4,
+            "backend_calls": [
+              4,
+              4,
+              4,
+              4
+            ]
+          }
+        },
+        "fulltext_count": {
+          "baseline": {
+            "median_ms": 43.33635454531759,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          },
+          "optimized": {
+            "median_ms": 41.173312929458916,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          }
+        }
+      },
+      "dating_spans": {
+        "baseline": {
+          "decode_ms": 29.44714587647468,
+          "construct_ms": 17.149854567833245,
+          "dispatch_ms": 186.049355,
+          "api_other_ms": 115.37716584280133,
+          "largest_response_bytes": 575509.0
+        },
+        "optimized": {
+          "decode_ms": 12.634498998522758,
+          "construct_ms": 9.657958522439003,
+          "dispatch_ms": 161.660877,
+          "api_other_ms": 63.954917481169105,
+          "largest_response_bytes": 195509.0
+        }
+      }
+    }
+  ],
+  "native_checks": 209,
+  "focused_tests": 29,
+  "graph_triples": {
+    "baseline": 4799,
+    "optimized": 1799
+  },
+  "growth_last_three_median_ms": {
+    "baseline": 47.599875,
+    "optimized": 39.198583
+  },
+  "exploratory_decode_ms": {
+    "json-ld": 25.45,
+    "nt": 26.65,
+    "turtle": 35.27,
+    "xml": 52.37
+  }
+}

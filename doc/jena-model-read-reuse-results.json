@@ -1,0 +1,287 @@
+{
+  "runs": [
+    {
+      "run": "model-scope-api-01",
+      "status": "passed",
+      "responses": 60,
+      "source_unchanged": true,
+      "comparison": {
+        "metadata": {
+          "baseline": {
+            "median_ms": 83.95116694737226,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          },
+          "optimized": {
+            "median_ms": 83.60866701696068,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          }
+        },
+        "count": {
+          "baseline": {
+            "median_ms": 61.680917046032846,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          },
+          "optimized": {
+            "median_ms": 61.86047906521708,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "dating": {
+          "baseline": {
+            "median_ms": 322.32660439331084,
+            "samples": 4,
+            "backend_calls": [
+              7,
+              7,
+              7,
+              7
+            ]
+          },
+          "optimized": {
+            "median_ms": 280.511291581206,
+            "samples": 4,
+            "backend_calls": [
+              7,
+              7,
+              7,
+              7
+            ]
+          }
+        },
+        "dating_count": {
+          "baseline": {
+            "median_ms": 114.2638330347836,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          },
+          "optimized": {
+            "median_ms": 113.72343741822988,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "fulltext": {
+          "baseline": {
+            "median_ms": 60.341082978993654,
+            "samples": 4,
+            "backend_calls": [
+              4,
+              4,
+              4,
+              4
+            ]
+          },
+          "optimized": {
+            "median_ms": 60.917853959836066,
+            "samples": 4,
+            "backend_calls": [
+              4,
+              4,
+              4,
+              4
+            ]
+          }
+        },
+        "fulltext_count": {
+          "baseline": {
+            "median_ms": 40.877146064303815,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          },
+          "optimized": {
+            "median_ms": 41.327208396978676,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          }
+        }
+      }
+    },
+    {
+      "run": "model-scope-api-02",
+      "status": "passed",
+      "responses": 60,
+      "source_unchanged": true,
+      "comparison": {
+        "metadata": {
+          "baseline": {
+            "median_ms": 82.75885402690619,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          },
+          "optimized": {
+            "median_ms": 81.67481201235205,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          }
+        },
+        "count": {
+          "baseline": {
+            "median_ms": 61.114959069527686,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          },
+          "optimized": {
+            "median_ms": 58.200020575895905,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "dating": {
+          "baseline": {
+            "median_ms": 299.705374520272,
+            "samples": 4,
+            "backend_calls": [
+              7,
+              7,
+              7,
+              7
+            ]
+          },
+          "optimized": {
+            "median_ms": 270.7823959644884,
+            "samples": 4,
+            "backend_calls": [
+              7,
+              7,
+              7,
+              7
+            ]
+          }
+        },
+        "dating_count": {
+          "baseline": {
+            "median_ms": 109.40785438288003,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          },
+          "optimized": {
+            "median_ms": 108.55029209051281,
+            "samples": 4,
+            "backend_calls": [
+              2,
+              2,
+              2,
+              2
+            ]
+          }
+        },
+        "fulltext": {
+          "baseline": {
+            "median_ms": 57.48481256887317,
+            "samples": 4,
+            "backend_calls": [
+              4,
+              4,
+              4,
+              4
+            ]
+          },
+          "optimized": {
+            "median_ms": 57.135958573780954,
+            "samples": 4,
+            "backend_calls": [
+              4,
+              4,
+              4,
+              4
+            ]
+          }
+        },
+        "fulltext_count": {
+          "baseline": {
+            "median_ms": 40.99972906988114,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          },
+          "optimized": {
+            "median_ms": 41.957124951295555,
+            "samples": 4,
+            "backend_calls": [
+              3,
+              3,
+              3,
+              3
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "native_checks": 208,
+  "library_tests": 32,
+  "api_tests": 6
+}
