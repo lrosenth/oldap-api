@@ -1,6 +1,6 @@
 .PHONY: help repo-init repo-minimal-data init-multiarch test run restart services-stop services-start services-status run-prod check-local-env \
 bump-patch-level bump-minor-level bump-major-level \
-docker-build docker-run docker-push
+docker-build docker-run docker-push build
 
 VERSION = $(shell git describe --tags --abbrev=0)
 UNAME_S := $(shell uname -s)
@@ -25,9 +25,13 @@ help:
 	@echo "  bump-patch-level  Increase version number, patch level"
 	@echo "  bump-minor-lavel  Increase version number, minor level"
 	@echo "  bump-major-level  Increase version numer, major level"
+	@echo "  build             Build the Python distribution packages"
 	@echo "  docker-build      Disabled here; use the Jena candidate workflow"
 	@echo "  docker-run        Run the docker image"
 	@echo "  docker-push       Disabled here; use the Jena candidate workflow"
+
+build:
+	poetry build
 
 show-version:
 	@echo "VERSION=${VERSION}"
