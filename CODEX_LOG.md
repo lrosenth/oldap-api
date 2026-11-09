@@ -1,3 +1,9 @@
+### Update 2026-11-10 00:17
+- Decisions: Complete local API 1.0.1 images only; registry publication and deployment remain separate.
+- Implementation: Built AMD64/ARM64 from exact 1.0.1 wheels with the accepted Jena recipe/base and retained third-party constraints. Each image passes 61 tests, version/Jena import checks, UID/GID checks and pip check. Recorded image IDs and workflow in doc/performance-release-1.0.1.md; private build logs/manifests retained.
+- Open: Live-service acceptance and coordinated Docker publication/deployment.
+- Risks/Assumptions: AMD64 tests run under emulation. Focused tests do not replace end-to-end acceptance. Existing deprecation warnings remain; running services unchanged.
+
 ### Update 2026-11-10 00:12
 - Decisions: Push both mainlines and publish library 1.0.1; owner clarified API distribution should be Docker, not PyPI. API 1.0.1 upload had already completed before clarification; do not repeat for future releases.
 - Implementation: make build/publish completed for both packages; library wheel matches the previously locked SHA-256. Targeted poetry update oldaplib adds the published sdist hash only (no third-party lock version changes); local API venv synchronized to the existing lock. Added API make build; removed the newly added publish target following clarification. 61 installed-library tests pass, using copied tests because wheel intentionally excludes oldaplib.test.
