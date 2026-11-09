@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- Final release preparation (2026-11-09): package 1.0.0; core metadata/locks move from RC to final while public API contracts remain unchanged. Final artifact acceptance/publication/deployment is coordinated by oldap-setup. Zod 3 remains an explicitly accepted temporary risk for oldap-app.
+
 - Jena mainline integration (2026-11-09): the accepted migration is integrated into `main` with its complete ancestry. Core runtime/package versions remain the tested RC versions; this Git integration does not publish final 1.0.0 packages or change deployed images. Prior primary ref is retained by `pre-jena-merge-20261109`; this tag records Git history, not the deployed GraphDB baseline. Migration branches and old GraphDB checkouts are retained. Coordinated evidence: ../oldap-setup/docs/jena-mainline-merge-20261109.md. Older pending-merge notes below are historical.
 
 - TDB growth maintenance (2026-11-07): Idle worker polling now checks eligibility with an ordinary read and repeats selection under the original transaction only when work may exist. Five empty-poll paths avoid durable Jena reservations/receipts; GraphDB benefits too. Public signatures and leases remain unchanged. See doc/idle-worker-polling.md. Locally tested; updated image/home deployment pending.
