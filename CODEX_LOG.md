@@ -1,3 +1,9 @@
+### Update 2026-11-10 00:22
+- Decisions: Owner-authorized Docker publication and production promotion of API/library 1.0.1; preserve existing tags, namespace and other services.
+- Implementation: Published accepted AMD64/ARM64 IDs and multiarch digest 7fed616c31b8c298d02778e807bb0713746f0f21cb722662548796d9a573070a. Scoped maintenance-locked rollout replaced API/identity only; saved Compose before-api-1.0.1-20261110T002006. Readiness/auth/media/search checks pass. Browser comparison: text 1845→1500 ms, year 1621→1324, image 1934→1478, detail 2387→2289; three repeats, equal visible content, 231 successful API responses.
+- Open: Routine observation and user acceptance; live measurements are small warm samples, not load-test guarantees.
+- Risks/Assumptions: No RDF migration, real upload or data-write test in this rollout. Rollback uses retained Compose/images; maintenance lock released. Detailed evidence retained in the 20261110-performance-1.0.1 release directory.
+
 ### Update 2026-11-10 00:17
 - Decisions: Complete local API 1.0.1 images only; registry publication and deployment remain separate.
 - Implementation: Built AMD64/ARM64 from exact 1.0.1 wheels with the accepted Jena recipe/base and retained third-party constraints. Each image passes 61 tests, version/Jena import checks, UID/GID checks and pip check. Recorded image IDs and workflow in doc/performance-release-1.0.1.md; private build logs/manifests retained.
