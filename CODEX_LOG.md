@@ -1,3 +1,9 @@
+### Update 2026-11-09 17:33
+- Decisions: Preserve complete migration history in main via a non-squashed merge; keep pre-jena-merge-20261109 at the previous remote primary tip. No final release/version change or deployment.
+- Implementation: Refreshed origin; primary has no unique commits and merge-tree exactly matches reviewed migration 776e70a1f706. Added current integration context only; runtime sources remain unchanged.
+- Open: Verify coordinated remote refs and record final merge IDs in setup/docs/jena-mainline-merge-20261109.md. Final 1.0.0 artifact publication and old checkout cleanup remain separate.
+- Risks/Assumptions: Existing deployed/candidate acceptance covers identical runtime trees; this is not a fresh full-system test. All nine checkouts were clean. Existing GraphDB checkouts and migration branches are retained.
+
 ### Update 2026-11-07 00:59
 - Decisions: Avoid empty write transactions without weakening concurrent claims or replay protection.
 - Implementation: Added read-only prechecks for import/export claims, export expiry/audit purge and mobile lifecycle claims; documented internal query protocol and race behavior. 271 import/export/mobile/idle tests pass.
