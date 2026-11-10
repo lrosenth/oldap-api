@@ -1,3 +1,9 @@
+### Update 2026-11-10 15:38
+- Decisions: Use a separate verified home snapshot for native Jena development in OLDAP; preserve GraphDB data and configuration for rollback.
+- Implementation: Backend-selected service control, private environment runner and independent identity service; ordered drain/start, durable Docker resume IDs and API-only restart. Installed loopback Jena/Redis/API LaunchAgents with fresh backend credentials and editable sibling library. Documented runtime/data provenance and rollback.
+- Open: Local upload/import and frontend acceptance; old Jena checkout archival still requires other active-path checks. Snapshot is November 8, not continuous synchronization.
+- Risks/Assumptions: 15 focused controller/restart tests pass. Actual stop/status/start and API restart succeed; anonymous/configured login and ten-row archive search pass after restart. Home/production unchanged. Existing local media retained; GraphDB disabled but not deleted.
+
 ### Update 2026-11-10 15:22
 - Decisions: Reuse the reviewed Jena image pipeline for normal OLDAP development; separate prepare/build/accept/publish from deployment and local native service installation.
 - Implementation: Restored docker-prepare, docker-build/docker-image, docker-accept and docker-push through sibling setup. API wheels remain build inputs, with no Python publication. Explicit absolute bundle paths support spaces; legacy docker-run remains labelled as such.

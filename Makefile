@@ -17,8 +17,8 @@ help:
 	@echo "  init-multiarch    Initialize multiarch for amd64/arm64"
 	@echo "  test              Run all tests locally without docker"
 	@echo "  run               Run foreground development server (not alongside launchd)"
-	@echo "  services-stop     Stop OLDAP backends, both Redis services and all of Docker Desktop"
-	@echo "  services-start    Start dependencies and restore previously running Docker containers"
+	@echo "  services-stop     Stop configured OLDAP services, Redis and Docker Desktop"
+	@echo "  services-start    Start configured backend and restore saved Docker containers"
 	@echo "  services-status   Show managed native services and Docker Desktop state"
 	@echo "  restart           Safely reload the native macOS API after Python code changes"
 	@echo "  run-prod          Run in production environment guniverse"
@@ -55,7 +55,7 @@ init-multiarch:
 	docker buildx inspect --bootstrap
 
 test:
-	OLDAP_TS_SERVER=http://localhost:7200 \
+	OLDAP_TS_SERVER="$${OLDAP_TS_SERVER:-http://localhost:7200}" \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
@@ -75,16 +75,16 @@ check-local-env:
 # Native macOS development (WR-04): use `make restart` after editing oldap-api
 # or oldaplib. The launchd API has no automatic code reloader. Do not also run
 # `make run` while that service is loaded; frontend `npm run dev` is unchanged.
-# Restart acquires the normal writer gate: active writes/recovery refuse the
-# restart. It waits for full shutdown and API readiness; GraphDB/Redis stay up.
-# Failed/uncertain service control retains the gate for operator inspection.
-# Requires the installed org.oldap.api LaunchAgent and matching LOCAL_ENV_FILE.
+# Jena restart serializes with local service control and drains/replaces only
+# the API; Jena/identity/Redis stay up. Finish imports/uploads first. Legacy
+# GraphDB restart retains its writer-gate behavior. Requires the installed
+# org.oldap.api LaunchAgent and matching LOCAL_ENV_FILE.
 restart: check-local-env
 	@poetry run python restart_api.py --environment "$(LOCAL_ENV_FILE)"
 
 # Before music: stop terminal frontends with Ctrl+C, then `make services-stop`.
 # Back to development: `make services-start`, then frontend `npm run dev` as usual.
-# Scope: API, GraphDB, writer/cache Redis, ALL running Docker containers + Desktop.
+# Scope: configured GraphDB or Jena stack, Redis, ALL running Docker containers + Desktop.
 # Native jobs stay disabled (also across login/reboot) until services-start.
 # Docker container IDs are saved privately; no volumes/images/data are deleted.
 # Finish uploads/imports/exports first. An occupied writer gate refuses shutdown;
@@ -95,7 +95,7 @@ services-stop services-start services-status: check-local-env
 
 run: check-local-env
 	set -a; . ./$(LOCAL_ENV_FILE); set +a; \
-	OLDAP_TS_SERVER=http://localhost:7200 \
+	OLDAP_TS_SERVER="$${OLDAP_TS_SERVER:-http://localhost:7200}" \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
 	OLDAP_IIIF_SERVER=http://localhost:8182 \
@@ -109,7 +109,7 @@ run-prod: check-local-env
 	# Avoid macOS objc fork() crashes in gunicorn worker startup.
 	set -a; . ./$(LOCAL_ENV_FILE); set +a; \
 	OBJC_DISABLE_INITIALIZE_FORK_SAFETY="$(OBJC_FORK_SAFETY)" \
-	OLDAP_TS_SERVER=http://localhost:7200 \
+	OLDAP_TS_SERVER="$${OLDAP_TS_SERVER:-http://localhost:7200}" \
 	OLDAP_TS_REPO=oldap \
 	OLDAP_API_PORT=8000 \
 	OLDAP_IIIF_SERVER=http://localhost:8182 \

@@ -145,6 +145,12 @@ def main() -> None:
     if sys.platform != "darwin":
         parser.exit(1, "make restart requires the native macOS launchd installation.\n")
     try:
+        if dotenv_values(args.environment).get("OLDAP_BACKEND") == "jena":
+            from development_services import control_jena
+            args.action = "restart"
+            control_jena(args)
+            print("Native Jena API restarted; database and Redis retained.")
+            return
         domain, service, url = load_runtime(args.environment)
         with Redis.from_url(
             url, decode_responses=True, socket_connect_timeout=5, socket_timeout=10

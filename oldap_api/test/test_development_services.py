@@ -123,3 +123,50 @@ def test_exact_container_restore_clears_resume_file_only_after_running(tmp_path)
         services.start_services(Mock(), state)
     assert not path.exists()
     assert run.call_args_list[2].args == ("docker", "start", "a" * 64)
+
+
+def test_jena_start_dependency_order_and_failed_resume_retention(tmp_path):
+    saved = tmp_path / 'development-state.json'
+    saved.write_text('keep')
+    with (patch.object(services, 'LOCAL', tmp_path),
+          patch.object(services, 'start_agent') as start,
+          patch.object(services, 'wait_ready'),
+          patch.object(services.Redis, 'from_url'),
+          patch.object(services, 'docker_status', return_value='running'),
+          patch.object(services, 'check_resume_containers', side_effect=services.MissingResumeContainers('missing'))):
+        with pytest.raises(services.MissingResumeContainers):
+            services.jena_start({'OLDAP_STAGING_LOCK_REDIS_URL':'redis://localhost:6381/1'},
+                                {'containers':[{'id':'a'*64}]})
+        assert [call.args[0] for call in start.call_args_list] == list(services.JENA_LABELS)
+        assert saved.exists()
+
+
+def test_jena_stop_never_closes_stores_if_backend_stop_fails():
+    with (patch.object(services, 'docker_status', return_value='stopped'),
+          patch.object(services, 'stop_agent', side_effect=[None, RuntimeError('Jena still running')]) as stop):
+        with pytest.raises(RuntimeError, match='Jena still running'):
+            services.jena_stop({'version':2,'phase':'stopping','containers':[]})
+        assert [call.args[0] for call in stop.call_args_list] == ['org.oldap.api','org.oldap.jena']
+
+
+def test_jena_stop_order_keeps_identity_alive_until_tdb_closed():
+    with (patch.object(services, 'docker_status', return_value='stopped'),
+          patch.object(services, 'stop_agent') as stop,
+          patch.object(services, 'job', return_value=None),
+          patch.object(services, 'save_state') as save):
+        services.jena_stop({'version':2,'phase':'stopping','containers':[]})
+        labels = [call.args[0] for call in stop.call_args_list]
+        assert labels.index('org.oldap.api') < labels.index('org.oldap.jena')
+        assert labels.index('org.oldap.jena') < labels.index('org.oldap.jena-identity')
+        assert labels.index('org.oldap.jena') < labels.index('org.oldap.jena-redis')
+        assert save.call_args.args[0]['phase'] == 'stopped'
+
+
+def test_jena_completed_stop_refuses_external_restart_without_overwriting_resume():
+    with (patch.object(services, 'job', return_value='externally loaded'),
+          patch.object(services, 'save_state') as save,
+          patch.object(services, 'stop_agent') as stop):
+        with pytest.raises(RuntimeError, match='externally started'):
+            services.jena_stop({'version':2,'phase':'stopped','containers':[]})
+        save.assert_not_called()
+        stop.assert_not_called()

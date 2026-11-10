@@ -1,6 +1,8 @@
 # OLDAP API Codex Context
 
-- Consolidated image commands (2026-11-10): API docker-prepare, docker-image/docker-build, docker-accept and docker-push delegate to setup’s reviewed wheel-only Jena pipeline. Explicit absolute bundle path, separate component versions with library-range checking, no implicit publication/deployment. See ../oldap-setup/docs/image-build-workflow.md. Native local Jena service setup remains pending; existing services controls still address GraphDB.
+- Native local Jena (2026-11-10): services-start/stop/status and restart now select Jena from .env.local. Loopback Jena, independent identity, API and authenticated Redis run through LaunchAgents from OLDAP; library is editable from sibling oldaplib. Separate verified home snapshot 20261108-operations-acceptance; original GraphDB retained/disabled. Real lifecycle and read/login acceptance pass. See doc/jena-local-development.md for private paths, snapshot age, commands and rollback.
+
+- Consolidated image commands (2026-11-10): API docker-prepare, docker-image/docker-build, docker-accept and docker-push delegate to setup’s reviewed wheel-only Jena pipeline. Explicit absolute bundle path, separate component versions with library-range checking, no implicit publication/deployment. See ../oldap-setup/docs/image-build-workflow.md. Native local Jena service setup is now complete as recorded above.
 
 - Production core 1.0.1 (2026-11-10): published API AMD64/ARM64 images and multiarch digest 7fed616c31b8; API and identity now run API/library 1.0.1. Only those two containers changed; database and other services retained. Functional checks and 231 browser API responses pass with equal visible content; three-repeat filter medians improve 18–24%, detail largely unchanged. Rollback and evidence: API doc/performance-production-1.0.1.md and setup docs/api-performance-1.0.1-production.md. Earlier build-only/not-deployed notes are historical.
 
