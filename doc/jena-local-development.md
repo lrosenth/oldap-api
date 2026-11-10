@@ -45,6 +45,7 @@ Environment/properties/Redis configuration files are 0600 and never committed.
 
 | Service | LaunchAgent | Loopback endpoint |
 | --- | --- | --- |
+| Official Fuseki console proxy | org.oldap.jena-console | 127.0.0.1:3030 |
 | Jena/TDB + managed Lucene | org.oldap.jena | 127.0.0.1:3031 |
 | Token identity callback | org.oldap.jena-identity | 127.0.0.1:8001 |
 | API | org.oldap.api | 127.0.0.1:8000 |
@@ -92,3 +93,57 @@ To resume editing the sibling library, run `.venv/bin/python -m pip install
 --no-deps -e ../oldaplib`, then `make restart`. Packaging/release builds continue
 using the locked/reviewed release workflow, independent of the local editable
 installation.
+
+## Official local Fuseki console
+
+Open **http://127.0.0.1:3030** (use this exact host). Username/password are the
+same operator credentials as fuseki.home.org, read from the protected
+`~/.config/oldap/home-console-test.json` during installation. No password or
+internal administrator key is committed or passed on the command line.
+
+The unmodified Apache 6.2.0 UI is served by the same native Jena JVM and dataset.
+Its optional administrator listener is bound to 127.0.0.1:8040 and requires a
+separate private header key. A native Homebrew Caddy proxy on 127.0.0.1:3030 adds
+that key after HTTP Basic authentication. Foreign Host names do not select the
+proxy; write requests require the exact local Origin. The Java service permits
+HTTP origins only with explicit `adminLoopback=true` and host 127.0.0.1. Existing
+server deployments retain their HTTPS requirement/default listener behavior.
+`/_ready` is an unauthenticated loopback-only ping, not dataset access.
+
+Queries, SPARQL updates and uploads operate directly on the local dataset; they
+bypass OLDAP model validation and resource permissions. Dataset creation/deletion,
+compaction and backups remain service/operator workflows. There is no second TDB
+process and no connection to home or production data.
+
+The optional org.oldap.jena-console LaunchAgent is included automatically once
+installed. It starts after API/Jena readiness and stops before the API/Jena.
+`make restart` still replaces only the API. Native console logs and configuration
+are in the private local-jena runtime. Caddy was installed with Homebrew, but its
+service is managed by OLDAP, not `brew services start caddy`.
+
+To reproduce installation after building and accepting a Jena distribution with
+loopback administration support:
+
+```sh
+make services-stop
+.venv/bin/python configure_local_console.py \
+  --distribution "$HOME/Library/Application Support/OLDAP/local-jena/service-console" \
+  --credentials "$HOME/.config/oldap/home-console-test.json"
+make services-start
+```
+
+The installer validates proxy syntax and JAR hash, refuses occupied native ports,
+and preserves earlier private configuration under `before-console-TIMESTAMP`.
+The installed artifact is `service-console`; original `service` is retained.
+This is a local development artifact, not a newly published 1.0.1 release.
+To roll back, stop services, remove the console LaunchAgent, restore the prior
+Jena plist/service.properties from that backup and start services. Do not restore
+or delete the dataset. The service controller then omits the absent console.
+
+Acceptance on 2026-11-10: 20 native HTTPS checks, 22 native loopback checks
+(including rejection of HTTP without loopback and of foreign HTTP origins),
+15 controller/installation tests; official UI bytes match the Apache JAR. Local
+query, native update/readback/cleanup, denied anonymous/cross-origin requests,
+loopback socket bindings and a complete Make stop/status/start cycle pass.
+Poetry's launcher was also repaired to use installed Homebrew Python 3.14.8 after
+its old interpreter path proved unavailable; application virtualenvs were retained.

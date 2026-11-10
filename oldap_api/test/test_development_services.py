@@ -137,12 +137,13 @@ def test_jena_start_dependency_order_and_failed_resume_retention(tmp_path):
         with pytest.raises(services.MissingResumeContainers):
             services.jena_start({'OLDAP_STAGING_LOCK_REDIS_URL':'redis://localhost:6381/1'},
                                 {'containers':[{'id':'a'*64}]})
-        assert [call.args[0] for call in start.call_args_list] == list(services.JENA_LABELS)
+        assert [call.args[0] for call in start.call_args_list] == list(services.jena_labels())
         assert saved.exists()
 
 
 def test_jena_stop_never_closes_stores_if_backend_stop_fails():
-    with (patch.object(services, 'docker_status', return_value='stopped'),
+    with (patch.object(services, 'jena_labels', return_value=services.JENA_LABELS),
+          patch.object(services, 'docker_status', return_value='stopped'),
           patch.object(services, 'stop_agent', side_effect=[None, RuntimeError('Jena still running')]) as stop):
         with pytest.raises(RuntimeError, match='Jena still running'):
             services.jena_stop({'version':2,'phase':'stopping','containers':[]})
@@ -170,3 +171,19 @@ def test_jena_completed_stop_refuses_external_restart_without_overwriting_resume
             services.jena_stop({'version':2,'phase':'stopped','containers':[]})
         save.assert_not_called()
         stop.assert_not_called()
+
+
+def test_optional_console_is_started_last_and_stopped_before_backend(tmp_path):
+    with patch.object(services.Path, 'home', return_value=tmp_path):
+        assert services.jena_labels() == services.JENA_LABELS
+        agents = tmp_path / 'Library/LaunchAgents'
+        agents.mkdir(parents=True)
+        (agents / (services.CONSOLE_LABEL + '.plist')).write_text('installed')
+        assert services.jena_labels()[-1] == services.CONSOLE_LABEL
+        with (patch.object(services, 'docker_status', return_value='stopped'),
+              patch.object(services, 'stop_agent') as stop,
+              patch.object(services, 'job', return_value=None),
+              patch.object(services, 'save_state')):
+            services.jena_stop({'version': 2, 'phase': 'stopping', 'containers': []})
+        assert stop.call_args_list[0].args == (services.CONSOLE_LABEL,)
+        assert stop.call_args_list[1].args == ('org.oldap.api',)

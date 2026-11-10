@@ -306,6 +306,15 @@ JENA_LABELS = (
 )
 
 
+CONSOLE_LABEL = "org.oldap.jena-console"
+
+
+def jena_labels():
+    """Include the optional local console only after its LaunchAgent is installed."""
+    console = Path.home() / "Library/LaunchAgents" / (CONSOLE_LABEL + ".plist")
+    return (*JENA_LABELS, CONSOLE_LABEL) if console.is_file() else JENA_LABELS
+
+
 def jena_runtime(environment):
     """Validate native Jena ownership before controlling installed LaunchAgents.
 
@@ -341,7 +350,7 @@ def jena_stop(state):
     drains requests, aborts any remaining transaction and closes TDB cleanly.
     """
     if state.get("phase") == "stopped":
-        if any(job(label) is not None for label in JENA_LABELS) or docker_status() != "stopped":
+        if any(job(label) is not None for label in jena_labels()) or docker_status() != "stopped":
             raise RuntimeError("Services were externally started; run services-start before stopping again")
         return
     if not state:
@@ -358,13 +367,12 @@ def jena_stop(state):
     ids = [item["id"] for item in state["containers"]]
     if ids and docker_status() == "running":
         command("docker", "stop", "--time", "120", *ids, timeout=300)
-    # API first, database before verifier, and stores last. Never force-kill TDB.
-    for label in ("org.oldap.api", "org.oldap.jena", "org.oldap.jena-identity",
-                  "org.oldap.jena-redis", "org.oldap.archive-writer", "homebrew.mxcl.redis"):
+    # Close console/API ingress first, database before verifier, and stores last. Never force-kill TDB.
+    for label in reversed(jena_labels()):
         stop_agent(label)
     if docker_status() != "stopped":
         command("docker", "desktop", "stop", "--timeout", "120", timeout=130)
-    if docker_status() != "stopped" or any(job(label) for label in JENA_LABELS):
+    if docker_status() != "stopped" or any(job(label) for label in jena_labels()):
         raise RuntimeError("Local stop not confirmed")
     state["phase"] = "stopped"
     save_state(state)
@@ -372,9 +380,11 @@ def jena_stop(state):
 
 def jena_start(settings, state):
     """Start stores, independent identity, Jena and API in dependency order."""
-    for label in JENA_LABELS:
+    for label in jena_labels():
         start_agent(label)
-        if label == "org.oldap.jena-redis":
+        if label == CONSOLE_LABEL:
+            wait_ready(lambda: requests.get("http://127.0.0.1:3030/_ready", timeout=2).status_code == 200)
+        elif label == "org.oldap.jena-redis":
             with Redis.from_url(settings["OLDAP_STAGING_LOCK_REDIS_URL"], socket_timeout=2) as client:
                 wait_ready(client.ping)
         elif label in ("org.oldap.jena-identity", "org.oldap.jena", "org.oldap.api"):
@@ -419,7 +429,7 @@ def control_jena(args):
             jena_stop(state)
         elif args.action == "start":
             jena_start(settings, state)
-        for label in JENA_LABELS:
+        for label in jena_labels():
             print(f'{label}: {"loaded" if job(label) is not None else "stopped"}')
         print("Docker Desktop:", docker_status())
         print("Frontends: use Ctrl+C / npm run dev in their terminals.")

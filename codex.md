@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- Native Fuseki console (2026-11-10): official UI at http://127.0.0.1:3030, authenticated native Caddy proxy to same-JVM loopback administration. Optional LaunchAgent participates in services-start/stop/status; API restart stays API-only. Installer, private rollback and accepted local checks are documented in doc/jena-local-development.md. Home/production unchanged.
+
 - Native local Jena (2026-11-10): services-start/stop/status and restart now select Jena from .env.local. Loopback Jena, independent identity, API and authenticated Redis run through LaunchAgents from OLDAP; library is editable from sibling oldaplib. Separate verified home snapshot 20261108-operations-acceptance; original GraphDB retained/disabled. Real lifecycle and read/login acceptance pass. See doc/jena-local-development.md for private paths, snapshot age, commands and rollback.
 
 - Consolidated image commands (2026-11-10): API docker-prepare, docker-image/docker-build, docker-accept and docker-push delegate to setup’s reviewed wheel-only Jena pipeline. Explicit absolute bundle path, separate component versions with library-range checking, no implicit publication/deployment. See ../oldap-setup/docs/image-build-workflow.md. Native local Jena service setup is now complete as recorded above.

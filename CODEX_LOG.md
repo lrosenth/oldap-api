@@ -1,3 +1,9 @@
+### Update 2026-11-10 23:04
+- Decisions: Reuse official Apache UI and the native Jena dataset; expose only authenticated loopback console, with same operator credentials as home.
+- Implementation: Added optional console lifecycle/readiness, reproducible private installer and regression tests. Installed native Caddy/config/LaunchAgent and accepted same-JVM admin build locally. Repaired stale Poetry interpreter references; existing project environments retained.
+- Open: No remote rollout or package release; wider console operations remain subject to existing service ownership constraints.
+- Risks/Assumptions: 15 controller/installer tests, native checks (20 HTTPS/22 local), UI byte equality, local query/update/readback/cleanup and real Make stop/status/start pass. Both listeners bind loopback; anonymous/foreign-origin writes denied. Direct console writes bypass API validation by design.
+
 ### Update 2026-11-10 15:38
 - Decisions: Use a separate verified home snapshot for native Jena development in OLDAP; preserve GraphDB data and configuration for rollback.
 - Implementation: Backend-selected service control, private environment runner and independent identity service; ordered drain/start, durable Docker resume IDs and API-only restart. Installed loopback Jena/Redis/API LaunchAgents with fresh backend credentials and editable sibling library. Documented runtime/data provenance and rollback.
