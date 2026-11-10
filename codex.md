@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- Consolidated image commands (2026-11-10): API docker-prepare, docker-image/docker-build, docker-accept and docker-push delegate to setup’s reviewed wheel-only Jena pipeline. Explicit absolute bundle path, separate component versions with library-range checking, no implicit publication/deployment. See ../oldap-setup/docs/image-build-workflow.md. Native local Jena service setup remains pending; existing services controls still address GraphDB.
+
 - Production core 1.0.1 (2026-11-10): published API AMD64/ARM64 images and multiarch digest 7fed616c31b8; API and identity now run API/library 1.0.1. Only those two containers changed; database and other services retained. Functional checks and 231 browser API responses pass with equal visible content; three-repeat filter medians improve 18–24%, detail largely unchanged. Rollback and evidence: API doc/performance-production-1.0.1.md and setup docs/api-performance-1.0.1-production.md. Earlier build-only/not-deployed notes are historical.
 
 - API images (2026-11-10): local v1.0.1-amd64/arm64 builds pass 61 tests each plus package/user/dependency checks. Not pushed or deployed; see doc/performance-release-1.0.1.md for exact inputs, image IDs and distribution policy.

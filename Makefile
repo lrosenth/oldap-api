@@ -26,9 +26,11 @@ help:
 	@echo "  bump-minor-lavel  Increase version number, minor level"
 	@echo "  bump-major-level  Increase version numer, major level"
 	@echo "  build             Build the Python distribution packages"
-	@echo "  docker-build      Disabled here; use the Jena candidate workflow"
-	@echo "  docker-run        Run the docker image"
-	@echo "  docker-push       Disabled here; use the Jena candidate workflow"
+	@echo "  docker-prepare    Snapshot API/library into a new IMAGE_BUNDLE"
+	@echo "  docker-accept     Test the built images against isolated Jena"
+	@echo "  docker-build      Build both architectures from IMAGE_BUNDLE (docker-image alias)"
+	@echo "  docker-run        Legacy GraphDB/latest runner; not part of Jena development"
+	@echo "  docker-push       Publish previously accepted IMAGE_BUNDLE; never rebuild"
 
 build:
 	poetry build
@@ -132,9 +134,14 @@ bump-major-level:
 	poetry run bump-my-version bump major
 	git push --follow-tags
 
-docker-build:
-	@echo "Normal release publication is disabled in this migration checkout. Use oldap-setup/scripts/jena-images.py (see its README)." >&2
-	@exit 1
+# Shared source snapshots exclude secrets; no legacy Dockerfile build or PyPI upload.
+.PHONY: docker-prepare docker-image docker-accept
+docker-prepare:
+	$(MAKE) -C ../oldap-setup image-prepare IMAGE_COMPONENT=oldap-api
+docker-build docker-image:
+	$(MAKE) -C ../oldap-setup image-build
+docker-accept:
+	$(MAKE) -C ../oldap-setup image-accept
 docker-run: check-local-env
 	docker pull lrosenth/oldap-api:latest
 	docker run --rm -it \
@@ -153,5 +160,4 @@ docker-run: check-local-env
 	lrosenth/oldap-api:latest
 
 docker-push:
-	@echo "Normal release publication is disabled in this migration checkout. Use oldap-setup/scripts/jena-images.py (see its README)." >&2
-	@exit 1
+	$(MAKE) -C ../oldap-setup image-publish

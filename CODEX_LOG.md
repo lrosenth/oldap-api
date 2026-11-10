@@ -1,3 +1,9 @@
+### Update 2026-11-10 15:22
+- Decisions: Reuse the reviewed Jena image pipeline for normal OLDAP development; separate prepare/build/accept/publish from deployment and local native service installation.
+- Implementation: Restored docker-prepare, docker-build/docker-image, docker-accept and docker-push through sibling setup. API wheels remain build inputs, with no Python publication. Explicit absolute bundle paths support spaces; legacy docker-run remains labelled as such.
+- Open: Local native Jena service configuration and data source; current services controls still target the old GraphDB installation. No publication or remote deployment requested in this step.
+- Risks/Assumptions: Candidate builds may resolve newer third-party dependencies unless IMAGE_CONSTRAINTS is supplied; never promote without image acceptance. 43 focused tests and real AMD64/ARM64 image builds plus isolated Jena transaction/persistence/network acceptance pass. See setup docs/image-build-workflow.md.
+
 ### Update 2026-11-10 00:22
 - Decisions: Owner-authorized Docker publication and production promotion of API/library 1.0.1; preserve existing tags, namespace and other services.
 - Implementation: Published accepted AMD64/ARM64 IDs and multiarch digest 7fed616c31b8c298d02778e807bb0713746f0f21cb722662548796d9a573070a. Scoped maintenance-locked rollout replaced API/identity only; saved Compose before-api-1.0.1-20261110T002006. Readiness/auth/media/search checks pass. Browser comparison: text 1845→1500 ms, year 1621→1324, image 1934→1478, detail 2387→2289; three repeats, equal visible content, 231 successful API responses.
