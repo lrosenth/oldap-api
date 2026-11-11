@@ -1,5 +1,13 @@
 # OLDAP API Codex Context
 
+- Release 1.1.0 (2026-11-11): Release the property-history read/restore endpoints with oldaplib 1.1.0. New history-aware project transfer additionally requires Jena service 1.1.0; no deployment.
+
+- Production property-history deployment (2026-11-11): Property history is now active on production as well as home: exact home-tested library/API 1.0.1+jena.rc1.f4621e4dee0b (API digest 9064a52835c3). Added 21 history-vocabulary triples to production oldap:onto under batch/recovery locks with before-graph and additive rollback. Only API/identity restarted; public health and Fasnacht HTTP checks pass. Setup releases/current.json now retains this API image; no frontend changes. Recovery/evidence: ../oldap-setup/docs/property-history-production-20261111.md. Older pending-production entries below are historical.
+
+- Home property-history deployment (2026-11-11): Property history is active on home.org: library/API 1.0.1+jena.rc1.f4621e4dee0b, immutable API digest 9064a52835c3. Added the 21 history-vocabulary triples to oldap:onto with a saved before-graph and additive rollback; no SHACL changes. Only API/identity restarted; production unchanged. Home requires the explicit setup release selection releases/home-property-history-20261111.json; stable current.json still selects the prior API. See ../oldap-setup/docs/property-history-home-20261111.md.
+
+- Property history (2026-11-11): Expose property history through two simple endpoints and reuse the complete ordinary update pipeline. Added GET /data/history/{project}/{instanceIri} and POST .../restore, strict request parsing and paging; shared manual/history mutation helper retains archive/Staging restrictions. Documentation: doc/property-history.md. 84 focused tests and 12 isolated native Jena checks pass. Local source only; coordinated release remains pending.
+
 - Native Fuseki console (2026-11-10): official UI at http://127.0.0.1:3030, authenticated native Caddy proxy to same-JVM loopback administration. Optional LaunchAgent participates in services-start/stop/status; API restart stays API-only. Installer, private rollback and accepted local checks are documented in doc/jena-local-development.md. Home/production unchanged.
 
 - Native local Jena (2026-11-10): services-start/stop/status and restart now select Jena from .env.local. Loopback Jena, independent identity, API and authenticated Redis run through LaunchAgents from OLDAP; library is editable from sibling oldaplib. Separate verified home snapshot 20261108-operations-acceptance; original GraphDB retained/disabled. Real lifecycle and read/login acceptance pass. See doc/jena-local-development.md for private paths, snapshot age, commands and rollback.

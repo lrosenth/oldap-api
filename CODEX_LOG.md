@@ -1,3 +1,27 @@
+### Update 2026-11-11 17:12
+- Decisions: Release the property-history read/restore endpoints with oldaplib 1.1.0.
+- Implementation: Synchronized API/OpenAPI versions and targeted library lock; all third-party versions retained.
+- Open: 133 focused cross-project tests pass; Docker acceptance/publication pending.
+- Risks/Assumptions: New history-aware project transfer additionally requires Jena service 1.1.0; no deployment.
+
+### Update 2026-11-11 16:07
+- Decisions: Owner-authorized production promotion of the exact home-tested image and ontology patch; Jena/Fuseki only, no additional SHACL or feature-validation campaign.
+- Implementation: Activated digest 9064a52835c3cdf4f4963a58c71c32b81ab960c2a87902a726cc2b5e08e8c5a0 (library/API 1.0.1+jena.rc1.f4621e4dee0b). Added 21 history-definition triples under installed batch/recovery locks, preserving the original ontology and additive rollback. Updated setup's current API selection and production evidence.
+- Open: Frontend admin integration remains separate. Tools/harvester library pins are unchanged; no new stable package release or Git publication requested.
+- Risks/Assumptions: Installed source hashes match home; API/Jena health and Fasnacht HTTP 200 pass. Only API/identity restarted; six other container IDs unchanged. No production business-data write tests. Compose rollback: /opt/oldap/compose/routine-update-20261111T150600672366Z; ontology recovery is documented in setup docs/property-history-production-20261111.md.
+
+### Update 2026-11-11 14:56
+- Decisions: Owner-authorized home-only deployment and OLDAP ontology addition; Jena/Fuseki only, no new SHACL validation campaign.
+- Implementation: Published/activated library/API candidate 1.0.1+jena.rc1.f4621e4dee0b (multiarch digest 9064a52835c3cdf4f4963a58c71c32b81ab960c2a87902a726cc2b5e08e8c5a0). Added 21 triples across seven history subjects; preserved existing ontology/data. Saved ontology and Compose rollback artifacts; recorded the home-only release selection.
+- Open: Frontend admin integration and any stable/production promotion remain separate. Use the explicit home release file to avoid reverting to the previous API. Tools/harvester pins retain their prior libraries.
+- Risks/Assumptions: Existing isolated image-publication gate passed on both architectures. Exact installed source hashes and public readiness pass; only API/identity container IDs changed. No home business-data writes, frontend changes or additional SHACL tests. Recovery: setup docs/property-history-home-20261111.md.
+
+### Update 2026-11-11 00:32
+- Decisions: Expose property history through two simple endpoints and reuse the complete ordinary update pipeline.
+- Implementation: Added GET /data/history/{project}/{instanceIri} and POST .../restore, strict request parsing and paging; shared manual/history update and move handlers retain archive/Staging restrictions, including hierarchy restoration through domain commands.
+- Open: Coordinated package release and deployment remain separate; implementation and local acceptance complete.
+- Risks/Assumptions: 84 focused tests pass, including executed RDF SPARQL; 12 isolated native Jena checks pass (creation, updates, undo, rollback, Dating, transforms and fulltext exclusion). Ontology/Python parsing and diff checks pass. Legacy GraphDB-dependent transform tests unavailable because localhost:7200 is stopped. Raw SPARQL bypasses automatic history.
+
 ### Update 2026-11-10 23:04
 - Decisions: Reuse official Apache UI and the native Jena dataset; expose only authenticated loopback console, with same operator credentials as home.
 - Implementation: Added optional console lifecycle/readiness, reproducible private installer and regression tests. Installed native Caddy/config/LaunchAgent and accepted same-JVM admin build locally. Repaired stale Poetry interpreter references; existing project environments retained.

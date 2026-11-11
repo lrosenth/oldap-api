@@ -34,7 +34,7 @@ from oldaplib.src.datamodel import DataModel
 from oldaplib.src.enums.datapermissions import DataPermission
 from oldaplib.src.enums.xsd_datatypes import XsdDatatypes
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorValue, OldapErrorKey, OldapErrorNoPermission, \
-    OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse, OldapErrorInconsistency
+    OldapErrorAlreadyExists, OldapErrorNotFound, OldapErrorInUse, OldapErrorInconsistency, OldapErrorUpdateFailed
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.objectfactory import CompOp, FTSearchFilter, HLSearchFilter, LogicOp, ResourceInstance, \
     ResourceInstanceFactory, ResourceReadResult, SearchFilter, SortBy, SortDir, SortKind, convert2datatype
@@ -1366,6 +1366,8 @@ def transform_instance(project, instiri):
 
     try:
         iri = Iri(instiri, validate=True)
+    except OldapErrorUpdateFailed as error:
+        return jsonify({"message": str(error)}), 409
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
     context = Context(name=con.context_name)
@@ -1425,6 +1427,8 @@ def transform_instance(project, instiri):
         return jsonify({"message": str(error)}), 403
     except OldapErrorNotFound as error:
         return jsonify({"message": str(error)}), 404
+    except OldapErrorUpdateFailed as error:
+        return jsonify({"message": str(error)}), 409
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
     except (MutationGateUnavailable, OldapErrorConfiguration) as error:
@@ -1450,6 +1454,11 @@ def move_archive_unit(project, instiri):
     if not isinstance(data, dict):
         return jsonify({"message": "Request body must be an object."}), 400
 
+    return _move_archive_unit_data(project, instiri, data)
+
+
+def _move_archive_unit_data(project, instiri, data, *, connection=None):
+    """Shared manual/history move validation and domain operation."""
     parent_property = "shared:parentArchiveUnit"
     position_property = "schema:position"
     known_fields = {parent_property, position_property}
@@ -1471,7 +1480,7 @@ def move_archive_unit(project, instiri):
         iri = Iri(instiri, validate=True)
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
-    con = authenticated_connection()
+    con = connection if connection is not None else authenticated_connection()
     context = Context(name=con.context_name)
     if not context.get(project):
         return jsonify({"message": f'Project "{project}" not found'}), 404
@@ -1489,7 +1498,7 @@ def move_archive_unit(project, instiri):
             parent_property: str(next(iter(moved_parent))) if moved_parent else None,
             position_property: int(next(iter(moved_position))) if moved_position else None,
         }), 200
-    except OldapErrorInconsistency as error:
+    except (OldapErrorInconsistency, OldapErrorUpdateFailed) as error:
         return jsonify({"message": str(error)}), 409
     except OldapErrorNoPermission as error:
         return jsonify({"message": str(error)}), 403
@@ -1522,6 +1531,11 @@ def move_staging_folder(project, instiri):
     if not isinstance(data, dict):
         return jsonify({"message": "Request body must be an object."}), 400
 
+    return _move_staging_folder_data(project, instiri, data)
+
+
+def _move_staging_folder_data(project, instiri, data, *, connection=None):
+    """Shared manual/history move validation and domain operation."""
     parent_property = "shared:inStagingFolder"
     unknown_fields = set(data) - {parent_property}
     if unknown_fields:
@@ -1538,7 +1552,7 @@ def move_staging_folder(project, instiri):
         iri = Iri(instiri, validate=True)
     except OldapErrorValue as error:
         return jsonify({"message": str(error)}), 400
-    con = authenticated_connection()
+    con = connection if connection is not None else authenticated_connection()
     context = Context(name=con.context_name)
     if not context.get(project):
         return jsonify({"message": f'Project "{project}" not found'}), 404
@@ -1563,7 +1577,7 @@ def move_staging_folder(project, instiri):
         }), 200
     except StagingStructureError as error:
         return _staging_structure_error(error)
-    except (OldapErrorAlreadyExists, OldapErrorInconsistency) as error:
+    except (OldapErrorAlreadyExists, OldapErrorInconsistency, OldapErrorUpdateFailed) as error:
         return jsonify({"message": str(error)}), 409
     except OldapErrorNoPermission as error:
         return jsonify({"message": str(error)}), 403
@@ -1595,7 +1609,12 @@ def update_instance(project, instiri):
     if not data:
         return jsonify({"message": "No data provided"}), 400
 
-    con = authenticated_connection()
+    return _update_instance_data(project, instiri, data)
+
+
+def _update_instance_data(project, instiri, data, *, connection=None):
+    """Shared manual/history update path, including archive and Staging guards."""
+    con = connection if connection is not None else authenticated_connection()
 
     try:
         iri = Iri(instiri, validate=True)
@@ -1647,7 +1666,7 @@ def update_instance(project, instiri):
         return jsonify({"message": str(error)}), 404
     except (OldapErrorValue, OldapErrorKey) as error:
         return jsonify({"message": str(error)}), 400
-    except (OldapErrorInUse, OldapErrorInconsistency) as error:
+    except (OldapErrorInUse, OldapErrorInconsistency, OldapErrorUpdateFailed) as error:
         return jsonify({"message": str(error)}), 409
     except (MutationGateUnavailable, OldapErrorConfiguration) as error:
         return jsonify({"message": str(error)}), 503
@@ -1767,3 +1786,89 @@ def delete_empty_staging_area(project, staging_area_iri):
             "stagingAreaIri": target.area,
         }
     ), 200
+
+
+@instance_bp.route('/history/<project>/<path:instiri>', methods=['GET'])
+@require_auth
+def instance_history(project, instiri):
+    """List complete historical property states for a currently readable instance."""
+    from oldaplib.src.resource_history import ResourceHistory
+    try:
+        limit = int(request.args.get('limit', '100'))
+        offset = int(request.args.get('offset', '0'))
+        history = ResourceHistory(authenticated_connection(), project)
+        entries = history.list(Iri(instiri), property_iri=request.args.get('property'),
+                               limit=limit, offset=offset)
+        return jsonify({'items': [{
+            'iri': str(entry.iri),
+            'timestamp': str(entry.timestamp),
+            'userIri': str(entry.user_iri),
+            'instanceIri': str(entry.resource_iri),
+            'propertyIri': str(entry.property_iri),
+            'values': [to_json_compatible_value(value) for value in entry.values],
+        } for entry in entries], 'limit': limit, 'offset': offset}), 200
+    except OldapErrorNoPermission as error:
+        return jsonify({'message': str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except (ValueError, OldapErrorValue) as error:
+        return jsonify({'message': str(error)}), 400
+    except OldapError as error:
+        current_app.logger.exception('instance_history failed')
+        return jsonify({'message': str(error)}), 500
+
+
+@instance_bp.route('/history/<project>/<path:instiri>/restore', methods=['POST'])
+@require_auth
+def restore_instance_history(project, instiri):
+    """Use a historical value set as input to the ordinary guarded update path."""
+    from oldaplib.src.resource_history import ResourceHistory
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict) or set(data) != {'historyIri'} or not isinstance(data['historyIri'], str):
+        return jsonify({'message': 'Expected an object containing historyIri.'}), 400
+    con = authenticated_connection()
+    try:
+        history = ResourceHistory(con, project)
+        entry = history.get(Iri(instiri), Iri(data['historyIri']))
+        property_name = str(entry.property_iri)
+        values = history.restoration_values(entry)
+        if property_name in {'shared:parentArchiveUnit', 'schema:position', 'shared:inStagingFolder'}:
+            instance = history.factory.read(Iri(instiri))
+            if resource_class_is_or_extends(type(instance), 'shared:ArchiveUnit') and property_name in {
+                'shared:parentArchiveUnit', 'schema:position'
+            }:
+                parent_property = 'shared:parentArchiveUnit'
+                parent = _single_resource_text(instance, parent_property)
+                if values and len(values) != 1:
+                    raise OldapErrorValue('A hierarchy property requires exactly one value.')
+                payload = {parent_property: parent}
+                if property_name == parent_property:
+                    payload[parent_property] = str(values[0]) if values else None
+                else:
+                    if values and (isinstance(values[0], bool) or not isinstance(values[0], (int, Xsd_integer))):
+                        raise OldapErrorValue('Archive position requires an integer value.')
+                    payload[property_name] = int(values[0]) if values else None
+                return _move_archive_unit_data(project, instiri, payload, connection=con)
+            if property_name == 'shared:inStagingFolder' and resource_class_is_or_extends(
+                type(instance), 'shared:StagingFolder'
+            ):
+                if values and len(values) != 1:
+                    raise OldapErrorValue('A hierarchy property requires exactly one value.')
+                return _move_staging_folder_data(project, instiri,
+                    {property_name: str(values[0]) if values else None}, connection=con)
+        return _update_instance_data(project, instiri, {property_name: values}, connection=con)
+    except OldapErrorNoPermission as error:
+        return jsonify({'message': str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except (OldapErrorValue, OldapErrorKey) as error:
+        return jsonify({'message': str(error)}), 400
+    except (OldapErrorInUse, OldapErrorInconsistency, OldapErrorUpdateFailed) as error:
+        return jsonify({'message': str(error)}), 409
+    except (MutationGateUnavailable, OldapErrorConfiguration) as error:
+        return jsonify({'message': str(error)}), 503
+    except ArchiveConflict as error:
+        return jsonify({'message': str(error)}), error.status
+    except OldapError as error:
+        current_app.logger.exception('restore_instance_history failed')
+        return jsonify({'message': str(error)}), 500
