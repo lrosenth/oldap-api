@@ -1,3 +1,9 @@
+### Update 2026-11-15 00:00
+- Decisions: User authorized patch release 1.2.1 and multiarch image publication, with no deployment.
+- Implementation: Bumped package metadata; require oldaplib >=1.2.1,<2.0.0 for the taxonomy/reifier model-read correction. Refresh lockfile to published 1.2.1; final images pin the library exactly.
+- Open: Consumer checks, package/image publication and installed-image acceptance.
+- Risks/Assumptions: Preserve existing/latest image tags and accepted third-party constraints; no service restart or remote deployment.
+
 ### Update 2026-11-14 19:29
 - Decisions: Completed owner-authorized coordinated 1.2.0 release and home.org rollout; production unchanged.
 - Implementation: All three main branches and v1.2.0 tags pushed; library wheel/sdist published and hash-verified. API/tools locks update only oldaplib. Published accepted AMD64/ARM64 images; installed home API/identity and tools selection. Added/read back nine ontology triples with before-graph and exact rollback.
