@@ -65,7 +65,8 @@ def test_restore_passes_typed_values_to_shared_update_path(api, monkeypatch):
     monkeypatch.setattr(views, '_update_instance_data', update)
     with app.test_request_context('/', method='POST', json={'historyIri': str(entry.iri)}):
         assert views.restore_instance_history.__wrapped__('hist', 'urn:test:one') == ('ordinary result', 200)
-    update.assert_called_once_with('hist', 'urn:test:one', {'schema:name': list(entry.values)}, connection=con)
+    update.assert_called_once_with('hist', 'urn:test:one', {'schema:name': list(entry.values)},
+                                   connection=con, annotation_restore=(entry.property_iri, ()))
 
 
 @pytest.mark.parametrize('payload', [None, [], {}, {'historyIri': 1},
@@ -97,7 +98,8 @@ def test_hierarchy_restore_uses_existing_move_commands(api, monkeypatch, resourc
     app, con, entry = api
     entry = replace(entry, property_iri=Xsd_QName(property_name), values=values)
     cls = type('Hierarchy', (), {'name': Xsd_QName(resource_class), 'superclass': {},
-                                'get': lambda *args: [Iri('urn:current:parent')]})
+                                'get': lambda *args: [Iri('urn:current:parent')],
+                                'resolved_properties': lambda self: {}})
 
     def initialize(self, *args):
         self.factory = SimpleNamespace(read=lambda iri: cls())
@@ -109,3 +111,24 @@ def test_hierarchy_restore_uses_existing_move_commands(api, monkeypatch, resourc
     with app.test_request_context('/', method='POST', json={'historyIri': str(entry.iri)}):
         assert views.restore_instance_history.__wrapped__('hist', 'urn:test:one') == ('moved', 200)
     move.assert_called_once_with('hist', 'urn:test:one', payload, connection=con)
+
+
+@pytest.mark.parametrize('existing_policy', [False, True])
+def test_annotated_hierarchy_restore_is_rejected_before_move(api, monkeypatch, existing_policy):
+    from dataclasses import replace
+    app, con, entry = api
+    entry = replace(entry, property_iri=Xsd_QName('shared:parentArchiveUnit'),
+                    values=(Iri('urn:old:parent'),), annotations=() if existing_policy else ({'iri':'urn:visit'},))
+    prop = SimpleNamespace(reifierShapes=['shared:VisitShape'], reificationRequired=None)
+    cls = type('Hierarchy', (), {'name': Xsd_QName('shared:ArchiveUnit'), 'superclass': {},
+        'resolved_properties': lambda self: {entry.property_iri: prop} if existing_policy else {}})
+    def initialize(self, *args):
+        self.factory = SimpleNamespace(read=lambda iri: cls())
+    monkeypatch.setattr(ResourceHistory, '__init__', initialize)
+    monkeypatch.setattr(ResourceHistory, 'get', Mock(return_value=entry))
+    move = Mock()
+    monkeypatch.setattr(views, '_move_archive_unit_data', move)
+    with app.test_request_context('/', method='POST', json={'historyIri':str(entry.iri)}):
+        response, status = views.restore_instance_history.__wrapped__('hist','urn:test:one')
+    assert status == 400 and 'Annotated hierarchy' in response.json['message']
+    move.assert_not_called()

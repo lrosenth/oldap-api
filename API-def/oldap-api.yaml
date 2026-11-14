@@ -10,6 +10,75 @@ servers:
 - url: http://127.0.0.1:5000
   description: local server...
 paths:
+  /admin/datamodel/{project}/reifier-shape/{shape}:
+    parameters:
+      - {name: project, in: path, required: true, schema: {type: string}}
+      - {name: shape, in: path, required: true, schema: {type: string}, description: Project-local shape QName}
+    get:
+      summary: Read a named reifier shape
+      security: [{AccessToken: []}]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReifierShape'}
+        '400': {description: Invalid or unsupported model}
+        '401': {description: Authentication required}
+        '403': {description: Model permission required}
+        '404': {description: Shape or project not found}
+        '409': {description: "Shape exists, is in use, or changed concurrently"}
+    put:
+      summary: Create a named reifier shape
+      security: [{AccessToken: []}]
+      description: Requires ADMIN_MODEL or ADMIN_OLDAP. Properties replace the full field list when supplied; omission preserves it on POST. Structural changes with existing predicate data are rejected. Instance annotation operations are documented separately under /data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ReifierShapeWrite'}
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReifierShape'}
+        '400': {description: Invalid or unsupported model}
+        '401': {description: Authentication required}
+        '403': {description: Model permission required}
+        '404': {description: Shape or project not found}
+        '409': {description: "Shape exists, is in use, or changed concurrently"}
+    post:
+      summary: Update a named reifier shape
+      security: [{AccessToken: []}]
+      description: Requires ADMIN_MODEL or ADMIN_OLDAP. Properties replace the full field list when supplied; omission preserves it on POST. Structural changes with existing predicate data are rejected. Instance annotation operations are documented separately under /data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ReifierShapeWrite'}
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReifierShape'}
+        '400': {description: Invalid or unsupported model}
+        '401': {description: Authentication required}
+        '403': {description: Model permission required}
+        '404': {description: Shape or project not found}
+        '409': {description: "Shape exists, is in use, or changed concurrently"}
+    delete:
+      summary: Delete an unreferenced reifier shape
+      security: [{AccessToken: []}]
+      responses:
+        '204':
+          description: Success
+        '400': {description: Invalid or unsupported model}
+        '401': {description: Authentication required}
+        '403': {description: Model permission required}
+        '404': {description: Shape or project not found}
+        '409': {description: "Shape exists, is in use, or changed concurrently"}
   /admin/fulltext/{project}:
     parameters:
       - name: project
@@ -1914,6 +1983,9 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/ExternalOntology'
+                  reifierShapes:
+                    type: array
+                    items: {$ref: '#/components/schemas/ReifierShape'}
                   assertionProperties:
                     type: array
                     items:
@@ -3848,6 +3920,14 @@ paths:
                   type: string
                   description: Restrict the search to the given resource class
                   pattern: ^([A-Za-z_][A-Za-z0-9:_-]*:)?[A-Za-z_][A-Za-z0-9:_-]*$
+                annotationFilter:
+                  type: array
+                  description: Conjunctive same-reifier groups. Requires resClass (or class route) and RDF 1.2. POST only.
+                  items: {$ref: '#/components/schemas/AnnotationFilter'}
+                includeAnnotations:
+                  type: boolean
+                  default: false
+                  description: Explicitly hydrate complete annotation groups on the selected page; adds reads, ignored for counts.
                 includeProperties:
                   type: array
                   items:
@@ -3937,9 +4017,13 @@ paths:
               schema:
                 oneOf:
                   - type: array
-                    description: Search result list
+                    description: Search result list; optional @annotations contains complete groups when includeAnnotations is true
                     items:
                       type: object
+                      properties:
+                        '@annotations':
+                          type: array
+                          items: {$ref: '#/components/schemas/AssertionAnnotation'}
                       additionalProperties: {}
                   - type: object
                     description: Count result
@@ -4076,6 +4160,14 @@ paths:
                   type: string
                   description: Legacy name for ftField. Expects a Lucene field name/NCName, not a QName.
                   pattern: ^[A-Za-z_][A-Za-z0-9_.-]*$
+                annotationFilter:
+                  type: array
+                  description: Conjunctive same-reifier groups. Requires resClass (or class route) and RDF 1.2. POST only.
+                  items: {$ref: '#/components/schemas/AnnotationFilter'}
+                includeAnnotations:
+                  type: boolean
+                  default: false
+                  description: Explicitly hydrate complete annotation groups on the selected page; adds reads, ignored for counts.
                 includeProperties:
                   type: array
                   items:
@@ -4165,9 +4257,13 @@ paths:
               schema:
                 oneOf:
                   - type: array
-                    description: Search result list
+                    description: Search result list; optional @annotations contains complete groups when includeAnnotations is true
                     items:
                       type: object
+                      properties:
+                        '@annotations':
+                          type: array
+                          items: {$ref: '#/components/schemas/AssertionAnnotation'}
                       additionalProperties: {}
                   - type: object
                     description: Count result
@@ -4275,6 +4371,80 @@ paths:
         "500":
           $ref: '#/components/responses/InternalServerError'
 
+  /data/annotations/{project}/{instiri}:
+    get:
+      summary: Explicitly read assertion annotations of one visible instance
+      description: >
+        Lazy opt-in expansion. Ordinary instance GET, summaries and search do not
+        load annotations. Returns independent reifier IDs and typed RDF values;
+        external, blank-node and orphan records are diagnostic/read-only.
+      security:
+        - AccessToken: []
+      parameters:
+        - {name: project, in: path, required: true, schema: {type: string}}
+        - {name: instiri, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Complete annotation groups; parent read permission required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: '#/components/schemas/AssertionAnnotation'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Unauthorized'}
+        '404': {description: Instance not found or not visible}
+
+  /data/history/{project}/{instiri}:
+    get:
+      summary: Read complete previous property states, including annotations
+      security:
+        - AccessToken: []
+      parameters:
+        - {name: project, in: path, required: true, schema: {type: string}}
+        - {name: instiri, in: path, required: true, schema: {type: string}}
+        - {name: property, in: query, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 1000, default: 100}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+      responses:
+        '200':
+          description: Previous values and optional annotations, newest first; current parent read permission required
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Unauthorized'}
+        '404': {description: Instance not found or not visible}
+
+  /data/history/{project}/{instiri}/restore:
+    post:
+      summary: Restore one complete property state using current validation and rights
+      description: >
+        Restores base values and annotation groups atomically. Changed annotation
+        groups receive fresh owned IDs; unrelated annotations are retained.
+        An identical group is a no-op. Current model constraints still apply.
+      security:
+        - AccessToken: []
+      parameters:
+        - {name: project, in: path, required: true, schema: {type: string}}
+        - {name: instiri, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [historyIri]
+              additionalProperties: false
+              properties:
+                historyIri: {type: string}
+      responses:
+        '200': {description: Previous property state restored}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Unauthorized'}
+        '404': {description: Instance or history entry not found}
+        '409': {description: "Current model, ownership or concurrent-write conflict"}
+
   /data/{project}/{resclass}:
     put:
       summary: Create a new instance of the resource class
@@ -4319,6 +4489,9 @@ paths:
                     type: string
                   iri:
                     type: string
+                  annotationIris:
+                    type: array
+                    items: {type: string}
         "400":
           $ref: '#/components/responses/BadRequest'
         "403":
@@ -6866,6 +7039,40 @@ components:
       required: true
       schema: {type: string, format: uuid}
   schemas:
+    ReifierShape:
+      type: object
+      required: [iri, properties]
+      properties:
+        iri: {type: string}
+        creator: {type: string}
+        created: {type: string, format: date-time}
+        contributor: {type: string}
+        modified: {type: string, format: date-time}
+        properties:
+          type: array
+          items:
+            allOf:
+              - {$ref: '#/components/schemas/Property'}
+              - {type: object, properties: {iri: {type: string}}}
+    ReifierShapeWrite:
+      type: object
+      additionalProperties: false
+      properties:
+        properties:
+          type: array
+          description: Complete field definitions using existing property-write keys. Nested reification and inverse paths are unsupported. Omission preserves fields on POST.
+          items:
+            type: object
+            required: [iri]
+            properties:
+              iri: {type: string}
+              datatype: {type: string}
+              class: {type: string}
+              minCount: {type: integer, minimum: 0}
+              maxCount: {type: integer, minimum: 0}
+              name: {type: array, items: {type: string}}
+              description: {type: array, items: {type: string}}
+            additionalProperties: true
     ManagedFulltextConfiguration:
       type: object
       additionalProperties: false
@@ -8791,6 +8998,104 @@ components:
           - type: boolean
           - type: "null"
 
+    AnnotationFieldFilter:
+      type: object
+      additionalProperties: false
+      required: [property, op]
+      properties:
+        property: {type: string, description: Modeled annotation field QName or IRI}
+        op: {type: string, enum: [eq, ne, lt, le, gt, ge, exists, not_exists]}
+        value: {$ref: '#/components/schemas/AnnotationInputValue'}
+      oneOf:
+        - properties:
+            op: {enum: [exists, not_exists]}
+          not: {required: [value]}
+        - required: [value]
+          properties:
+            op: {enum: [eq, ne, lt, le, gt, ge]}
+    AnnotationFilter:
+      type: object
+      additionalProperties: false
+      required: [property]
+      properties:
+        property: {type: string, description: Modeled forward base predicate}
+        value: {$ref: '#/components/schemas/AnnotationInputValue'}
+        exists:
+          type: boolean
+          default: true
+          description: False requires an asserted base value without a matching managed reifier. Missing base properties do not match.
+        fields:
+          type: array
+          description: All conditions bind the same reifier; repeated conditions on one field bind the same value.
+          items: {$ref: '#/components/schemas/AnnotationFieldFilter'}
+
+    AnnotationRdfTerm:
+      type: object
+      required: [type, value]
+      additionalProperties: false
+      properties:
+        type: {type: string, enum: [uri, literal, bnode]}
+        value: {type: string}
+        datatype: {type: string, description: 'Literal datatype IRI or QName; exclusive with xml:lang'}
+        xml:lang: {type: string}
+
+    AnnotationInputValue:
+      description: Typed RDF term, or a scalar converted using the current field model
+      oneOf:
+        - {$ref: '#/components/schemas/AnnotationRdfTerm'}
+        - {type: string}
+        - {type: number}
+        - {type: boolean}
+
+    AnnotationFields:
+      type: object
+      additionalProperties:
+        type: array
+        items: {$ref: '#/components/schemas/AnnotationInputValue'}
+
+    AnnotationAdd:
+      type: object
+      additionalProperties: false
+      required: [op, property, value, fields]
+      properties:
+        op: {type: string, enum: [add]}
+        property: {type: string}
+        value: {$ref: '#/components/schemas/AnnotationInputValue'}
+        fields: {$ref: '#/components/schemas/AnnotationFields'}
+
+    AnnotationOperation:
+      description: Explicit edits committed with the parent instance; replace supplies the complete field set
+      oneOf:
+        - {$ref: '#/components/schemas/AnnotationAdd'}
+        - type: object
+          additionalProperties: false
+          required: [op, iri, fields]
+          properties:
+            op: {type: string, enum: [replace]}
+            iri: {type: string}
+            fields: {$ref: '#/components/schemas/AnnotationFields'}
+        - type: object
+          additionalProperties: false
+          required: [op, iri]
+          properties:
+            op: {type: string, enum: [remove]}
+            iri: {type: string}
+
+    AssertionAnnotation:
+      type: object
+      required: [iri, property, value, fields, managed, asserted]
+      properties:
+        iri: {type: string, description: 'Stable reifier IRI; diagnostic blank IDs use _: prefix'}
+        property: {type: string}
+        value: {$ref: '#/components/schemas/AnnotationRdfTerm'}
+        fields:
+          type: object
+          additionalProperties:
+            type: array
+            items: {$ref: '#/components/schemas/AnnotationRdfTerm'}
+        managed: {type: boolean, description: Marker only; mutation rechecks exclusive graph ownership and permission}
+        asserted: {type: boolean}
+
     InstanceCreateData:
       description: >
         Create payload for an OLDAP resource instance. Project-specific properties
@@ -8799,6 +9104,9 @@ components:
         `oldap:attachedToRole`, mapping role IRI/QName to DataPermission.
       type: object
       properties:
+        '@annotations':
+          type: array
+          items: {$ref: '#/components/schemas/AnnotationAdd'}
         attachedToRole:
           $ref: "#/components/schemas/AttachedToRoleMap"
         "oldap:attachedToRole":
@@ -8814,6 +9122,9 @@ components:
         role-to-permission map or an `add`/`del` patch object.
       type: object
       properties:
+        '@annotations':
+          type: array
+          items: {$ref: '#/components/schemas/AnnotationOperation'}
         "oldap:attachedToRole":
           $ref: "#/components/schemas/AttachedToRoleUpdate"
       additionalProperties: true
@@ -9504,6 +9815,20 @@ components:
           not:
             required: [datatype]
       properties:
+        nodeKind:
+          type: string
+          description: Additional SHACL node kind constraint; fields still require datatype or class.
+        toClass:
+          type: string
+          description: Class constraint in model read responses; writes use class.
+        reifierShapes:
+          type: array
+          uniqueItems: true
+          items: {type: string}
+          description: Named reifier shapes constraining this property use; all apply.
+        reificationRequired:
+          type: boolean
+          description: Explicit false is preserved; omitted means no local declaration.
         creator:
           type: string
         created:

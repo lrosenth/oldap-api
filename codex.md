@@ -1,5 +1,15 @@
 # OLDAP API Codex Context
 
+- Final reification source review (2026-11-14): Two complete passes cover stages 1–4 across library/API/tools; concrete findings corrected and regression/package/performance evidence recorded in ../oldaplib/docs/reification-final-check.md. Complete owner model snapshots now cache reifier definitions without extra RDF probes; explicit policy validation remains fresh, and shape writes invalidate at outer transaction completion. Specialized annotated hierarchy restores remain unsupported. Local source only; coordinated release versions and installed/live acceptance are separate.
+
+- Reification stage 4 (2026-11-14): Explicit annotationFilter AND groups bind the same reifier and field value; includeAnnotations hydrates complete page groups only when requested. Class/model and parent/target ACL checks apply. Existing search/read queries remain identical; paired native timing resolves no slowdown. See doc/reification-search.md. All four stages accepted locally; publication/deployment remains separate.
+
+- Reification stage 3 (2026-11-14): Managed assertion annotation CRUD, parent ACLs, fresh validation, transactional cleanup and history/restore are implemented locally. Explicit annotation reads preserve ordinary read/search queries and payloads; paired native measurements resolve no slowdown. See ../oldaplib/docs/reification-stage3.md. Annotated transformations and instance-data YAML v1 remain explicitly unsupported. Stage 4 search is also accepted locally; no release/deployment.
+
+- Reification stage 2 (2026-11-14): Stage 2 YAML round trips are accepted against the actual Flask model routes and isolated native Jena. See ../oldap-tools/docs/reification-stage2.md. Instance lifecycle is now implemented in stage 3 (see above). Local `codex/reification-properties`; no release/deployment.
+
+- Reification stage 1B (2026-11-14): Model API exposes named reifier shape CRUD and property-use attachments with explicit false/clear semantics; legacy annotationProperties remains unchanged. OpenAPI documents the contract. See doc/reification-model.md. Local branch `codex/reification-properties`; 83 focused library/API tests and seven native Jena checks pass. No publication/deployment. Stage 2 YAML is now accepted locally; stage 3 is also accepted; stage 4 search is also accepted locally.
+
 - Published 1.1.0 (2026-11-11): oldaplib is on PyPI; API/tools multiarch images and harvester 0.1.15 standard/OCR images are available. Git release tags are pushed and acceptance passes. No deployment. The next history-aware transfer deployment needs Jena service 1.1.0. See doc/release-1.1.0.md and its immutable receipt.
 
 - Release 1.1.0 (2026-11-11): Release the property-history read/restore endpoints with oldaplib 1.1.0. New history-aware project transfer additionally requires Jena service 1.1.0; no deployment.

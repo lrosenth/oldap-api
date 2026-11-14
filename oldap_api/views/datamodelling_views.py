@@ -39,6 +39,7 @@ from oldaplib.src.iconnection import IConnection
 from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
 from oldaplib.src.resourceclass import ResourceClass
+from oldaplib.src.reifier_shape import ReifierShape
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
@@ -50,6 +51,43 @@ from oldap_api.views import known_languages
 
 datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
 
+
+def _property_payload(prop):
+    """Serialize one model property for resources and reifier shapes."""
+    iri = prop.property_class_iri
+    return {
+        "iri": str(iri),
+        **({"reifierShapes": sorted(str(ref) for ref in prop.reifierShapes)} if prop.reifierShapes else {}),
+        **({"reificationRequired": bool(prop.reificationRequired)} if prop.reificationRequired is not None else {}),
+        **({"projectid": str(prop.projectShortName)} if prop.projectShortName is not None else {}),
+        **({"type": [val.name for val in prop.type if val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if prop.type is not None else {}),
+        **({"subPropertyOf": str(prop.subPropertyOf)} if prop.subPropertyOf is not None else {}),
+        **({"toClass": str(prop.toClass)} if prop.toClass is not None else {}),
+        **({"nodeKind": str(prop.nodeKind)} if prop.nodeKind is not None else {}),
+        **({"datatype": str(prop.datatype)} if prop.datatype is not None else {}),
+        **({"name": [f'{value}@{lang.name.lower()}' for lang, value in prop.name.items()]} if prop.name else {}),
+        **({"description": [f'{value}@{lang.name.lower()}' for lang, value in prop.description.items()]} if prop.description else {}),
+        **({"languageIn": [f'{tag}'[-2:].lower() for tag in prop.languageIn]} if prop.languageIn else {}),
+        **({"uniqueLang": bool(prop.uniqueLang)} if prop.uniqueLang is not None else {}),
+        **({"inSet": list({str(x) for x in prop.inSet})} if prop.inSet is not None else {}),
+        **({"minLength": prop.minLength.value} if prop.minLength is not None else {}),
+        **({"maxLength": prop.maxLength.value} if prop.maxLength is not None else {}),
+        **({"pattern": str(prop.pattern)} if prop.pattern is not None else {}),
+        **({"minExclusive": prop.minExclusive.value} if prop.minExclusive is not None else {}),
+        **({"minInclusive": prop.minInclusive.value} if prop.minInclusive is not None else {}),
+        **({"maxExclusive": prop.maxExclusive.value} if prop.maxExclusive is not None else {}),
+        **({"maxInclusive": prop.maxInclusive.value} if prop.maxInclusive is not None else {}),
+        **({"lessThan": str(prop.lessThan)} if prop.lessThan is not None else {}),
+        **({"lessThanOrEquals": str(prop.lessThanOrEquals)} if prop.lessThanOrEquals is not None else {}),
+        **({"inversePath": str(prop.inversePath)} if prop.inversePath is not None else {}),
+        **({"inverseOf": str(prop.inverseOf)} if prop.inverseOf is not None else {}),
+        **({"equivalentProperty": str(prop.equivalentProperty)} if prop.equivalentProperty is not None else {}),
+        **({"maxCount": prop.maxCount.value} if prop.maxCount is not None else {}),
+        **({"minCount": prop.minCount.value} if prop.minCount is not None else {}),
+        **({"order": prop.order.value} if prop.order is not None else {}),
+        **({"group": prop.group.value} if prop.group is not None else {}),
+        **({"editor": prop.editor.value} if prop.editor is not None else {}),
+    }
 
 @datamodel_bp.route('/datamodel/<project>', methods=['GET'])
 @require_auth
@@ -88,6 +126,7 @@ def read_datamodel(project):
         "project": project,
         "externalOntologies": [],
         "annotationProperties": [],
+        "reifierShapes": [_reifier_payload(dm[iri]) for iri in dm.get_reifier_shapes()],
         "resources": []
     }
 
@@ -173,36 +212,7 @@ def read_datamodel(project):
         }
         for iri, prop in dm[resource].properties.items():
             # hp.prop.subPropertyOf
-            pdata = {
-                "iri": str(iri),
-                **({"projectid": str(prop.projectShortName)} if prop.projectShortName is not None else {}),
-                **({"type": [val.name for val in prop.type if val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if prop.type is not None else {}),
-                **({"subPropertyOf": str(prop.subPropertyOf)} if prop.subPropertyOf is not None else {}),
-                **({"toClass": str(prop.toClass)} if prop.toClass is not None else {}),
-                **({"datatype": str(prop.datatype)} if prop.datatype is not None else {}),
-                **({"name": [f'{value}@{lang.name.lower()}' for lang, value in prop.name.items()]} if prop.name else {}),
-                **({"description": [f'{value}@{lang.name.lower()}' for lang, value in prop.description.items()]} if prop.description else {}),
-                **({"languageIn": [f'{tag}'[-2:].lower() for tag in prop.languageIn]} if prop.languageIn else {}),
-                **({"uniqueLang": bool(prop.uniqueLang)} if prop.uniqueLang is not None else {}),
-                **({"inSet": list({str(x) for x in prop.inSet})} if prop.inSet is not None else {}),
-                **({"minLength": prop.minLength.value} if prop.minLength is not None else {}),
-                **({"maxLength": prop.maxLength.value} if prop.maxLength is not None else {}),
-                **({"pattern": str(prop.pattern)} if prop.pattern is not None else {}),
-                **({"minExclusive": prop.minExclusive.value} if prop.minExclusive is not None else {}),
-                **({"minInclusive": prop.minInclusive.value} if prop.minInclusive is not None else {}),
-                **({"maxExclusive": prop.maxExclusive.value} if prop.maxExclusive is not None else {}),
-                **({"maxInclusive": prop.maxInclusive.value} if prop.maxInclusive is not None else {}),
-                **({"lessThan": str(prop.lessThan)} if prop.lessThan is not None else {}),
-                **({"lessThanOrEquals": str(prop.lessThanOrEquals)} if prop.lessThanOrEquals is not None else {}),
-                **({"inversePath": str(prop.inversePath)} if prop.inversePath is not None else {}),
-                **({"inverseOf": str(prop.inverseOf)} if prop.inverseOf is not None else {}),
-                **({"equivalentProperty": str(prop.equivalentProperty)} if prop.equivalentProperty is not None else {}),
-                **({"maxCount": prop.maxCount.value} if prop.maxCount is not None else {}),
-                **({"minCount": prop.minCount.value} if prop.minCount is not None else {}),
-                **({"order": prop.order.value} if prop.order is not None else {}),
-                **({"group": prop.group.value} if prop.group is not None else {}),
-                **({"editor": prop.editor.value} if prop.editor is not None else {}),
-            }
+            pdata = _property_payload(prop)
             rdata["properties"].append(pdata)
         res["resources"].append(rdata)
     #print(json.dumps(res, indent=4))
@@ -401,11 +411,16 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
     known_json_fields = {"iri", "type", "subPropertyOf", "appliesToProperty", "class", "datatype", "name",
                          "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern",
                          "minExclusive", "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals",
-                         "inversePath", "inverseOf", "equivalentProperty", "maxCount", "minCount", "order", "group", "editor"}
+                         "inversePath", "inverseOf", "equivalentProperty", "maxCount", "minCount", "order", "group", "editor", "reifierShapes", "reificationRequired", "nodeKind"}
 
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
         raise ApiError(f"The Field/s {unknown_json_field} is/are not used to create a permissionset. Usable are {known_json_fields}. aborted operation")
+    if 'reifierShapes' in data and (not isinstance(data['reifierShapes'], list) or
+            not all(isinstance(ref, str) for ref in data['reifierShapes'])):
+        raise ApiError('reifierShapes must be an array of IRIs.')
+    if 'reificationRequired' in data and not isinstance(data['reificationRequired'], bool):
+        raise ApiError('reificationRequired must be boolean.')
     iri = property_iri  # Iri, z.B. "myproj:pageOf"
     typelist = data.get("type", None)  # z.B. ["StatementProperty", "SymmetricProperty"]
     subPropertyOf = data.get("subPropertyOf", None)  # Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf is generischer Fall von pageOf
@@ -449,6 +464,9 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
             raise ApiError(f"Invalid property type: {error}")
 
     prop = PropertyClass(
+        nodeKind=data.get("nodeKind"),
+        reifierShapes=data.get("reifierShapes"),
+        reificationRequired=data.get("reificationRequired"),
         con=con,
         project=project,
         type=None if typelist is None else typelist,
@@ -490,7 +508,7 @@ def add_resource_to_datamodel(project, resource):
                              "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength",
                              "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
                              "lessThan", "lessThanOrEquals", "inversePath", "inverseOf", "equivalentProperty",
-                             "maxCount", "minCount", "order", "group", "editor"}
+                             "maxCount", "minCount", "order", "group", "editor", "reifierShapes", "reificationRequired", "nodeKind"}
     mandatory_property_fields = {"iri"}
 
     if request.is_json:
@@ -782,7 +800,7 @@ def add_standalone_property_to_datamodel(project, property):
                              "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength",
                              "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
                              "lessThan", "lessThanOrEquals", "inversePath", "inverseOf", "equivalentProperty",
-                             "maxCount", "minCount", "order", "group", "editor"}
+                             "maxCount", "minCount", "order", "group", "editor", "reifierShapes", "reificationRequired", "nodeKind"}
     mandatory_property_fields = {'iri', 'appliesToProperty'}
 
 
@@ -853,7 +871,7 @@ def add_property_to_resource(project, resource, property):
                          "description", "languageIn", "uniqueLang", "inSet", "minLength", "maxLength",
                          "pattern", "minExclusive", "minInclusive", "maxExclusive", "maxInclusive",
                          "lessThan", "lessThanOrEquals", "inversePath", "inverseOf", "equivalentProperty",
-                         "maxCount", "minCount", "order", "group", "editor"}
+                         "maxCount", "minCount", "order", "group", "editor", "reifierShapes", "reificationRequired", "nodeKind"}
 
     if request.is_json:
         con = authenticated_connection()
@@ -996,13 +1014,23 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     known_json_fields = {"subPropertyOf", "appliesToProperty", "type", "class", "datatype", "name", "description",
                          "languageIn", "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive",
                          "minInclusive", "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals", "inverseOf",
-                         "equivalentProperty", "maxCount", "minCount", "order", "group", "editor"}
+                         "equivalentProperty", "maxCount", "minCount", "order", "group", "editor", "reifierShapes", "reificationRequired", "nodeKind"}
     unknown_json_field = set(data.keys()) - known_json_fields
     if unknown_json_field:
         return jsonify({"message": f"The Field/s {unknown_json_field} is/are not used to modify a project. Usable are {known_json_fields}. Aborted operation"}), 400
     if not set(data.keys()):
         return jsonify({"message": f"At least one field must be given to modify the project. Usable for the modify-viewfunction are {known_json_fields}"}), 400
     for attrname, attrval in data.items():
+        if attrname == 'reifierShapes':
+            if not isinstance(attrval, list) or not all(isinstance(x, str) for x in attrval):
+                return jsonify({'message': 'reifierShapes must be an array of IRIs.'}), 400
+            property.reifierShapes = attrval
+            continue
+        if attrname == 'reificationRequired':
+            if attrval is not None and not isinstance(attrval, bool):
+                return jsonify({'message': 'reificationRequired must be boolean or null.'}), 400
+            property.reificationRequired = attrval
+            continue
         if attrname == 'type':
             if isinstance(attrval, list):
                 if not attrval:
@@ -1211,7 +1239,7 @@ def modify_assertion_property(project, property):
     known_json_fields = {"iri", "subPropertyOf", "type", "class", "datatype", "name", "description", "languageIn",
                          "uniqueLang", "inSet", "minLength", "maxLength", "pattern", "minExclusive", "minInclusive",
                          "maxExclusive", "maxInclusive", "lessThan", "lessThanOrEquals",
-                         "inversePath", "inverseOf", "equivalentProperty"}
+                         "inversePath", "inverseOf", "equivalentProperty", "reifierShapes", "reificationRequired", "nodeKind"}
 
     con = authenticated_connection()
 
@@ -1250,7 +1278,7 @@ def modify_attribute_in_prop(project, resiri, propiri):
     known_json_fields = {"maxCount", "minCount", "order", "group", "editor","iri", "subPropertyOf", "type", "class",
                          "datatype", "name", "description", "languageIn", "uniqueLang", "inSet", "minLength",
                          "maxLength", "pattern", "minExclusive", "minInclusive","maxExclusive", "maxInclusive",
-                         "lessThan", "lessThanOrEquals", "inversePath", "inverseOf", "equivalentProperty"}
+                         "lessThan", "lessThanOrEquals", "inversePath", "inverseOf", "equivalentProperty", "reifierShapes", "reificationRequired", "nodeKind"}
 
     con = authenticated_connection()
 
@@ -1295,3 +1323,66 @@ def modify_attribute_in_prop(project, resiri, propiri):
 
 
 
+
+
+def _reifier_payload(shape):
+    """Return a named shape without pretending that it is a resource class."""
+    return {'iri': str(shape.shape_iri),
+            'properties': [_property_payload(prop) for prop in shape.properties.values()],
+            **{name: str(value) for name in ('creator', 'created', 'contributor', 'modified')
+               if (value := getattr(shape, name)) is not None}}
+
+
+@datamodel_bp.route('/datamodel/<project>/reifier-shape/<shape>', methods=['GET', 'PUT', 'POST', 'DELETE'])
+@require_auth
+def manage_reifier_shape(project, shape):
+    """Manage one named annotation shape; POST replaces its complete field list.
+
+    Omitted properties on POST leave fields unchanged. Library operations own
+    authorization, stale-state checks and transactions. No instance data is edited.
+    """
+    con = authenticated_connection()
+    try:
+        owner = Project.read(con, project)
+        if request.method == 'PUT':
+            definition = ReifierShape(con=con, project=owner, shape_iri=shape)
+        else:
+            definition = ReifierShape.read(con, owner, shape)
+        if request.method in {'PUT', 'POST'}:
+            data = request.get_json()
+            if not isinstance(data, dict) or set(data) - {'properties'}:
+                return jsonify({'message': 'Expected an object with optional properties array.'}), 400
+            if 'properties' in data:
+                fields = data['properties']
+                if not isinstance(fields, list) or any(not isinstance(p, dict) or not isinstance(p.get('iri'), str) for p in fields):
+                    return jsonify({'message': 'properties must be an array of property definitions with iri.'}), 400
+                if len({p['iri'] for p in fields}) != len(fields):
+                    return jsonify({'message': 'Duplicate property IRI.'}), 400
+                replacements = [process_property(con, owner, field['iri'], field) for field in fields]
+                # Shape fields are full replacements: an absent optional flag
+                # must remain absent, not acquire the legacy property default.
+                for field, replacement in zip(fields, replacements):
+                    if field.get('uniqueLang') is None:
+                        replacement.uniqueLang = None
+                for key in list(definition.properties):
+                    del definition[key]
+                for field in replacements:
+                    definition[field.property_class_iri] = field
+            if request.method == 'PUT':
+                definition.create()
+            else:
+                definition.update()
+        elif request.method == 'DELETE':
+            definition.delete()
+            return '', 204
+        return jsonify(_reifier_payload(definition)), 201 if request.method == 'PUT' else 200
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapErrorNoPermission as error:
+        return jsonify({'message': str(error)}), 403
+    except OldapErrorAlreadyExists as error:
+        return jsonify({'message': str(error)}), 409
+    except (OldapErrorValue, OldapErrorInconsistency, ApiError, ValueError, TypeError) as error:
+        return jsonify({'message': str(error)}), 400
+    except OldapError as error:
+        return jsonify({'message': str(error)}), 409

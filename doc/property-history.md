@@ -79,3 +79,15 @@ Later on 2026-11-11, the exact home image and additive ontology patch were also
 deployed to production. Deployment and rollback details are in
 `../oldap-setup/docs/property-history-production-20261111.md` (relative to the
 repository root). Frontend integration remains separate.
+
+## Assertion annotations
+
+History also captures complete assertion-annotation groups. Nonempty groups appear
+as `annotations` on history items. Restore validates them with the current model
+and assigns fresh identities to changed groups; repeating an identical restore is
+a no-op. See [instance annotation contract](reification-instances.md).
+
+Specialized archive/staging hierarchy restores reject properties with current
+annotation policies or historical annotation records before invoking a move.
+They return a client error rather than silently omitting the annotation group.
+Generic property restoration supports annotations as described above.

@@ -146,6 +146,26 @@ def _staging_structure_error(error: StagingStructureError):
     return jsonify({"message": str(error)}), error.status
 
 
+def _stage_annotation_payload(instance, operations, *, creating=False):
+    """Validate explicit annotation operations; ordinary payloads never call it."""
+    if not isinstance(operations, list):
+        raise OldapErrorValue('@annotations must be an array of operations.')
+    identifiers = []
+    for operation in operations:
+        if not isinstance(operation, dict):
+            raise OldapErrorValue('Annotation operation must be an object.')
+        action = operation.get('op')
+        if action == 'add' and set(operation) == {'op', 'property', 'value', 'fields'}:
+            identifiers.append(str(instance.add_annotation(operation['property'], operation['value'], operation['fields'])))
+        elif not creating and action == 'replace' and set(operation) == {'op', 'iri', 'fields'}:
+            instance.replace_annotation(operation['iri'], operation['fields'])
+        elif not creating and action == 'remove' and set(operation) == {'op', 'iri'}:
+            instance.remove_annotation(operation['iri'])
+        else:
+            raise OldapErrorValue('Expected add(property,value,fields), replace(iri,fields), or remove(iri).')
+    return identifiers
+
+
 def _apply_instance_update_payload(instance, data: dict) -> str | None:
     """Apply one generic update payload to a freshly read instance.
 
@@ -175,7 +195,11 @@ def _apply_instance_update_payload(instance, data: dict) -> str | None:
             "staging-folder-move endpoint."
         )
 
+    if '@annotations' in data:
+        _stage_annotation_payload(instance, data['@annotations'])
     for attrname, attrval in data.items():
+        if attrname == '@annotations':
+            continue
         attr = Xsd_QName(attrname)
         if attr == Xsd_QName('oldap:attachedToRole'):
             if attrval is None:
@@ -684,7 +708,7 @@ def parse_text_search_request(resclass: str | None = None,
                               allow_search_fulltext: bool = False) -> tuple[dict[str, Any] | None, tuple[Any, int] | None]:
     known_fields = {
         "q", "searchString", "ftField", "ftProperty", "resClass", "resclass", "includeProperties", "filter", "ftfilter", "hlfilter",
-        "countOnly", "sortBy", "sortBy[]", "limit", "offset",
+        "countOnly", "sortBy", "sortBy[]", "limit", "offset", "annotationFilter", "includeAnnotations",
     }
 
     if request.method == "POST":
@@ -697,7 +721,11 @@ def parse_text_search_request(resclass: str | None = None,
         if unknown_field:
             return None, (jsonify({"message": f"The Field/s {unknown_field} is/are not used to search for an instance. Usable are {known_fields}. Aborted operation"}), 400)
 
+        if 'annotationFilter' in data and data['annotationFilter'] is None:
+            return None, (jsonify({"message": "annotationFilter must be an array, not null."}), 400)
         raw = {
+            "annotation_filter": data.get("annotationFilter"),
+            "include_annotations": data.get("includeAnnotations", False),
             "search_string": data.get("q", data.get("searchString", None)),
             "count_only": parse_bool_query_param(data.get("countOnly", None)),
             "ft_field": data.get("ftField", data.get("ftProperty", None)),
@@ -711,6 +739,8 @@ def parse_text_search_request(resclass: str | None = None,
             "offset": data.get("offset", None),
         }
     else:
+        if 'annotationFilter' in request.args or 'includeAnnotations' in request.args:
+            return None, (jsonify({"message": "Annotation search options require POST /data/search."}), 400)
         if request.args:
             unknown_field = set(request.args.keys()) - known_fields
         else:
@@ -719,6 +749,8 @@ def parse_text_search_request(resclass: str | None = None,
             return None, (jsonify({"message": f"The Field/s {unknown_field} is/are not used to search for an instance. Usable are {known_fields}. Aborted operation"}), 400)
 
         raw = {
+            "annotation_filter": None,
+            "include_annotations": False,
             "search_string": request.args.get("q", request.args.get("searchString", None)),
             "count_only": parse_bool_query_param(request.args.get("countOnly", None)),
             "ft_field": request.args.get("ftField", request.args.get("ftProperty", None)),
@@ -735,7 +767,7 @@ def parse_text_search_request(resclass: str | None = None,
     if allow_search_fulltext:
         if not raw["search_string"]:
             return None, (jsonify({"message": "No search string provided"}), 400)
-        if any([raw["ft_field"], raw["include_properties"], raw["filter"], raw["ftfilter"], raw["hlfilter"]]):
+        if any([raw["ft_field"], raw["include_properties"], raw["filter"], raw["ftfilter"], raw["hlfilter"], raw["annotation_filter"], raw["include_annotations"]]):
             return None, (jsonify({"message": "Structured search options require /data/search."}), 400)
 
     try:
@@ -744,6 +776,15 @@ def parse_text_search_request(resclass: str | None = None,
             'searchstr': str(raw["search_string"]).lower() if raw["search_string"] else None,
             'use_search_fulltext': False,
         }
+        if not isinstance(raw['include_annotations'], bool):
+            raise OldapErrorValue('includeAnnotations must be boolean.')
+        if raw['include_annotations']:
+            params['includeAnnotations'] = True
+        if raw['annotation_filter'] is not None:
+            from oldaplib.src.annotation_search import parse_annotation_filters
+            params['annotationFilter'] = parse_annotation_filters(raw['annotation_filter'])
+            if params['annotationFilter'] and not raw['res_class']:
+                raise OldapErrorValue('Annotation filters require resClass.')
         if raw["res_class"]:
             params['resClass'] = Xsd_QName(raw["res_class"], validate=True)
         if raw["include_properties"]:
@@ -1164,7 +1205,8 @@ def add_instance(project, resource):
     if not data:
         return jsonify({"message": "No data provided"}), 400
     try:
-        instance = instclass(**data)
+        instance = instclass(**{key: value for key, value in data.items() if key != '@annotations'})
+        annotation_ids = _stage_annotation_payload(instance, data['@annotations'], creating=True) if '@annotations' in data else []
     except (OldapErrorValue, OldapErrorKey, OldapError) as error:
         current_app.logger.error(f"Failed to create Python instance: {str(error)}")
         return jsonify({"message": str(error)}), 400
@@ -1182,7 +1224,7 @@ def add_instance(project, resource):
     except OldapErrorNoPermission as error:
         current_app.logger.error(f"Failed to create instance in triplestore: {str(error)}")
         return jsonify({"message": str(error)}), 403
-    except OldapErrorValue as error:
+    except (OldapErrorValue, OldapErrorInconsistency, OldapErrorInUse) as error:
         return jsonify({"message": str(error)}), 409
     except OldapErrorAlreadyExists as error:
         return jsonify({"message": str(error)}), 409
@@ -1192,7 +1234,8 @@ def add_instance(project, resource):
         return jsonify({"message": str(error)}), error.status
     except OldapError as error:
         return jsonify({"message": str(error)}), 500
-    return jsonify({"message": "Instance successfully created", "iri": str(instance.iri)}), 200
+    return jsonify({"message": "Instance successfully created", "iri": str(instance.iri),
+                    **({"annotationIris": annotation_ids} if annotation_ids else {})}), 200
 
 
 @instance_bp.route('/<path:project>/staging-system-folders', methods=['POST'])
@@ -1278,6 +1321,23 @@ def authorize_staging_upload_target(project):
             target.default_role_qname: target.default_permission,
         },
     }), 200
+
+@instance_bp.route('/annotations/<project>/<path:instiri>', methods=['GET'])
+@require_auth
+def read_instance_annotations(project, instiri):
+    """Explicit annotation expansion, with the parent's current read permission."""
+    from oldaplib.src.assertion_annotation import read_annotations
+    try:
+        factory = ResourceInstanceFactory(con=authenticated_connection(), project=project)
+        instance = factory.read(Iri(instiri, validate=True))
+        return jsonify({'items': [record.to_json() for record in read_annotations(instance)]}), 200
+    except OldapErrorNoPermission as error:
+        return jsonify({'message': str(error)}), 403
+    except OldapErrorNotFound as error:
+        return jsonify({'message': str(error)}), 404
+    except OldapErrorValue as error:
+        return jsonify({'message': str(error)}), 400
+
 
 @instance_bp.route('/<path:project>/<path:instiri>', methods=['GET'])
 @require_auth
@@ -1612,7 +1672,7 @@ def update_instance(project, instiri):
     return _update_instance_data(project, instiri, data)
 
 
-def _update_instance_data(project, instiri, data, *, connection=None):
+def _update_instance_data(project, instiri, data, *, connection=None, annotation_restore=None):
     """Shared manual/history update path, including archive and Staging guards."""
     con = connection if connection is not None else authenticated_connection()
 
@@ -1648,6 +1708,9 @@ def _update_instance_data(project, instiri, data, *, connection=None):
                     if "shared:inStagingFolder" in data
                     else None
                 )
+                if annotation_restore is not None:
+                    from oldaplib.src.assertion_annotation import restore_annotations
+                    restore_annotations(current, *annotation_restore)
                 if lifecycle_hook is None:
                     current.update()
                 else:
@@ -1806,6 +1869,7 @@ def instance_history(project, instiri):
             'instanceIri': str(entry.resource_iri),
             'propertyIri': str(entry.property_iri),
             'values': [to_json_compatible_value(value) for value in entry.values],
+            **({'annotations': list(entry.annotations)} if entry.annotations else {}),
         } for entry in entries], 'limit': limit, 'offset': offset}), 200
     except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
@@ -1816,6 +1880,13 @@ def instance_history(project, instiri):
     except OldapError as error:
         current_app.logger.exception('instance_history failed')
         return jsonify({'message': str(error)}), 500
+
+
+def _reject_annotated_hierarchy_restore(instance, entry):
+    """Specialized moves do not yet compose historical annotation groups."""
+    prop = instance.resolved_properties().get(entry.property_iri)
+    if entry.annotations or (prop is not None and (prop.reifierShapes or prop.reificationRequired is not None)):
+        raise OldapErrorValue('Annotated hierarchy history restore is not supported by the move endpoint.')
 
 
 @instance_bp.route('/history/<project>/<path:instiri>/restore', methods=['POST'])
@@ -1837,6 +1908,7 @@ def restore_instance_history(project, instiri):
             if resource_class_is_or_extends(type(instance), 'shared:ArchiveUnit') and property_name in {
                 'shared:parentArchiveUnit', 'schema:position'
             }:
+                _reject_annotated_hierarchy_restore(instance, entry)
                 parent_property = 'shared:parentArchiveUnit'
                 parent = _single_resource_text(instance, parent_property)
                 if values and len(values) != 1:
@@ -1854,9 +1926,11 @@ def restore_instance_history(project, instiri):
             ):
                 if values and len(values) != 1:
                     raise OldapErrorValue('A hierarchy property requires exactly one value.')
+                _reject_annotated_hierarchy_restore(instance, entry)
                 return _move_staging_folder_data(project, instiri,
                     {property_name: str(values[0]) if values else None}, connection=con)
-        return _update_instance_data(project, instiri, {property_name: values}, connection=con)
+        return _update_instance_data(project, instiri, {property_name: values}, connection=con,
+                                     annotation_restore=(entry.property_iri, entry.annotations))
     except OldapErrorNoPermission as error:
         return jsonify({'message': str(error)}), 403
     except OldapErrorNotFound as error:
