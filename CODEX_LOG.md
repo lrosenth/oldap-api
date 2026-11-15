@@ -1,3 +1,9 @@
+### Update 2026-11-15 23:38
+- Decisions: Completed authorized API-only 1.2.2 Git/Docker release and home activation; no PyPI, library version change or production deployment.
+- Implementation: Published AMD64/ARM64 final image digest sha256:aff1d3dd2a133290358ff3951c1a976a98ef82df9df86fe2d2d7927f3d5bcdba; latest preserved. Home routine updater changed only API/identity, preserving six other container IDs. Recorded exact publication/deployment receipts and rollback.
+- Open: No release/deployment work remains. Frontend UI fixes retain their separate release lifecycle.
+- Risks/Assumptions: 108 installed regressions and packaged real-Jena placement/network acceptance pass per architecture; 20 updater tests pass. Home read-only public/configured-account checks count 20 media and three linked entries each; 255-medium status is 0.145/0.157s. Health/HTTPS and unchanged final plan pass. No business-data writes; single-sample performance measurements.
+
 ### Update 2026-11-15 23:29
 - Decisions: Owner authorized API patch 1.2.2, Git push, AMD64/ARM64 Docker publication and home deployment. Library stays 1.2.1; no PyPI or production release.
 - Implementation: Prepared release notes and retained the validated placement correction/tests. Build through the established final snapshot pipeline with prior third-party constraints; activate only API/identity via a home-specific digest selection.

@@ -1,0 +1,108 @@
+{
+  "release": "1.2.2",
+  "verified_at": "2026-11-15T23:38:20.997404+01:00",
+  "source_commit": "7066cbb003674099e2633dfd5bd360b0b22f5265",
+  "git_tag": "v1.2.2",
+  "image": {
+    "digest": "sha256:aff1d3dd2a133290358ff3951c1a976a98ef82df9df86fe2d2d7927f3d5bcdba",
+    "platform_manifests": [
+      "lrosenth/oldap-api@sha256:e3673103c88b3121395a3895daaaf2d134490b0ad54c37c2691b169f623da42b",
+      "lrosenth/oldap-api@sha256:b0ef14006f5683969c5b6c9c5ec21a0354b091742154ce026d673fb1a94763c1"
+    ],
+    "reference": "lrosenth/oldap-api:v1.2.2"
+  },
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "library_version": "1.2.1",
+  "latest_unchanged": true,
+  "validation": {
+    "source_placement_tests": 10,
+    "installed_regressions_per_architecture": 108,
+    "packaged_placement_real_jena": "passed on both architectures, including 255 media and duplicate grants",
+    "packaged_jena_network_transactions_replacement": "passed on both architectures",
+    "routine_deployment_tests": 20
+  },
+  "deployment": {
+    "target": "api.home.org",
+    "changed_containers": [
+      "oldap-api",
+      "compose-oldap-jena-identity-1"
+    ],
+    "unchanged_containers": [
+      "compose-oldap-jena-1",
+      "oldap-app",
+      "compose-salsah-2-1",
+      "fasnachts-page",
+      "caddy",
+      "redis"
+    ],
+    "health": {
+      "services": {
+        "jena": "reachable"
+      },
+      "status": "ok",
+      "version": "v1.2.2"
+    },
+    "fasnacht_archive_https": 200,
+    "placement_checks": {
+      "api": "1.2.2",
+      "library": "1.2.1",
+      "checks": [
+        {
+          "reader": "public",
+          "direct_media": 20,
+          "direct_seconds": 0.182,
+          "entries": [
+            {
+              "media": 255,
+              "unassigned": 255,
+              "seconds": 0.145
+            },
+            {
+              "media": 1,
+              "unassigned": 1,
+              "seconds": 0.205
+            },
+            {
+              "media": 6,
+              "unassigned": 6,
+              "seconds": 0.126
+            }
+          ]
+        },
+        {
+          "reader": "configured-account",
+          "direct_media": 20,
+          "direct_seconds": 0.181,
+          "entries": [
+            {
+              "media": 255,
+              "unassigned": 255,
+              "seconds": 0.157
+            },
+            {
+              "media": 1,
+              "unassigned": 1,
+              "seconds": 0.179
+            },
+            {
+              "media": 7,
+              "unassigned": 6,
+              "seconds": 0.129
+            }
+          ]
+        }
+      ]
+    },
+    "final_plan": "no configuration changes",
+    "rollback": {
+      "compose_backup": "/opt/oldap/compose/routine-update-20261115T223704559931Z",
+      "previous_selection": "releases/home-1.2.1.json"
+    },
+    "business_data_writes": false
+  },
+  "publication_scope": "Git and Docker only; no PyPI upload",
+  "private_evidence": "/Users/rosenth/Library/Application Support/OLDAP/releases/20261115-api-1.2.2"
+}
