@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- API 1.2.2 preparation (2026-11-15): Jena archive placement summaries now use RDF 1.2 ACLs, schema inheritance and set-based placement joins. Local 255-medium status request is ~0.20s with correct counts and hidden-placement protection. Library remains 1.2.1; API-only Docker publication and home deployment authorized. See doc/release-1.2.2.md for validation and release evidence.
+
 - Release 1.2.0 live on home (2026-11-14): Reification is merged/tagged/pushed; oldaplib is on PyPI and API/tools AMD64+ARM64 images are published. Home API/library and tools selection use 1.2.0; nine additive ontology triples verified. Only API/identity restarted; Jena 1.1.0 and production unchanged. Use setup releases/home-1.2.0.json for subsequent home updates. Evidence/rollback: doc/release-1.2.0.md and receipt.
 
 - Release 1.2.0 preparation (2026-11-14): Reviewed reification stages 1–4 are merged into main. Coordinated package/image publication and home.org deployment are authorized and in progress; consumers require library >=1.2.0. Production is unchanged.

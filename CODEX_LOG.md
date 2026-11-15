@@ -1,3 +1,27 @@
+### Update 2026-11-15 23:29
+- Decisions: Owner authorized API patch 1.2.2, Git push, AMD64/ARM64 Docker publication and home deployment. Library stays 1.2.1; no PyPI or production release.
+- Implementation: Prepared release notes and retained the validated placement correction/tests. Build through the established final snapshot pipeline with prior third-party constraints; activate only API/identity via a home-specific digest selection.
+- Open: Version bump, immutable image acceptance/publication and home deployment verification.
+- Risks/Assumptions: Ten focused tests and local read-only HTTP acceptance pass. Existing unrelated setup/frontend edits are outside the release commit.
+
+### Update 2026-11-15 23:23
+- Decisions: Complete local API activation with measured placement-query performance, after the first corrected query exposed album-size latency. Remote services remain unchanged.
+- Implementation: Jena uses direct asserted ACL joins, DISTINCT candidate media and a set-based OPTIONAL placement join instead of a correlated per-medium existence scan. Activated through supported `make restart`; Jena/identity/Redis retained. Extended owned Jena regression with a 255-medium album and duplicate grants.
+- Open: User UI acceptance after refreshing admin archive. No release/version bump or remote deployment.
+- Risks/Assumptions: Ten backend tests pass, including real isolated Jena queries with hidden units, inherited types, restricted/orphaned grants and album-sized duplicate-grant cases. Final live HTTP entry checks: 255 media/255 free in 0.20s (earlier correlated query 54.41s); 1/1 in 0.19s; 7/6 in 0.17s. All totals match ordinary linked-media count searches. Final public 10-media status check passes in 0.129s; health is OK. Single local timing samples, not load-test percentiles. No live content/placement writes.
+
+### Update 2026-11-15 23:19
+- Decisions: Owner authorized activating the placement-status correction in the running local API only.
+- Implementation: Ran the supported oldap-api `make restart`; native API replacement/readiness completed. Jena, identity, Redis and Docker services remain loaded.
+- Open: User acceptance of the admin archive workflow after refresh. Remote deployment remains outside scope.
+- Risks/Assumptions: Local health returns 200. Public and configured-account login/search/placement-status checks pass; each sample contains 10 entries and 10 media, all direct media correctly counted. Public sample has 10 unassigned media; authenticated sample has 9. Read-only application checks; no archive content or placement writes.
+
+### Update 2026-11-15 23:13
+- Decisions: Correct placement-status Jena migration while retaining ordinary read ACLs and hidden-placement protection; no creator/admin bypass.
+- Implementation: Select RDF 1.2 permission annotations, project-scoped schema inheritance for entry/media/unit classes, locally bound UNION inputs and bound-scope free-media counting. Preserve GraphDB permission syntax. Added disposable real-Jena query acceptance covering entry/direct/mixed batches, empty entries, subclass media, hidden destinations and restricted/orphaned grants.
+- Open: Local service activation and deployment not performed; frontend companion fix raises the placement dialog above the editor in FasnachtsPage.
+- Risks/Assumptions: Nine existing contract tests and one real-Jena acceptance test pass (three query scenarios). Owned in-memory Fuseki is stopped after testing; no live data changes. GraphDB branch covered by query contracts, not a live GraphDB run.
+
 ### Update 2026-11-15 00:14
 - Decisions: Completed authorized 1.2.1 publication; no deployment or latest-tag changes.
 - Implementation: Pushed source commits/tags; published and hash-verified PyPI packages and API/tools multiarch images. Recorded immutable digests and source IDs in doc/release-1.2.1-results.json.

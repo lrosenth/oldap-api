@@ -48,7 +48,8 @@ def test_one_aggregate_for_whole_batch_and_generic_policy(monkeypatch):
     assert "COUNT(DISTINCT ?free)" in sparql
     assert "targetAccess_role" in sparql and "mediaAccess_role" in sparql
     assert "createdBy" not in sparql
-    assert "?unit a shared:ArchiveUnit ; shared:hasMediaObject ?media" in sparql
+    assert "?unit a shared:ArchiveUnit" in sparql
+    assert "?unit shared:hasMediaObject ?media" in sparql
     assert "SELECT ?key" in sparql  # no destination identity in response
 
 
