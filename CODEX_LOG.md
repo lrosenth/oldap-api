@@ -1,3 +1,10 @@
+### Update 2026-11-19 23:18
+- Decisions: Exercise managed Jena fulltext only in the disposable integration fixture; no deployment or runtime changes.
+- Implementation: Updated the shared Fasnacht fixture to import a private model-only YAML with absolute taxonomy paths, then activate managed fulltext via --fulltext apply and verify zero-change replay. Preserved separate real-export activation; replaced the obsolete archiveUnit assertion with the current model invariant.
+- Open: None for this change; release and deployment remain separate.
+- Verification: 30 isolated Jena integration checks and 136 offline harvester tests pass with oldaplib 1.2.2.
+- Risks/Assumptions: Extraction output is mocked; RDF persistence and fulltext search use real local services. No external harvesting or live data changes.
+
 ### Update 2026-11-19 22:56
 - Decisions: Completed authorized coordinated publication; no deployment or frontend release. Keep Python getter compatibility change explicit.
 - Implementation: Pushed final tags/source; published and SHA-256 verified library/tools packages and accepted API/tools multiarch images. Added doc/release-1.2.3-results.json with exact source/image provenance.

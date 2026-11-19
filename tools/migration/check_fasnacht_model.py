@@ -1,6 +1,7 @@
 """Import the complete migration YAML into an owned, initially empty Jena project.
 
-Only the GraphDB-specific Lucene connectors are skipped. All class declarations,
+Managed Jena fulltext is activated after provisioning the project (the real-export
+branch retains its separate activation checks). All class declarations,
 external-ontology registrations and taxonomy files go through the real tools CLI
 and normal HTTP endpoints. Synthetic data exercises the canonical part direction;
 this is not a production-data migration.
@@ -26,11 +27,20 @@ def check_fasnacht_model(call, check, create_connection, base, password, output,
     workspace = Path(__file__).resolve().parents[3]
     source = workspace / 'oldap-tools/fasnacht/fasnacht-onto.yaml'
     wanted = yaml.safe_load(source.read_text())['ontology']
+    # Fulltext activation requires an existing project. Import the model first
+    # from a private copy; absolute taxonomy paths preserve source resolution.
+    model = dict(wanted)
+    model.pop('fulltext', None)
+    model['lists'] = {name: str((source.parent / path).resolve())
+                      for name, path in wanted.get('lists', {}).items()}
+    model_source = output / 'fasnacht-model.yaml'
+    model_source.write_text(yaml.safe_dump({'ontology': model}, sort_keys=False))
     cli = workspace / 'oldap-tools/.venv/bin/oldap-tools'
 
-    def load(*args):
+    def load(*args, fulltext=False):
         process = subprocess.run([str(cli), '--api', base, '--user', 'actor', '--password', password,
-            'ontology', 'load', '-i', str(source), '--connectors', 'skip', *map(str, args)],
+            'ontology', 'load', '-i', str(source if fulltext else model_source), '--connectors', 'skip',
+            *(['--fulltext', 'apply'] if fulltext else []), *map(str, args)],
             capture_output=True, text=True, timeout=900)
         with (output / 'fasnacht-tools.log').open('a') as log:
             log.write(process.stdout + process.stderr)
@@ -51,8 +61,9 @@ def check_fasnacht_model(call, check, create_connection, base, password, output,
         check(name + ' uses only the canonical isPartOf field',
               'dcterms:hasPart' not in properties and
               'dcterms:isPartOf' in properties and not properties['dcterms:isPartOf'].get('inverseOf'))
-    archive = next(p for p in resources['fasnacht:ArchiveObject']['properties'] if p['iri'] == 'fasnacht:archiveUnit')
-    check('Full Fasnacht archive assignment has no inverse axiom', not archive.get('inverseOf'))
+    check('Current Fasnacht model omits the retired archiveUnit property',
+          all(p['iri'] != 'fasnacht:archiveUnit'
+              for p in resources['fasnacht:ArchiveObject']['properties']))
     check('Full Fasnacht replay plans zero changes', 'Planned 0' in load('--dry-run'))
 
     con = create_connection(userId='actor', credentials=password)
@@ -60,6 +71,14 @@ def check_fasnacht_model(call, check, create_connection, base, password, output,
         from check_fasnacht_export import check_fasnacht_export
         check_fasnacht_export(call, check, con, workspace, output)
         return
+    if 'fulltext' in wanted:
+        load('--backup-out', output / 'fasnacht-fulltext-before.zip', fulltext=True)
+        state = call('GET', '/admin/fulltext/fasnacht').json()
+        check('Fasnacht YAML activates the managed Jena fulltext fields',
+              state['status'] == 'active' and
+              set(state['configuration']['fields']) == set(wanted['fulltext']['fields']))
+        check('Fulltext YAML replay plans zero changes',
+              'Planned 0' in load('--dry-run', fulltext=True))
     prefix = ('PREFIX fasnacht: <http://fasnacht.digital/ns/> '
               'PREFIX dcterms: <http://purl.org/dc/terms/> '
               'PREFIX schema: <https://schema.org/> '
