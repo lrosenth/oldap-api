@@ -1241,14 +1241,14 @@ files = [
 
 [[package]]
 name = "oldaplib"
-version = "1.2.1"
+version = "1.2.2"
 description = "Open Media Access Server Library (Linked Open Data middleware/RESTApi)"
 optional = false
 python-versions = "<4.0,>=3.12"
 groups = ["main"]
 files = [
-    {file = "oldaplib-1.2.1-py3-none-any.whl", hash = "sha256:0e606ee3abc771a17bf8c8552cd6b1bddf479f2a9cd5426d6835badb96ffd48b"},
-    {file = "oldaplib-1.2.1.tar.gz", hash = "sha256:396e0dd387bae7ee1afe7b6ce75ed427da5c03c87fe31fb33904e4123f7fd794"},
+    {file = "oldaplib-1.2.2-py3-none-any.whl", hash = "sha256:32d8f312175155a2eaadfd800ce29950e1c893fcb1c2539128d1c6afd1fb49c5"},
+    {file = "oldaplib-1.2.2.tar.gz", hash = "sha256:8d477c5d2317b3e62a0a791c271a773529a78effa591dff9c17adbec5e536642"},
 ]
 
 [package.dependencies]
@@ -2490,4 +2490,4 @@ ruamel = ["ruamel.yaml"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "d4a336c8c00e078e5d0d14a4aea61b2a16f4bf57de684d22871159257520f7db"
+content-hash = "3b48f933dd87893175e99ac5beace3f186083195a334dd0ee407ef75f65f0e2c"

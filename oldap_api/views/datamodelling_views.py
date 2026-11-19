@@ -33,6 +33,7 @@ from oldaplib.src.externalontology import ExternalOntology
 from oldaplib.src.helpers.convert2datatype import convert2datatype
 from oldaplib.src.helpers.langstring import LangString
 from oldaplib.src.helpers.observable_set import ObservableSet
+from oldaplib.src.helpers.predicate_definition import superproperty_set
 from oldaplib.src.helpers.oldaperror import OldapError, OldapErrorNotFound, OldapErrorValue, OldapErrorNoPermission, \
     OldapErrorInconsistency, OldapErrorAlreadyExists, OldapErrorKey, OldapErrorType
 from oldaplib.src.iconnection import IConnection
@@ -40,6 +41,7 @@ from oldaplib.src.project import Project
 from oldaplib.src.propertyclass import PropertyClass
 from oldaplib.src.resourceclass import ResourceClass
 from oldaplib.src.reifier_shape import ReifierShape
+from oldaplib.src.xsd.iri import Iri
 from oldaplib.src.xsd.xsd_boolean import Xsd_boolean
 from oldaplib.src.xsd.xsd_ncname import Xsd_NCName
 from oldaplib.src.xsd.xsd_qname import Xsd_QName
@@ -52,6 +54,27 @@ from oldap_api.views import known_languages
 datamodel_bp = Blueprint('datamodel', __name__, url_prefix='/admin')
 
 
+def _superproperty_payload(parents):
+    """Keep singleton responses compatible while preserving every parent in a set."""
+    if not parents:
+        return {}
+    values = sorted(str(parent) for parent in superproperty_set(parents))
+    return {"subPropertyOf": values[0] if len(values) == 1 else values}
+
+
+def _parse_superproperties(value):
+    """Validate a complete parent replacement; null/empty arrays clear the set."""
+    if value is None:
+        return None
+    values = [value] if isinstance(value, str) else value
+    if not isinstance(values, list) or not all(isinstance(item, str) for item in values):
+        raise ApiError('subPropertyOf must be an IRI string, an array of IRI strings, or null.')
+    try:
+        return [Iri(item, validate=True) for item in values]
+    except (OldapError, ValueError, TypeError) as error:
+        raise ApiError(f'Invalid subPropertyOf: {error}') from error
+
+
 def _property_payload(prop):
     """Serialize one model property for resources and reifier shapes."""
     iri = prop.property_class_iri
@@ -61,7 +84,7 @@ def _property_payload(prop):
         **({"reificationRequired": bool(prop.reificationRequired)} if prop.reificationRequired is not None else {}),
         **({"projectid": str(prop.projectShortName)} if prop.projectShortName is not None else {}),
         **({"type": [val.name for val in prop.type if val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if prop.type is not None else {}),
-        **({"subPropertyOf": str(prop.subPropertyOf)} if prop.subPropertyOf is not None else {}),
+        **_superproperty_payload(prop.subPropertyOf),
         **({"toClass": str(prop.toClass)} if prop.toClass is not None else {}),
         **({"nodeKind": str(prop.nodeKind)} if prop.nodeKind is not None else {}),
         **({"datatype": str(prop.datatype)} if prop.datatype is not None else {}),
@@ -163,7 +186,7 @@ def read_datamodel(project):
             **({"contributor": str(dm[prop].contributor)} if dm[prop].contributor is not None else {}),
             **({"projectid": str(dm[prop].projectShortName)} if dm[prop].projectShortName is not None else {}),
             **({"type": [Xsd_QName(val.value).fragment for val in dm[prop].type if val not in (OwlPropertyType.OwlDataProperty, OwlPropertyType.OwlObjectProperty)]} if dm[prop].type is not None else {}),
-            **({"subPropertyOf": str(dm[prop].subPropertyOf)} if dm[prop].subPropertyOf is not None else {}),
+            **_superproperty_payload(dm[prop].subPropertyOf),
             **({"appliesToProperty": str(dm[prop].appliesToProperty)} if dm[prop].appliesToProperty is not None else {}),
             **({"toClass": str(dm[prop].toClass)} if dm[prop].toClass is not None else {}),
             **({"nodeKind": str(dm[prop].nodeKind)} if dm[prop].nodeKind is not None else {}),
@@ -423,7 +446,7 @@ def process_property(con: IConnection, project: Project, property_iri: str, data
         raise ApiError('reificationRequired must be boolean.')
     iri = property_iri  # Iri, z.B. "myproj:pageOf"
     typelist = data.get("type", None)  # z.B. ["StatementProperty", "SymmetricProperty"]
-    subPropertyOf = data.get("subPropertyOf", None)  # Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf is generischer Fall von pageOf
+    subPropertyOf = _parse_superproperties(data.get("subPropertyOf"))
     appliesToProperty = data.get("appliesToProperty", None)  # Iro() of properties an assertion property applies to
     toClass = data.get("class", None)  # an Iri(). Beschreibt die Klasse der Instanz, auf die diese Property zeigen muss, Z.B. "myproj:Book" heisst, dass die Property auf ein Buch zeigen muss
     datatype = data.get("datatype", None)  # "xsd:string", oder "xsd:integer" etc. Datentyp, wenn die Property durch einen Literal repräsentiert wird
@@ -1021,6 +1044,12 @@ def property_modifier(data: dict, property: PropertyClass) -> tuple[Response, in
     if not set(data.keys()):
         return jsonify({"message": f"At least one field must be given to modify the project. Usable for the modify-viewfunction are {known_json_fields}"}), 400
     for attrname, attrval in data.items():
+        if attrname == 'subPropertyOf':
+            try:
+                property.subPropertyOf = _parse_superproperties(attrval)
+            except (ApiError, OldapError, ValueError, TypeError) as error:
+                return jsonify({'message': str(error)}), 400
+            continue
         if attrname == 'reifierShapes':
             if not isinstance(attrval, list) or not all(isinstance(x, str) for x in attrval):
                 return jsonify({'message': 'reifierShapes must be an array of IRIs.'}), 400
@@ -1338,7 +1367,9 @@ def _reifier_payload(shape):
 def manage_reifier_shape(project, shape):
     """Manage one named annotation shape; POST replaces its complete field list.
 
-    Omitted properties on POST leave fields unchanged. Library operations own
+    Omitted properties on POST leave fields unchanged. Field subPropertyOf is
+    shared predicate metadata: omission/null clears an existing field parent;
+    a new field reuses an existing parent if none is supplied. Library operations own
     authorization, stale-state checks and transactions. No instance data is edited.
     """
     con = authenticated_connection()

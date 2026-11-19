@@ -1,3 +1,33 @@
+### Update 2026-11-19 22:44
+- Decisions: User selected coordinated library/API/tools publication for set-valued superproperties; no deployment. Document Python getter compatibility break explicitly.
+- Implementation: Prepared release notes and consumer minimum versions. Library release targets distinguish RC finalization and isolate distributions by version; corrected stale LangString expectation. API serializer fixture now uses real local system/shared RDF and mocked caches; Create null contract matches runtime.
+- Open: Finish package/image validation, publish and record immutable receipts.
+- Risks/Assumptions: Existing service-backed legacy tests must not target live databases. Other clients need matching multiple-parent handling before use.
+
+### Update 2026-11-18 23:29
+- Decisions: Preserve every predicate superproperty while retaining singleton HTTP compatibility.
+- Implementation: Property and reifier serializers emit strings for one parent and sorted arrays for multiple parents. Create/patch parsing validates strings, arrays and null; OpenAPI and model documentation describe complete set replacement. Added isolated HTTP coverage using the bundled DCTERMS ontology, parent-preserving constraint edits, foreign-owner guards, malformed inputs and legacy cached scalar parents.
+- Open: Matching library/frontend changes must ship together; no deployment.
+- Risks/Assumptions: 18 focused API tests pass against the sibling library source using isolated RDFLib datasets. Existing dependency deprecation warnings remain; live services were not contacted.
+
+### Update 2026-11-18 00:18
+- Decisions: Expose annotation subPropertyOf through the existing property parser and serializer; library owns shared predicate persistence.
+- Implementation: Documented nullable superproperty writes, existing-field clearing and new-field reuse in OpenAPI and model docs. Added isolated HTTP tests for two shapes, replacement, clearing, field removal and rejected foreign writes; regenerated the app client.
+- Open: No release/deployment; requires the matching sibling library changes.
+- Risks/Assumptions: 5 HTTP regression tests pass against local library source with isolated RDFLib datasets and mocked caches. No client ETag was added.
+
+### Update 2026-11-17 23:02
+- Decisions: Align published OpenAPI property-write contracts with the existing route implementation for oldap-app regeneration; no API runtime change.
+- Implementation: Flat resource-property POST fields; missing standalone patch fields; reusable PropertyCreate for standalone/resource PUT with exclusive datatype/class; explicit existing archive enum types. App generation restores generator-lost record fields and type-choice validation.
+- Open: Generic Property read-schema oneOf/not generator support remains a documented frontend limitation; reification UI is deferred.
+- Risks/Assumptions: Preserved pre-existing local release documentation changes. No service/database operations. Verification: client generation, frontend typecheck, 34 unit/component tests and 8 mocked browser workflows pass.
+
+### Update 2026-11-16 00:13
+- Decisions: Promote only the authorized API 1.2.2 and frontend 0.1.52, using exact home-tested immutable images; retain database and unrelated services.
+- Implementation: Routine production plan/apply with private rollback backup; API/identity/frontend replaced. Added scoped release/rollback selections and deployment evidence. Setup default harvester refs reconciled to already-installed images without deployment.
+- Open: No requested deployment work remains; production write/restore acceptance was intentionally not performed.
+- Risks/Assumptions: Twenty updater tests, readiness, HTTP/version, actual authenticated archive workflow and desktop/mobile public checks pass. Public/authenticated placement counts and history-read checks pass. Five other running container IDs unchanged, no data migration or content writes. Final scoped plan has no changes; exact rollback in setup deployment documentation.
+
 ### Update 2026-11-15 23:38
 - Decisions: Completed authorized API-only 1.2.2 Git/Docker release and home activation; no PyPI, library version change or production deployment.
 - Implementation: Published AMD64/ARM64 final image digest sha256:aff1d3dd2a133290358ff3951c1a976a98ef82df9df86fe2d2d7927f3d5bcdba; latest preserved. Home routine updater changed only API/identity, preserving six other container IDs. Recorded exact publication/deployment receipts and rollback.

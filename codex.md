@@ -1,5 +1,13 @@
 # OLDAP API Codex Context
 
+- Coordinated superproperty release preparation (2026-11-19): library 1.2.2, API 1.2.3 and tools 1.2.2. Python parent reads are now sets; deploy matching consumers. See doc/release-1.2.3.md. Publication authorized, no deployment.
+
+- Multiple predicate superproperties are retained throughout model/reifier reads and writes. The HTTP contract accepts string or string[] and preserves singleton response strings; replacement arrays retain every parent. Requires the matching library/frontend changes; see doc/reification-model.md.
+
+- Reifier field CRUD now documents and accepts shared `subPropertyOf` through the existing property parser/serializer and matching library persistence. Full replacement clears omitted parents on existing fields; new uses adopt existing parents. See doc/reification-model.md. Local changes, not deployed.
+
+- Production promotion (2026-11-16): Production API 1.2.2 active with library 1.2.1, promoted alongside frontend 0.1.52. Read-only placement/history acceptance passed; database/services retained. See doc/release-1.2.2-production.md.
+
 - API 1.2.2 released/home-active (2026-11-15): Jena placement summaries use RDF 1.2 ACLs, schema inheritance and set-based placement joins. Git/final multiarch Docker publication complete; home API/identity use digest aff1d3dd2a13 with library 1.2.1. A 255-medium status query takes ~0.15s on home; public/authenticated counts and 108 installed regressions per architecture pass. Production remains unchanged. Release evidence/rollback: doc/release-1.2.2.md.
 
 - Release 1.2.0 live on home (2026-11-14): Reification is merged/tagged/pushed; oldaplib is on PyPI and API/tools AMD64+ARM64 images are published. Home API/library and tools selection use 1.2.0; nine additive ontology triples verified. Only API/identity restarted; Jena 1.1.0 and production unchanged. Use setup releases/home-1.2.0.json for subsequent home updates. Evidence/rollback: doc/release-1.2.0.md and receipt.

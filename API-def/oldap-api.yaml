@@ -5,7 +5,7 @@ jsonSchemaDialect: "https://spec.openapis.org/oas/3.1/dialect/base"
 info:
   title: OLDAP-API
   description: RESTful API for oldap
-  version: 1.2.2
+  version: 1.2.3
 servers:
 - url: http://127.0.0.1:5000
   description: local server...
@@ -2232,7 +2232,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Property'
+              $ref: '#/components/schemas/PropertyCreate'
       responses:
         "200":
           description: "OK"
@@ -2294,9 +2294,10 @@ paths:
 
     post:
       summary: Modify a annotation property
-      description:
+      description: >-
         Viewfunction to modify a annotation property. A JSON is expected that has the following form. At least one field
         must be given. All fields are optional. At least one field must be given.
+        inversePath is currently read/create-only and cannot be modified.
       security:
         - AccessToken: [ ]
       parameters:
@@ -2321,6 +2322,20 @@ paths:
               minProperties: 1
               additionalProperties: false
               properties:
+                subPropertyOf:
+                  oneOf:
+                    - $ref: '#/components/schemas/SuperProperties'
+                    - type: "null"
+                  description: Complete superproperty set; null or an empty array removes all declarations.
+                nodeKind:
+                  type: [string, "null"]
+                reifierShapes:
+                  type: array
+                  items: {type: string}
+                  description: Complete shape references; an empty array clears them.
+                reificationRequired:
+                  type: [boolean, "null"]
+                  description: Explicit false is retained; null removes the local declaration.
                 type:
                   oneOf:
                     - $ref: '#/components/schemas/OwlPropertyType'
@@ -2452,14 +2467,6 @@ paths:
                     - type: "null"
                 lessThanOrEquals:
                   description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
-                  oneOf:
-                    - $ref: '#/components/schemas/Iri'
-                    - type: "null"
-                inversePath:
-                  description: >-
-                    Single predicate used by a read-only SHACL inverse field. Requires
-                    toClass and cannot be combined with a datatype, inverseOf,
-                    equivalentProperty or subPropertyOf. The public field IRI stays unchanged.
                   oneOf:
                     - $ref: '#/components/schemas/Iri'
                     - type: "null"
@@ -2706,29 +2713,7 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: '#/components/schemas/Property'
-                - type: object
-                  additionalProperties: false
-                  properties:
-                    maxCount:
-                      description: Denotes how often (maximum) this property can be used in one resource
-                      oneOf:
-                        - type: integer
-                        - type: number
-                      example: 3
-                    minCount:
-                      description: Denotes how often (minimal) this property must be used in one resource
-                      oneOf:
-                        - type: integer
-                        - type: number
-                      example: "null"
-                    order:
-                      description: Hint for GUI. Tells order of properties for a GUI
-                      oneOf:
-                        - type: integer
-                        - type: number
-                      example: 3
+              $ref: '#/components/schemas/PropertyCreate'
       responses:
         "200":
           description: "OK"
@@ -2796,8 +2781,9 @@ paths:
 
     post:
       summary: Modifies a property inside a resource in a datamodel
-      description:
+      description: >-
         Viewfunction to modify the fields of a single property inside a resource.A JSON is expected that has the following form.
+        inversePath is currently read/create-only and cannot be modified.
       security:
         - AccessToken: [ ]
       parameters:
@@ -2826,27 +2812,178 @@ paths:
             schema:
               type: object
               minProperties: 1
+              additionalProperties: false
               properties:
-                property:
-                  $ref: '#/components/schemas/Property'
-                maxCount:
-                  description: Denotes how often (maximum) this property can be used in one resource
+                subPropertyOf:
+                  oneOf:
+                    - $ref: '#/components/schemas/SuperProperties'
+                    - type: "null"
+                  description: Complete superproperty set; null or an empty array removes all declarations.
+                nodeKind:
+                  type: [string, "null"]
+                reifierShapes:
+                  type: array
+                  items: {type: string}
+                  description: Complete shape references; an empty array clears them.
+                reificationRequired:
+                  type: [boolean, "null"]
+                  description: Explicit false is retained; null removes the local declaration.
+                type:
+                  oneOf:
+                    - $ref: '#/components/schemas/OwlPropertyType'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/OwlPropertyType'
+                        del:
+                          $ref: '#/components/schemas/OwlPropertyType'
+                    - type: "null"
+                datatype:
+                  description: The datatype of the property
+                  oneOf:
+                    - type: string
+                    - type: "null"
+                class:
+                  description: Iri of the resource class the property must point to
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
+                name:
+                  description: Human readable Name.
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
+                description:
+                  description: A description of the property.
+                  oneOf:
+                    - $ref: '#/components/schemas/LangString'
+                    - type: object
+                      properties:
+                        add:
+                          $ref: '#/components/schemas/LangString'
+                        del:
+                          $ref: '#/components/schemas/LangString'
+                    - type: "null"
+                languageIn:
+                  oneOf:
+                    - type: array
+                      description: The languages that are allowed in the property
+                      example: [ "en", "fr", "it", "de" ]
+                      items:
+                        type: string
+                    - type: "null"
+                uniqueLang:
+                  type: boolean
+                  description: Describes if each language must be present only once. This field is only applicable if the property is of datatype langstring.
+                  example: True
+                inSet:
+                  oneOf:
+                    - type: array
+                      example: [ "Renault", "Opel", "BMW", "Mercedes" ]
+                      items:
+                        oneOf:
+                          - type: string
+                          - type: number
+                          - type: integer
+                    - type: "null"
+                minLength:
+                  description: Only applicable in xsd:string and rdf:langString. Denotes the minimal length of the string.
                   oneOf:
                     - type: integer
+                      example: 1
                     - type: number
+                      format: float
+                      example: 1.1
+                    - type: "null"
+                maxLength:
+                  description: Only applicable in xsd:string and rdf:langString. Denotes the maximal length of the string.
+                  oneOf:
+                    - type: integer
+                      example: 1
+                    - type: number
+                      format: float
+                      example: 1.1
+                    - type: "null"
+                pattern:
+                  description: Tells if the string must follow a certain regex pattern. Only applicable in xsd:string and rdf:langString.
+                  oneOf:
+                    - type: string
+                      example: r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
+                    - type: "null"
+                minExclusive:
+                  description: Minimal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: number
+                      format: float
+                      example: 5.5
+                    - type: integer
+                      example: 5
+                    - type: "null"
+                minInclusive:
+                  description: Minimal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: number
+                      format: float
+                      example: 5.5
+                    - type: integer
+                      example: 5
+                    - type: "null"
+                maxExclusive:
+                  description: Maximal value (exclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: number
+                      format: float
+                      example: 5.5
+                    - type: integer
+                      example: 5
+                    - type: "null"
+                maxInclusive:
+                  description: Maximal value (inclusive the value itself) for a numerical datatype of the property like xsd:date/xsd:int/xsd:float...
+                  oneOf:
+                    - type: number
+                      format: float
+                      example: 5.5
+                    - type: integer
+                      example: 5
+                    - type: "null"
+                lessThan:
+                  description: The given numerical value must be smaller than the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
+                lessThanOrEquals:
+                  description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
+                inverseOf:
+                  description: The inverse property of the current property. This is used to define the inverse relationship between two properties.
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
+                    - type: "null"
+                equivalentProperty:
+                  description: The equivalent property of the current property. This is used to define the equivalence between two properties.
+                  oneOf:
+                    - $ref: '#/components/schemas/Iri'
                     - type: "null"
                 minCount:
-                  description: Denotes how often (minimal) this property must be used in one resource
-                  oneOf:
-                    - type: integer
-                    - type: number
-                    - type: "null"
+                  type: [integer, "null"]
+                  minimum: 0
+                maxCount:
+                  type: [integer, "null"]
+                  minimum: 0
                 order:
-                  description: Hint for GUI. Tells order of properties for a GUI
-                  oneOf:
-                    - type: integer
-                    - type: number
-                    - type: "null"
+                  type: [number, "null"]
+                group:
+                  type: [string, "null"]
+                editor:
+                  type: [string, "null"]
       responses:
         "200":
           description: "OK"
@@ -7066,6 +7203,11 @@ components:
             required: [iri]
             properties:
               iri: {type: string}
+              subPropertyOf:
+                oneOf:
+                  - $ref: '#/components/schemas/SuperProperties'
+                  - type: "null"
+                description: Complete shared predicate parent set, editable only in its owning project. Omission, null or an empty array clears existing field parents; a new field without parents reuses existing predicate parents. Removing the field preserves all predicate declarations. No field constraints are inherited.
               datatype: {type: string}
               class: {type: string}
               minCount: {type: integer, minimum: 0}
@@ -7306,6 +7448,7 @@ components:
         reviewDigest:
           $ref: '#/components/schemas/ArchiveStructureDigest'
         confirm:
+          type: boolean
           enum:
           - true
       required:
@@ -7319,6 +7462,7 @@ components:
         operationId:
           $ref: '#/components/schemas/ArchiveStructureOperationId'
         state:
+          type: string
           enum:
           - committed
         reviewDigest:
@@ -7385,6 +7529,7 @@ components:
           pattern: ^(https?://|urn:)[^\s<>"{}|\\^`]+$
           nullable: true
         mappingState:
+          type: string
           enum:
           - unmapped
           - mapped
@@ -7411,6 +7556,7 @@ components:
           folderIri:
             $ref: '#/components/schemas/ArchiveStructureIri'
           action:
+            type: string
             enum:
             - set
           target:
@@ -7425,6 +7571,7 @@ components:
           folderIri:
             $ref: '#/components/schemas/ArchiveStructureIri'
           action:
+            type: string
             enum:
             - clear
             - skip
@@ -7451,6 +7598,7 @@ components:
         name:
           $ref: '#/components/schemas/ArchiveStructureName'
         archiveLevel:
+          type: string
           enum:
           - shared:ArchiveGroup
           - shared:Fonds
@@ -7757,9 +7905,9 @@ components:
         operationId:
           $ref: '#/components/schemas/ArchiveStructureOperationId'
         state:
+          type: string
           enum:
           - committed
-          type: string
         mediaIri:
           $ref: '#/components/schemas/ArchiveStructureIri'
         sourceFolderIri:
@@ -7783,6 +7931,7 @@ components:
       type: object
       properties:
         code:
+          type: string
           enum:
           - INVALID_REQUEST
           - TOO_LARGE
@@ -9804,6 +9953,67 @@ components:
                     type: string
             - type: "null"
 
+    SuperProperties:
+      description: A single superproperty IRI or a complete set of superproperty IRIs. Order is insignificant.
+      oneOf:
+        - type: string
+        - type: array
+          items: {type: string}
+
+    PropertyCreate:
+      description: >-
+        Flat property creation payload. Supply exactly one of datatype or class.
+        GUI cardinalities apply to resource-owned properties; the server validates
+        datatype-specific constraints and rejects incompatible combinations.
+      allOf:
+        - type: object
+          additionalProperties: false
+          properties:
+            iri: {type: string}
+            type: {$ref: '#/components/schemas/OwlPropertyType'}
+            subPropertyOf:
+              oneOf:
+                - $ref: '#/components/schemas/SuperProperties'
+                - type: "null"
+            appliesToProperty: {type: string}
+            datatype: {type: string}
+            class: {type: string}
+            nodeKind: {type: string}
+            name: {$ref: '#/components/schemas/LangString'}
+            description: {$ref: '#/components/schemas/LangString'}
+            languageIn: {type: array, items: {type: string}}
+            uniqueLang: {type: boolean}
+            inSet:
+              type: array
+              items:
+                oneOf:
+                  - {type: string}
+                  - {type: number}
+            minLength: {type: integer, minimum: 0}
+            maxLength: {type: integer, minimum: 0}
+            pattern: {type: string}
+            minExclusive: {type: number}
+            minInclusive: {type: number}
+            maxExclusive: {type: number}
+            maxInclusive: {type: number}
+            lessThan: {type: string}
+            lessThanOrEquals: {type: string}
+            inversePath: {type: string}
+            inverseOf: {type: string}
+            equivalentProperty: {type: string}
+            minCount: {type: integer, minimum: 0}
+            maxCount: {type: integer, minimum: 0}
+            order: {type: number}
+            group: {type: string}
+            editor: {type: string}
+            reifierShapes: {type: array, items: {type: string}}
+            reificationRequired: {type: boolean}
+        - oneOf:
+            - required: [datatype]
+              not: {required: [class]}
+            - required: [class]
+              not: {required: [datatype]}
+
     Property:
       type: object
       additionalProperties: false
@@ -9856,8 +10066,8 @@ components:
           type: string
           description: Iri of property
         subPropertyOf:
-          $ref: '#/components/schemas/Iri'
-          description: Iri() of the the Superclass, e.g. "myproj:partOf" ; partOf would be generic case of pageOf
+          $ref: '#/components/schemas/SuperProperties'
+          description: All declared superproperties; singleton responses retain the legacy string form.
           example: "hyha:testProp"
         appliesToProperty:
           oneOf:

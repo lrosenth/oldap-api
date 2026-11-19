@@ -26,3 +26,19 @@ Flask routes on both RDFLib and native Jena. See
 Stage 3 now supports managed assertion annotations through explicit instance
 operations; see [instance contract](reification-instances.md). The earlier
 model-only write barrier is retained for unsupported paths such as transformations.
+
+## Annotation field superproperties
+
+`subPropertyOf` is shared predicate metadata, accepted and returned by shape CRUD
+through the existing property parser/serializer. Inputs accept an IRI string or
+a complete array of IRIs; singleton responses remain strings and multiple parents
+are returned as sorted arrays. In a supplied full field list, omission, null or
+an empty array clears existing field parents. New fields without parents reuse
+all existing predicate declarations. Removing a field does not remove the
+predicate's hierarchy. Only the predicate's owning project may change its parents;
+foreign declarations are reusable but not overwritten or copied. Imported
+multiple parents (such as `dcterms:temporal`) are retained. Field constraints are
+not inherited. Library persistence handles replacement, stale
+library snapshots, reference retention and cache invalidation. This does not add
+a client ETag contract. Run `oldap_api/test/test_reifier_shapes.py` with the matching
+sibling library source for isolated HTTP acceptance.
