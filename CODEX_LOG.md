@@ -1,3 +1,9 @@
+### Update 2026-11-20 00:09
+- Decisions: Prepare coordinated patch 1.2.4 requiring oldaplib 1.2.3 for inherited-superproperty insertion; no contract or migration changes.
+- Implementation: Targeted lock refresh changes only oldaplib to 1.2.3; all third-party package entries are identical. Updated package/runtime/bump metadata and OpenAPI version, dependency minimum and release notes.
+- Open: Orchestrated release/image acceptance and deployment. Source tests passed: 36 focused API regressions plus OpenAPI validation.
+- Risks/Assumptions: Third-party lock versions must remain unchanged; deployment is handled by the release coordinator.
+
 ### Update 2026-11-19 23:18
 - Decisions: Exercise managed Jena fulltext only in the disposable integration fixture; no deployment or runtime changes.
 - Implementation: Updated the shared Fasnacht fixture to import a private model-only YAML with absolute taxonomy paths, then activate managed fulltext via --fulltext apply and verify zero-change replay. Preserved separate real-export activation; replaced the obsolete archiveUnit assertion with the current model invariant.
