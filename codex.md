@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- Coordinated superproperty release published (2026-11-19): library 1.2.2 and tools 1.2.2 on PyPI; API 1.2.3/tools 1.2.2 AMD64+ARM64 images verified. Python subPropertyOf reads are sets; matching consumers required. 125 installed regressions per architecture and packaged Jena acceptance pass. No deployment or latest changes. Evidence: doc/release-1.2.3.md and receipt.
+
 - Coordinated superproperty release preparation (2026-11-19): library 1.2.2, API 1.2.3 and tools 1.2.2. Python parent reads are now sets; deploy matching consumers. See doc/release-1.2.3.md. Publication authorized, no deployment.
 
 - Multiple predicate superproperties are retained throughout model/reifier reads and writes. The HTTP contract accepts string or string[] and preserves singleton response strings; replacement arrays retain every parent. Requires the matching library/frontend changes; see doc/reification-model.md.
