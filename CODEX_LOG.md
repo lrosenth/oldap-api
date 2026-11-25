@@ -1,3 +1,27 @@
+### Update 2026-11-25 01:19
+- Decisions: User authorized committing API patch 1.2.5 and building local Docker images; no registry publication or deployment.
+- Implementation: Align package/runtime/bump/OpenAPI version 1.2.5; include completed dependency/security and contract corrections. Build through the setup wheel-only pipeline with explicit lock-derived third-party constraints for AMD64 and ARM64.
+- Open: Complete image builds and installed package checks; record resulting image IDs.
+- Risks/Assumptions: Existing Python 3.13/3.14 offline regressions pass; Docker acceptance is recorded separately. No service-backed legacy tests or live data changes.
+
+### Update 2026-11-25 01:16
+- Decisions: Integrate published oldaplib 1.2.5 after authorized library GitHub/PyPI release; allow current Redis 8.x client updates. No API release/deployment.
+- Implementation: Require oldaplib >=1.2.5,<2.0.0 and redis ^8.2.0; targeted Poetry update installs/locks 1.2.5 and 8.2.0. Preserve prior dependency and OpenAPI edits; update dependency evidence.
+- Open: API commit/release/image deployment remain separate. Existing unrelated oldap-tools 0.1.9 requirement in the mixed local venv remains incompatible.
+- Risks/Assumptions: Python 3.13 and 3.14 offline suites each pass 493 tests plus 32 subtests; one real-Redis test remains deselected. Library installed-wheel acceptance passes 73 tests plus 9 subtests on isolated AOF Redis. Clean installed API wheel passes pip check; lock/build/OpenAPI validation pass. Client 8 changes defaults as documented in the library compatibility notes.
+
+### Update 2026-11-25 01:11
+- Decisions: Refresh all compatible dependencies, require published oldaplib 1.2.4, and retain its four upstream version constraints. No release or deployment.
+- Implementation: Updated manifest and 33 lock entries, Docker Poetry to 2.5.2; corrected three pre-existing OpenAPI schema syntax errors exposed by validator 0.9.0. Preserved existing contract/log edits. Evidence: doc/dependency-update-2026-11-25.md.
+- Open: Upstream oldaplib constraints prevent latest convertdate, pyshacl, redis and validators. Existing unrelated oldap-tools 0.1.9 in the local venv has an incompatible library requirement; clean API installation is consistent.
+- Risks/Assumptions: All 86 lock entries have no known vulnerabilities in current PyPI metadata. Python 3.13/3.14 each pass 493 isolated tests and 32 subtests; one Redis-dependent test deselected and service suites excluded. Lock check, package build, clean pip check and OpenAPI validation pass. Docker images and live services not tested.
+
+### Update 2026-11-24 22:50
+- Decisions: Correct the OpenAPI description to match existing project/hierarchical-list serializers during the frontend security migration; no runtime API change.
+- Implementation: Both project GET responses declare projectShortName instead of shortName. Project and hlist/get created/modified fields use date-time; projectStart/projectEnd remain date. Property references accept QNames and absolute IRIs; annotation types include the OwlAnnotationProperty name emitted by existing resource/reifier serializers.
+- Open: Publish the corrected contract with a future release; no deployment.
+- Risks/Assumptions: Serializers inspected; OpenAPI validator and focused metadata assertions pass. The sibling oldap-app regenerates validators and exercises timestamp responses in mocked browser workflows. No external services or live writes used.
+
 ### Update 2026-11-20 00:21
 - Decisions: Published coordinated oldaplib/tools 1.2.3 and API 1.2.4; deployed accepted API/identity to production only. No migration or home update.
 - Implementation: Git source/tags pushed; PyPI hashes verified; AMD64/ARM64 images published by immutable digest. Recorded release/deployment evidence in doc/release-1.2.4-results.json.

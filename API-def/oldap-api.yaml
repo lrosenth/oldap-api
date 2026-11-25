@@ -5,7 +5,7 @@ jsonSchemaDialect: "https://spec.openapis.org/oas/3.1/dialect/base"
 info:
   title: OLDAP-API
   description: RESTful API for oldap
-  version: 1.2.4
+  version: 1.2.5
 servers:
 - url: http://127.0.0.1:5000
   description: local server...
@@ -1356,14 +1356,14 @@ paths:
                     description: An Iri or QName describing the user
                   created:
                     type: string
-                    format: date
+                    format: date-time
                     description: Creation date of this project
                   contributor:
                     type: string
                     description: An Iri or QName describing the user
                   modified:
                     type: string
-                    format: date
+                    format: date-time
                     description: Last modification date of project
                   label:
                     $ref: '#/components/schemas/LangString'
@@ -1371,7 +1371,7 @@ paths:
                     $ref: '#/components/schemas/LangString'
                   message:
                     type: string
-                  shortName:
+                  projectShortName:
                     type: string
                     pattern: ^[a-zA-Z_][a-zA-Z0-9._-]*$
                   namespaceIri:
@@ -1516,24 +1516,24 @@ paths:
             application/json:
               schema:
                 type: object
+                required: [projectIri]
                 properties:
                   projectIri:
                     type: string
-                    required: true
                     description: An Iri or a QName identifying the project
                   creator:
                     type: string
                     description: An Iri or QName describing the user
                   created:
                     type: string
-                    format: date
+                    format: date-time
                     description: Creation date of this project
                   contributor:
                     type: string
                     description: An Iri or QName describing the user
                   modified:
                     type: string
-                    format: date
+                    format: date-time
                     description: Last modification date of project
                   label:
                     $ref: '#/components/schemas/LangString'
@@ -1541,7 +1541,7 @@ paths:
                     $ref: '#/components/schemas/LangString'
                   message:
                     type: string
-                  shortName:
+                  projectShortName:
                     type: string
                     pattern: ^[a-zA-Z_][a-zA-Z0-9._-]*$
                   namespaceIri:
@@ -1766,7 +1766,7 @@ paths:
                           $ref: '#/components/schemas/LangString'
                         del:
                           $ref: '#/components/schemas/LangString'
-                    - type:"null"
+                    - type: "null"
                 comment:
                   oneOf:
                     - $ref: '#/components/schemas/LangString'
@@ -3238,7 +3238,7 @@ paths:
                   - type: string
                   - type: number
                   - type: boolean
-                  - type: null
+                  - type: "null"
               example:
                 - contributor: https://orcid.org/0000-0003-1681-4036
                   created: '2025-04-25T17:39:56.637331+02:00'
@@ -3831,14 +3831,14 @@ paths:
                     description: An Iri or QName describing the user
                   created:
                     type: string
-                    format: date
+                    format: date-time
                     description: Creation date of this project
                   contributor:
                     type: string
                     description: An Iri or QName describing the user
                   modified:
                     type: string
-                    format: date
+                    format: date-time
                     description: Last modification date of project
                   hlistId:
                     type: string
@@ -9831,6 +9831,7 @@ components:
         type: string
         enum:
           - AnnotationProperty
+          - OwlAnnotationProperty # Existing resource/reifier serializers use the enum name.
           - DataProperty
           - ObjectProperty
           - TransitiveProperty
@@ -10014,6 +10015,13 @@ components:
             - required: [class]
               not: {required: [datatype]}
 
+    PropertyReference:
+      description: A property/class reference serialized as a QName or absolute IRI.
+      anyOf:
+        - $ref: '#/components/schemas/Iri'
+        - type: string
+          format: uri
+
     Property:
       type: object
       additionalProperties: false
@@ -10071,11 +10079,11 @@ components:
           example: "hyha:testProp"
         appliesToProperty:
           oneOf:
-            - $ref: '#/components/schemas/Iri'
+            - $ref: '#/components/schemas/PropertyReference'
             - type: "null"
         class:
           oneOf:
-            - $ref: '#/components/schemas/Iri'
+            - $ref: '#/components/schemas/PropertyReference'
             - type: "null"
           description: An Iri() that describes the class of the instance on which this property must point e.g. "myproj:Book" means that the property points on book.
           example: "xml:Date"
@@ -10192,12 +10200,12 @@ components:
         lessThan:
           description: The given numerical value must be smaller than the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
           oneOf:
-            - $ref: '#/components/schemas/Iri'
+            - $ref: '#/components/schemas/PropertyReference'
             - type: "null"
         lessThanOrEquals:
           description: The given numerical value must be smaller or equal compared to the value of the given reverenced IRI property e.g. Iri("myproj:deathDate")
           oneOf:
-            - $ref: '#/components/schemas/Iri'
+            - $ref: '#/components/schemas/PropertyReference'
             - type: "null"
         inversePath:
           description: >-
@@ -10205,17 +10213,17 @@ components:
             toClass and cannot be combined with a datatype, inverseOf,
             equivalentProperty or subPropertyOf. The public field IRI stays unchanged.
           oneOf:
-            - $ref: '#/components/schemas/Iri'
+            - $ref: '#/components/schemas/PropertyReference'
             - type: "null"
         inverseOf:
           description: The inverse property of the current property. This is used to define the inverse relationship between two properties.
           oneOf:
-            - $ref: '#/components/schemas/Iri'
+            - $ref: '#/components/schemas/PropertyReference'
             - type: "null"
         equivalentProperty:
           description: The equivalent property of the current property. This is used to define the equivalence between two properties.
           oneOf:
-            - $ref: '#/components/schemas/Iri'
+            - $ref: '#/components/schemas/PropertyReference'
             - type: "null"
         maxCount:
           description: Denotes how often (maximum) this property can be used in one resource
