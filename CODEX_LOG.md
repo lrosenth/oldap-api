@@ -1,3 +1,9 @@
+### Update 2026-11-25 01:25
+- Decisions: Complete authorized API 1.2.5 commit and local AMD64/ARM64 image build; no push/publication/deployment.
+- Implementation: Final wheel-only bundle references source 117b794, library 1.2.5 and lock-derived dependency constraints. Images tagged v1.2.5-amd64 and v1.2.5-arm64; IDs/evidence in doc/release-1.2.5-results.json.
+- Open: Registry publication/deployment remain separate actions.
+- Risks/Assumptions: Both images pass installed version/import/pip checks, exact dependency parity and isolated packaged Jena acceptance (authentication, transactions, retry, persistence, network isolation/replacement). Temporary test containers removed; no live dataset accessed.
+
 ### Update 2026-11-25 01:19
 - Decisions: User authorized committing API patch 1.2.5 and building local Docker images; no registry publication or deployment.
 - Implementation: Align package/runtime/bump/OpenAPI version 1.2.5; include completed dependency/security and contract corrections. Build through the setup wheel-only pipeline with explicit lock-derived third-party constraints for AMD64 and ARM64.

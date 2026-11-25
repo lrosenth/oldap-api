@@ -1,0 +1,25 @@
+{
+  "verified_at": "2026-11-25T01:25:38.975962+01:00",
+  "version": "1.2.5",
+  "source_commit": "117b7946f16eb4011de4951e73820b20f16f8f12",
+  "library_version": "1.2.5",
+  "redis_version": "8.2.0",
+  "bundle": "/Users/rosenth/Library/Application Support/OLDAP/releases/20261125-api-1.2.5-final",
+  "images": {
+    "amd64": {
+      "id": "sha256:f4e440d80ac0bfcf0bcab77bdeb5cd049744d875b16050b7edf5c296254fd1f9",
+      "reference": "lrosenth/oldap-api:v1.2.5-amd64"
+    },
+    "arm64": {
+      "id": "sha256:06cbc7e0393331ae61b0b4d5bcbd89d005faea0c12d0804ed552b0e77f55fb50",
+      "reference": "lrosenth/oldap-api:v1.2.5-arm64"
+    }
+  },
+  "verification": {
+    "build_and_pip_check": "passed for AMD64 and ARM64",
+    "dependency_parity": "both architectures match each other and the Poetry lock",
+    "packaged_jena_acceptance": "passed for both images: authentication, commit/read, concurrent BEGIN/retry, restart persistence, network isolation and namespace replacement",
+    "python_offline_tests": "493 tests and 32 subtests on Python 3.13 and 3.14 before release version bump"
+  },
+  "scope": "Local images only; no Git push, registry publication, latest change or deployment."
+}
