@@ -1,3 +1,9 @@
+### Update 2026-11-25 01:38
+- Decisions: Prepare requested stable patch 1.2.6, Git push, PyPI publication and local multiarchitecture Docker build; no image publication or deployment.
+- Implementation: Align package/runtime/bump/OpenAPI version to 1.2.6; retain the verified dependency lock with oldaplib 1.2.5 and Redis 8.2.0.
+- Open: Publish stable distributions and complete Docker build/acceptance; record artifact evidence.
+- Risks/Assumptions: 493 offline tests and 32 subtests pass, one Redis-dependent test excluded; lock and OpenAPI validation pass. No runtime changes or live data writes.
+
 ### Update 2026-11-25 01:29
 - Decisions: User authorized Git/image push for API 1.2.5; deployment explicitly deferred until oldap-tools and oldap-harvester are current.
 - Implementation: Pushed main and annotated v1.2.5; published accepted architecture images and multiarch lrosenth/oldap-api:v1.2.5. Registry digest and exact platform references recorded in doc/release-1.2.5-results.json.
