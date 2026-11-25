@@ -21,5 +21,16 @@
     "packaged_jena_acceptance": "passed for both images: authentication, commit/read, concurrent BEGIN/retry, restart persistence, network isolation and namespace replacement",
     "python_offline_tests": "493 tests and 32 subtests on Python 3.13 and 3.14 before release version bump"
   },
-  "scope": "Local images only; no Git push, registry publication, latest change or deployment."
+  "scope": "API Git commits/tag and tested AMD64/ARM64 images published. No deployment; wait for oldap-tools and oldap-harvester updates.",
+  "publication": {
+    "verified_at": "2026-11-25T01:29:22.687835+01:00",
+    "git_tag": "v1.2.5",
+    "digest": "sha256:ddf7153698e57e6ddfabb7dfe9076d43de274c62b8df887475490cfe52a551d9",
+    "platform_manifests": [
+      "lrosenth/oldap-api@sha256:f4e440d80ac0bfcf0bcab77bdeb5cd049744d875b16050b7edf5c296254fd1f9",
+      "lrosenth/oldap-api@sha256:06cbc7e0393331ae61b0b4d5bcbd89d005faea0c12d0804ed552b0e77f55fb50"
+    ],
+    "reference": "lrosenth/oldap-api:v1.2.5",
+    "latest_unchanged": true
+  }
 }

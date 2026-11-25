@@ -1,3 +1,9 @@
+### Update 2026-11-25 01:29
+- Decisions: User authorized Git/image push for API 1.2.5; deployment explicitly deferred until oldap-tools and oldap-harvester are current.
+- Implementation: Pushed main and annotated v1.2.5; published accepted architecture images and multiarch lrosenth/oldap-api:v1.2.5. Registry digest and exact platform references recorded in doc/release-1.2.5-results.json.
+- Open: Coordinate tools/harvester updates before a separately authorized deployment.
+- Risks/Assumptions: Publisher verified image IDs against acceptance, remote digests, and unchanged latest. No rebuild or running-service changes.
+
 ### Update 2026-11-25 01:25
 - Decisions: Complete authorized API 1.2.5 commit and local AMD64/ARM64 image build; no push/publication/deployment.
 - Implementation: Final wheel-only bundle references source 117b794, library 1.2.5 and lock-derived dependency constraints. Images tagged v1.2.5-amd64 and v1.2.5-arm64; IDs/evidence in doc/release-1.2.5-results.json.
