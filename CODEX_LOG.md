@@ -1,3 +1,9 @@
+### Update 2026-11-25 01:42
+- Decisions: Complete requested stable 1.2.6 Git/PyPI release and local Docker builds; no Docker registry publication or deployment.
+- Implementation: Pushed release commit/tag, published wheel/sdist with verified PyPI hashes, built lrosenth/oldap-api:v1.2.6-amd64 and v1.2.6-arm64. Artifact IDs and provenance: doc/release-1.2.6-results.json.
+- Open: Docker publication/deployment require a subsequent request.
+- Risks/Assumptions: Both images pass installed version/import/pip checks, exact lock parity and isolated packaged Jena acceptance including transactions, authentication, persistence and network isolation. Temporary test containers removed; live services unchanged.
+
 ### Update 2026-11-25 01:38
 - Decisions: Prepare requested stable patch 1.2.6, Git push, PyPI publication and local multiarchitecture Docker build; no image publication or deployment.
 - Implementation: Align package/runtime/bump/OpenAPI version to 1.2.6; retain the verified dependency lock with oldaplib 1.2.5 and Redis 8.2.0.

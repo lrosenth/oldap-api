@@ -1,0 +1,33 @@
+{
+  "verified_at": "2026-11-25T01:42:26.166738+01:00",
+  "version": "1.2.6",
+  "source_commit": "543e73190e0eeeaef59993933c5cfcf25719e39e",
+  "library_version": "1.2.5",
+  "redis_version": "8.2.0",
+  "bundle": "/Users/rosenth/Library/Application Support/OLDAP/releases/20261125-api-1.2.6-final",
+  "images": {
+    "amd64": {
+      "id": "sha256:8c2a03fa3af74a5212d068032396ce5d388ba86116a49d096ba08e527a8935d4",
+      "reference": "lrosenth/oldap-api:v1.2.6-amd64"
+    },
+    "arm64": {
+      "id": "sha256:477cfb506d2d7f2051c24997183ff234a186c22f11330d0a862747ba6d50f131",
+      "reference": "lrosenth/oldap-api:v1.2.6-arm64"
+    }
+  },
+  "pypi": {
+    "url": "https://pypi.org/project/oldap-api/1.2.6/",
+    "files": {
+      "oldap_api-1.2.6-py3-none-any.whl": "9e6c9983c2a1213af91930b13f10a0fa69c90c2a3085439f127e11ed2be81d73",
+      "oldap_api-1.2.6.tar.gz": "fed154cc368668dfa7d362b8ac9c723e9e3d2d3f2f80d7bb417bea71bdb0ef78"
+    },
+    "remote_hashes_verified": true
+  },
+  "verification": {
+    "offline_tests": "493 passed, 32 subtests passed; one Redis-dependent test excluded",
+    "openapi": "passed",
+    "lock": "passed",
+    "docker": "both architectures pass version/import/pip check, lock parity and packaged isolated Jena acceptance"
+  },
+  "scope": "Git main/tag and PyPI distributions published; AMD64/ARM64 images built locally. Docker registry push and deployment not performed."
+}
