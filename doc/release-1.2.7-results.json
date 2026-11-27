@@ -1,0 +1,26 @@
+{
+  "verified_at": "2026-11-27T14:08:45.095080+01:00",
+  "version": "1.2.7",
+  "source_commit": "fce1745ddc8e8f5fa087fe959855d666e18ad77c",
+  "library_version": "1.2.6",
+  "jena_version": "1.2.6",
+  "bundle": "/Users/rosenth/Library/Application Support/OLDAP/releases/20261127-api-1.2.7-final",
+  "images": {
+    "amd64": {
+      "id": "sha256:a0dea4b5f3c4843ee62cfd4bb3e0adb22f21243333bbf9ef2027baa42f996b61",
+      "reference": "lrosenth/oldap-api:v1.2.7-amd64"
+    },
+    "arm64": {
+      "id": "sha256:f3689bd5714ccf8ba3a43798e65293d792ae59bd7f0516b80834619d074dd377",
+      "reference": "lrosenth/oldap-api:v1.2.7-arm64"
+    }
+  },
+  "verification": {
+    "focused_api": "69 passed, 22 subtests passed",
+    "openapi": "passed",
+    "lock": "passed",
+    "http_regressions": "Held gate inventory and missing transaction-end responses passed on isolated Jena and Redis",
+    "docker": "Both architectures passed runtime version, installed dependency, UID and packaged network acceptance checks."
+  },
+  "scope": "Local Docker builds, Git publication."
+}

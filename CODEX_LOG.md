@@ -1,3 +1,9 @@
+### Update 2026-11-27 14:08
+- Decisions: Complete the requested Git release and local AMD64/ARM64 builds. The authorized tag correction aligns v1.2.7 with both image revision labels.
+- Implementation: Verified runtime and lock versions, package consistency and isolated Jena 1.2.6 acceptance on both architectures. Held-gate inventory reads and lost DELETE transaction replies pass. Image IDs are recorded in doc/release-1.2.7-results.json.
+- Open: Registry publication and deployment are separate steps.
+- Risks/Assumptions: Integration checks used disposable local storage and synthetic accounts.
+
 ### Update 2026-11-27 14:03
 - Decisions: Align the source runtime version before snapshotting the image.
 - Implementation: Correct oldap_api.version to 1.2.7 and verify it against Poetry, bumpversion and OpenAPI.
