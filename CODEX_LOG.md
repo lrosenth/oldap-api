@@ -1,3 +1,9 @@
+### Update 2026-11-27 14:03
+- Decisions: Align the source runtime version before snapshotting the image.
+- Implementation: Correct oldap_api.version to 1.2.7 and verify it against Poetry, bumpversion and OpenAPI.
+- Open: Build and accept images from this corrected commit.
+- Risks/Assumptions: The initial tag was created before this correction.
+
 ### Update 2026-11-27 14:02
 - Decisions: Release API 1.2.7 with oldaplib 1.2.6 and the staging folder inventory contract.
 - Implementation: Updated the library minimum and lockfile, runtime and OpenAPI patch versions. The library supplies inventory reads independent of writer ownership and reconciliation of ambiguous Jena transaction endings.
