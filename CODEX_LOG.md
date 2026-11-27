@@ -1,3 +1,9 @@
+### Update 2026-11-27 14:02
+- Decisions: Release API 1.2.7 with oldaplib 1.2.6 and the staging folder inventory contract.
+- Implementation: Updated the library minimum and lockfile, runtime and OpenAPI patch versions. The library supplies inventory reads independent of writer ownership and reconciliation of ambiguous Jena transaction endings.
+- Open: Build and verify the two local Docker images.
+- Risks/Assumptions: Confirmed abort handling requires the matching Jena service during rollout.
+
 ### Update 2026-11-25 01:42
 - Decisions: Complete requested stable 1.2.6 Git/PyPI release and local Docker builds; no Docker registry publication or deployment.
 - Implementation: Pushed release commit/tag, published wheel/sdist with verified PyPI hashes, built lrosenth/oldap-api:v1.2.6-amd64 and v1.2.6-arm64. Artifact IDs and provenance: doc/release-1.2.6-results.json.

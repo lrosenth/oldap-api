@@ -15,15 +15,17 @@ and media deletion are always false. No hidden identifier/count is exposed.
 Subfolder navigation and existing generic searches keep their current contracts.
 
 Pass `nextCursor` unchanged for the next page. It is HMAC-protected and bound to
-caller/project/folder/revision/last position. A changed folder returns 409
-`STALE_FOLDER`; reload page one. Invalid/tampered/context-mismatched cursors return
+caller/project/folder/revision/last position. The inventory uses ordinary reads
+while a writer holds the archive mutation lock. If the folder revision or visible
+page membership changes during a page read, the endpoint returns 409
+`STALE_FOLDER`; discard the partial list and reload page one. Invalid/tampered/context-mismatched cursors return
 400 `INVALID_REQUEST`. Visibility is checked afresh, including after role
 revocation. The signing key is purpose-derived from the configured access-token
 secret; its rotation invalidates cursors without creating a new auth mechanism.
 
 The endpoint uses the existing additive `{code,message,requestId}` errors; auth
 keeps legacy 401 `{message}`. Missing/forbidden resources produce 404/403 and
-unavailable policy/coordination produces 503. Empty warnings currently mean no
+an unavailable backend can still produce 503. Empty warnings currently mean no
 public warning was emitted, not that every private edge was disclosed.
 
 Catalogue retention is implemented in oldaplib's existing transform boundary.

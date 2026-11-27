@@ -1,5 +1,7 @@
 # OLDAP API Codex Context
 
+- API 1.2.7 requires oldaplib 1.2.6 or newer. Roll out Jena 1.2.6 first for actor-bound transaction status. See [staging folder inventory](doc/staging_folder_inventory.md).
+
 - API patch 1.2.5 (2026-11-25): dependency refresh adopts published oldaplib 1.2.5 / Redis client 8.2.0 and aligns OpenAPI metadata with existing serializers. Python 3.13/3.14 offline acceptance passes; see doc/dependency-update-2026-11-25.md. Local AMD64/ARM64 images built and isolated packaged Jena acceptance passed; image IDs in doc/release-1.2.5-results.json. Git source/tag and tested multiarch v1.2.5 are published; latest is unchanged. Deployment is explicitly deferred until tools/harvester updates are ready.
 
 - Coordinated superproperty release published (2026-11-19): library 1.2.2 and tools 1.2.2 on PyPI; API 1.2.3/tools 1.2.2 AMD64+ARM64 images verified. Python subPropertyOf reads are sets; matching consumers required. 125 installed regressions per architecture and packaged Jena acceptance pass. No deployment or latest changes. Evidence: doc/release-1.2.3.md and receipt.
